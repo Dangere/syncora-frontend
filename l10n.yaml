@@ -1,0 +1,9 @@
+arb-dir: lib/core/localization/l10n
+template-arb-file: intl_en.arb
+output-localization-file: app_localizations.dart
+output-class: AppLocalizations
+output-dir: lib/core/localization/generated/l10n
+
+#  Determines whether or not the generated output files will be generated as a synthetic package or at a  
+#  specified directory in the Flutter project.
+synthetic-package: false
