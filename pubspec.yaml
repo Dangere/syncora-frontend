@@ -38,6 +38,7 @@ dependencies:
   go_router: ^14.6.2
   flutter_riverpod: ^2.6.1
   intl: any
+  dio: ^5.8.0+1
 
 dev_dependencies:
   flutter_test:

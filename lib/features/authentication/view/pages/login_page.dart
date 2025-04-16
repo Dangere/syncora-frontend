@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:syncora_frontend/core/localization/generated/l10n/app_localizations.dart';
-import 'package:syncora_frontend/features/authentication/models/User.dart';
 import 'package:syncora_frontend/features/authentication/viewmodel/auth_viewmodel.dart';
 
 class LoginPage extends ConsumerWidget {
@@ -18,9 +17,16 @@ class LoginPage extends ConsumerWidget {
       body: Column(children: [
         ElevatedButton(
             onPressed: () {
-              authViewModel.setUser(User());
+              authViewModel.loginWithEmailAndPassword(
+                  "user@gmail.com", "NOTCREATED");
             },
-            child: const Text('Login Now'))
+            child: const Text('Login Now')),
+        ElevatedButton(
+            onPressed: () {
+              authViewModel.registerWithEmailAndPassword(
+                  "usdsder@gmail.com", "NOTCREATED", "NOTCREATED");
+            },
+            child: const Text('Register Now'))
       ]),
     );
   }
