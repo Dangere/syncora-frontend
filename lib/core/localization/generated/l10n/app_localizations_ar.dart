@@ -6,4 +6,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get helloWorld => 'هلا';
+
+  @override
+  String get loginPageTitle => 'تسجيل الدخول';
 }

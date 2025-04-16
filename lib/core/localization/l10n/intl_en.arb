@@ -2,5 +2,9 @@
   "helloWorld": "Hello World!",
   "@helloWorld": {
     "description": "The conventional newborn programmer greeting"
+  },
+  "loginPageTitle": "Login",
+  "@loginPageTitle": {
+    "description": "The title of the login page"
   }
 }
