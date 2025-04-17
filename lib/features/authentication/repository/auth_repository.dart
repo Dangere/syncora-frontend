@@ -9,9 +9,11 @@ class AuthRepository {
   Future<AuthResponseDTO> loginWithEmailAndPassword(
       String email, String password) async {
     // Getting the login response
-    final response = await _dio.post(
-        "${Constants.BASE_URL}/authentication/login",
-        data: {"Email": email, "Password": password});
+    final response = await _dio
+        .post("${Constants.BASE_URL}/authentication/login", data: {
+      "Email": email,
+      "Password": password
+    }).timeout(const Duration(seconds: 10));
 
     AuthResponseDTO authResponse = AuthResponseDTO.fromJson(response.data);
 
@@ -22,9 +24,12 @@ class AuthRepository {
   Future<AuthResponseDTO> registerWithEmailAndPassword(
       String email, String username, String password) async {
     // Getting the login response
-    final response = await _dio.post(
-        "${Constants.BASE_URL}/authentication/register",
-        data: {"Email": email, "Username": username, "Password": password});
+    final response = await _dio
+        .post("${Constants.BASE_URL}/authentication/register", data: {
+      "Email": email,
+      "Username": username,
+      "Password": password
+    }).timeout(const Duration(seconds: 10));
 
     AuthResponseDTO authResponse = AuthResponseDTO.fromJson(response.data);
 
