@@ -104,6 +104,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Login'**
   String get loginPageTitle;
+
+  /// The login button
+  ///
+  /// In en, this message translates to:
+  /// **'Login'**
+  String get loginButton;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

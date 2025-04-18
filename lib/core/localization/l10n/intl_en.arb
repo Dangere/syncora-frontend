@@ -6,5 +6,9 @@
   "loginPageTitle": "Login",
   "@loginPageTitle": {
     "description": "The title of the login page"
+  },
+  "loginButton": "Login",
+  "@loginButton": {
+    "description": "The login button"
   }
 }

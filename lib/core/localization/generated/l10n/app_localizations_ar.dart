@@ -9,4 +9,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get loginPageTitle => 'تسجيل الدخول';
+
+  @override
+  String get loginButton => 'تسجيل الدخول';
 }

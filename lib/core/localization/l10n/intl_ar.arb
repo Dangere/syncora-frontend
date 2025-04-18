@@ -1,4 +1,5 @@
 {
     "helloWorld": "هلا",
-    "loginPageTitle": "تسجيل الدخول"
+    "loginPageTitle": "تسجيل الدخول",
+    "loginButton": "تسجيل الدخول"
 }

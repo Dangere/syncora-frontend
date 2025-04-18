@@ -9,4 +9,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get loginPageTitle => 'Login';
+
+  @override
+  String get loginButton => 'Login';
 }
