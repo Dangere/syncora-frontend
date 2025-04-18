@@ -52,6 +52,8 @@ class AuthNotifier extends Notifier<AuthState> {
 final authProvider =
     NotifierProvider<AuthNotifier, AuthState>(AuthNotifier.new);
 
+final userProvider = Provider<User?>((ref) => ref.watch(authProvider).user);
+
 final dioProvider = Provider<Dio>((ref) => Dio());
 
 final authRepositoryProvider = Provider<AuthRepository>(

@@ -39,6 +39,8 @@ dependencies:
   flutter_riverpod: ^2.6.1
   intl: any
   dio: ^5.8.0+1
+  email_validator: ^3.0.0
+  logger: ^2.5.0
 
 dev_dependencies:
   flutter_test:
