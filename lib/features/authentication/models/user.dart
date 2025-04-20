@@ -14,4 +14,11 @@ class User {
       username: json["username"],
       email: json["email"],
       pfpURL: json["profilePictureURL"]);
+
+  Map<String, dynamic> toJson() => {
+        "id": id,
+        "username": username,
+        "email": email,
+        "profilePictureURL": pfpURL
+      };
 }

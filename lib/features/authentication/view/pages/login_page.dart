@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:syncora_frontend/common/providers/common_providers.dart';
 import 'package:syncora_frontend/core/localization/generated/l10n/app_localizations.dart';
 import 'package:syncora_frontend/core/utils/validators.dart';
-import 'package:syncora_frontend/features/authentication/models/auth_state.dart';
 import 'package:syncora_frontend/features/authentication/viewmodel/auth_viewmodel.dart';
 
 class LoginPage extends ConsumerStatefulWidget {
@@ -21,7 +20,6 @@ class _LoginPageState extends ConsumerState<LoginPage> {
 
   @override
   void dispose() {
-    // TODO: implement dispose
     super.dispose();
     emailController.dispose();
     passwordController.dispose();
@@ -29,30 +27,30 @@ class _LoginPageState extends ConsumerState<LoginPage> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     ref.read(loggerProvider).d('Login page initialized');
   }
 
   @override
   Widget build(BuildContext context) {
-    final authViewModel = ref.read(authProvider.notifier);
-    AuthState authState = ref.watch(authProvider);
+    final authNotifier = ref.read(authProvider.notifier);
+    final user = ref.watch(authProvider);
 
     // Show error snackbar when error is not null in the auth state
-    ref.listen<AuthState>(authProvider, (previous, next) {
-      if (next.error != null) {
-        ScaffoldMessenger.of(context).hideCurrentSnackBar();
+    ref.listen(authProvider, (previous, next) {
+      if (next.hasError && !next.isLoading) {
+        ref.read(loggerProvider).d('Showing snackbar');
+        ScaffoldMessenger.of(context).clearSnackBars();
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text(next.error!),
+          content: Text(next.error.toString()),
         ));
       }
     });
 
     void login() {
       // Check if form is valid before attempting to login
-      if (!_formKey.currentState!.validate() || authState.isLoading) return;
-      authViewModel.loginWithEmailAndPassword(
+      // if (!_formKey.currentState!.validate() || user.isLoading) return;
+      authNotifier.loginWithEmailAndPassword(
           emailController.text.trim(), passwordController.text.trim());
     }
 
@@ -97,7 +95,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
           ),
           ElevatedButton(
               onPressed: login,
-              child: authState.isLoading
+              child: user.isLoading
                   ? const CircularProgressIndicator()
                   : Text(AppLocalizations.of(context).loginButton))
         ]),

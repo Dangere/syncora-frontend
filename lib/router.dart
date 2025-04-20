@@ -7,7 +7,9 @@ import 'package:syncora_frontend/features/authentication/viewmodel/auth_viewmode
 import 'package:syncora_frontend/features/home/view/page/home_page.dart';
 
 final routeProvider = Provider<GoRouter>((ref) {
-  bool isLogged = ref.watch(userProvider) != null;
+  // bool isLogged = ref.watch(authProvider.select((user) => user.value != null));
+  bool isLogged = ref.watch(authProvider.select((user) => user.value != null));
+
   Logger logger = ref.read(loggerProvider);
   logger.w('Refreshing routes');
 
@@ -39,7 +41,6 @@ final routeProvider = Provider<GoRouter>((ref) {
 
           return '/login';
         }
-        ;
 
         return null;
       });

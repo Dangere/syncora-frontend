@@ -1,63 +1,66 @@
-import 'package:dio/dio.dart';
+import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:syncora_frontend/common/providers/common_providers.dart';
 import 'package:syncora_frontend/core/utils/result.dart';
-import 'package:syncora_frontend/features/authentication/models/auth_state.dart';
 import 'package:syncora_frontend/features/authentication/models/user.dart';
 import 'package:syncora_frontend/features/authentication/repository/auth_repository.dart';
 import 'package:syncora_frontend/features/authentication/services/auth_service.dart';
 
-class AuthNotifier extends Notifier<AuthState> {
+class AuthNotifier extends AsyncNotifier<User?> {
   late final AuthService _authService;
 
-  void loginWithEmailAndPassword(String email, String password) async {
-    if (state.user != null) return;
+  Future<void> loginWithEmailAndPassword(String email, String password) async {
+    if (state.value != null) return;
 
-    state = AuthState(isLoading: true);
+    state = const AsyncValue.loading();
     Result<User> result =
         await _authService.loginWithEmailAndPassword(email, password);
 
     if (result.isSuccess) {
-      state = AuthState(isLoading: false, user: result.data);
+      state = AsyncValue.data(result.data);
     } else {
-      state = AuthState(isLoading: false, error: result.error);
+      state = AsyncValue.error(result.error!, StackTrace.current);
     }
   }
 
   void registerWithEmailAndPassword(
       String email, String username, String password) async {
-    if (state.user != null) return;
-
-    state = AuthState(isLoading: true);
+    if (state.value != null) return;
+    state = const AsyncValue.loading();
     Result<User> result = await _authService.registerWithEmailAndPassword(
         email, username, password);
 
     if (result.isSuccess) {
-      state = AuthState(isLoading: false, user: result.data);
+      state = AsyncValue.data(result.data);
     } else {
-      state = AuthState(isLoading: false, error: result.error);
+      state = AsyncValue.error(result.error!, StackTrace.current);
     }
   }
 
-  void logout() async {
-    state = AuthState.logout();
-  }
-
   @override
-  AuthState build() {
-    _authService = ref.read(authServiceProvider);
-    return AuthState(isLoading: false, user: null, error: null);
+  FutureOr<User?> build() async {
+    _authService = await ref.read(authServiceProvider.future);
+    if (await _authService.getToken() != null) {
+      null;
+    }
+
+    return null;
   }
 }
 
 final authProvider =
-    NotifierProvider<AuthNotifier, AuthState>(AuthNotifier.new);
-
-final userProvider = Provider<User?>((ref) => ref.watch(authProvider).user);
-
-final dioProvider = Provider<Dio>((ref) => Dio());
+    AsyncNotifierProvider<AuthNotifier, User?>(AuthNotifier.new);
 
 final authRepositoryProvider = Provider<AuthRepository>(
     (ref) => AuthRepository(dio: ref.read(dioProvider)));
 
-final authServiceProvider = Provider<AuthService>(
-    (ref) => AuthService(authRepository: ref.read(authRepositoryProvider)));
+final authServiceProvider = FutureProvider<AuthService>((ref) async {
+  SharedPreferences sharedPreferences =
+      await ref.read(sharedPreferencesProvider.future);
+  return AuthService(
+      authRepository: ref.read(authRepositoryProvider),
+      secureStorage: ref.read(secureStorageProvider),
+      sharedPreferences: sharedPreferences);
+});
