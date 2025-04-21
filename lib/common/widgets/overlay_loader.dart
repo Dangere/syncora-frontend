@@ -16,9 +16,12 @@ class OverlayLoader extends StatefulWidget {
 }
 
 class _OverlayLoaderState extends State<OverlayLoader> {
-  Widget overlay() => AbsorbPointer(
-        child: Expanded(child: Center(child: widget.overlay)),
-      );
+  Widget overlay() {
+    FocusScope.of(context).unfocus();
+    return AbsorbPointer(
+      child: Expanded(child: Center(child: widget.overlay)),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {

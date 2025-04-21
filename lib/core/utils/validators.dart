@@ -12,6 +12,11 @@ class Validators {
     return true;
   }
 
+  static bool validateUsername(String username) {
+    final regex = RegExp(r'^[a-zA-Z0-9]{6,16}$');
+    return regex.hasMatch(username);
+  }
+
   // static bool ValidateName(String name)
   // {
   //     if (!(name.length <= 10 && name.length >= 2))

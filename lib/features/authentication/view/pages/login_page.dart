@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:syncora_frontend/common/providers/common_providers.dart';
+import 'package:syncora_frontend/core/utils/alert_dialogs.dart';
 import 'package:syncora_frontend/common/widgets/overlay_loader.dart';
 import 'package:syncora_frontend/core/localization/generated/l10n/app_localizations.dart';
 import 'package:syncora_frontend/core/utils/validators.dart';
@@ -58,9 +59,22 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     }
 
     void guestLogin() {
-      // Check if form is valid before attempting to login
       if (user.isLoading) return;
-      authNotifier.loginAsGuest("Guest");
+
+      AlertDialogs.showTextFieldDialog(context,
+          barrierDismissible: true,
+          blurBackground: true,
+          message: "Guest Username",
+          onContinue: (p0) => {authNotifier.loginAsGuest(p0)},
+          validation: (p0) {
+            if (!Validators.validateUsername(p0)) {
+              return "invalid username format";
+            }
+            if (p0.isEmpty) {
+              return "guest username cannot be empty";
+            }
+            return null;
+          });
     }
 
     return Scaffold(
