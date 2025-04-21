@@ -1,6 +1,9 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:syncora_frontend/common/providers/common_providers.dart';
+import 'package:syncora_frontend/common/widgets/overlay_loader.dart';
 import 'package:syncora_frontend/core/localization/generated/l10n/app_localizations.dart';
 import 'package:syncora_frontend/core/utils/validators.dart';
 import 'package:syncora_frontend/features/authentication/viewmodel/auth_viewmodel.dart';
@@ -49,56 +52,98 @@ class _LoginPageState extends ConsumerState<LoginPage> {
 
     void login() {
       // Check if form is valid before attempting to login
-      // if (!_formKey.currentState!.validate() || user.isLoading) return;
+      if (!_formKey.currentState!.validate() || user.isLoading) return;
       authNotifier.loginWithEmailAndPassword(
           emailController.text.trim(), passwordController.text.trim());
+    }
+
+    void guestLogin() {
+      // Check if form is valid before attempting to login
+      if (user.isLoading) return;
+      authNotifier.loginAsGuest("Guest");
     }
 
     return Scaffold(
       appBar: AppBar(
         title: Center(child: Text(AppLocalizations.of(context).loginPageTitle)),
       ),
-      body: Form(
-        key: _formKey,
-        child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-          Text(AppLocalizations.of(context).loginPageTitle),
-          // Email field
-          TextFormField(
-            keyboardType: TextInputType.emailAddress,
-            controller: emailController,
-            validator: (value) {
-              if (value == null || value.isEmpty) {
-                return 'Email cannot be empty';
-              }
+      body: OverlayLoader(
+        isLoading: user.isLoading,
+        overlay: const CircularProgressIndicator(),
+        body: Form(
+          key: _formKey,
+          child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                Text("Syncora",
+                    style: Theme.of(context).textTheme.headlineLarge),
 
-              if (Validators.validateEmail(value.trim()) == false) {
-                return 'Invalid email';
-              }
-              return null;
-            },
-          ),
-          // Password field
-          TextFormField(
-            obscureText: false,
-            controller: passwordController,
-            keyboardType: TextInputType.visiblePassword,
-            validator: (value) {
-              if (value == null || value.isEmpty) {
-                return 'Password cannot be empty';
-              }
+                Padding(
+                  padding: const EdgeInsets.all(20.0),
+                  child: SizedBox(
+                    height: 300,
+                    child: Column(
+                      children: [
+                        // Email field
 
-              if (Validators.validatePassword(value.trim()) == false) {
-                return 'Password must be between 6 and 16 characters';
-              }
-              return null;
-            },
-          ),
-          ElevatedButton(
-              onPressed: login,
-              child: user.isLoading
-                  ? const CircularProgressIndicator()
-                  : Text(AppLocalizations.of(context).loginButton))
-        ]),
+                        TextFormField(
+                          decoration: const InputDecoration(labelText: 'Email'),
+                          keyboardType: TextInputType.emailAddress,
+                          controller: emailController,
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Email cannot be empty';
+                            }
+
+                            if (Validators.validateEmail(value.trim()) ==
+                                false) {
+                              return 'Invalid email';
+                            }
+                            return null;
+                          },
+                        ),
+                        // Password field
+                        TextFormField(
+                          decoration:
+                              const InputDecoration(labelText: 'Password'),
+                          obscureText: false,
+                          controller: passwordController,
+                          keyboardType: TextInputType.visiblePassword,
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Password cannot be empty';
+                            }
+
+                            if (Validators.validatePassword(value.trim()) ==
+                                false) {
+                              return 'Password must be between 6 and 16 characters';
+                            }
+                            return null;
+                          },
+                        ),
+                        SizedBox(height: 20),
+                        ElevatedButton(
+                            onPressed: login,
+                            child:
+                                Text(AppLocalizations.of(context).loginButton)),
+                        const SizedBox(
+                          height: 20,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                // SizedBox(height: 100),
+
+                ElevatedButton(
+                    onPressed: guestLogin,
+                    style: ButtonStyle(
+                        backgroundColor:
+                            MaterialStateProperty.all(Colors.grey.shade200)),
+                    child: Text(AppLocalizations.of(context).guestLoginButton,
+                        style: const TextStyle(color: Colors.black))),
+              ]),
+        ),
       ),
     );
   }

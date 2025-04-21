@@ -11,7 +11,7 @@ import 'package:syncora_frontend/features/authentication/services/auth_service.d
 class AuthNotifier extends AsyncNotifier<User?> {
   late final AuthService _authService;
 
-  Future<void> loginWithEmailAndPassword(String email, String password) async {
+  void loginWithEmailAndPassword(String email, String password) async {
     if (state.value != null) return;
 
     state = const AsyncValue.loading();
@@ -39,14 +39,28 @@ class AuthNotifier extends AsyncNotifier<User?> {
     }
   }
 
+  void loginAsGuest(String username) async {
+    if (state.value != null) return;
+    state = const AsyncValue.loading();
+    Result<User> result = await _authService.loginAsGuest(username);
+
+    if (result.isSuccess) {
+      state = AsyncValue.data(result.data);
+    } else {
+      state = AsyncValue.error(result.error!, StackTrace.current);
+    }
+  }
+
+  void logout() async {
+    await _authService.logout();
+    state = const AsyncValue.data(null);
+  }
+
   @override
   FutureOr<User?> build() async {
     _authService = await ref.read(authServiceProvider.future);
-    if (await _authService.getToken() != null) {
-      null;
-    }
 
-    return null;
+    return await _authService.getCachedUser();
   }
 }
 

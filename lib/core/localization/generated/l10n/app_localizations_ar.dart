@@ -12,4 +12,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get loginButton => 'تسجيل الدخول';
+
+  @override
+  String get guestLoginButton => 'تسجيل الدخول كضيف';
 }

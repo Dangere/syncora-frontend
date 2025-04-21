@@ -21,4 +21,7 @@ class User {
         "email": email,
         "profilePictureURL": pfpURL
       };
+
+  factory User.guest(String username) =>
+      User(id: -1, username: username, email: "", pfpURL: "");
 }

@@ -10,5 +10,9 @@
   "loginButton": "Login",
   "@loginButton": {
     "description": "The login button"
+  },
+  "guestLoginButton": "Login as Guest",
+  "@guestLoginButton": {
+    "description": "The guest login button"
   }
 }

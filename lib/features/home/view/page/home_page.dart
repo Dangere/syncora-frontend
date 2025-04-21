@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:syncora_frontend/features/authentication/viewmodel/auth_viewmodel.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key, required this.title});
@@ -8,15 +9,17 @@ class HomeScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    int counter = 0;
+    final authNotifier = ref.watch(authProvider.notifier);
+    final user = ref.watch(authProvider);
 
-    void incrementCounter() {
-      //increase counter
-      counter++;
+    void logout() {
+      authNotifier.logout();
     }
 
     return Scaffold(
       appBar: AppBar(
+        leading:
+            IconButton(onPressed: logout, icon: const Icon(Icons.exit_to_app)),
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: Text(title),
       ),
@@ -24,18 +27,14 @@ class HomeScreen extends ConsumerWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            const Text(
-              'You have pushed the button this many times:',
-            ),
             Text(
-              '$counter',
-              style: Theme.of(context).textTheme.headlineMedium,
+              'Welcome back ${user.value?.username}',
             ),
           ],
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: incrementCounter,
+        onPressed: () {},
         tooltip: 'Increment',
         child: const Icon(Icons.add),
       ), // This trailing comma makes auto-formatting nicer for build methods.
