@@ -11,15 +11,17 @@ class AlertDialogs {
       required Function(String) onContinue,
       required Func<String, String?> validation}) {
     TextEditingController textEditingController = TextEditingController();
+
+    String? errorMessage;
+
     showDialog(
       barrierDismissible: barrierDismissible,
       context: context,
       builder: (context) {
         double blurAmount = blurBackground ? 10 : 0;
-        return BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: blurAmount, sigmaY: blurAmount),
-          child: PopScope(
-            canPop: true,
+        return StatefulBuilder(builder: (context, setState) {
+          return BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: blurAmount, sigmaY: blurAmount),
             child: AlertDialog(
               actionsAlignment: MainAxisAlignment.spaceBetween,
               // actionsOverflowAlignment: OverflowBarAlignment.center,
@@ -28,6 +30,8 @@ class AlertDialogs {
               content: TextField(
                 controller: textEditingController,
                 autofocus: true,
+                decoration: InputDecoration(
+                    hintText: "Enter text here", errorText: errorMessage),
               ),
               // actionsAlignment: MainAxisAlignment.spaceBetween,
               actions: [
@@ -39,7 +43,10 @@ class AlertDialogs {
                 ElevatedButton(
                   child: const Text("Continue"),
                   onPressed: () {
-                    if (validation(textEditingController.text.trim()) != null) {
+                    setState(() {});
+                    errorMessage =
+                        validation(textEditingController.text.trim());
+                    if (errorMessage != null) {
                       return;
                     }
 
@@ -49,8 +56,8 @@ class AlertDialogs {
                 )
               ],
             ),
-          ),
-        );
+          );
+        });
       },
     );
   }

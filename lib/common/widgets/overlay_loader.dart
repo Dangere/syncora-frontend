@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/widgets.dart';
 
 class OverlayLoader extends StatefulWidget {
@@ -19,7 +20,7 @@ class _OverlayLoaderState extends State<OverlayLoader> {
   Widget overlay() {
     FocusScope.of(context).unfocus();
     return AbsorbPointer(
-      child: Expanded(child: Center(child: widget.overlay)),
+      child: Center(child: widget.overlay),
     );
   }
 

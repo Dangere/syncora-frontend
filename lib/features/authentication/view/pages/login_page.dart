@@ -67,15 +67,17 @@ class _LoginPageState extends ConsumerState<LoginPage> {
           message: "Guest Username",
           onContinue: (p0) => {authNotifier.loginAsGuest(p0)},
           validation: (p0) {
-            if (!Validators.validateUsername(p0)) {
-              return "invalid username format";
-            }
             if (p0.isEmpty) {
               return "guest username cannot be empty";
+            }
+            if (!Validators.validateUsername(p0)) {
+              return "invalid username format";
             }
             return null;
           });
     }
+
+    // return Placeholder();
 
     return Scaffold(
       appBar: AppBar(
