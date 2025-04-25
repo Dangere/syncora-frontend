@@ -13,7 +13,7 @@ class Validators {
   }
 
   static bool validateUsername(String username) {
-    final regex = RegExp(r'^[a-zA-Z0-9]{6,16}$');
+    final regex = RegExp(r'^[a-zA-Z0-9]{3,16}$');
     return regex.hasMatch(username);
   }
 

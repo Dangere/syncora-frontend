@@ -1,8 +1,7 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:syncora_frontend/common/providers/common_providers.dart';
+import 'package:syncora_frontend/common/themes/app_spacing.dart';
 import 'package:syncora_frontend/core/utils/alert_dialogs.dart';
 import 'package:syncora_frontend/common/widgets/overlay_loader.dart';
 import 'package:syncora_frontend/core/localization/generated/l10n/app_localizations.dart';
@@ -95,7 +94,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                     style: Theme.of(context).textTheme.headlineLarge),
 
                 Padding(
-                  padding: const EdgeInsets.all(20.0),
+                  padding: const EdgeInsets.all(AppSpacing.lg),
                   child: SizedBox(
                     height: 300,
                     child: Column(
@@ -137,14 +136,12 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                             return null;
                           },
                         ),
-                        SizedBox(height: 20),
+                        AppSpacing.horizontalSpaceLg,
                         ElevatedButton(
                             onPressed: login,
                             child:
                                 Text(AppLocalizations.of(context).loginButton)),
-                        const SizedBox(
-                          height: 20,
-                        ),
+                        AppSpacing.horizontalSpaceLg,
                       ],
                     ),
                   ),
