@@ -16,9 +16,9 @@ final secureStorageProvider = Provider<FlutterSecureStorage>((ref) {
   return const FlutterSecureStorage();
 });
 
-final sharedPreferencesProvider =
-    FutureProvider<SharedPreferences>((ref) async {
-  return SharedPreferences.getInstance();
+final sharedPreferencesProvider = Provider<SharedPreferences>((ref) {
+  // Gets initialized at main()
+  throw UnimplementedError();
 });
 
 final themeProvider = Provider<ThemeData>((ref) {

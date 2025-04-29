@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:syncora_frontend/common/providers/common_providers.dart';
 import 'package:syncora_frontend/core/utils/result.dart';
 import 'package:syncora_frontend/features/authentication/models/user.dart';
@@ -58,9 +57,9 @@ class AuthNotifier extends AsyncNotifier<User?> {
 
   @override
   FutureOr<User?> build() async {
-    _authService = await ref.read(authServiceProvider.future);
+    _authService = await ref.read(authServiceProvider);
 
-    return await _authService.getCachedUser();
+    return _authService.getCachedUser();
   }
 }
 
@@ -70,11 +69,14 @@ final authProvider =
 final authRepositoryProvider = Provider<AuthRepository>(
     (ref) => AuthRepository(dio: ref.read(dioProvider)));
 
-final authServiceProvider = FutureProvider<AuthService>((ref) async {
-  SharedPreferences sharedPreferences =
-      await ref.read(sharedPreferencesProvider.future);
+final authServiceProvider = Provider<AuthService>((ref) {
   return AuthService(
       authRepository: ref.read(authRepositoryProvider),
       secureStorage: ref.read(secureStorageProvider),
-      sharedPreferences: sharedPreferences);
+      sharedPreferences: ref.read(sharedPreferencesProvider));
+});
+
+final accessTokenProvider = FutureProvider<String?>((ref) async {
+  AuthService authService = ref.read(authServiceProvider);
+  return authService.getCachedToken();
 });

@@ -72,12 +72,11 @@ class AuthService {
     await _sharedPreferences.remove("user");
   }
 
-  Future<String?> getToken() async {
+  Future<String?> getCachedToken() async {
     return _secureStorage.read(key: "jwt_token");
   }
 
-  Future<User?> getCachedUser() async {
-    await _sharedPreferences.reload();
+  User? getCachedUser() {
     String? userJson = _sharedPreferences.getString("user");
 
     if (userJson != null) {
