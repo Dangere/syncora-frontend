@@ -6,9 +6,11 @@ import 'package:syncora_frontend/core/utils/result.dart';
 import 'package:syncora_frontend/features/authentication/models/user.dart';
 import 'package:syncora_frontend/features/authentication/repository/auth_repository.dart';
 import 'package:syncora_frontend/features/authentication/services/auth_service.dart';
+import 'package:syncora_frontend/features/authentication/services/session_storage.dart';
 
 class AuthNotifier extends AsyncNotifier<User?> {
   late final AuthService _authService;
+  late final SessionStorage _sessionStorage;
 
   void loginWithEmailAndPassword(String email, String password) async {
     if (state.value != null) return;
@@ -58,8 +60,9 @@ class AuthNotifier extends AsyncNotifier<User?> {
   @override
   FutureOr<User?> build() async {
     _authService = await ref.read(authServiceProvider);
+    _sessionStorage = await ref.read(sessionStorageProvider);
 
-    return _authService.getCachedUser();
+    return await _sessionStorage.loadSession();
   }
 }
 
@@ -72,11 +75,11 @@ final authRepositoryProvider = Provider<AuthRepository>(
 final authServiceProvider = Provider<AuthService>((ref) {
   return AuthService(
       authRepository: ref.read(authRepositoryProvider),
-      secureStorage: ref.read(secureStorageProvider),
-      sharedPreferences: ref.read(sharedPreferencesProvider));
+      sessionStorage: ref.read(sessionStorageProvider));
 });
 
-final accessTokenProvider = FutureProvider<String?>((ref) async {
-  AuthService authService = ref.read(authServiceProvider);
-  return authService.getCachedToken();
+final sessionStorageProvider = Provider<SessionStorage>((ref) {
+  return SessionStorage(
+      secureStorage: ref.read(secureStorageProvider),
+      sharedPreferences: ref.read(sharedPreferencesProvider));
 });
