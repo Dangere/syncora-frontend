@@ -36,11 +36,11 @@ class _LoginPageState extends ConsumerState<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
-    final authNotifier = ref.read(authProvider.notifier);
-    final user = ref.watch(authProvider);
+    final authNotifier = ref.read(authNotifierProvider.notifier);
+    final user = ref.watch(authNotifierProvider);
 
     // Show error snackbar when error is not null in the auth state
-    ref.listen(authProvider, (previous, next) {
+    ref.listen(authNotifierProvider, (previous, next) {
       if (next.hasError && !next.isLoading) {
         ref.read(loggerProvider).d('Showing snackbar');
         ScaffoldMessenger.of(context).clearSnackBars();

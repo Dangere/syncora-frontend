@@ -15,4 +15,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get guestLoginButton => 'تسجيل الدخول كضيف';
+
+  @override
+  String get groupsFrontPageTitle => 'المجموعات';
 }

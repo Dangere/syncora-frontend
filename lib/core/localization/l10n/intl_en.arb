@@ -14,5 +14,9 @@
   "guestLoginButton": "Login as Guest",
   "@guestLoginButton": {
     "description": "The guest login button"
+  },
+  "groupsFrontPageTitle": "Groups",
+  "@groupsFrontPageTitle": {
+    "description": "The title of the groups front page"
   }
 }

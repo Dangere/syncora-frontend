@@ -2,11 +2,12 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/widgets.dart';
 
 class OverlayLoader extends StatefulWidget {
-  const OverlayLoader(
-      {super.key,
-      required this.body,
-      required this.overlay,
-      required this.isLoading});
+  const OverlayLoader({
+    super.key,
+    required this.isLoading,
+    required this.overlay,
+    required this.body,
+  });
 
   final Widget body;
   final Widget overlay;

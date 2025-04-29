@@ -15,4 +15,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get guestLoginButton => 'Login as Guest';
+
+  @override
+  String get groupsFrontPageTitle => 'Groups';
 }

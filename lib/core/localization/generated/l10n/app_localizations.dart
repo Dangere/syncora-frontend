@@ -116,6 +116,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Login as Guest'**
   String get guestLoginButton;
+
+  /// The title of the groups front page
+  ///
+  /// In en, this message translates to:
+  /// **'Groups'**
+  String get groupsFrontPageTitle;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

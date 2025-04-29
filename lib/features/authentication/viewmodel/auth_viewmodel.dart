@@ -66,7 +66,7 @@ class AuthNotifier extends AsyncNotifier<User?> {
   }
 }
 
-final authProvider =
+final authNotifierProvider =
     AsyncNotifierProvider<AuthNotifier, User?>(AuthNotifier.new);
 
 final authRepositoryProvider = Provider<AuthRepository>(
