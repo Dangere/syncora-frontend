@@ -5,6 +5,7 @@ import 'package:syncora_frontend/common/themes/app_spacing.dart';
 import 'package:syncora_frontend/core/utils/alert_dialogs.dart';
 import 'package:syncora_frontend/common/widgets/overlay_loader.dart';
 import 'package:syncora_frontend/core/localization/generated/l10n/app_localizations.dart';
+import 'package:syncora_frontend/core/utils/snack_bar_alerts.dart';
 import 'package:syncora_frontend/core/utils/validators.dart';
 import 'package:syncora_frontend/features/authentication/viewmodel/auth_viewmodel.dart';
 
@@ -39,16 +40,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     final authNotifier = ref.read(authNotifierProvider.notifier);
     final user = ref.watch(authNotifierProvider);
 
-    // Show error snackbar when error is not null in the auth state
-    ref.listen(authNotifierProvider, (previous, next) {
-      if (next.hasError && !next.isLoading) {
-        ref.read(loggerProvider).d('Showing snackbar');
-        ScaffoldMessenger.of(context).clearSnackBars();
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text(next.error.toString()),
-        ));
-      }
-    });
+    SnackBarAlerts.registerErrorListener(ref, context);
 
     void login() {
       // Check if form is valid before attempting to login

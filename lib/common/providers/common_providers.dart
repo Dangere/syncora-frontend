@@ -26,3 +26,7 @@ final themeProvider = Provider<ThemeData>((ref) {
 });
 
 final localeProvider = Provider<Locale>((ref) => const Locale('en'));
+
+final errorMessageProvider = StateProvider<String?>((ref) {
+  return null;
+});
