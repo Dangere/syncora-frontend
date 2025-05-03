@@ -1,22 +1,26 @@
 import 'dart:async';
 
 import 'package:dio/dio.dart';
+import 'package:stack_trace/stack_trace.dart';
+import 'package:syncora_frontend/core/utils/app_error.dart';
 
 class ErrorMapper {
-  static String map(Object e) {
+  static AppError map(Object e, StackTrace stackTrace) {
     if (e is DioException) {
-      return mapDioError(e);
+      return AppError(mapDioError(e));
     }
 
     if (e is TimeoutException) {
-      return "Time out error occurred, no response for ${e.duration?.inSeconds ?? "few"} seconds";
+      return AppError(
+          "Time out error occurred, no response for ${e.duration?.inSeconds ?? "few"} seconds");
     }
 
     if (e is Exception) {
-      return "Internal error: ${e.toString()}";
+      return AppError("Internal error: ${e.toString()}");
     }
 
-    return "Unknown error: ${e.toString()}";
+    return AppError("Unknown error: ${e.toString()}",
+        "${Trace.from(StackTrace.current).foldFrames((p0) => p0.toString().contains("flutter") || p0.toString().contains("riverpod") || p0.toString().contains("dart:ui"))}Excluding flutter and riverpod frames");
   }
 
   static String mapDioError(DioException e) {
@@ -35,7 +39,7 @@ class ErrorMapper {
 
         // if (code == 401) return "Unauthorized: Invalid credentials.";
         // if (code >= 500) return "Server error ($code), ${e.response}";
-        if (code >= 400) return "${e.response}";
+        if (code >= 400) return "Client error ($code), ${e.response}";
         return "Unexpected status code: $code";
       case DioExceptionType.cancel:
         return "Request was cancelled. Please try again if you need to.";

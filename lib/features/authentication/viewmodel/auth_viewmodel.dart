@@ -22,9 +22,8 @@ class AuthNotifier extends AsyncNotifier<User?> {
     if (result.isSuccess) {
       state = AsyncValue.data(result.data);
     } else {
-      ref.read(errorMessageProvider.notifier).state = result.error;
-      // Optionally clear the state when an error occurs
-      // state = const AsyncValue.data(null);
+      ref.read(appErrorProvider.notifier).state = result.error!;
+      state = const AsyncValue.data(null);
     }
   }
 
@@ -38,9 +37,8 @@ class AuthNotifier extends AsyncNotifier<User?> {
     if (result.isSuccess) {
       state = AsyncValue.data(result.data);
     } else {
-      ref.read(errorMessageProvider.notifier).state = result.error;
-      // Optionally clear the state when an error occurs
-      // state = const AsyncValue.data(null);
+      ref.read(appErrorProvider.notifier).state = result.error;
+      state = const AsyncValue.data(null);
     }
   }
 
@@ -52,9 +50,8 @@ class AuthNotifier extends AsyncNotifier<User?> {
     if (result.isSuccess) {
       state = AsyncValue.data(result.data);
     } else {
-      ref.read(errorMessageProvider.notifier).state = result.error;
-      // Optionally clear the state when an error occurs
-      // state = const AsyncValue.data(null);
+      ref.read(appErrorProvider.notifier).state = result.error;
+      state = const AsyncValue.data(null);
     }
   }
 

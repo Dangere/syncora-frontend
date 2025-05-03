@@ -1,6 +1,8 @@
+import 'package:syncora_frontend/core/utils/app_error.dart';
+
 class Result<T> {
   final T? data;
-  final String? error;
+  final AppError? error;
 
   Result({this.data, this.error});
 
@@ -9,5 +11,5 @@ class Result<T> {
   // Helper methods to make the API cleaner
   static Result<T> success<T>(T data) => Result<T>(data: data);
 
-  static Result<T> failure<T>(String error) => Result<T>(error: error);
+  static Result<T> failure<T>(AppError error) => Result<T>(error: error);
 }

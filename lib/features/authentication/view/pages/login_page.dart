@@ -37,7 +37,6 @@ class _LoginPageState extends ConsumerState<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
-    final authNotifier = ref.read(authNotifierProvider.notifier);
     final user = ref.watch(authNotifierProvider);
 
     SnackBarAlerts.registerErrorListener(ref, context);
@@ -45,7 +44,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     void login() {
       // Check if form is valid before attempting to login
       if (!_formKey.currentState!.validate() || user.isLoading) return;
-      authNotifier.loginWithEmailAndPassword(
+      ref.read(authNotifierProvider.notifier).loginWithEmailAndPassword(
           emailController.text.trim(), passwordController.text.trim());
     }
 
@@ -56,7 +55,8 @@ class _LoginPageState extends ConsumerState<LoginPage> {
           barrierDismissible: true,
           blurBackground: true,
           message: "Guest Username",
-          onContinue: (p0) => {authNotifier.loginAsGuest(p0)},
+          onContinue: (p0) =>
+              {ref.read(authNotifierProvider.notifier).loginAsGuest(p0)},
           validation: (p0) {
             if (p0.isEmpty) {
               return "guest username cannot be empty";

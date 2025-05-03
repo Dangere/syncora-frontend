@@ -5,6 +5,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:logger/logger.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:syncora_frontend/common/themes/app_theme.dart';
+import 'package:syncora_frontend/core/utils/app_error.dart';
 
 final loggerProvider = Provider<Logger>((ref) {
   return Logger();
@@ -27,6 +28,6 @@ final themeProvider = Provider<ThemeData>((ref) {
 
 final localeProvider = Provider<Locale>((ref) => const Locale('en'));
 
-final errorMessageProvider = StateProvider<String?>((ref) {
+final appErrorProvider = StateProvider<AppError?>((ref) {
   return null;
 });

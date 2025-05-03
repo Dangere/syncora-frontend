@@ -28,8 +28,8 @@ class AuthService {
           loginResponse.user, loginResponse.accessToken);
 
       return Result.success(loginResponse.user);
-    } catch (e) {
-      return Result.failure(ErrorMapper.map(e));
+    } catch (e, stackTrace) {
+      return Result.failure(ErrorMapper.map(e, stackTrace));
     }
   }
 
@@ -44,8 +44,8 @@ class AuthService {
           registerResponse.user, registerResponse.accessToken);
 
       return Result.success(registerResponse.user);
-    } catch (e) {
-      return Result.failure(ErrorMapper.map(e));
+    } catch (e, stackTrace) {
+      return Result.failure(ErrorMapper.map(e, stackTrace));
     }
   }
 

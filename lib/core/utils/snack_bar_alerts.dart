@@ -29,11 +29,12 @@ class SnackBarAlerts {
   /// Registers a listener to the error message provider
   /// and shows an error snackbar when the error message is not null
   static void registerErrorListener(WidgetRef ref, BuildContext context) {
-    ref.listen(errorMessageProvider, (previous, next) {
+    ref.listen(appErrorProvider, (previous, next) {
       if (next != null) {
-        showErrorSnackBar(next, context);
-        ref.read(errorMessageProvider.notifier).state = null;
+        showErrorSnackBar(next.message, context);
+        ref.read(appErrorProvider.notifier).state = null;
         ref.read(loggerProvider).e(next);
+        ref.read(loggerProvider).w(next.parsedStackTrace);
       }
     });
   }

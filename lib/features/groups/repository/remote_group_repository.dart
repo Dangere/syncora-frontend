@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:logger/logger.dart';
 import 'package:syncora_frontend/core/constants/constants.dart';
 import 'package:syncora_frontend/features/groups/interfaces/group_repository_mixin.dart';
 import 'package:syncora_frontend/features/groups/models/group.dart';
@@ -8,24 +9,26 @@ class RemoteGroupRepository implements GroupRepositoryMixin {
 
   RemoteGroupRepository({required Dio dio, required String accessToken})
       : _dio = dio {
-    _dio.options.headers["authorization"] = "token $accessToken";
+    _dio.options.headers["authorization"] = "Bearer $accessToken";
   }
 
   @override
-  Future<void> createGroup(String groupName) {
+  Future<Group> createGroup(String groupName) {
     // TODO: implement createGroup
     throw UnimplementedError();
   }
 
   @override
   Future<List<Group>> getAllGroups() async {
-    final response = await _dio
-        .get(
-          '${Constants.BASE_URL}/groups',
-        )
-        .timeout(const Duration(seconds: 10));
+    // final response = await _dio
+    //     .get(
+    //       '${Constants.BASE_URL}/groups',
+    //     )
+    //     .timeout(const Duration(seconds: 10));
 
-    return (response.data as List).map((e) => Group.fromJson(e)).toList();
+    // return (response.data as List).map((e) => Group.fromJson(e)).toList();
+
+    throw UnimplementedError("Not implemented");
   }
 
   @override
