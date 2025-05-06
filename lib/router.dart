@@ -2,15 +2,18 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:logger/logger.dart';
 import 'package:syncora_frontend/common/providers/common_providers.dart';
+import 'package:syncora_frontend/features/authentication/models/auth_state.dart';
 import 'package:syncora_frontend/features/authentication/view/pages/login_page.dart';
 import 'package:syncora_frontend/features/authentication/viewmodel/auth_viewmodel.dart';
 import 'package:syncora_frontend/features/groups/view/page/groups_page.dart';
 import 'package:syncora_frontend/features/home/view/page/home_page.dart';
 
 final routeProvider = Provider<GoRouter>((ref) {
-  // bool isLogged = ref.watch(authProvider.select((user) => user.value != null));
-  bool isLogged =
-      ref.watch(authNotifierProvider.select((user) => user.value != null));
+  bool isLogged = ref.watch(authNotifierProvider.select((authState) {
+    if (authState.value == null) return false;
+
+    return authState.value!.isAuthenticated || authState.value!.isGuest;
+  }));
 
   Logger logger = ref.read(loggerProvider);
   logger.w('Refreshing routes');

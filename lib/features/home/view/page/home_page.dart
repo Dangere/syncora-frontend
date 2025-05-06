@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:syncora_frontend/features/authentication/models/auth_state.dart';
 import 'package:syncora_frontend/features/authentication/viewmodel/auth_viewmodel.dart';
 
 class HomeScreen extends ConsumerWidget {
@@ -11,7 +12,7 @@ class HomeScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final authNotifier = ref.watch(authNotifierProvider.notifier);
-    final user = ref.watch(authNotifierProvider);
+    final authState = ref.watch(authNotifierProvider);
 
     void logout() {
       authNotifier.logout();
@@ -33,7 +34,7 @@ class HomeScreen extends ConsumerWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             Text(
-              'Welcome back ${user.value?.username}',
+              'Welcome back ${authState.value!.user!.username}',
             ),
             ElevatedButton(
                 onPressed: openGroupsPage, child: Text("Groups page"))
