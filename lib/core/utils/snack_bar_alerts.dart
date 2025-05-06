@@ -33,8 +33,10 @@ class SnackBarAlerts {
       if (next != null) {
         showErrorSnackBar(next.message, context);
         ref.read(appErrorProvider.notifier).state = null;
-        ref.read(loggerProvider).e(next);
-        ref.read(loggerProvider).w(next.parsedStackTrace);
+        ref.read(loggerProvider).e(next.message);
+        if (next.parsedStackTrace != null) {
+          ref.read(loggerProvider).w(next.parsedStackTrace);
+        }
       }
     });
   }

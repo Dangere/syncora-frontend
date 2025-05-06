@@ -3,7 +3,7 @@ import 'package:syncora_frontend/features/groups/models/group.dart';
 
 class LocalGroupRepository implements GroupRepositoryMixin {
   @override
-  Future<Group> createGroup(String groupName) {
+  Future<Group> createGroup(String title, String description) {
     // TODO: implement createGroup
     throw UnimplementedError();
   }

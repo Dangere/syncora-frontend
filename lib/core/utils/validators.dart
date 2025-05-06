@@ -17,6 +17,15 @@ class Validators {
     return regex.hasMatch(username);
   }
 
+  static bool validateGroupTitle(String title) {
+    final regex = RegExp(r'^[a-zA-Z0-9\s]{3,16}$');
+    return regex.hasMatch(title);
+  }
+
+  static bool validateGroupDescription(String title) {
+    final regex = RegExp(r'^[a-zA-Z0-9\s]{6,255}$');
+    return regex.hasMatch(title);
+  }
   // static bool ValidateName(String name)
   // {
   //     if (!(name.length <= 10 && name.length >= 2))

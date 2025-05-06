@@ -13,22 +13,27 @@ class RemoteGroupRepository implements GroupRepositoryMixin {
   }
 
   @override
-  Future<Group> createGroup(String groupName) {
-    // TODO: implement createGroup
-    throw UnimplementedError();
+  Future<Group> createGroup(String title, String description) async {
+    final response = await _dio.post('${Constants.BASE_URL}/groups', data: {
+      "title": title,
+      "description": description
+    }).timeout(const Duration(seconds: 10));
+
+    return Group.fromJson(response.data);
   }
 
   @override
   Future<List<Group>> getAllGroups() async {
-    // final response = await _dio
-    //     .get(
-    //       '${Constants.BASE_URL}/groups',
-    //     )
-    //     .timeout(const Duration(seconds: 10));
+    final response = await _dio
+        .get(
+          '${Constants.BASE_URL}/groups',
+        )
+        .timeout(const Duration(seconds: 10));
 
-    // return (response.data as List).map((e) => Group.fromJson(e)).toList();
+    List<Group> groups =
+        (response.data as List).map((e) => Group.fromJson(e)).toList();
 
-    throw UnimplementedError("Not implemented");
+    return groups;
   }
 
   @override

@@ -12,7 +12,7 @@ class AlertDialogs {
       required Func<String, String?> validation}) {
     TextEditingController textEditingController = TextEditingController();
 
-    String? errorMessage;
+    String? invalidationMessage;
 
     showDialog(
       barrierDismissible: barrierDismissible,
@@ -31,7 +31,8 @@ class AlertDialogs {
                 controller: textEditingController,
                 autofocus: true,
                 decoration: InputDecoration(
-                    hintText: "Enter text here", errorText: errorMessage),
+                    hintText: "Enter text here",
+                    errorText: invalidationMessage),
               ),
               // actionsAlignment: MainAxisAlignment.spaceBetween,
               actions: [
@@ -44,14 +45,14 @@ class AlertDialogs {
                   child: const Text("Continue"),
                   onPressed: () {
                     setState(() {});
-                    errorMessage =
+                    invalidationMessage =
                         validation(textEditingController.text.trim());
-                    if (errorMessage != null) {
+                    if (invalidationMessage != null) {
                       return;
                     }
 
-                    onContinue(textEditingController.text.trim());
                     Navigator.of(context).pop();
+                    onContinue(textEditingController.text.trim());
                   },
                 )
               ],

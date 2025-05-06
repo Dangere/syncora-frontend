@@ -13,10 +13,11 @@ import 'package:syncora_frontend/features/groups/services/group_service.dart';
 class GroupNotifier extends AutoDisposeAsyncNotifier<List<Group>> {
   late final GroupService _groupService;
 
-  Future<void> createGroup(String groupName) async {
+  Future<void> createGroup(String title, String description) async {
     // state = const AsyncValue.loading();
 
-    Result<Group> newGroupResult = await _groupService.createGroup(groupName);
+    Result<Group> newGroupResult =
+        await _groupService.createGroup(title, description);
 
     if (!newGroupResult.isSuccess) {
       ref.read(appErrorProvider.notifier).state = newGroupResult.error;

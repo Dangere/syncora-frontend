@@ -19,7 +19,7 @@ class Group {
       title: json['title'],
       description: json['description'],
       creationDate: DateTime.parse(json['creationDate']),
-      ownerId: json['ownerId'],
+      ownerId: json['ownerUserId'],
       members: List<String>.from(json['members']));
 
   Map<String, dynamic> toJson() => {
@@ -27,7 +27,7 @@ class Group {
         "title": title,
         "description": description,
         "creationDate": creationDate.toIso8601String(),
-        "ownerId": ownerId,
+        "ownerUserId": ownerId,
         "members": members
       };
 }

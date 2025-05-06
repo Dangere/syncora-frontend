@@ -18,9 +18,10 @@ class GroupService {
     }
   }
 
-  Future<Result<Group>> createGroup(String groupName) async {
+  Future<Result<Group>> createGroup(String title, String description) async {
     try {
-      return Result.success(await _groupRepository.createGroup(groupName));
+      return Result.success(
+          await _groupRepository.createGroup(title, description));
     } catch (e, stackTrace) {
       return Result.failure(ErrorMapper.map(e, stackTrace));
     }
