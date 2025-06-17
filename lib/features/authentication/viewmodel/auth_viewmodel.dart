@@ -5,7 +5,7 @@ import 'package:syncora_frontend/common/providers/common_providers.dart';
 import 'package:syncora_frontend/core/utils/result.dart';
 import 'package:syncora_frontend/features/authentication/models/auth_state.dart';
 import 'package:syncora_frontend/features/authentication/models/user.dart';
-import 'package:syncora_frontend/features/authentication/repository/auth_repository.dart';
+import 'package:syncora_frontend/features/authentication/repositories/auth_repository.dart';
 import 'package:syncora_frontend/features/authentication/services/auth_service.dart';
 import 'package:syncora_frontend/features/authentication/services/session_storage.dart';
 
@@ -14,7 +14,7 @@ class AuthNotifier extends AsyncNotifier<AuthState> {
   late final SessionStorage _sessionStorage;
 
   void loginWithEmailAndPassword(String email, String password) async {
-    if (state.value!.isAuthenticated || state.value!.isGuest) return;
+    if (state.isLoading || isLoggedIn) return;
 
     state = const AsyncValue.loading();
     Result<User> result =
@@ -30,7 +30,7 @@ class AuthNotifier extends AsyncNotifier<AuthState> {
 
   void registerWithEmailAndPassword(
       String email, String username, String password) async {
-    if (state.value!.isAuthenticated || state.value!.isGuest) return;
+    if (state.isLoading || isLoggedIn) return;
 
     state = const AsyncValue.loading();
     Result<User> result = await _authService.registerWithEmailAndPassword(
@@ -45,7 +45,7 @@ class AuthNotifier extends AsyncNotifier<AuthState> {
   }
 
   void loginAsGuest(String username) async {
-    if (state.value!.isAuthenticated || state.value!.isGuest) return;
+    if (state.isLoading || isLoggedIn) return;
 
     state = const AsyncValue.loading();
     Result<User> result = await _authService.loginAsGuest(username);
@@ -61,6 +61,14 @@ class AuthNotifier extends AsyncNotifier<AuthState> {
   void logout() async {
     await _authService.logout();
     state = const AsyncValue.data(AuthUnauthenticated());
+  }
+
+  // Value can be null when we are loading or theres an error,
+  // even tho i dont throw errors when it happens and instead capture it in an AppError provider,
+  // edge cases can happen and the notifier automatically wraps the throws into an AsyncValue.error
+  bool get isLoggedIn {
+    final value = state.valueOrNull;
+    return value?.isAuthenticated == true || value?.isGuest == true;
   }
 
   @override
@@ -87,6 +95,19 @@ final authServiceProvider = Provider<AuthService>((ref) {
   return AuthService(
       authRepository: ref.read(authRepositoryProvider),
       sessionStorage: ref.read(sessionStorageProvider));
+});
+
+final isGuestProvider = Provider<bool>((ref) {
+  return ref.watch(authNotifierProvider).maybeWhen(
+        data: (data) {
+          if (data.isGuest) {
+            return true;
+          }
+          return false;
+        },
+        orElse: () => false,
+        error: (_, __) => false,
+      );
 });
 
 final sessionStorageProvider = Provider<SessionStorage>((ref) {

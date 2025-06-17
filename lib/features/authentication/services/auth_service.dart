@@ -3,7 +3,7 @@ import 'package:syncora_frontend/core/utils/error_mapper.dart';
 import 'package:syncora_frontend/core/utils/result.dart';
 import 'package:syncora_frontend/features/authentication/models/auth_response_dto.dart';
 import 'package:syncora_frontend/features/authentication/models/user.dart';
-import 'package:syncora_frontend/features/authentication/repository/auth_repository.dart';
+import 'package:syncora_frontend/features/authentication/repositories/auth_repository.dart';
 import 'package:syncora_frontend/features/authentication/services/session_storage.dart';
 
 class AuthService {

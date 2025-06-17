@@ -32,7 +32,9 @@ class SnackBarAlerts {
     ref.listen(appErrorProvider, (previous, next) {
       if (next != null) {
         showErrorSnackBar(next.message, context);
-        ref.read(appErrorProvider.notifier).state = null;
+        Future.microtask(() {
+          ref.read(appErrorProvider.notifier).state = null;
+        });
         ref.read(loggerProvider).e(next.message);
         if (next.parsedStackTrace != null) {
           ref.read(loggerProvider).w(next.parsedStackTrace);

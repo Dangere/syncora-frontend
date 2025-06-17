@@ -1,0 +1,1 @@
+enum DatabaseTarget { user, guest }

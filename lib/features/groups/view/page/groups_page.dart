@@ -6,7 +6,7 @@ import 'package:syncora_frontend/core/utils/alert_dialogs.dart';
 import 'package:syncora_frontend/core/utils/snack_bar_alerts.dart';
 import 'package:syncora_frontend/core/utils/validators.dart';
 import 'package:syncora_frontend/features/groups/models/group.dart';
-import 'package:syncora_frontend/features/groups/viewmodel/group_viewmodel.dart';
+import 'package:syncora_frontend/features/groups/viewmodel/groups_viewmodel.dart';
 
 class GroupsPage extends ConsumerStatefulWidget {
   const GroupsPage({super.key});
@@ -22,7 +22,7 @@ class _GroupsFrontPageState extends ConsumerState<GroupsPage> {
 
   @override
   Widget build(BuildContext context) {
-    final groups = ref.watch(groupNotifierProvider);
+    final groups = ref.watch(groupsNotifierProvider);
 
     List<Group> groupsList = groups.value ?? [];
 
@@ -30,7 +30,7 @@ class _GroupsFrontPageState extends ConsumerState<GroupsPage> {
 
     void createGroup() {
       ref
-          .read(groupNotifierProvider.notifier)
+          .read(groupsNotifierProvider.notifier)
           .createGroup(newGroupTitle, newGroupDescription);
     }
 
