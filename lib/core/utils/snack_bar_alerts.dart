@@ -35,7 +35,9 @@ class SnackBarAlerts {
         Future.microtask(() {
           ref.read(appErrorProvider.notifier).state = null;
         });
-        ref.read(loggerProvider).e(next.message);
+        ref.read(loggerProvider).e(
+              next.message + (next.parsedStackTrace ?? ''),
+            );
         if (next.parsedStackTrace != null) {
           ref.read(loggerProvider).w(next.parsedStackTrace);
         }

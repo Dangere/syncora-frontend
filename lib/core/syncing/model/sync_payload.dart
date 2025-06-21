@@ -8,8 +8,8 @@ class SyncPayload {
   final List<Task> tasks;
   final List<User> users;
 
-  final List<Group> deletedGroups;
-  final List<Task> deletedTasks;
+  final List<Group>? deletedGroups;
+  final List<Task>? deletedTasks;
 
   SyncPayload(
       {required this.timestamp,
@@ -20,12 +20,15 @@ class SyncPayload {
       required this.deletedTasks});
 
   factory SyncPayload.fromJson(Map<String, dynamic> json) => SyncPayload(
-      timestamp: json['timestamp'],
+      timestamp: json['timestamp'] ?? '',
       groups: List<Group>.from(json['groups'].map((x) => Group.fromJson(x))),
       tasks: List<Task>.from(json['tasks'].map((x) => Task.fromJson(x))),
       users: List<User>.from(json['users'].map((x) => User.fromJson(x))),
-      deletedGroups:
-          List<Group>.from(json['deletedGroups'].map((x) => Group.fromJson(x))),
-      deletedTasks:
-          List<Task>.from(json['deletedTasks'].map((x) => Task.fromJson(x))));
+      deletedGroups: json['deletedGroups'] == null
+          ? null
+          : List<Group>.from(
+              json['deletedGroups'].map((x) => Group.fromJson(x))),
+      deletedTasks: json['deletedTasks'] == null
+          ? null
+          : List<Task>.from(json['deletedTasks'].map((x) => Task.fromJson(x))));
 }

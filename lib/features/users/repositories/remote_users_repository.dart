@@ -5,10 +5,7 @@ import 'package:syncora_frontend/features/authentication/models/user.dart';
 class RemoteUsersRepository {
   final Dio _dio;
 
-  RemoteUsersRepository({required Dio dio, required String accessToken})
-      : _dio = dio {
-    _dio.options.headers["authorization"] = "Bearer $accessToken";
-  }
+  RemoteUsersRepository({required Dio dio}) : _dio = dio;
 
   Future<List<User>> getAllUsers() async {
     final response = await _dio

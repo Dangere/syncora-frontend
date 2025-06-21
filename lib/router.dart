@@ -9,11 +9,7 @@ import 'package:syncora_frontend/features/groups/view/page/groups_page.dart';
 import 'package:syncora_frontend/features/home/view/page/home_page.dart';
 
 final routeProvider = Provider<GoRouter>((ref) {
-  bool isLogged = ref.watch(authNotifierProvider.select((authState) {
-    if (authState.value == null) return false;
-
-    return authState.value!.isAuthenticated || authState.value!.isGuest;
-  }));
+  bool isLogged = ref.watch(isLoggedProvider);
 
   Logger logger = ref.read(loggerProvider);
   logger.w('Refreshing routes');

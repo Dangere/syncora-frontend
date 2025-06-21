@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:logger/logger.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:syncora_frontend/common/interceptors/auth_interceptor.dart';
 import 'package:syncora_frontend/common/themes/app_theme.dart';
 import 'package:syncora_frontend/core/data/database_manager.dart';
 import 'package:syncora_frontend/core/data/enums/database_target.dart';
@@ -14,7 +15,13 @@ final loggerProvider = Provider<Logger>((ref) {
   return Logger();
 });
 
-final dioProvider = Provider<Dio>((ref) => Dio());
+final dioProvider = Provider<Dio>((ref) {
+  Dio dio = Dio();
+  dio.interceptors
+      .add(AuthInterceptor(sessionStorage: ref.read(sessionStorageProvider)));
+
+  return dio;
+});
 
 final secureStorageProvider = Provider<FlutterSecureStorage>((ref) {
   return const FlutterSecureStorage();

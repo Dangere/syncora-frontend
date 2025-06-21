@@ -20,7 +20,7 @@ class ErrorMapper {
     }
 
     return AppError("Unknown error: ${e.toString()}",
-        "${Trace.from(StackTrace.current).foldFrames((p0) => p0.toString().contains("flutter") || p0.toString().contains("riverpod") || p0.toString().contains("dart:ui"))}Excluding flutter and riverpod frames");
+        "${Trace.from(stackTrace).foldFrames((p0) => p0.toString().contains("flutter") || p0.toString().contains("riverpod") || p0.toString().contains("dart:ui"))}Excluding flutter and riverpod frames");
   }
 
   static String mapDioError(DioException e) {
@@ -39,7 +39,9 @@ class ErrorMapper {
 
         // if (code == 401) return "Unauthorized: Invalid credentials.";
         // if (code >= 500) return "Server error ($code), ${e.response}";
-        if (code >= 400) return "Client error ($code), ${e.response}";
+        if (code >= 400) {
+          return "Client error ($code, ${e.response?.statusMessage}}) ${e.response}";
+        }
         return "Unexpected status code: $code";
       case DioExceptionType.cancel:
         return "Request was cancelled. Please try again if you need to.";

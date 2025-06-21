@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:syncora_frontend/core/syncing/sync_notifier.dart';
+import 'package:syncora_frontend/core/utils/snack_bar_alerts.dart';
 import 'package:syncora_frontend/features/authentication/models/auth_state.dart';
 import 'package:syncora_frontend/features/authentication/viewmodel/auth_viewmodel.dart';
 
@@ -11,11 +13,12 @@ class HomeScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final authNotifier = ref.watch(authNotifierProvider.notifier);
     final authState = ref.watch(authNotifierProvider);
 
+    SnackBarAlerts.registerErrorListener(ref, context);
+
     void logout() {
-      authNotifier.logout();
+      ref.read(authNotifierProvider.notifier).logout();
     }
 
     void openGroupsPage() {
@@ -42,9 +45,11 @@ class HomeScreen extends ConsumerWidget {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {},
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
+        onPressed: () {
+          ref.read(backendSyncProvider.notifier).sync();
+        },
+        tooltip: 'Sync',
+        child: const Icon(Icons.cloud_sync),
       ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }

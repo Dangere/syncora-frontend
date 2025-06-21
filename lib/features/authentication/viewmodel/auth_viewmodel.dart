@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:syncora_frontend/common/providers/common_providers.dart';
 import 'package:syncora_frontend/core/utils/result.dart';
@@ -95,6 +96,14 @@ final authServiceProvider = Provider<AuthService>((ref) {
   return AuthService(
       authRepository: ref.read(authRepositoryProvider),
       sessionStorage: ref.read(sessionStorageProvider));
+});
+
+final isLoggedProvider = Provider<bool>((ref) {
+  return ref.watch(authNotifierProvider.select((authState) {
+    if (authState.value == null) return false;
+
+    return authState.value!.isAuthenticated || authState.value!.isGuest;
+  }));
 });
 
 final isGuestProvider = Provider<bool>((ref) {

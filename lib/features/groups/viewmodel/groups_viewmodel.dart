@@ -80,9 +80,7 @@ final localGroupsRepositoryProvider = Provider<LocalGroupsRepository>((ref) {
 // This mimics the behavior of transient dependencies in ASP.NET core.
 final remoteGroupsRepositoryProvider =
     Provider.autoDispose<RemoteGroupsRepository>((ref) {
-  return RemoteGroupsRepository(
-      dio: ref.read(dioProvider),
-      accessToken: ref.read(sessionStorageProvider).token!);
+  return RemoteGroupsRepository(dio: ref.read(dioProvider));
 });
 
 final groupsServiceProvider = Provider.autoDispose<GroupsService>((ref) {

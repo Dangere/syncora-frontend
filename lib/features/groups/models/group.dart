@@ -20,7 +20,7 @@ class Group {
       description: json['description'],
       creationDate: DateTime.parse(json['creationDate']),
       ownerId: json['ownerUserId'],
-      members: List<String>.from(json['members']));
+      members: List<String>.from(json['groupMembers']));
 
   Map<String, dynamic> toJson() => {
         "id": id,

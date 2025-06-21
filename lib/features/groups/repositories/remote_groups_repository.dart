@@ -5,10 +5,7 @@ import 'package:syncora_frontend/features/groups/models/group.dart';
 class RemoteGroupsRepository {
   final Dio _dio;
 
-  RemoteGroupsRepository({required Dio dio, required String accessToken})
-      : _dio = dio {
-    _dio.options.headers["authorization"] = "Bearer $accessToken";
-  }
+  RemoteGroupsRepository({required Dio dio}) : _dio = dio;
 
   Future<Group> createGroup(String title, String description) async {
     final response = await _dio.post('${Constants.BASE_URL}/groups', data: {

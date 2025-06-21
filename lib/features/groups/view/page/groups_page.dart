@@ -24,7 +24,7 @@ class _GroupsFrontPageState extends ConsumerState<GroupsPage> {
   Widget build(BuildContext context) {
     final groups = ref.watch(groupsNotifierProvider);
 
-    List<Group> groupsList = groups.value ?? [];
+    List<Group> groupsList = groups.hasValue ? groups.value! : List.empty();
 
     SnackBarAlerts.registerErrorListener(ref, context);
 

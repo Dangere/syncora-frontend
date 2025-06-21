@@ -1,4 +1,6 @@
 import 'package:dio/dio.dart';
+import 'package:logger/web.dart';
+import 'package:syncora_frontend/core/syncing/model/sync_payload.dart';
 import 'package:syncora_frontend/core/syncing/sync_repository.dart';
 import 'package:syncora_frontend/core/utils/error_mapper.dart';
 import 'package:syncora_frontend/core/utils/result.dart';
@@ -10,27 +12,29 @@ import 'package:syncora_frontend/features/users/repositories/local_users_reposit
 import 'package:syncora_frontend/features/users/repositories/remote_users_repository.dart';
 
 class SyncService {
-  final Dio _dio;
+  // final Dio _dio;
   final LocalGroupsRepository _localGroupsRepository;
-  final RemoteGroupsRepository _remoteGroupsRepository;
+  // final RemoteGroupsRepository _remoteGroupsRepository;
 
-  final LocalUsersRepository _localUsersRepository;
-  final RemoteUsersRepository _remoteUsersRepository;
+  // final LocalUsersRepository _localUsersRepository;
+  // final RemoteUsersRepository _remoteUsersRepository;
 
   final SyncRepository _syncRepository;
 
   SyncService(
-      {required Dio dio,
+      {
+      // required Dio dio,
       required LocalGroupsRepository localGroupRepository,
-      required RemoteGroupsRepository remoteGroupRepository,
-      required LocalUsersRepository localUsersRepository,
-      required RemoteUsersRepository remoteUsersRepository,
+      // required RemoteGroupsRepository remoteGroupRepository,
+      // required LocalUsersRepository localUsersRepository,
+      // required RemoteUsersRepository remoteUsersRepository,
       required SyncRepository syncRepository})
-      : _dio = dio,
+      :
+        // _dio = dio,
         _localGroupsRepository = localGroupRepository,
-        _remoteGroupsRepository = remoteGroupRepository,
-        _localUsersRepository = localUsersRepository,
-        _remoteUsersRepository = remoteUsersRepository,
+        // _remoteGroupsRepository = remoteGroupRepository,
+        // _localUsersRepository = localUsersRepository,
+        // _remoteUsersRepository = remoteUsersRepository,
         _syncRepository = syncRepository;
 
   Future<Result<void>> syncFromServer() async {
@@ -53,7 +57,7 @@ class SyncService {
     // }
 
     try {
-      Map<String, dynamic> payload = await _syncRepository.sync("2022-01-01");
+      SyncPayload payload = await _syncRepository.sync("2022-01-01");
 
       return Result.success(payload);
     } catch (e, stackTrace) {
