@@ -63,6 +63,16 @@ class _GroupsFrontPageState extends ConsumerState<GroupsPage> {
               Validators.validateGroupTitle(p0) ? null : "Invalid title");
     }
 
+    if (groups.hasError) {
+      return Scaffold(
+        appBar: AppBar(
+          backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+          title: Text(AppLocalizations.of(context).groupsFrontPageTitle),
+        ),
+        body: Center(child: Text(groups.error.toString())),
+      );
+    }
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,

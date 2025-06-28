@@ -1,8 +1,8 @@
 import 'dart:async';
 
-import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:syncora_frontend/common/providers/common_providers.dart';
+import 'package:syncora_frontend/core/data/enums/database_target.dart';
 import 'package:syncora_frontend/core/utils/result.dart';
 import 'package:syncora_frontend/features/authentication/models/auth_state.dart';
 import 'package:syncora_frontend/features/authentication/models/user.dart';
@@ -11,15 +11,15 @@ import 'package:syncora_frontend/features/authentication/services/auth_service.d
 import 'package:syncora_frontend/features/authentication/services/session_storage.dart';
 
 class AuthNotifier extends AsyncNotifier<AuthState> {
-  late final AuthService _authService;
-  late final SessionStorage _sessionStorage;
+  // final AuthService _authService;
 
   void loginWithEmailAndPassword(String email, String password) async {
     if (state.isLoading || isLoggedIn) return;
 
     state = const AsyncValue.loading();
-    Result<User> result =
-        await _authService.loginWithEmailAndPassword(email, password);
+    Result<User> result = await ref
+        .read(authServiceProvider)
+        .loginWithEmailAndPassword(email, password);
 
     if (result.isSuccess) {
       state = AsyncValue.data(AuthAuthenticated(result.data!));
@@ -34,8 +34,9 @@ class AuthNotifier extends AsyncNotifier<AuthState> {
     if (state.isLoading || isLoggedIn) return;
 
     state = const AsyncValue.loading();
-    Result<User> result = await _authService.registerWithEmailAndPassword(
-        email, username, password);
+    Result<User> result = await ref
+        .read(authServiceProvider)
+        .registerWithEmailAndPassword(email, username, password);
 
     if (result.isSuccess) {
       state = AsyncValue.data(AuthAuthenticated(result.data!));
@@ -49,7 +50,8 @@ class AuthNotifier extends AsyncNotifier<AuthState> {
     if (state.isLoading || isLoggedIn) return;
 
     state = const AsyncValue.loading();
-    Result<User> result = await _authService.loginAsGuest(username);
+    Result<User> result =
+        await ref.read(authServiceProvider).loginAsGuest(username);
 
     if (result.isSuccess) {
       state = AsyncValue.data(AuthAuthenticated(result.data!));
@@ -60,7 +62,7 @@ class AuthNotifier extends AsyncNotifier<AuthState> {
   }
 
   void logout() async {
-    await _authService.logout();
+    await ref.read(authServiceProvider).logout();
     state = const AsyncValue.data(AuthUnauthenticated());
   }
 
@@ -72,12 +74,15 @@ class AuthNotifier extends AsyncNotifier<AuthState> {
     return value?.isAuthenticated == true || value?.isGuest == true;
   }
 
+  Future<User?> loadSession() async {
+    return await ref.read(sessionStorageProvider).loadSession();
+  }
+
   @override
   Future<AuthState> build() async {
-    _authService = await ref.read(authServiceProvider);
-    _sessionStorage = await ref.read(sessionStorageProvider);
+    ref.read(loggerProvider).w("building auth notifier");
 
-    User? user = await _sessionStorage.loadSession();
+    User? user = await loadSession();
     if (user == null) return const AuthUnauthenticated();
 
     if (user.id == -1) return AuthGuest(user);
@@ -90,12 +95,12 @@ final authNotifierProvider =
     AsyncNotifierProvider<AuthNotifier, AuthState>(AuthNotifier.new);
 
 final authRepositoryProvider = Provider<AuthRepository>(
-    (ref) => AuthRepository(dio: ref.read(dioProvider)));
+    (ref) => AuthRepository(dio: ref.watch(dioProvider)));
 
 final authServiceProvider = Provider<AuthService>((ref) {
   return AuthService(
-      authRepository: ref.read(authRepositoryProvider),
-      sessionStorage: ref.read(sessionStorageProvider));
+      authRepository: ref.watch(authRepositoryProvider),
+      sessionStorage: ref.watch(sessionStorageProvider));
 });
 
 final isLoggedProvider = Provider<bool>((ref) {
@@ -107,20 +112,22 @@ final isLoggedProvider = Provider<bool>((ref) {
 });
 
 final isGuestProvider = Provider<bool>((ref) {
-  return ref.watch(authNotifierProvider).maybeWhen(
-        data: (data) {
-          if (data.isGuest) {
-            return true;
-          }
-          return false;
-        },
-        orElse: () => false,
-        error: (_, __) => false,
-      );
+  return ref.watch(authNotifierProvider.select((authState) {
+    if (authState.value == null) return true;
+
+    return authState.value!.isGuest;
+  }));
 });
 
+// final guestFlagProvider = Provider<bool>((ref) {
+//   return ref.watch(
+//       authNotifierProvider.select((state) => state.value?.isGuest ?? false));
+// });
+
 final sessionStorageProvider = Provider<SessionStorage>((ref) {
+  ref.read(loggerProvider).d("Constructing session storage");
   return SessionStorage(
-      secureStorage: ref.read(secureStorageProvider),
-      sharedPreferences: ref.read(sharedPreferencesProvider));
+      secureStorage: ref.watch(secureStorageProvider),
+      sharedPreferences: ref.watch(sharedPreferencesProvider),
+      databaseManager: ref.watch(localDbProvider));
 });

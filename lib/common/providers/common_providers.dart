@@ -9,6 +9,7 @@ import 'package:syncora_frontend/common/themes/app_theme.dart';
 import 'package:syncora_frontend/core/data/database_manager.dart';
 import 'package:syncora_frontend/core/data/enums/database_target.dart';
 import 'package:syncora_frontend/core/utils/app_error.dart';
+import 'package:syncora_frontend/features/authentication/models/auth_state.dart';
 import 'package:syncora_frontend/features/authentication/viewmodel/auth_viewmodel.dart';
 
 final loggerProvider = Provider<Logger>((ref) {
@@ -41,11 +42,17 @@ final localeProvider = Provider<Locale>((ref) => const Locale('en'));
 final appErrorProvider = StateProvider<AppError?>((ref) {
   return null;
 });
+final localDbProvider = Provider<DatabaseManager>((ref) {
+  ref.read(loggerProvider).d("Constructing database manager");
 
-final localDbProvider = Provider.autoDispose<DatabaseManager>((ref) {
-  bool isGuest = ref.watch(isGuestProvider);
-  if (isGuest) {
-    return DatabaseManager(target: DatabaseTarget.guest);
-  }
-  return DatabaseManager(target: DatabaseTarget.user);
+  return DatabaseManager();
 });
+
+// final localDbProvider = Provider<DatabaseManager>((ref) {
+//   bool isGuest = ref.watch(isGuestProvider);
+//   ref.read(loggerProvider).w(isGuest);
+//   if (isGuest) {
+//     return DatabaseManager(target: DatabaseTarget.guest);
+//   }
+//   return DatabaseManager(target: DatabaseTarget.user);
+// });

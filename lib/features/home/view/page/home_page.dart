@@ -1,19 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:syncora_frontend/common/providers/connection_provider.dart';
 import 'package:syncora_frontend/core/syncing/sync_notifier.dart';
 import 'package:syncora_frontend/core/utils/snack_bar_alerts.dart';
 import 'package:syncora_frontend/features/authentication/models/auth_state.dart';
 import 'package:syncora_frontend/features/authentication/viewmodel/auth_viewmodel.dart';
 
-class HomeScreen extends ConsumerWidget {
-  const HomeScreen({super.key, required this.title});
+class HomePage extends ConsumerStatefulWidget {
+  const HomePage({super.key, required this.title});
 
   final String title;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<ConsumerStatefulWidget> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends ConsumerState<HomePage> {
+  @override
+  Widget build(BuildContext context) {
     final authState = ref.watch(authNotifierProvider);
+    final connection = ref.watch(connectionProvider);
 
     SnackBarAlerts.registerErrorListener(ref, context);
 
@@ -30,12 +37,15 @@ class HomeScreen extends ConsumerWidget {
         leading:
             IconButton(onPressed: logout, icon: const Icon(Icons.exit_to_app)),
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: Text(title),
+        title: Text(widget.title),
       ),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
+            Text(
+              'Connection status: ${connection.toString()}',
+            ),
             Text(
               'Welcome back ${authState.value!.user!.username}',
             ),
@@ -46,7 +56,7 @@ class HomeScreen extends ConsumerWidget {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          ref.read(backendSyncProvider.notifier).sync();
+          ref.read(syncBackendProvider.notifier).sync();
         },
         tooltip: 'Sync',
         child: const Icon(Icons.cloud_sync),

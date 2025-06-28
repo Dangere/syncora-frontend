@@ -1,6 +1,7 @@
 import 'package:logger/logger.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:syncora_frontend/core/data/database_manager.dart';
+import 'package:syncora_frontend/features/authentication/models/user.dart';
 import 'package:syncora_frontend/features/groups/models/group.dart';
 
 class LocalGroupsRepository {
@@ -8,27 +9,93 @@ class LocalGroupsRepository {
 
   LocalGroupsRepository(this._databaseManager);
 
-  Future<Group> createGroup(String title, String description) {
-    // TODO: implement createGroup
-    throw UnimplementedError();
+  Future<void> seedTempGroupMembers(int groupId) async {
+    final db = await _databaseManager.getDatabase();
+    final now = DateTime.now().toUtc();
+
+    int firstUserId = -now.millisecondsSinceEpoch;
+    int secondUserId = -now.millisecondsSinceEpoch + 1;
+
+    User user = User(
+        id: firstUserId,
+        username: "user" + firstUserId.toString().substring(5, 10),
+        email: firstUserId.toString());
+    User user2 = User(
+        id: secondUserId,
+        username: "user" + secondUserId.toString().substring(4, 10),
+        email: secondUserId.toString());
+
+    await db.transaction((txn) async {
+      final batch = txn.batch();
+      batch.insert("users", user.toJson());
+      batch.insert("users", user2.toJson());
+      // make sure groupsMembers cant have deduplicated entries or at least use distinct when querying
+      batch
+          .insert("groupsMembers", {"groupId": groupId, "userId": firstUserId});
+      batch.insert(
+          "groupsMembers", {"groupId": groupId, "userId": secondUserId});
+
+      await batch.commit(noResult: true);
+    });
+  }
+
+  Future<Group> createGroup(
+      String title, String description, int ownerId) async {
+    final now = DateTime.now().toUtc();
+
+    Group newGroup = Group(
+        id: -now.millisecondsSinceEpoch,
+        groupMembers: [],
+        ownerUserId: ownerId,
+        creationDate: now,
+        title: title,
+        description: description);
+
+    final db = await _databaseManager.getDatabase();
+
+    await db.insert('groups', newGroup.toTable());
+
+    await seedTempGroupMembers(newGroup.id);
+
+    Logger().w(await db.rawQuery('SELECT * FROM groups'));
+
+    return newGroup;
   }
 
   Future<List<Group>> getAllGroups() async {
     final db = await _databaseManager.getDatabase();
 
-    List<Map<String, Object?>> groups = await db.rawQuery('''
-     SELECT groups.id, groups.title,
-           groupsMembers.userId
-    FROM groups
-    INNER JOIN groupsMembers
-    ON groups.id = groupsMembers.groupId
-     ''');
+    // List<Map<String, dynamic>> groups = await db.rawQuery(
+    //     ''' SELECT groups.id as groupId, groups.title, groups.description, groups.creationDate, groups.ownerUserId, users.id AS userId
+    //  FROM groups
+    //  LEFT JOIN groupsMembers ON groups.id = groupsMembers.groupId
+    //  LEFT JOIN users ON groupsMembers.userId = users.id''');
+
+    List<Map<String, dynamic>> groups = await db
+        .rawQuery(''' SELECT * FROM groups ORDER BY date(creationDate) ASC''');
+
+    List<Map<String, dynamic>> members =
+        await db.rawQuery(''' SELECT * FROM groupsMembers
+        LEFT JOIN users ON groupsMembers.userId = users.id''');
+
+    List<Group> groupList = List.empty(growable: true);
 
     for (var i = 0; i < groups.length; i++) {
-      Logger().d(groups[i]);
+      Group group = Group.fromJsonWithMembers(
+          groups[i],
+          members
+              .where((member) => member["groupId"] == groups[i]["id"])
+              .toList());
+      groupList.add(group);
     }
 
-    throw UnimplementedError("Unfinished method");
+    groupList.sort((a, b) => a.creationDate.compareTo(b.creationDate));
+
+    Logger().w(groupList.map((e) => e.toJson()).toList());
+    // Logger().w(members);
+
+    // throw UnimplementedError("Unfinished getAllGroups method");
+    return groupList;
   }
 
   Future<void> leaveGroup(int groupId) {
@@ -36,40 +103,9 @@ class LocalGroupsRepository {
     throw UnimplementedError();
   }
 
-  // Future<void> createTempGroup(Group group) async {
-  //   await _localDataSource.saveGroup(group);
-  // }
+  Future<List<Group>> upsertGroups(List<Group> groups) async {
+    // throw UnimplementedError("No upsert method");
 
-  Future<void> upsertGroup(Map<String, dynamic> group) async {
-    // Get a reference to the database.
-    final db = await _databaseManager.getDatabase();
-
-    // Insert the group into the correct table. You might also specify the
-    // `conflictAlgorithm` to use in case the same group is inserted twice.
-    //
-    // In this case, replace any previous data.
-
-    await db.transaction((txn) async {
-      await txn.insert(
-        "groups",
-        group,
-        conflictAlgorithm: ConflictAlgorithm.replace,
-      );
-
-      for (var i = 0; i < group["members"].length; i++) {
-        await txn.insert(
-          "groupsMembers",
-          {
-            "groupId": group["id"],
-            "userId": group["members"][i],
-          },
-          conflictAlgorithm: ConflictAlgorithm.replace,
-        );
-      }
-    });
-  }
-
-  Future<void> upsertAllGroups(List<Group> groups) async {
     final db = await _databaseManager.getDatabase();
 
     await db.transaction((txn) async {
@@ -77,16 +113,16 @@ class LocalGroupsRepository {
       for (Group group in groups) {
         batch.insert(
           "groups",
-          group.toJson(),
+          group.toTable(),
           conflictAlgorithm: ConflictAlgorithm.replace,
         );
 
-        for (var i = 0; i < group.members.length; i++) {
+        for (var i = 0; i < group.groupMembers.length; i++) {
           batch.insert(
             "groupsMembers",
             {
               "groupId": group.id,
-              "userId": group.members[i],
+              "userId": group.groupMembers[i],
             },
             conflictAlgorithm: ConflictAlgorithm.replace,
           );
@@ -94,5 +130,7 @@ class LocalGroupsRepository {
       }
       batch.commit(noResult: true);
     });
+
+    return await getAllGroups();
   }
 }

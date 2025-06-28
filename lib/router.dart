@@ -23,7 +23,7 @@ final routeProvider = Provider<GoRouter>((ref) {
           path: '/',
 
           builder: (context, state) {
-            return const HomeScreen(
+            return const HomePage(
               title: "Home",
             );
           },

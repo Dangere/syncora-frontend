@@ -19,7 +19,7 @@ class ErrorMapper {
       return AppError("Internal error: ${e.toString()}");
     }
 
-    return AppError("Unknown error: ${e.toString()}",
+    return AppError("Undefined error: ${e.toString()}",
         "${Trace.from(stackTrace).foldFrames((p0) => p0.toString().contains("flutter") || p0.toString().contains("riverpod") || p0.toString().contains("dart:ui"))}Excluding flutter and riverpod frames");
   }
 

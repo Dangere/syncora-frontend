@@ -1,28 +1,22 @@
+import 'package:logger/logger.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
-import 'package:syncora_frontend/core/data/enums/database_target.dart';
 
 class DatabaseManager {
-  DatabaseTarget target;
+  Database? _db;
 
-  DatabaseManager({required this.target});
+  DatabaseManager();
 
   Future<Database> getDatabase() async {
-    String dbFileName;
-
-    switch (target) {
-      case DatabaseTarget.user:
-        dbFileName = 'syncora_database.db';
-        break;
-      case DatabaseTarget.guest:
-        dbFileName = 'syncora_guest_database.db';
-        break;
-      default:
-        dbFileName = 'syncora_database.db';
+    if (_db != null && _db!.isOpen) {
+      Logger().d("Returning cached and opened database");
     }
 
+    if (_db != null && _db!.isOpen) return _db!;
+    String dbFileName = "syncora_database.db";
+
     final path = join(await getDatabasesPath(), dbFileName);
-    return await openDatabase(
+    _db = await openDatabase(
       path,
       version: 1,
       onCreate: _onCreate,
@@ -30,6 +24,9 @@ class DatabaseManager {
         await db.execute('PRAGMA foreign_keys = ON');
       },
     );
+    Logger().d("Creating database and caching it");
+
+    return _db!;
   }
 
   Future<void> _onCreate(Database db, int version) async {
@@ -38,7 +35,7 @@ class DatabaseManager {
         id INTEGER PRIMARY KEY,
         username TEXT UNIQUE NOT NULL,
         email TEXT UNIQUE NOT NULL,
-        pfpURL TEXT
+        profilePictureURL TEXT
       )
     ''');
 
@@ -47,11 +44,11 @@ class DatabaseManager {
     await db.execute('''
       CREATE TABLE groups (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        ownerId INTEGER NOT NULL,
+        ownerUserId INTEGER NOT NULL,
         title TEXT NOT NULL,
         description TEXT,
         creationDate TEXT NOT NULL,
-        FOREIGN KEY(ownerId) REFERENCES users(id) ON DELETE CASCADE ON UPDATE CASCADE
+        FOREIGN KEY(ownerUserId) REFERENCES users(id) ON DELETE CASCADE ON UPDATE CASCADE
       
       )
     ''');
@@ -83,6 +80,14 @@ class DatabaseManager {
     ''');
   }
 
+  Future<void> ensureDeleted() async {
+    String path = await getDatabasesPath();
+    await deleteDatabase(join(path, "syncora_database.db"));
+    await _db?.close();
+    _db = null;
+
+    Logger().d("Deleted database");
+  }
   // Future<void> insertRow(DatabaseTables table, Map<String, Object?> row) async {
   //   // Get a reference to the database.
   //   final db = await getDatabase();

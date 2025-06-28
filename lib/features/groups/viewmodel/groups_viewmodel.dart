@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:syncora_frontend/common/providers/common_providers.dart';
 import 'package:syncora_frontend/common/providers/connection_provider.dart';
+import 'package:syncora_frontend/core/data/enums/database_target.dart';
 import 'package:syncora_frontend/core/utils/result.dart';
 import 'package:syncora_frontend/features/authentication/viewmodel/auth_viewmodel.dart';
 import 'package:syncora_frontend/features/groups/models/group.dart';
@@ -34,6 +35,18 @@ class GroupsNotifier extends AutoDisposeAsyncNotifier<List<Group>> {
     state = AsyncValue.data([...state.value!, newGroup]);
   }
 
+  Future<void> upsertGroups(List<Group> groups) async {
+    Result<List<Group>> upsertResult =
+        await _groupsService.upsertGroups(groups);
+
+    if (!upsertResult.isSuccess) {
+      ref.read(appErrorProvider.notifier).state = upsertResult.error;
+      return;
+    }
+
+    state = AsyncValue.data(upsertResult.data!);
+  }
+
   // Future<void> fetchAndCacheRemoteGroups() async {
   //   // state = const AsyncValue.loading();
   //   Result<void> fetchResult = await _groupsService.cacheRemoteGroups();
@@ -49,18 +62,18 @@ class GroupsNotifier extends AutoDisposeAsyncNotifier<List<Group>> {
   //   state = AsyncValue.data(cachedResult.data!);
   // }
 
+  // TODO: A bug that happens is when the build method is being rebuilt when a notifier such as groupsServiceProvider rebuilds, it cases an error "_groupsService has already been initialized"
   @override
   FutureOr<List<Group>> build() async {
     _groupsService = ref.watch(groupsServiceProvider);
-
     Result<List<Group>> fetchResult = await _groupsService.getAllGroups();
 
     if (!fetchResult.isSuccess) {
-      // state = AsyncValue.error(fetchResult.error!, StackTrace.current);
       ref.read(appErrorProvider.notifier).state = fetchResult.error;
+      return [];
     }
 
-    return fetchResult.data ?? [];
+    return fetchResult.data!;
   }
 }
 
@@ -84,12 +97,16 @@ final remoteGroupsRepositoryProvider =
 });
 
 final groupsServiceProvider = Provider.autoDispose<GroupsService>((ref) {
-  bool isGuest = ref.watch(isGuestProvider);
   ConnectionStatus connectionStatus = ref.watch(connectionProvider);
   bool isOnline = connectionStatus == ConnectionStatus.connected ||
       connectionStatus == ConnectionStatus.slow;
+  ref.read(loggerProvider).d("Constructing groups service");
+
+  // Get auth state from notifier and assume its not error nor loading
+  var authState = ref.watch(authNotifierProvider).asData!.value;
+
   return GroupsService(
-    isGuest: isGuest,
+    authState: authState,
     isOnline: isOnline,
     localGroupRepository: ref.read(
       localGroupsRepositoryProvider,

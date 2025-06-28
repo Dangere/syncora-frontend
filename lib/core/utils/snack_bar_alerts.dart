@@ -30,14 +30,16 @@ class SnackBarAlerts {
   /// and shows an error snackbar when the error message is not null
   static void registerErrorListener(WidgetRef ref, BuildContext context) {
     ref.listen(appErrorProvider, (previous, next) {
-      if (next != null) {
+      // Check if the current page is the top page
+      bool isTopPage = ModalRoute.of(context)?.isCurrent ?? false;
+      if (next != null && isTopPage) {
         showErrorSnackBar(next.message, context);
         Future.microtask(() {
           ref.read(appErrorProvider.notifier).state = null;
         });
-        ref.read(loggerProvider).e(
-              next.message + (next.parsedStackTrace ?? ''),
-            );
+        ref
+            .read(loggerProvider)
+            .e("${next.message}\nError Source: ${context.widget.runtimeType}");
         if (next.parsedStackTrace != null) {
           ref.read(loggerProvider).w(next.parsedStackTrace);
         }
