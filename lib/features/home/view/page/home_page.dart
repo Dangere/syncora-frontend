@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:syncora_frontend/common/providers/connection_provider.dart';
+import 'package:syncora_frontend/common/widgets/syncing_icon.dart';
 import 'package:syncora_frontend/core/syncing/sync_notifier.dart';
 import 'package:syncora_frontend/core/utils/snack_bar_alerts.dart';
 import 'package:syncora_frontend/features/authentication/models/auth_state.dart';
@@ -17,6 +18,16 @@ class HomePage extends ConsumerStatefulWidget {
 }
 
 class _HomeScreenState extends ConsumerState<HomePage> {
+  @override
+  void initState() {
+    Future.microtask(() {
+      if (!ref.read(isGuestProvider))
+        ref.read(syncBackendProvider.notifier).sync();
+    });
+    // ref.read(syncBackendProvider.notifier).sync();
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     final authState = ref.watch(authNotifierProvider);
@@ -38,6 +49,16 @@ class _HomeScreenState extends ConsumerState<HomePage> {
             IconButton(onPressed: logout, icon: const Icon(Icons.exit_to_app)),
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: Text(widget.title),
+        actions: [
+          if (!ref.read(isGuestProvider)) const SyncingIcon(),
+          IconButton(
+            icon: const Icon(Icons.shopping_cart),
+            tooltip: 'Open shopping cart',
+            onPressed: () {
+              // handle the press
+            },
+          ),
+        ],
       ),
       body: Center(
         child: Column(

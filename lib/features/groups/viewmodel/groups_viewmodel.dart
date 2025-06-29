@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:syncora_frontend/common/providers/common_providers.dart';
 import 'package:syncora_frontend/common/providers/connection_provider.dart';
-import 'package:syncora_frontend/core/data/enums/database_target.dart';
 import 'package:syncora_frontend/core/utils/result.dart';
 import 'package:syncora_frontend/features/authentication/viewmodel/auth_viewmodel.dart';
 import 'package:syncora_frontend/features/groups/models/group.dart';

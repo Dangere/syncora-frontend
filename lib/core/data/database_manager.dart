@@ -1,6 +1,7 @@
 import 'package:logger/logger.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
+import 'package:syncora_frontend/core/data/enums/database_tables.dart';
 
 class DatabaseManager {
   Database? _db;
@@ -8,10 +9,6 @@ class DatabaseManager {
   DatabaseManager();
 
   Future<Database> getDatabase() async {
-    if (_db != null && _db!.isOpen) {
-      Logger().d("Returning cached and opened database");
-    }
-
     if (_db != null && _db!.isOpen) return _db!;
     String dbFileName = "syncora_database.db";
 
@@ -31,7 +28,7 @@ class DatabaseManager {
 
   Future<void> _onCreate(Database db, int version) async {
     await db.execute('''
-      CREATE TABLE users (
+      CREATE TABLE ${DatabaseTables.users}  (
         id INTEGER PRIMARY KEY,
         username TEXT UNIQUE NOT NULL,
         email TEXT UNIQUE NOT NULL,
@@ -42,7 +39,7 @@ class DatabaseManager {
     // You need to handle local group creation with ID that is taken by another group on the server when online syncing
     // Introduce a mapping layer
     await db.execute('''
-      CREATE TABLE groups (
+      CREATE TABLE ${DatabaseTables.groups}  (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         ownerUserId INTEGER NOT NULL,
         title TEXT NOT NULL,
@@ -54,7 +51,7 @@ class DatabaseManager {
     ''');
 
     await db.execute('''
-      CREATE TABLE tasks (
+      CREATE TABLE ${DatabaseTables.tasks} (
         id INTEGER PRIMARY KEY,
         title TEXT NOT NULL,
         description TEXT,
@@ -70,12 +67,19 @@ class DatabaseManager {
     ''');
 
     await db.execute('''
-      CREATE TABLE groupsMembers (
+      CREATE TABLE ${DatabaseTables.groupsMembers} (
         id INTEGER PRIMARY KEY,
         groupId INTEGER NOT NULL,
         userId INTEGER NOT NULL,
         FOREIGN KEY(groupId) REFERENCES groups(id) ON DELETE CASCADE ON UPDATE CASCADE,
         FOREIGN KEY(userId) REFERENCES users(id) ON UPDATE CASCADE
+      )
+    ''');
+
+    await db.execute('''
+      CREATE TABLE ${DatabaseTables.syncTimestamps} (
+        id INTEGER PRIMARY KEY,
+        timestamp TEXT NOT NULL
       )
     ''');
   }

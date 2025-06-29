@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:syncora_frontend/common/providers/common_providers.dart';
-import 'package:syncora_frontend/core/data/enums/database_target.dart';
 import 'package:syncora_frontend/core/utils/result.dart';
 import 'package:syncora_frontend/features/authentication/models/auth_state.dart';
 import 'package:syncora_frontend/features/authentication/models/user.dart';
@@ -54,7 +53,7 @@ class AuthNotifier extends AsyncNotifier<AuthState> {
         await ref.read(authServiceProvider).loginAsGuest(username);
 
     if (result.isSuccess) {
-      state = AsyncValue.data(AuthAuthenticated(result.data!));
+      state = AsyncValue.data(AuthGuest(result.data!));
     } else {
       ref.read(appErrorProvider.notifier).state = result.error;
       state = const AsyncValue.data(AuthUnauthenticated());

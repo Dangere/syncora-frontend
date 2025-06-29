@@ -20,7 +20,7 @@ class SyncPayload {
       required this.deletedTasks});
 
   factory SyncPayload.fromJson(Map<String, dynamic> json) => SyncPayload(
-      timestamp: json['timestamp'] ?? '',
+      timestamp: json['timestamp'],
       groups: List<Group>.from(json['groups'].map((x) => Group.fromJson(x))),
       tasks: List<Task>.from(json['tasks'].map((x) => Task.fromJson(x))),
       users: List<User>.from(json['users'].map((x) => User.fromJson(x))),
