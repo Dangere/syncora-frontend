@@ -34,17 +34,17 @@ class GroupsNotifier extends AutoDisposeAsyncNotifier<List<Group>> {
     state = AsyncValue.data([...state.value!, newGroup]);
   }
 
-  Future<void> upsertGroups(List<Group> groups) async {
-    Result<List<Group>> upsertResult =
-        await _groupsService.upsertGroups(groups);
+  // Future<void> upsertGroups(List<Group> groups) async {
+  //   Result<List<Group>> upsertResult =
+  //       await _groupsService.upsertGroups(groups);
 
-    if (!upsertResult.isSuccess) {
-      ref.read(appErrorProvider.notifier).state = upsertResult.error;
-      return;
-    }
+  //   if (!upsertResult.isSuccess) {
+  //     ref.read(appErrorProvider.notifier).state = upsertResult.error;
+  //     return;
+  //   }
 
-    state = AsyncValue.data(upsertResult.data!);
-  }
+  //   state = AsyncValue.data(upsertResult.data!);
+  // }
 
   // Future<void> fetchAndCacheRemoteGroups() async {
   //   // state = const AsyncValue.loading();
@@ -61,9 +61,20 @@ class GroupsNotifier extends AutoDisposeAsyncNotifier<List<Group>> {
   //   state = AsyncValue.data(cachedResult.data!);
   // }
 
+  Future<void> reloadGroups() async {
+    Result<List<Group>> fetchResult = await _groupsService.getAllGroups();
+
+    if (!fetchResult.isSuccess) {
+      ref.read(appErrorProvider.notifier).state = fetchResult.error;
+    }
+
+    state = AsyncValue.data(fetchResult.data!);
+  }
+
   // TODO: A bug that happens is when the build method is being rebuilt when a notifier such as groupsServiceProvider rebuilds, it cases an error "_groupsService has already been initialized"
   @override
   FutureOr<List<Group>> build() async {
+    ref.watch(loggerProvider).w("Building groups notifier");
     _groupsService = ref.watch(groupsServiceProvider);
     Result<List<Group>> fetchResult = await _groupsService.getAllGroups();
 

@@ -104,7 +104,7 @@ class LocalGroupsRepository {
     throw UnimplementedError();
   }
 
-  Future<List<Group>> upsertGroups(List<Group> groups) async {
+  Future<void> upsertGroups(List<Group> groups) async {
     // throw UnimplementedError("No upsert method");
 
     final db = await _databaseManager.getDatabase();
@@ -131,7 +131,5 @@ class LocalGroupsRepository {
       }
       batch.commit(noResult: true);
     });
-
-    return await getAllGroups();
   }
 }

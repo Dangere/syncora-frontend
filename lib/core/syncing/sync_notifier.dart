@@ -9,10 +9,14 @@ import 'package:syncora_frontend/core/syncing/sync_service.dart';
 import 'package:syncora_frontend/core/utils/app_error.dart';
 import 'package:syncora_frontend/core/utils/result.dart';
 import 'package:syncora_frontend/features/authentication/viewmodel/auth_viewmodel.dart';
+import 'package:syncora_frontend/features/groups/models/group.dart';
+import 'package:syncora_frontend/features/groups/services/groups_service.dart';
 import 'package:syncora_frontend/features/groups/viewmodel/groups_viewmodel.dart';
 
 class SyncBackendNotifier extends AsyncNotifier<void> {
   late final SyncService _syncService;
+  late final GroupsService _groupsService;
+
   Future<void> sync() async {
     if (state.isLoading) return;
 
@@ -44,7 +48,17 @@ class SyncBackendNotifier extends AsyncNotifier<void> {
       return;
     }
     // TODO: upsert users first, then groups.
-    ref.read(groupsNotifierProvider.notifier).upsertGroups(result.data!.groups);
+    Result<void> upsertGroupsResult =
+        await _groupsService.upsertGroups(result.data!.groups);
+
+    if (!upsertGroupsResult.isSuccess) {
+      ref.read(appErrorProvider.notifier).state = upsertGroupsResult.error!;
+      state = AsyncValue.error(upsertGroupsResult.error!, StackTrace.current);
+      return;
+    }
+    if (ref.exists(groupsNotifierProvider)) {
+      ref.read(groupsNotifierProvider.notifier).reloadGroups();
+    }
 
     state = const AsyncValue.data(null);
   }
@@ -52,6 +66,7 @@ class SyncBackendNotifier extends AsyncNotifier<void> {
   @override
   FutureOr<void> build() {
     _syncService = ref.read(syncServiceProvider);
+    _groupsService = ref.read(groupsServiceProvider);
   }
 }
 

@@ -49,14 +49,10 @@ class _HomeScreenState extends ConsumerState<HomePage> {
             IconButton(onPressed: logout, icon: const Icon(Icons.exit_to_app)),
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: Text(widget.title),
-        actions: [
-          if (!ref.read(isGuestProvider)) const SyncingIcon(),
-          IconButton(
-            icon: const Icon(Icons.shopping_cart),
-            tooltip: 'Open shopping cart',
-            onPressed: () {
-              // handle the press
-            },
+        actions: const [
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+            child: SyncingIcon(),
           ),
         ],
       ),

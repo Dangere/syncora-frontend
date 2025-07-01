@@ -56,7 +56,7 @@ class GroupsService {
   //   }
   // }
 
-  Future<Result<List<Group>>> upsertGroups(List<Group> groups) async {
+  Future<Result<void>> upsertGroups(List<Group> groups) async {
     try {
       return Result.success(await _localGroupRepository.upsertGroups(groups));
     } catch (e, stackTrace) {
