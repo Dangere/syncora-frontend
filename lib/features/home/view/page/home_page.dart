@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:syncora_frontend/common/providers/connection_provider.dart';
 import 'package:syncora_frontend/common/widgets/syncing_icon.dart';
-import 'package:syncora_frontend/core/syncing/sync_notifier.dart';
+import 'package:syncora_frontend/core/network/syncing/sync_notifier.dart';
 import 'package:syncora_frontend/core/utils/snack_bar_alerts.dart';
 import 'package:syncora_frontend/features/authentication/models/auth_state.dart';
 import 'package:syncora_frontend/features/authentication/viewmodel/auth_viewmodel.dart';
@@ -18,16 +18,6 @@ class HomePage extends ConsumerStatefulWidget {
 }
 
 class _HomeScreenState extends ConsumerState<HomePage> {
-  @override
-  void initState() {
-    Future.microtask(() {
-      if (!ref.read(isGuestProvider))
-        ref.read(syncBackendProvider.notifier).sync();
-    });
-    // ref.read(syncBackendProvider.notifier).sync();
-    super.initState();
-  }
-
   @override
   Widget build(BuildContext context) {
     final authState = ref.watch(authNotifierProvider);
@@ -73,7 +63,7 @@ class _HomeScreenState extends ConsumerState<HomePage> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          ref.read(syncBackendProvider.notifier).sync();
+          // ref.read(syncBackendProvider.notifier).sync();
         },
         tooltip: 'Sync',
         child: const Icon(Icons.cloud_sync),

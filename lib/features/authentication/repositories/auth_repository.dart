@@ -10,7 +10,7 @@ class AuthRepository {
       String email, String password) async {
     // Getting the login response
     final response = await _dio
-        .post("${Constants.BASE_URL}/authentication/login", data: {
+        .post("${Constants.BASE_API_URL}/authentication/login", data: {
       "Email": email,
       "Password": password
     }).timeout(const Duration(seconds: 10));
@@ -25,7 +25,7 @@ class AuthRepository {
       String email, String username, String password) async {
     // Getting the login response
     final response = await _dio
-        .post("${Constants.BASE_URL}/authentication/register", data: {
+        .post("${Constants.BASE_API_URL}/authentication/register", data: {
       "Email": email,
       "Username": username,
       "Password": password

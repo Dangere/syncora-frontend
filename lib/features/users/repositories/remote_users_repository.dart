@@ -10,7 +10,7 @@ class RemoteUsersRepository {
   Future<List<User>> getAllUsers() async {
     final response = await _dio
         .get(
-          '${Constants.BASE_URL}/users',
+          '${Constants.BASE_API_URL}/users',
         )
         .timeout(const Duration(seconds: 10));
 

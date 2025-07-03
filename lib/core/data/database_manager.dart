@@ -45,7 +45,7 @@ class DatabaseManager {
         title TEXT NOT NULL,
         description TEXT,
         creationDate TEXT NOT NULL,
-        FOREIGN KEY(ownerUserId) REFERENCES users(id) ON DELETE CASCADE ON UPDATE CASCADE
+        FOREIGN KEY(ownerUserId) REFERENCES ${DatabaseTables.users}(id) ON DELETE CASCADE ON UPDATE CASCADE
       
       )
     ''');
@@ -60,8 +60,8 @@ class DatabaseManager {
         completionDate TEXT,
         creationDate TEXT NOT NULL,
         groupId INTEGER NOT NULL,
-        FOREIGN KEY(groupId) REFERENCES groups(id) ON DELETE CASCADE ON UPDATE CASCADE
-        FOREIGN KEY(completedBy) REFERENCES users(id) ON DELETE NO ACTION ON UPDATE CASCADE
+        FOREIGN KEY(groupId) REFERENCES  ${DatabaseTables.groups}(id) ON DELETE CASCADE ON UPDATE CASCADE
+        FOREIGN KEY(completedBy) REFERENCES  ${DatabaseTables.users}(id) ON DELETE NO ACTION ON UPDATE CASCADE
 
       )
     ''');
@@ -71,8 +71,8 @@ class DatabaseManager {
         id INTEGER PRIMARY KEY,
         groupId INTEGER NOT NULL,
         userId INTEGER NOT NULL,
-        FOREIGN KEY(groupId) REFERENCES groups(id) ON DELETE CASCADE ON UPDATE CASCADE,
-        FOREIGN KEY(userId) REFERENCES users(id) ON UPDATE CASCADE
+        FOREIGN KEY(groupId) REFERENCES  ${DatabaseTables.groups}(id) ON DELETE CASCADE ON UPDATE CASCADE,
+        FOREIGN KEY(userId) REFERENCES  ${DatabaseTables.users}(id) ON UPDATE CASCADE
       )
     ''');
 

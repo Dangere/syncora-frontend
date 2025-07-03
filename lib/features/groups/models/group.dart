@@ -1,10 +1,12 @@
+import 'package:logger/logger.dart';
+
 class Group {
   final int id;
   final String title;
   final String? description;
   final DateTime creationDate;
   final int ownerUserId;
-  final List<String> groupMembers;
+  final List<int> groupMembers;
 
   Group(
       {required this.id,
@@ -20,19 +22,20 @@ class Group {
       description: json['description'],
       creationDate: DateTime.parse(json['creationDate']),
       ownerUserId: json['ownerUserId'],
-      groupMembers: List<String>.from(json['groupMembers']));
+      groupMembers: List<int>.from(json['groupMembers']));
 
   factory Group.fromJsonWithMembers(
-          Map<String, dynamic> json, List<Map<String, dynamic>> groupMembers) =>
-      Group(
-          id: json['id'],
-          title: json['title'],
-          description: json['description'],
-          creationDate: DateTime.parse(json['creationDate']),
-          ownerUserId: json['ownerUserId'],
-          groupMembers:
-              // Currently only storing username of members in group
-              groupMembers.map((e) => e["username"] as String).toList());
+      Map<String, dynamic> json, List<Map<String, dynamic>> groupMembers) {
+    return Group(
+        id: json['id'],
+        title: json['title'],
+        description: json['description'],
+        creationDate: DateTime.parse(json['creationDate']),
+        ownerUserId: json['ownerUserId'],
+        groupMembers:
+            // Currently only storing username of members in group
+            groupMembers.map((e) => e["id"] as int).toList());
+  }
 
   Map<String, dynamic> toJson() => {
         "id": id,

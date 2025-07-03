@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:syncora_frontend/core/syncing/sync_notifier.dart';
+import 'package:syncora_frontend/core/network/syncing/sync_notifier.dart';
 
 class SyncingIcon extends ConsumerWidget {
   const SyncingIcon({super.key});

@@ -8,7 +8,7 @@ class RemoteGroupsRepository {
   RemoteGroupsRepository({required Dio dio}) : _dio = dio;
 
   Future<Group> createGroup(String title, String description) async {
-    final response = await _dio.post('${Constants.BASE_URL}/groups', data: {
+    final response = await _dio.post('${Constants.BASE_API_URL}/groups', data: {
       "title": title,
       "description": description
     }).timeout(const Duration(seconds: 10));
@@ -19,7 +19,7 @@ class RemoteGroupsRepository {
   Future<List<Group>> getAllGroups() async {
     final response = await _dio
         .get(
-          '${Constants.BASE_URL}/groups',
+          '${Constants.BASE_API_URL}/groups',
         )
         .timeout(const Duration(seconds: 10));
 

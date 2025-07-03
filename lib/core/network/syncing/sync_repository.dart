@@ -4,7 +4,7 @@ import 'package:sqflite/sqflite.dart';
 import 'package:syncora_frontend/core/constants/constants.dart';
 import 'package:syncora_frontend/core/data/database_manager.dart';
 import 'package:syncora_frontend/core/data/enums/database_tables.dart';
-import 'package:syncora_frontend/core/syncing/model/sync_payload.dart';
+import 'package:syncora_frontend/core/network/syncing/model/sync_payload.dart';
 
 class SyncRepository {
   final Dio _dio;
@@ -15,11 +15,9 @@ class SyncRepository {
         _databaseManager = databaseManager;
 
   Future<SyncPayload> sync(String since) async {
-    Logger().d("$since?includeDeleted=false");
-
     final response = await _dio
         .get(
-          '${Constants.BASE_URL}/sync/$since?includeDeleted=false',
+          '${Constants.BASE_API_URL}/sync/$since?includeDeleted=false',
         )
         .timeout(const Duration(seconds: 10));
     Logger().d(response.data);
@@ -37,7 +35,6 @@ class SyncRepository {
     var result =
         await db.query(DatabaseTables.syncTimestamps, orderBy: "id DESC");
 
-    Logger().d(result);
     var timestamp = result.firstOrNull?["timestamp"];
     if (timestamp != null) return timestamp.toString();
 

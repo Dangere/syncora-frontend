@@ -1,6 +1,6 @@
 import 'package:logger/logger.dart';
-import 'package:syncora_frontend/core/syncing/model/sync_payload.dart';
-import 'package:syncora_frontend/core/syncing/sync_repository.dart';
+import 'package:syncora_frontend/core/network/syncing/model/sync_payload.dart';
+import 'package:syncora_frontend/core/network/syncing/sync_repository.dart';
 import 'package:syncora_frontend/core/utils/error_mapper.dart';
 import 'package:syncora_frontend/core/utils/result.dart';
 

@@ -19,7 +19,7 @@ class LocalUsersRepository {
     });
   }
 
-  Future<void> upsertAllUsers(List<User> users) async {
+  Future<void> upsertUsers(List<User> users) async {
     final db = await _databaseManager.getDatabase();
 
     await db.transaction((txn) async {
@@ -33,5 +33,13 @@ class LocalUsersRepository {
       }
       batch.commit(noResult: true);
     });
+  }
+
+  Future<User> getUser(int id) async {
+    final db = await _databaseManager.getDatabase();
+    Map<String, dynamic> user =
+        (await db.query("users", where: "id = ?", whereArgs: [id])).single;
+
+    return User.fromJson(user);
   }
 }

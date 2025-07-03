@@ -48,6 +48,7 @@ dependencies:
   sqflite: ^2.3.3+1
   path: ^1.9.0
   internet_connection_checker: ^3.0.1
+  signalr_netcore: ^1.4.3
 
 dev_dependencies:
   flutter_test:

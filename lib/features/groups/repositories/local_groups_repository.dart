@@ -95,6 +95,8 @@ class LocalGroupsRepository {
     // Logger().w(groupList.map((e) => e.toJson()).toList());
     // Logger().w(members);
 
+    // Logger().w(await db.rawQuery(''' SELECT * FROM ${DatabaseTables.users}'''));
+
     // throw UnimplementedError("Unfinished getAllGroups method");
     return groupList;
   }
