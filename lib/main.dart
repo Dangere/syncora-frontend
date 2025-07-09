@@ -3,9 +3,12 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:logger/logger.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:syncora_frontend/common/providers/common_providers.dart';
 import 'package:syncora_frontend/core/localization/generated/l10n/app_localizations.dart';
+import 'package:syncora_frontend/core/network/syncing/sync_notifier.dart';
+import 'package:syncora_frontend/features/authentication/viewmodel/auth_viewmodel.dart';
 import 'package:syncora_frontend/router.dart';
 
 void main() async {
@@ -25,6 +28,8 @@ class MyApp extends ConsumerWidget {
     GoRouter router = ref.watch(routeProvider);
     ThemeData theme = ref.watch(themeProvider);
     Locale locale = ref.watch(localeProvider);
+    // Initialize sync notifier
+    registerSyncListeners(ref);
 
     return MaterialApp.router(
       locale: locale,
@@ -41,4 +46,14 @@ Future<List<Override>> providerOverrides() async {
   final sharedPreferences = await SharedPreferences.getInstance();
 
   return [sharedPreferencesProvider.overrideWith((ref) => sharedPreferences)];
+}
+
+void registerSyncListeners(WidgetRef ref) {
+  ref.listen(isAuthenticatedProvider, (previous, next) {
+    if (next) {
+      ref.read(syncBackendNotifierProvider.notifier).ensureConnected();
+    } else {
+      ref.invalidate(syncBackendNotifierProvider);
+    }
+  });
 }

@@ -1,30 +1,39 @@
 import 'dart:async';
 
+import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:signalr_netcore/signalr_client.dart';
+import 'package:logger/logger.dart';
 import 'package:syncora_frontend/common/providers/common_providers.dart';
 import 'package:syncora_frontend/common/providers/connection_provider.dart';
 import 'package:syncora_frontend/core/constants/constants.dart';
 import 'package:syncora_frontend/core/network/signalr_client.dart';
-import 'package:syncora_frontend/core/network/syncing/model/sync_payload.dart';
 import 'package:syncora_frontend/core/network/syncing/sync_repository.dart';
 import 'package:syncora_frontend/core/network/syncing/sync_service.dart';
 import 'package:syncora_frontend/core/utils/app_error.dart';
 import 'package:syncora_frontend/core/utils/result.dart';
+import 'package:syncora_frontend/features/authentication/models/auth_state.dart';
 import 'package:syncora_frontend/features/authentication/viewmodel/auth_viewmodel.dart';
-import 'package:syncora_frontend/features/groups/models/group.dart';
-import 'package:syncora_frontend/features/groups/services/groups_service.dart';
 import 'package:syncora_frontend/features/groups/viewmodel/groups_viewmodel.dart';
-import 'package:syncora_frontend/features/users/services/users_service.dart';
 import 'package:syncora_frontend/features/users/viewmodel/users_providers.dart';
 
-class SyncBackendNotifier extends AsyncNotifier<void> {
-  late SignalRClient? _syncSignalRClient;
-  late final SyncService _syncService;
-  late final GroupsService _groupsService;
-  late final UsersService _usersService;
+class SyncBackendNotifier extends AsyncNotifier<void>
+    with WidgetsBindingObserver {
+  SignalRClient? _syncSignalRClient;
+  late Logger _logger;
 
-  // Future<void> sync() async {
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    switch (state) {
+      case AppLifecycleState.resumed:
+        ensureConnected();
+        break;
+
+      default:
+    }
+    super.didChangeAppLifecycleState(state);
+  }
+
+  // Future<void> syncData() async {
   //   if (state.isLoading) return;
 
   //   if (ref.read(isGuestProvider)) {
@@ -47,7 +56,7 @@ class SyncBackendNotifier extends AsyncNotifier<void> {
   //   // ref.read(loggerProvider).d(ref.read(authNotifierProvider));
 
   //   state = const AsyncValue.loading();
-  //   Result<SyncPayload> result = await _syncService.syncFromServer();
+  //   Result<void> result = await ref.read(syncServiceProvider).syncFromServer();
 
   //   if (!result.isSuccess) {
   //     ref.read(appErrorProvider.notifier).state = result.error;
@@ -55,27 +64,8 @@ class SyncBackendNotifier extends AsyncNotifier<void> {
   //     return;
   //   }
 
-  //   Result<void> upsertUsersResult =
-  //       await _usersService.upsertUsers(result.data!.users);
-
-  //   if (!upsertUsersResult.isSuccess) {
-  //     ref.read(appErrorProvider.notifier).state = upsertUsersResult.error!;
-  //     state = AsyncValue.error(upsertUsersResult.error!, StackTrace.current);
-  //     return;
-  //   }
-
-  //   Result<void> upsertGroupsResult =
-  //       await _groupsService.upsertGroups(result.data!.groups);
-
-  //   if (!upsertGroupsResult.isSuccess) {
-  //     ref.read(appErrorProvider.notifier).state = upsertGroupsResult.error!;
-  //     state = AsyncValue.error(upsertGroupsResult.error!, StackTrace.current);
-  //     return;
-  //   }
-  //   // TODO: upsert tasks
-
   //   // Updating the groups notifier with the new data if it exists and there are groups
-  //   if (ref.exists(groupsNotifierProvider) && result.data!.groups.isNotEmpty) {
+  //   if (ref.exists(groupsNotifierProvider)) {
   //     ref.read(groupsNotifierProvider.notifier).reloadGroups();
   //   }
   //   // Make sure to update any part of the UI that might be listening to groups/users/tasks
@@ -83,7 +73,7 @@ class SyncBackendNotifier extends AsyncNotifier<void> {
   //   state = const AsyncValue.data(null);
   // }
 
-  Future<void> initiate() async {
+  Future<void> ensureConnected() async {
     if (ref.read(isGuestProvider) ||
         ref.read(connectionProvider) == ConnectionStatus.disconnected) {
       ref.read(appErrorProvider.notifier).state = AppError(
@@ -93,6 +83,11 @@ class SyncBackendNotifier extends AsyncNotifier<void> {
           StackTrace.current);
 
       return;
+    }
+    state = const AsyncValue.loading();
+
+    if (_syncSignalRClient != null) {
+      return await _startHubConnection();
     }
 
     String? accessToken = ref.read(sessionStorageProvider).token;
@@ -107,32 +102,31 @@ class SyncBackendNotifier extends AsyncNotifier<void> {
         serverUrl: Constants.BASE_HUB_URL,
         hub: "sync",
         accessToken: accessToken);
+
     _syncSignalRClient!.connection.on("ReceiveSync", _receiveSyncData);
+    _syncSignalRClient!.connection.onclose(_onClosedConnection);
+
+    return await _startHubConnection();
   }
 
-  Future<void> startHubConnection() async {
-    if (_syncSignalRClient == null) {
-      ref.read(appErrorProvider.notifier).state =
-          AppError("signalR client is not initialized");
-      state = AsyncValue.error(
-          "signalR client is not initialized", StackTrace.current);
-      return;
-    }
+  Future<void> _startHubConnection() async {
+    state = const AsyncValue.loading();
+
     ref.read(loggerProvider).i("Starting hub connection");
     Result result = await _syncSignalRClient!.connect();
 
     if (!result.isSuccess) {
       ref.read(appErrorProvider.notifier).state = result.error!;
       state = AsyncValue.error(result.error!, StackTrace.current);
+
+      return;
     }
+
+    // state = const AsyncValue.data(null);
   }
 
-  Future<void> stopHubConnection() async {
+  Future<void> _stopHubConnection() async {
     if (_syncSignalRClient == null) {
-      ref.read(appErrorProvider.notifier).state =
-          AppError("signalR client is not initialized");
-      state = AsyncValue.error(
-          "signalR client is not initialized", StackTrace.current);
       return;
     }
     Result result = await _syncSignalRClient!.disconnect();
@@ -147,23 +141,47 @@ class SyncBackendNotifier extends AsyncNotifier<void> {
     ref.read(loggerProvider).d("Server invoked the method");
   }
 
+  void _onClosedConnection({Exception? error}) {
+    ref
+        .read(loggerProvider)
+        .d("Connection with the server has been closed. $error");
+
+    // state = AsyncValue.error(
+    //     "Connection with the server has been closed", StackTrace.current);
+
+    // ref.read(appErrorProvider.notifier).state =
+    //     AppError("Connection with the server has been closed");
+  }
+
+  void dispose() {
+    _stopHubConnection();
+    _syncSignalRClient = null;
+    WidgetsBinding.instance.removeObserver(this);
+    _logger.d("Sync notifier disposed");
+  }
+
+  // TODO: Fix the loading state of the notifier
   @override
-  FutureOr<void> build() {
-    _syncService = ref.read(syncServiceProvider);
-    // Careful, group service is not immutable
-    _groupsService = ref.read(groupsServiceProvider);
-    _usersService = ref.read(usersServiceProvider);
+  FutureOr<void> build() async {
+    WidgetsBinding.instance.addObserver(this);
+    _logger = ref.watch(loggerProvider);
+    ref.read(loggerProvider).d("Initializing sync notifier");
+
+    ref.onDispose(dispose);
   }
 }
 
-final syncBackendProvider =
+final syncBackendNotifierProvider =
     AsyncNotifierProvider<SyncBackendNotifier, void>(SyncBackendNotifier.new);
 
 final syncServiceProvider = Provider<SyncService>((ref) {
-  return SyncService(syncRepository: ref.read(syncRepositoryProvider));
+  return SyncService(
+      syncRepository: ref.watch(syncRepositoryProvider),
+      groupsService: ref.watch(groupsServiceProvider),
+      usersService: ref.watch(usersServiceProvider));
 });
 
 final syncRepositoryProvider = Provider<SyncRepository>((ref) {
   return SyncRepository(
-      dio: ref.read(dioProvider), databaseManager: ref.read(localDbProvider));
+      dio: ref.watch(dioProvider), databaseManager: ref.watch(localDbProvider));
 });

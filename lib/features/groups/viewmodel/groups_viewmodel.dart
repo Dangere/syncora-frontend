@@ -101,26 +101,25 @@ final localGroupsRepositoryProvider = Provider<LocalGroupsRepository>((ref) {
 // Should be careful when using ref.read instead of ref.watch because
 // state change in lower dependencies won’t trigger rebuilds unless re-read manually or disposed at parent level.
 // This mimics the behavior of transient dependencies in ASP.NET core.
-final remoteGroupsRepositoryProvider =
-    Provider.autoDispose<RemoteGroupsRepository>((ref) {
+final remoteGroupsRepositoryProvider = Provider<RemoteGroupsRepository>((ref) {
   return RemoteGroupsRepository(dio: ref.read(dioProvider));
 });
 
-final groupsServiceProvider = Provider.autoDispose<GroupsService>((ref) {
-  ConnectionStatus connectionStatus = ref.watch(connectionProvider);
-  bool isOnline = connectionStatus == ConnectionStatus.connected ||
-      connectionStatus == ConnectionStatus.slow;
-  ref.read(loggerProvider).d("Constructing groups service");
+final groupsServiceProvider = Provider<GroupsService>((ref) {
+  // ConnectionStatus connectionStatus = ref.watch(connectionProvider);
+  // bool isOnline = connectionStatus == ConnectionStatus.connected ||
+  //     connectionStatus == ConnectionStatus.slow;
+  // ref.read(loggerProvider).d("Constructing groups service");
 
   // Get auth state from notifier and assume its not error nor loading
   var authState = ref.watch(authNotifierProvider).asData!.value;
 
   return GroupsService(
     authState: authState,
-    isOnline: isOnline,
-    localGroupRepository: ref.read(
+    isOnline: false,
+    localGroupRepository: ref.watch(
       localGroupsRepositoryProvider,
     ),
-    remoteGroupRepository: ref.read(remoteGroupsRepositoryProvider),
+    remoteGroupRepository: ref.watch(remoteGroupsRepositoryProvider),
   );
 });

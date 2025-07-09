@@ -23,8 +23,6 @@ class AuthNotifier extends AsyncNotifier<AuthState> {
 
     if (result.isSuccess) {
       state = AsyncValue.data(AuthAuthenticated(result.data!));
-      ref.read(syncBackendProvider.notifier).initiate();
-      ref.read(syncBackendProvider.notifier).startHubConnection();
     } else {
       ref.read(appErrorProvider.notifier).state = result.error!;
       state = const AsyncValue.data(AuthUnauthenticated());
@@ -42,8 +40,6 @@ class AuthNotifier extends AsyncNotifier<AuthState> {
 
     if (result.isSuccess) {
       state = AsyncValue.data(AuthAuthenticated(result.data!));
-      ref.read(syncBackendProvider.notifier).initiate();
-      ref.read(syncBackendProvider.notifier).startHubConnection();
     } else {
       ref.read(appErrorProvider.notifier).state = result.error;
       state = const AsyncValue.data(AuthUnauthenticated());
@@ -112,6 +108,14 @@ final isLoggedProvider = Provider<bool>((ref) {
     if (authState.value == null) return false;
 
     return authState.value!.isAuthenticated || authState.value!.isGuest;
+  }));
+});
+
+final isAuthenticatedProvider = Provider<bool>((ref) {
+  return ref.watch(authNotifierProvider.select((authState) {
+    if (authState.value == null) return false;
+
+    return authState.value!.isAuthenticated;
   }));
 });
 

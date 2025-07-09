@@ -21,6 +21,9 @@ class SignalRClient {
 
   Future<Result<void>> connect() async {
     try {
+      // _connection.keepAliveIntervalInMilliseconds = 5000;
+      // _connection.serverTimeoutInMilliseconds = 3000;
+
       await _connection.start();
 
       return Result.success(null);
