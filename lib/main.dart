@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:logger/logger.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:syncora_frontend/common/providers/common_providers.dart';
 import 'package:syncora_frontend/core/localization/generated/l10n/app_localizations.dart';
@@ -51,9 +50,14 @@ Future<List<Override>> providerOverrides() async {
 void registerSyncListeners(WidgetRef ref) {
   ref.listen(isAuthenticatedProvider, (previous, next) {
     if (next) {
-      ref.read(syncBackendNotifierProvider.notifier).ensureConnected();
+      if (ref.exists(syncBackendNotifierProvider)) {
+        ref.read(syncBackendNotifierProvider.notifier).initializeConnection();
+      }
+      ref.read(syncBackendNotifierProvider.notifier);
+
+      // ref.read(syncBackendNotifierProvider.notifier);
     } else {
-      ref.invalidate(syncBackendNotifierProvider);
+      ref.read(syncBackendNotifierProvider.notifier).dispose();
     }
   });
 }

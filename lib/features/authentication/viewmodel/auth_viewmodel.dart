@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:syncora_frontend/common/providers/common_providers.dart';
-import 'package:syncora_frontend/core/network/syncing/sync_notifier.dart';
 import 'package:syncora_frontend/core/utils/result.dart';
 import 'package:syncora_frontend/features/authentication/models/auth_state.dart';
 import 'package:syncora_frontend/features/authentication/models/user.dart';
@@ -14,7 +13,7 @@ class AuthNotifier extends AsyncNotifier<AuthState> {
   // final AuthService _authService;
 
   void loginWithEmailAndPassword(String email, String password) async {
-    if (state.isLoading || isLoggedIn) return;
+    if (state.isLoading || _isLoggedIn) return;
 
     state = const AsyncValue.loading();
     Result<User> result = await ref
@@ -31,7 +30,7 @@ class AuthNotifier extends AsyncNotifier<AuthState> {
 
   void registerWithEmailAndPassword(
       String email, String username, String password) async {
-    if (state.isLoading || isLoggedIn) return;
+    if (state.isLoading || _isLoggedIn) return;
 
     state = const AsyncValue.loading();
     Result<User> result = await ref
@@ -47,7 +46,7 @@ class AuthNotifier extends AsyncNotifier<AuthState> {
   }
 
   void loginAsGuest(String username) async {
-    if (state.isLoading || isLoggedIn) return;
+    if (state.isLoading || _isLoggedIn) return;
 
     state = const AsyncValue.loading();
     Result<User> result =
@@ -69,7 +68,7 @@ class AuthNotifier extends AsyncNotifier<AuthState> {
   // Value can be null when we are loading or theres an error,
   // even tho i dont throw errors when it happens and instead capture it in an AppError provider,
   // edge cases can happen and the notifier automatically wraps the throws into an AsyncValue.error
-  bool get isLoggedIn {
+  bool get _isLoggedIn {
     final value = state.valueOrNull;
     return value?.isAuthenticated == true || value?.isGuest == true;
   }

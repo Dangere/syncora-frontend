@@ -23,6 +23,8 @@ class AuthUnauthenticated extends AuthState {
 
 extension AuthStateX on AuthState {
   bool get isAuthenticated => this is AuthAuthenticated;
+  bool get isUnauthenticated => this is AuthUnauthenticated;
+
   bool get isGuest => this is AuthGuest;
   User? get user => switch (this) {
         AuthAuthenticated u => u.user,

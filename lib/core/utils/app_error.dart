@@ -1,5 +1,5 @@
 class AppError {
   final String message;
-  final String? parsedStackTrace;
+  final StackTrace? parsedStackTrace;
   AppError(this.message, [this.parsedStackTrace]);
 }

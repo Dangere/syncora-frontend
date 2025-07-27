@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:syncora_frontend/common/providers/connection_provider.dart';
 import 'package:syncora_frontend/common/widgets/syncing_icon.dart';
-import 'package:syncora_frontend/core/network/syncing/sync_notifier.dart';
 import 'package:syncora_frontend/core/utils/snack_bar_alerts.dart';
 import 'package:syncora_frontend/features/authentication/models/auth_state.dart';
 import 'package:syncora_frontend/features/authentication/viewmodel/auth_viewmodel.dart';
@@ -51,7 +50,7 @@ class _HomeScreenState extends ConsumerState<HomePage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             Text(
-              'Connection status: ${connection.toString()}',
+              'Connection status: ${connection.name}',
             ),
             Text(
               'Welcome back ${authState.value!.user!.username}',
@@ -63,7 +62,10 @@ class _HomeScreenState extends ConsumerState<HomePage> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          // ref.read(syncBackendProvider.notifier).sync();
+          bool fakeOnline = ref.read(fakeBeingOnlineProvider);
+          ref.read(fakeBeingOnlineProvider.notifier).state = !fakeOnline;
+
+          // ref.read(syncBackendNotifierProvider.notifier).test();
         },
         tooltip: 'Sync',
         child: const Icon(Icons.cloud_sync),
