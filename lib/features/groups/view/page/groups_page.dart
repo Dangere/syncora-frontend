@@ -93,11 +93,11 @@ class _GroupsFrontPageState extends ConsumerState<GroupsPage> {
                 padding: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
                 child: SyncingIcon(),
               ),
-            IconButton(
-              icon: const Icon(Icons.sports_gymnastics_rounded),
-              tooltip: 'Open shopping cart',
-              onPressed: () {},
-            ),
+            // IconButton(
+            //   icon: const Icon(Icons.sports_gymnastics_rounded),
+            //   tooltip: 'Open shopping cart',
+            //   onPressed: () {},
+            // ),
           ]),
       body: OverlayLoader(
           isLoading: groups.isLoading,

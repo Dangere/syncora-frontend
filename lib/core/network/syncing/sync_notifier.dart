@@ -94,7 +94,7 @@ class SyncBackendNotifier extends AsyncNotifier<int>
   }
 
   Future<Result> _initializeConnection() async {
-    String? accessToken = ref.read(sessionStorageProvider).token;
+    String? accessToken = ref.read(sessionStorageProvider).accessToken;
 
     if (accessToken == null) {
       return Result.failure(AppError("No access token", StackTrace.current));
@@ -219,40 +219,40 @@ class SyncBackendNotifier extends AsyncNotifier<int>
     //   if (value != ConnectionStatus.slow) return value;
     //   return ConnectionStatus.connected;
     // }));
-    ref.onDispose(dispose);
 
-    // ConnectionStatus connectionStatus = ref.watch(connectionProvider);
-    // var authState = ref.watch(authNotifierProvider);
+    ConnectionStatus connectionStatus = ref.watch(connectionProvider);
+    var authState = ref.watch(authNotifierProvider);
 
-    // switch (connectionStatus) {
-    //   case ConnectionStatus.disconnected:
-    //     throw AppError("Not connected to the internet", StackTrace.current);
+    switch (connectionStatus) {
+      case ConnectionStatus.disconnected:
+        throw AppError("Not connected to the internet", StackTrace.current);
 
-    //   case ConnectionStatus.checking:
-    //     return Completer<int>().future;
-    //   default:
-    // }
+      case ConnectionStatus.checking:
+        return Completer<int>().future;
+      default:
+    }
 
-    // authState.when(
-    //     data: (data) {
-    //       if (data.isUnauthenticated) {
-    //         throw AppError("User is not logged in", StackTrace.current);
-    //       }
+    authState.when(
+        data: (data) {
+          if (data.isUnauthenticated) {
+            throw AppError("User is not logged in", StackTrace.current);
+          }
 
-    //       if (data.isGuest) {
-    //         throw AppError("Current user is a guest", StackTrace.current);
-    //       }
-    //     },
-    //     error: (error, stackTrace) {
-    //       throw error;
-    //     },
-    //     loading: () => Completer<int>().future);
+          if (data.isGuest) {
+            throw AppError("Current user is a guest", StackTrace.current);
+          }
+        },
+        error: (error, stackTrace) {
+          throw error;
+        },
+        loading: () => Completer<int>().future);
 
-    // if (authState.isLoading) {
-    //   return Completer<int>().future;
-    // }
+    if (authState.isLoading) {
+      return Completer<int>().future;
+    }
 
     WidgetsBinding.instance.addObserver(this);
+
     _logger = ref.watch(loggerProvider);
 
     Result result = await initializeConnection();
@@ -260,6 +260,7 @@ class SyncBackendNotifier extends AsyncNotifier<int>
     if (!result.isSuccess) {
       throw result.error!;
     }
+    ref.onDispose(dispose);
 
     return 0;
   }

@@ -28,7 +28,7 @@ class MyApp extends ConsumerWidget {
     ThemeData theme = ref.watch(themeProvider);
     Locale locale = ref.watch(localeProvider);
     // Initialize sync notifier
-    registerSyncListeners(ref);
+    // registerSyncListeners(ref);
 
     return MaterialApp.router(
       locale: locale,
@@ -47,17 +47,17 @@ Future<List<Override>> providerOverrides() async {
   return [sharedPreferencesProvider.overrideWith((ref) => sharedPreferences)];
 }
 
-void registerSyncListeners(WidgetRef ref) {
-  ref.listen(isAuthenticatedProvider, (previous, next) {
-    if (next) {
-      if (ref.exists(syncBackendNotifierProvider)) {
-        ref.read(syncBackendNotifierProvider.notifier).initializeConnection();
-      }
-      ref.read(syncBackendNotifierProvider.notifier);
+// void registerSyncListeners(WidgetRef ref) {
+//   ref.listen(isAuthenticatedProvider, (previous, next) {
+//     if (next) {
+//       if (ref.exists(syncBackendNotifierProvider)) {
+//         ref.read(syncBackendNotifierProvider.notifier).initializeConnection();
+//       }
+//       ref.read(syncBackendNotifierProvider.notifier);
 
-      // ref.read(syncBackendNotifierProvider.notifier);
-    } else {
-      ref.read(syncBackendNotifierProvider.notifier).dispose();
-    }
-  });
-}
+//       // ref.read(syncBackendNotifierProvider.notifier);
+//     } else {
+//       ref.read(syncBackendNotifierProvider.notifier).dispose();
+//     }
+//   });
+// }
