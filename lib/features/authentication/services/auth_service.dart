@@ -24,8 +24,8 @@ class AuthService {
           await _authRepository.loginWithEmailAndPassword(email, password);
 
       // Storing the session
-      await _sessionStorage.saveSession(
-          loginResponse.user, loginResponse.accessToken);
+      await _sessionStorage.saveSession(loginResponse.user,
+          loginResponse.accessToken, loginResponse.refreshToken);
 
       return Result.success(loginResponse.user);
     } catch (e, stackTrace) {
@@ -40,8 +40,8 @@ class AuthService {
           .registerWithEmailAndPassword(email, username, password);
 
       // Storing the session
-      await _sessionStorage.saveSession(
-          registerResponse.user, registerResponse.accessToken);
+      await _sessionStorage.saveSession(registerResponse.user,
+          registerResponse.accessToken, registerResponse.refreshToken);
 
       return Result.success(registerResponse.user);
     } catch (e, stackTrace) {
@@ -52,7 +52,7 @@ class AuthService {
   Future<Result<User>> loginAsGuest(String username) async {
     User guest = User.guest(username);
     // Storing the user in session without token
-    await _sessionStorage.saveSession(guest, null);
+    await _sessionStorage.saveSession(guest, null, null);
     return Result.success(guest);
   }
 

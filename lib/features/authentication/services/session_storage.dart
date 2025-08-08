@@ -9,10 +9,15 @@ class SessionStorage {
   final FlutterSecureStorage _secureStorage;
   final SharedPreferences _sharedPreferences;
   final DatabaseManager _databaseManager;
-  String? _cachedToken;
-  String? get token => _cachedToken;
+  String? _cachedAccessToken;
+  String? get accessToken => _cachedAccessToken;
 
-  static const _tokenKey = 'jwt_token';
+  String? _cachedRefreshToken;
+  String? get refreshToken => _cachedRefreshToken;
+
+  static const _accessTokenKey = 'jwt_token';
+  static const _refreshTokenKey = 'refresh_token';
+
   static const _userKey = 'user';
 
   SessionStorage(
@@ -27,28 +32,39 @@ class SessionStorage {
     String? userJson = _sharedPreferences.getString(_userKey);
 
     if (userJson != null) {
-      _cachedToken = await _secureStorage.read(key: _tokenKey);
+      _cachedAccessToken = await _secureStorage.read(key: _accessTokenKey);
+      _cachedRefreshToken = await _secureStorage.read(key: _refreshTokenKey);
+
       return User.fromJson(json.decode(userJson));
     }
 
     return null;
   }
 
-  Future<void> saveSession(User user, String? token) async {
-    _cachedToken = token;
-
+  Future<void> saveSession(
+      User user, String? accessToken, String? refreshToken) async {
     var db = await _databaseManager.getDatabase();
     await db.insert("users", user.toJson());
-    await _secureStorage.write(key: _tokenKey, value: token);
     await _sharedPreferences.setString("user", json.encode(user));
+    await updateTokens(accessToken, refreshToken);
+  }
+
+  Future<void> updateTokens(String? accessToken, String? refreshToken) async {
+    _cachedAccessToken = accessToken;
+    _cachedRefreshToken = refreshToken;
+
+    await _secureStorage.write(key: _accessTokenKey, value: accessToken);
+    await _secureStorage.write(key: _refreshTokenKey, value: refreshToken);
   }
 
   Future<void> clearSession() async {
-    _cachedToken = null;
+    _cachedAccessToken = null;
+    _cachedRefreshToken = null;
     await _databaseManager.ensureDeleted();
 
     await Future.wait([
-      _secureStorage.delete(key: _tokenKey),
+      _secureStorage.delete(key: _accessTokenKey),
+      _secureStorage.delete(key: _refreshTokenKey),
       _sharedPreferences.remove(_userKey),
     ]);
   }
