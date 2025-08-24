@@ -1,15 +1,17 @@
 import 'dart:async';
-
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:syncora_frontend/common/providers/common_providers.dart';
+import 'package:syncora_frontend/core/utils/app_error.dart';
 import 'package:syncora_frontend/core/utils/result.dart';
 import 'package:syncora_frontend/features/authentication/models/auth_state.dart';
+import 'package:syncora_frontend/features/authentication/models/tokens_dto.dart';
 import 'package:syncora_frontend/features/authentication/models/user.dart';
 import 'package:syncora_frontend/features/authentication/repositories/auth_repository.dart';
 import 'package:syncora_frontend/features/authentication/services/auth_service.dart';
 import 'package:syncora_frontend/features/authentication/services/session_storage.dart';
 
 class AuthNotifier extends AsyncNotifier<AuthState> {
+  Completer? _refreshTokenCompleter;
   // final AuthService _authService;
 
   void loginWithEmailAndPassword(String email, String password) async {
@@ -63,6 +65,62 @@ class AuthNotifier extends AsyncNotifier<AuthState> {
   void logout() async {
     await ref.read(authServiceProvider).logout();
     state = const AsyncValue.data(AuthUnauthenticated());
+  }
+
+  void kickUser() async {
+    logout();
+
+    // TODO: Show pop up instead of snackbar
+    // TODO: in the future make it so you can differentiate between a revoked refresh token or an expired, and give different messages
+    ref.read(appErrorProvider.notifier).state = AppError(
+        message:
+            "Your session was either expired or revoked, please login again");
+  }
+
+  Future<Result> refreshTokens() async {
+    if (state.value == null || !state.value!.isAuthenticated) {
+      return Result.failure(
+          AppError(message: "Cannot refresh tokens when no user is logged in"));
+    }
+
+    String? accessToken = ref.read(sessionStorageProvider).accessToken;
+    String? refreshToken = ref.read(sessionStorageProvider).refreshToken;
+    if (accessToken == null || refreshToken == null) {
+      return Result.failure(
+          AppError(message: "Tokens are empty, cannot refresh them"));
+    }
+
+    if (_refreshTokenCompleter != null) {
+      await _refreshTokenCompleter?.future;
+      // Right now second callers to this method will only wait for the first caller to finish refreshing the tokens
+      // For all of them and it will return, but if it fails it will also return and the second callers wont know either.
+      // Refactor this part
+      return Result.success(null);
+    }
+
+    _refreshTokenCompleter = Completer();
+
+    Result<TokensDTO> result = await ref
+        .read(authServiceProvider)
+        .refreshAccessToken(
+            tokens:
+                TokensDTO(accessToken: accessToken, refreshToken: refreshToken),
+            kickFunc: kickUser);
+
+    // if (!result.isSuccess) {
+    //   if (!_refreshTokenCompleter!.isCompleted) {
+    //     // _refreshTokenCompleter?.completeError("failed to refresh tokens");
+    //   }
+    //   _refreshTokenCompleter = null;
+    // }
+
+    await ref.read(sessionStorageProvider).updateTokens(
+        accessToken: result.data!.accessToken,
+        refreshToken: result.data!.refreshToken);
+    _refreshTokenCompleter!.complete();
+    _refreshTokenCompleter = null;
+
+    return result;
   }
 
   // Value can be null when we are loading or theres an error,

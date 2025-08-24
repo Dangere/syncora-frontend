@@ -17,5 +17,14 @@ class AppLocalizationsAr extends AppLocalizations {
   String get guestLoginButton => 'تسجيل الدخول كضيف';
 
   @override
+  String get loginPage_guestPopTitle => 'اسم الضيف';
+
+  @override
+  String get loginPage_guestPopError_empty => 'اسم الضيف لا يمكن ان يكون فارغ';
+
+  @override
+  String get loginPage_guestPopError_invalid => 'اسم الضيف غير معرف';
+
+  @override
   String get groupsFrontPageTitle => 'المجموعات';
 }

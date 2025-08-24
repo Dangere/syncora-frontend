@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:logger/logger.dart';
 import 'package:syncora_frontend/common/providers/common_providers.dart';
 import 'package:syncora_frontend/features/authentication/view/pages/login_page.dart';
+import 'package:syncora_frontend/features/authentication/view/pages/register_page.dart';
 import 'package:syncora_frontend/features/authentication/viewmodel/auth_viewmodel.dart';
 import 'package:syncora_frontend/features/groups/view/page/groups_page.dart';
 import 'package:syncora_frontend/features/home/view/page/home_page.dart';
@@ -35,6 +36,13 @@ final routeProvider = Provider<GoRouter>((ref) {
           },
         ),
         GoRoute(
+          name: 'register',
+          path: '/register',
+          builder: (context, state) {
+            return const RegisterPage();
+          },
+        ),
+        GoRoute(
           name: 'groups',
           path: '/groups',
           builder: (context, state) {
@@ -43,9 +51,11 @@ final routeProvider = Provider<GoRouter>((ref) {
         ),
       ],
       redirect: (context, state) {
-        if (!isLogged && state.fullPath != "/login") {
-          logger.d(state.fullPath);
-
+        if (!isLogged &&
+            state.fullPath != "/login" &&
+            state.fullPath != "/register") {
+          logger.d(
+              "You were on ${state.fullPath} and getting redirected to login page");
           return '/login';
         }
 

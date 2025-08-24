@@ -117,6 +117,24 @@ abstract class AppLocalizations {
   /// **'Login as Guest'**
   String get guestLoginButton;
 
+  /// The guest pop up title
+  ///
+  /// In en, this message translates to:
+  /// **'Guest Username'**
+  String get loginPage_guestPopTitle;
+
+  /// The guest pop up error when text is empty
+  ///
+  /// In en, this message translates to:
+  /// **'Guest username cannot be empty'**
+  String get loginPage_guestPopError_empty;
+
+  /// The guest pop up error when text is invalid
+  ///
+  /// In en, this message translates to:
+  /// **'invalid username format'**
+  String get loginPage_guestPopError_invalid;
+
   /// The title of the groups front page
   ///
   /// In en, this message translates to:

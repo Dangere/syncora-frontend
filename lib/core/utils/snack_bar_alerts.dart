@@ -40,8 +40,8 @@ class SnackBarAlerts {
         ref
             .read(loggerProvider)
             .e("${next.message}\nError Source: ${context.widget.runtimeType}");
-        if (next.parsedStackTrace != null) {
-          ref.read(loggerProvider).w(next.parsedStackTrace);
+        if (next.stackTrace != null) {
+          ref.read(loggerProvider).w(next.stackTrace);
         }
       }
     });

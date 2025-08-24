@@ -1,6 +1,9 @@
+import 'dart:async';
+
 import 'package:dio/dio.dart';
 import 'package:syncora_frontend/core/constants/constants.dart';
 import 'package:syncora_frontend/features/authentication/models/auth_response_dto.dart';
+import 'package:syncora_frontend/features/authentication/models/tokens_dto.dart';
 
 class AuthRepository {
   final Dio _dio;
@@ -35,5 +38,23 @@ class AuthRepository {
 
     // Returning the authentication response
     return authResponse;
+  }
+
+  Future<TokensDTO> refreshAccessToken({required TokensDTO tokens}) async {
+    // Using a different instance of Dio incase the main instance is calling this method
+    // To refresh tokens
+    Dio dio = Dio();
+
+    final response = await dio
+        .post("${Constants.BASE_API_URL}/authentication/refresh-token", data: {
+      "RefreshToken": tokens.refreshToken,
+      "AccessToken": tokens.accessToken
+    }).timeout(const Duration(seconds: 10));
+
+    String fetchedAccessToken = response.data['accessToken'] as String;
+    String fetchedRefreshToken = response.data['refreshToken'] as String;
+
+    return TokensDTO(
+        accessToken: fetchedAccessToken, refreshToken: fetchedRefreshToken);
   }
 }

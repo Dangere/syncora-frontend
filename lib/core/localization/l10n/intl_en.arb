@@ -15,6 +15,18 @@
   "@guestLoginButton": {
     "description": "The guest login button"
   },
+  "loginPage_guestPopTitle": "Guest Username",
+  "@loginPage_guestPopTitle": {
+    "description": "The guest pop up title"
+  },
+  "loginPage_guestPopError_empty": "Guest username cannot be empty",
+  "@loginPage_guestPopError_empty": {
+    "description": "The guest pop up error when text is empty"
+  },
+  "loginPage_guestPopError_invalid": "invalid username format",
+  "@loginPage_guestPopError_invalid": {
+    "description": "The guest pop up error when text is invalid"
+  },
   "groupsFrontPageTitle": "Groups",
   "@groupsFrontPageTitle": {
     "description": "The title of the groups front page"

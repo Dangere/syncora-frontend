@@ -1,3 +1,4 @@
+import 'package:logger/logger.dart';
 import 'package:signalr_netcore/signalr_client.dart';
 import 'package:syncora_frontend/core/utils/error_mapper.dart';
 import 'package:syncora_frontend/core/utils/result.dart';
@@ -10,11 +11,13 @@ class SignalRClient {
   SignalRClient(
       {required String serverUrl,
       required String hub,
-      required String accessToken})
+      required Future<String> Function() accessTokenFactory})
       : _connection = HubConnectionBuilder()
             .withUrl("$serverUrl/$hub",
+                // By default our backend allows connection to persists even if a token expires as long as it was valid at the first handshake
+                // This can be overwritten in the backend's signalR options
                 options: HttpConnectionOptions(
-                  accessTokenFactory: () async => accessToken,
+                  accessTokenFactory: accessTokenFactory,
                 ))
             .withAutomaticReconnect()
             .build();

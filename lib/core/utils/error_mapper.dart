@@ -1,26 +1,35 @@
 import 'dart:async';
 
 import 'package:dio/dio.dart';
+import 'package:signalr_netcore/errors.dart';
 import 'package:stack_trace/stack_trace.dart';
 import 'package:syncora_frontend/core/utils/app_error.dart';
 
 class ErrorMapper {
   static AppError map(Object e, StackTrace stackTrace) {
     if (e is DioException) {
-      return AppError(mapDioError(e));
+      return AppError(message: mapDioErrorToMessage(e), errorObject: e);
     }
 
     if (e is TimeoutException) {
       return AppError(
-          "Time out error occurred, no response for ${e.duration?.inSeconds ?? "few"} seconds");
+          message:
+              "Time out error occurred, no response for ${e.duration?.inSeconds ?? "few"} seconds",
+          errorObject: e);
+    }
+
+    if (e is HttpError) {
+      return AppError(message: "HTTP error: ${e.toString()}", errorObject: e);
     }
 
     if (e is Exception) {
-      return AppError("Internal error: ${e.toString()}");
+      return AppError(
+          message: "Internal error: ${e.toString()}", errorObject: e);
     }
 
     return AppError(
-        "Undefined error: ${e.toString()}", _parseStackTrace(stackTrace));
+        message: "Undefined error: ${e.toString()}",
+        stackTrace: _parseStackTrace(stackTrace));
   }
 
   static StackTrace _parseStackTrace(StackTrace stackTrace) {
@@ -30,7 +39,7 @@ class ErrorMapper {
         p0.toString().contains("dart:ui"));
   }
 
-  static String mapDioError(DioException e) {
+  static String mapDioErrorToMessage(DioException e) {
     switch (e.type) {
       case DioExceptionType.connectionTimeout:
         return "Connection timed out. Please check your internet and try again.";
@@ -47,7 +56,7 @@ class ErrorMapper {
         // if (code == 401) return "Unauthorized: Invalid credentials.";
         // if (code >= 500) return "Server error ($code), ${e.response}";
         if (code >= 400) {
-          return "Client error ($code, ${e.response?.statusMessage}}) ${e.response}";
+          return "Client error ($code) ${e.response}";
         }
         return "Unexpected status code: $code";
       case DioExceptionType.cancel:

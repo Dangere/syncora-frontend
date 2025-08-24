@@ -17,5 +17,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get guestLoginButton => 'Login as Guest';
 
   @override
+  String get loginPage_guestPopTitle => 'Guest Username';
+
+  @override
+  String get loginPage_guestPopError_empty => 'Guest username cannot be empty';
+
+  @override
+  String get loginPage_guestPopError_invalid => 'invalid username format';
+
+  @override
   String get groupsFrontPageTitle => 'Groups';
 }

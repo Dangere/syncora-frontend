@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:syncora_frontend/common/providers/common_providers.dart';
 import 'package:syncora_frontend/common/themes/app_spacing.dart';
 import 'package:syncora_frontend/core/utils/alert_dialogs.dart';
@@ -21,6 +22,8 @@ class _LoginPageState extends ConsumerState<LoginPage> {
 
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
+
+  bool showPassword = false;
 
   @override
   void dispose() {
@@ -54,15 +57,16 @@ class _LoginPageState extends ConsumerState<LoginPage> {
       AlertDialogs.showTextFieldDialog(context,
           barrierDismissible: true,
           blurBackground: true,
-          message: "Guest Username",
+          message: AppLocalizations.of(context).loginPage_guestPopTitle,
           onContinue: (p0) =>
               {ref.read(authNotifierProvider.notifier).loginAsGuest(p0)},
           validation: (p0) {
             if (p0.isEmpty) {
-              return "guest username cannot be empty";
+              return AppLocalizations.of(context).loginPage_guestPopError_empty;
             }
             if (!Validators.validateUsername(p0)) {
-              return "invalid username format";
+              return AppLocalizations.of(context)
+                  .loginPage_guestPopError_invalid;
             }
             return null;
           });
@@ -77,77 +81,132 @@ class _LoginPageState extends ConsumerState<LoginPage> {
       body: OverlayLoader(
         isLoading: user.isLoading,
         overlay: const CircularProgressIndicator(),
-        body: Form(
-          key: _formKey,
-          child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
+        body: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            // Title
+            Text("Syncora", style: Theme.of(context).textTheme.headlineLarge),
+            // Forms and login buttons
+            Form(
+              key: _formKey,
+              child: Padding(
+                padding: const EdgeInsets.all(AppSpacing.lg),
+                child: Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      TextFormField(
+                        decoration: const InputDecoration(labelText: 'Email'),
+                        keyboardType: TextInputType.emailAddress,
+                        controller: emailController,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Email cannot be empty';
+                          }
+
+                          if (Validators.validateEmail(value.trim()) == false) {
+                            return 'Invalid email';
+                          }
+                          return null;
+                        },
+                      ),
+                      // Password field
+                      StatefulBuilder(builder: (context, setState) {
+                        return Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Expanded(
+                              child: TextFormField(
+                                decoration: const InputDecoration(
+                                    labelText: 'Password'),
+                                obscureText: !showPassword,
+                                controller: passwordController,
+                                keyboardType: TextInputType.visiblePassword,
+                                validator: (value) {
+                                  if (value == null || value.isEmpty) {
+                                    return 'Password cannot be empty';
+                                  }
+
+                                  if (Validators.validatePassword(
+                                          value.trim()) ==
+                                      false) {
+                                    return 'Password must be between 6 and 16 characters';
+                                  }
+                                  return null;
+                                },
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.only(top: 15.0),
+                              child: IconButton(
+                                  alignment: Alignment.center,
+                                  onPressed: () {
+                                    setState(() {
+                                      showPassword = !showPassword;
+                                    });
+                                  },
+                                  icon: Icon(!showPassword
+                                      ? Icons.remove_red_eye_outlined
+                                      : Icons.remove_red_eye)),
+                            )
+                          ],
+                        );
+                      }),
+                      AppSpacing.horizontalSpaceLg,
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          ElevatedButton(
+                              onPressed: login,
+                              child: Text(
+                                  AppLocalizations.of(context).loginButton)),
+                          ElevatedButton(
+                              onPressed: guestLogin,
+                              style: ButtonStyle(
+                                  backgroundColor: MaterialStateProperty.all(
+                                      Colors.grey.shade200)),
+                              child: Text(
+                                  AppLocalizations.of(context).guestLoginButton,
+                                  style: const TextStyle(color: Colors.black))),
+                        ],
+                      ),
+                      // SizedBox(height: 100),
+                      // Register button
+                    ]),
+              ),
+            ),
+            AppSpacing.horizontalSpaceLg,
+
+            // Footer
+            Column(
               children: [
-                Text("Syncora",
-                    style: Theme.of(context).textTheme.headlineLarge),
-
-                Padding(
-                  padding: const EdgeInsets.all(AppSpacing.lg),
-                  child: SizedBox(
-                    height: 300,
-                    child: Column(
-                      children: [
-                        // Email field
-
-                        TextFormField(
-                          decoration: const InputDecoration(labelText: 'Email'),
-                          keyboardType: TextInputType.emailAddress,
-                          controller: emailController,
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Email cannot be empty';
-                            }
-
-                            if (Validators.validateEmail(value.trim()) ==
-                                false) {
-                              return 'Invalid email';
-                            }
-                            return null;
-                          },
-                        ),
-                        // Password field
-                        TextFormField(
-                          decoration:
-                              const InputDecoration(labelText: 'Password'),
-                          obscureText: false,
-                          controller: passwordController,
-                          keyboardType: TextInputType.visiblePassword,
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Password cannot be empty';
-                            }
-
-                            if (Validators.validatePassword(value.trim()) ==
-                                false) {
-                              return 'Password must be between 6 and 16 characters';
-                            }
-                            return null;
-                          },
-                        ),
-                        AppSpacing.horizontalSpaceLg,
-                        ElevatedButton(
-                            onPressed: login,
-                            child:
-                                Text(AppLocalizations.of(context).loginButton)),
-                        AppSpacing.horizontalSpaceLg,
-                      ],
-                    ),
-                  ),
-                ),
-                // SizedBox(height: 100),
-
-                ElevatedButton(
-                    onPressed: guestLogin,
-                    style: ButtonStyle(
-                        backgroundColor:
-                            MaterialStateProperty.all(Colors.grey.shade200)),
-                    child: Text(AppLocalizations.of(context).guestLoginButton,
-                        style: const TextStyle(color: Colors.black))),
-              ]),
+                TextButton(
+                    onPressed: () {
+                      // TODO: Put register screen nav here
+                      context.replace('/register');
+                    },
+                    child: SizedBox(
+                      width: 200,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                              style: Theme.of(context).textTheme.bodyMedium,
+                              "Not a user? "),
+                          Text(
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodyMedium!
+                                  .copyWith(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .primary),
+                              "Register"),
+                        ],
+                      ),
+                    )),
+              ],
+            ),
+          ],
         ),
       ),
     );

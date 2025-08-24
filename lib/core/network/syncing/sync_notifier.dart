@@ -1,11 +1,8 @@
 import 'dart:async';
-import 'dart:ffi';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:logger/logger.dart';
-import 'package:signalr_netcore/hub_connection.dart';
 import 'package:syncora_frontend/common/providers/common_providers.dart';
 import 'package:syncora_frontend/common/providers/connection_provider.dart';
 import 'package:syncora_frontend/core/constants/constants.dart';
@@ -23,10 +20,10 @@ class SyncBackendNotifier extends AsyncNotifier<int>
     with WidgetsBindingObserver {
   SignalRClient? _syncSignalRClient;
   late Logger _logger;
-  bool _isRetryingConnection = false;
-  bool _isRetryingInitialization = false;
 
-  final int _retryingDurationInSeconds = 5;
+  final int _retryingServerConnectDurationInSeconds = 5;
+  final int _retryingServerConnectTries = 20;
+  bool _isDisposed = false;
 
   // @override
   // void didChangeAppLifecycleState(AppLifecycleState state) {
@@ -83,10 +80,10 @@ class SyncBackendNotifier extends AsyncNotifier<int>
   Future<Result> initializeConnection() async {
     Result result = await _initializeConnection();
 
-    if (!result.isSuccess) {
+    if (!result.isSuccess && !_isDisposed) {
       ref.read(appErrorProvider.notifier).state = result.error!;
       state = AsyncValue.error(result.error!.message,
-          result.error!.parsedStackTrace ?? StackTrace.current);
+          result.error!.stackTrace ?? StackTrace.current);
 
       // if (!_isRetryingInitialization) _retryHubInitialization();
     }
@@ -97,13 +94,15 @@ class SyncBackendNotifier extends AsyncNotifier<int>
     String? accessToken = ref.read(sessionStorageProvider).accessToken;
 
     if (accessToken == null) {
-      return Result.failure(AppError("No access token", StackTrace.current));
+      return Result.failure(
+          AppError(message: "No access token", stackTrace: StackTrace.current));
     }
 
     _syncSignalRClient = SignalRClient(
         serverUrl: Constants.BASE_HUB_URL,
         hub: "sync",
-        accessToken: accessToken);
+        accessTokenFactory: () async =>
+            Future.value(ref.read(sessionStorageProvider).accessToken!));
 
     _syncSignalRClient!.connection.on("ReceiveSync", _receiveSyncData);
     _syncSignalRClient!.connection.onclose(_onClosedConnection);
@@ -113,55 +112,49 @@ class SyncBackendNotifier extends AsyncNotifier<int>
     return await _startHubConnection();
   }
 
+  // This here tries to initial only the first connection to the backend's hub
+  // Next reconnections are happening elsewhere
   Future<Result> _startHubConnection() async {
     state = const AsyncValue.loading();
 
     if (_syncSignalRClient == null) {
-      return Result.failure(
-          AppError("SignalR connection isn't initialized", StackTrace.current));
+      return Result.failure(AppError(
+          message: "SignalR connection isn't initialized",
+          stackTrace: StackTrace.current));
     }
 
     ref.read(loggerProvider).i("Starting hub connection");
-    Result result = await _syncSignalRClient!.connect();
+    late Result result;
 
-    if (!result.isSuccess) {
-      if (!_isRetryingConnection) _retryHubConnection();
-      return result;
-    }
-
-    state = const AsyncValue.data(0);
-    return Result.success(null);
-  }
-
-  void _retryHubConnection() async {
-    _isRetryingConnection = true;
-    while (_syncSignalRClient?.connection.state ==
-        HubConnectionState.Disconnected) {
-      Result result = await _startHubConnection();
-      if (!result.isSuccess) {
-        state =
-            AsyncValue.error("Unable to connect to hub", StackTrace.current);
-
-        _logger.e(result.error!.message);
+    // We try to connect to the hub a specified number of times (_retryingServerConnectTries)
+    for (var i = 0; i < _retryingServerConnectTries; i++) {
+      if (_isDisposed) {
+        return Result.failure(AppError(
+            message: "Sync notifier is disposed",
+            stackTrace: StackTrace.current));
       }
-      await Future.delayed(Duration(seconds: _retryingDurationInSeconds));
-    }
-    _isRetryingConnection = false;
-  }
 
-  // void _retryHubInitialization() async {
-  //   _isRetryingInitialization = true;
-  //   while (_syncSignalRClient == null) {
-  //     Result result = await _initializeConnection();
-  //     if (!result.isSuccess) {
-  //       state =
-  //           AsyncValue.error("Unable to initialize hub", StackTrace.current);
-  //       _logger.w(result.error!.message);
-  //     }
-  //     await Future.delayed(Duration(seconds: _retryingDurationInSeconds));
-  //   }
-  //   _isRetryingInitialization = false;
-  // }
+      // Try to connect to the hub
+      result = await _syncSignalRClient!.connect();
+      if (!result.isSuccess) {
+        // If we getting 401 as a return error, it means our tokens are expired, we we try to refresh tokens then ,
+        if (result.error!.is401UnAuthorizedError()) {
+          await ref.read(authNotifierProvider.notifier).refreshTokens();
+        }
+
+        // If its not 401, then we keep retrying a specified number of times (_retryingServerConnectTries)
+        _logger.e(result.error!.message);
+        // We wait a duration
+        await Future.delayed(
+            Duration(seconds: _retryingServerConnectDurationInSeconds));
+      } else {
+        // If we get a successful result, we set the state to data so UI updates and we break the loop which returns the final result
+        state = const AsyncValue.data(0);
+        break;
+      }
+    }
+    return result;
+  }
 
   Future<Result> _stopHubConnection() async {
     if (_syncSignalRClient == null) {
@@ -186,7 +179,10 @@ class SyncBackendNotifier extends AsyncNotifier<int>
     ref.read(loggerProvider).d("Connection with the server has been closed");
 
     if (error != null) {
-      ref.read(appErrorProvider.notifier).state = AppError(error.toString());
+      ref.read(appErrorProvider.notifier).state = AppError(
+          message: error.toString(),
+          errorObject: error,
+          stackTrace: StackTrace.current);
       ref
           .read(loggerProvider)
           .d("Connection with the server has been closed, error: $error");
@@ -208,6 +204,7 @@ class SyncBackendNotifier extends AsyncNotifier<int>
     _syncSignalRClient = null;
     WidgetsBinding.instance.removeObserver(this);
     _logger.d("Sync notifier disposed");
+    _isDisposed = true;
   }
 
   // TODO: Fix the loading state of the notifier
@@ -219,13 +216,15 @@ class SyncBackendNotifier extends AsyncNotifier<int>
     //   if (value != ConnectionStatus.slow) return value;
     //   return ConnectionStatus.connected;
     // }));
-
+    _isDisposed = false;
     ConnectionStatus connectionStatus = ref.watch(connectionProvider);
     var authState = ref.watch(authNotifierProvider);
 
     switch (connectionStatus) {
       case ConnectionStatus.disconnected:
-        throw AppError("Not connected to the internet", StackTrace.current);
+        throw AppError(
+            message: "Not connected to the internet",
+            stackTrace: StackTrace.current);
 
       case ConnectionStatus.checking:
         return Completer<int>().future;
@@ -235,11 +234,15 @@ class SyncBackendNotifier extends AsyncNotifier<int>
     authState.when(
         data: (data) {
           if (data.isUnauthenticated) {
-            throw AppError("User is not logged in", StackTrace.current);
+            throw AppError(
+                message: "User is not logged in",
+                stackTrace: StackTrace.current);
           }
 
           if (data.isGuest) {
-            throw AppError("Current user is a guest", StackTrace.current);
+            throw AppError(
+                message: "Current user is a guest",
+                stackTrace: StackTrace.current);
           }
         },
         error: (error, stackTrace) {

@@ -42,14 +42,14 @@ class SessionStorage {
   }
 
   Future<void> saveSession(
-      User user, String? accessToken, String? refreshToken) async {
+      {required User user, String? accessToken, String? refreshToken}) async {
     var db = await _databaseManager.getDatabase();
     await db.insert("users", user.toJson());
     await _sharedPreferences.setString("user", json.encode(user));
-    await updateTokens(accessToken, refreshToken);
+    await updateTokens(accessToken: accessToken, refreshToken: refreshToken);
   }
 
-  Future<void> updateTokens(String? accessToken, String? refreshToken) async {
+  Future<void> updateTokens({String? accessToken, String? refreshToken}) async {
     _cachedAccessToken = accessToken;
     _cachedRefreshToken = refreshToken;
 

@@ -3,5 +3,8 @@
     "loginPageTitle": "تسجيل الدخول",
     "loginButton": "تسجيل الدخول",
     "guestLoginButton": "تسجيل الدخول كضيف",
-    "groupsFrontPageTitle": "المجموعات"
+    "groupsFrontPageTitle": "المجموعات",
+    "loginPage_guestPopTitle": "اسم الضيف",
+    "loginPage_guestPopError_empty": "اسم الضيف لا يمكن ان يكون فارغ",
+    "loginPage_guestPopError_invalid": "اسم الضيف غير معرف"
 }

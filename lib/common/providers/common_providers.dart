@@ -7,9 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:syncora_frontend/common/interceptors/auth_interceptor.dart';
 import 'package:syncora_frontend/common/themes/app_theme.dart';
 import 'package:syncora_frontend/core/data/database_manager.dart';
-import 'package:syncora_frontend/core/data/enums/database_target.dart';
 import 'package:syncora_frontend/core/utils/app_error.dart';
-import 'package:syncora_frontend/features/authentication/models/auth_state.dart';
 import 'package:syncora_frontend/features/authentication/viewmodel/auth_viewmodel.dart';
 
 final loggerProvider = Provider<Logger>((ref) {
@@ -18,8 +16,8 @@ final loggerProvider = Provider<Logger>((ref) {
 
 final dioProvider = Provider<Dio>((ref) {
   Dio dio = Dio();
-  dio.interceptors
-      .add(AuthInterceptor(sessionStorage: ref.read(sessionStorageProvider)));
+  dio.interceptors.add(AuthInterceptor(
+      sessionStorage: ref.read(sessionStorageProvider), ref: ref, dio: dio));
 
   return dio;
 });
