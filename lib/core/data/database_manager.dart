@@ -1,6 +1,8 @@
+import 'package:flutter/foundation.dart';
 import 'package:logger/logger.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
+import 'package:sqflite_common_ffi_web/sqflite_ffi_web.dart';
 import 'package:syncora_frontend/core/data/enums/database_tables.dart';
 
 class DatabaseManager {
@@ -12,6 +14,25 @@ class DatabaseManager {
     if (_db != null && _db!.isOpen) return _db!;
     String dbFileName = "syncora_database.db";
 
+    Logger().d("Creating database and caching it");
+
+    // If we are on the web we need to use a different factory
+    if (kIsWeb) {
+      // Change default factory on the web
+      databaseFactory = databaseFactoryFfiWeb;
+
+      _db = await databaseFactory.openDatabase(dbFileName,
+          options: OpenDatabaseOptions(
+            version: 1,
+            onCreate: _onCreate,
+            onConfigure: (db) async {
+              await db.execute('PRAGMA foreign_keys = ON');
+            },
+          ));
+
+      return _db!;
+    }
+
     final path = join(await getDatabasesPath(), dbFileName);
     _db = await openDatabase(
       path,
@@ -21,7 +42,6 @@ class DatabaseManager {
         await db.execute('PRAGMA foreign_keys = ON');
       },
     );
-    Logger().d("Creating database and caching it");
 
     return _db!;
   }

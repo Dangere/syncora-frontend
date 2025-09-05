@@ -6,7 +6,7 @@ import 'package:syncora_frontend/features/authentication/view/pages/login_page.d
 import 'package:syncora_frontend/features/authentication/view/pages/register_page.dart';
 import 'package:syncora_frontend/features/authentication/viewmodel/auth_viewmodel.dart';
 import 'package:syncora_frontend/features/groups/view/page/group_view_page.dart';
-import 'package:syncora_frontend/features/groups/view/page/groups_page.dart';
+// import 'package:syncora_frontend/features/groups/view/page/groups_page.dart';
 import 'package:syncora_frontend/features/home/view/page/home_page.dart';
 
 final routeProvider = Provider<GoRouter>((ref) {
