@@ -91,6 +91,25 @@ final groupsNotifierProvider =
     AutoDisposeAsyncNotifierProvider<GroupsNotifier, List<Group>>(
         GroupsNotifier.new);
 
+final groupProvider =
+    Provider.autoDispose.family<AsyncValue<Group>, int>((ref, groupId) {
+  final groups = ref.watch(groupsNotifierProvider);
+
+  return groups.when(
+    data: (data) {
+      // if (group == null) {
+      //   return const AsyncValue.error(
+      //       'Group not found', StackTrace.empty);
+      // }
+
+      Group group = data.firstWhere((element) => element.id == groupId);
+      return AsyncValue.data(group);
+    },
+    loading: () => const AsyncValue.loading(),
+    error: (e, s) => AsyncValue.error(e, s),
+  );
+});
+
 final localGroupsRepositoryProvider = Provider<LocalGroupsRepository>((ref) {
   return LocalGroupsRepository(ref.read(localDbProvider));
 });

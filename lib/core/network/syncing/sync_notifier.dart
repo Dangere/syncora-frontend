@@ -37,45 +37,46 @@ class SyncBackendNotifier extends AsyncNotifier<int>
   //   super.didChangeAppLifecycleState(state);
   // }
 
-  // Future<void> syncData() async {
-  //   if (state.isLoading) return;
+  Future<void> syncData() async {
+    // TODO: Instead of waiting for it to finish loading, we should schedule it to run in the future for new data
+    if (state.isLoading) return;
 
-  //   if (ref.read(isGuestProvider)) {
-  //     ref.read(appErrorProvider.notifier).state =
-  //         AppError("Can't sync and backup data when in guest mode");
-  //     state = AsyncValue.error(
-  //         "Can't sync and backup data when in guest mode", StackTrace.current);
+    if (ref.read(isGuestProvider)) {
+      ref.read(appErrorProvider.notifier).state =
+          AppError(message: "Can't sync and backup data when in guest mode");
+      state = AsyncValue.error(
+          "Can't sync and backup data when in guest mode", StackTrace.current);
 
-  //     return;
-  //   }
+      return;
+    }
 
-  //   if (ref.read(connectionProvider) == ConnectionStatus.disconnected) {
-  //     ref.read(appErrorProvider.notifier).state =
-  //         AppError("Can't sync when offline");
-  //     state = AsyncValue.error("Can't sync when offline", StackTrace.current);
+    if (ref.read(connectionProvider) == ConnectionStatus.disconnected) {
+      ref.read(appErrorProvider.notifier).state =
+          AppError(message: "Can't sync when offline");
+      state = AsyncValue.error("Can't sync when offline", StackTrace.current);
 
-  //     return;
-  //   }
+      return;
+    }
 
-  //   // ref.read(loggerProvider).d(ref.read(authNotifierProvider));
+    // ref.read(loggerProvider).d(ref.read(authNotifierProvider));
 
-  //   state = const AsyncValue.loading();
-  //   Result<void> result = await ref.read(syncServiceProvider).syncFromServer();
+    state = const AsyncValue.loading();
+    Result<void> result = await ref.read(syncServiceProvider).syncFromServer();
 
-  //   if (!result.isSuccess) {
-  //     ref.read(appErrorProvider.notifier).state = result.error;
-  //     state = AsyncValue.error(result.error!, StackTrace.current);
-  //     return;
-  //   }
+    if (!result.isSuccess) {
+      ref.read(appErrorProvider.notifier).state = result.error;
+      state = AsyncValue.error(result.error!, StackTrace.current);
+      return;
+    }
 
-  //   // Updating the groups notifier with the new data if it exists and there are groups
-  //   if (ref.exists(groupsNotifierProvider)) {
-  //     ref.read(groupsNotifierProvider.notifier).reloadGroups();
-  //   }
-  //   // Make sure to update any part of the UI that might be listening to groups/users/tasks
+    // Updating the groups notifier with the new data if it exists and there are groups
+    if (ref.exists(groupsNotifierProvider)) {
+      ref.read(groupsNotifierProvider.notifier).reloadGroups();
+    }
+    // Make sure to update any part of the UI that might be listening to groups/users/tasks
 
-  //   state = const AsyncValue.data(null);
-  // }
+    state = const AsyncValue.data(0);
+  }
 
   Future<Result> initializeConnection() async {
     Result result = await _initializeConnection();
@@ -172,7 +173,7 @@ class SyncBackendNotifier extends AsyncNotifier<int>
   }
 
   void _receiveSyncData(List<Object?>? parameters) {
-    ref.read(loggerProvider).d("Server invoked the method");
+    syncData();
   }
 
   void _onClosedConnection({Exception? error}) {
@@ -263,6 +264,8 @@ class SyncBackendNotifier extends AsyncNotifier<int>
     if (!result.isSuccess) {
       throw result.error!;
     }
+
+    await syncData();
     ref.onDispose(dispose);
 
     return 0;

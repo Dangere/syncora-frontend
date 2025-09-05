@@ -6,6 +6,7 @@ import 'package:syncora_frontend/common/widgets/syncing_icon.dart';
 import 'package:syncora_frontend/core/utils/snack_bar_alerts.dart';
 import 'package:syncora_frontend/features/authentication/models/auth_state.dart';
 import 'package:syncora_frontend/features/authentication/viewmodel/auth_viewmodel.dart';
+import 'package:syncora_frontend/features/groups/view/widgets/groups_list.dart';
 
 class HomePage extends ConsumerStatefulWidget {
   const HomePage({super.key, required this.title});
@@ -34,6 +35,7 @@ class _HomeScreenState extends ConsumerState<HomePage> {
 
     return Scaffold(
       appBar: AppBar(
+        scrolledUnderElevation: 0,
         leading:
             IconButton(onPressed: logout, icon: const Icon(Icons.exit_to_app)),
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
@@ -47,16 +49,28 @@ class _HomeScreenState extends ConsumerState<HomePage> {
       ),
       body: Center(
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Text(
-              'Connection status: ${connection.name}',
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(10),
+                  color: Colors.grey[200]),
+              child: Column(
+                children: [
+                  Text(
+                    'Connection status: ${connection.name}',
+                  ),
+                  Text(
+                    'Welcome back ${authState.value!.user!.username}',
+                  ),
+                ],
+              ),
             ),
-            Text(
-              'Welcome back ${authState.value!.user!.username}',
-            ),
-            ElevatedButton(
-                onPressed: openGroupsPage, child: Text("Groups page"))
+
+            const Expanded(child: GroupsList())
+            // ElevatedButton(onPressed: openGroupsPage, child: Text("Groups page"))
           ],
         ),
       ),
