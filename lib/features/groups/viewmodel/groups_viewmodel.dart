@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:syncora_frontend/common/providers/common_providers.dart';
 import 'package:syncora_frontend/common/providers/connection_provider.dart';
@@ -11,27 +12,62 @@ import 'package:syncora_frontend/features/groups/repositories/remote_groups_repo
 import 'package:syncora_frontend/features/groups/services/groups_service.dart';
 
 class GroupsNotifier extends AutoDisposeAsyncNotifier<List<Group>> {
-  late final GroupsService _groupsService;
-
   Future<void> createGroup(String title, String description) async {
     // state = const AsyncValue.loading();
 
     Result<Group> newGroupResult =
-        await _groupsService.createGroup(title, description);
+        await ref.read(groupsServiceProvider).createGroup(title, description);
 
     if (!newGroupResult.isSuccess) {
       ref.read(appErrorProvider.notifier).state = newGroupResult.error;
       return;
     }
 
-    Group newGroup = newGroupResult.data!;
-    // If we are trying to create a group while the state's value is null, set it to the new group
-    if (!state.hasValue) {
-      state = AsyncValue.data([newGroup]);
+    reloadGroups();
+  }
+
+  Future<void> updateGroupDetail(
+      String? title, String? description, int groupId) async {
+    if (title == null && description == null) return;
+
+    ref.read(loggerProvider).d("Updating group details");
+    Result<void> updateResult = await ref
+        .read(groupsServiceProvider)
+        .updateGroupTitle(title, description, groupId);
+    ref.read(loggerProvider).d("Done updating group details");
+
+    if (!updateResult.isSuccess) {
+      ref.read(appErrorProvider.notifier).state = updateResult.error;
       return;
     }
 
-    state = AsyncValue.data([...state.value!, newGroup]);
+    reloadGroups();
+  }
+
+  Future<void> allowUserAccessToGroup(
+      {required int groupId, required String username}) async {
+    Result<void> updateResult = await ref
+        .read(groupsServiceProvider)
+        .grantAccessToGroup(
+            allowAccess: true, groupId: groupId, username: username);
+
+    if (!updateResult.isSuccess) {
+      ref.read(appErrorProvider.notifier).state = updateResult.error;
+      return;
+    }
+  }
+
+  Future<void> removeUserAccessToGroup(
+      {required int groupId, required String username}) async {
+    Result<void> updateResult = await ref
+        .read(groupsServiceProvider)
+        .grantAccessToGroup(
+            allowAccess: false, groupId: groupId, username: username);
+
+    if (!updateResult.isSuccess) {
+      ref.read(appErrorProvider.notifier).state = updateResult.error;
+      return;
+    }
   }
 
   // Future<void> upsertGroups(List<Group> groups) async {
@@ -62,7 +98,8 @@ class GroupsNotifier extends AutoDisposeAsyncNotifier<List<Group>> {
   // }
 
   Future<void> reloadGroups() async {
-    Result<List<Group>> fetchResult = await _groupsService.getAllGroups();
+    Result<List<Group>> fetchResult =
+        await ref.read(groupsServiceProvider).getAllGroups();
 
     if (!fetchResult.isSuccess) {
       ref.read(appErrorProvider.notifier).state = fetchResult.error;
@@ -75,8 +112,8 @@ class GroupsNotifier extends AutoDisposeAsyncNotifier<List<Group>> {
   @override
   FutureOr<List<Group>> build() async {
     ref.watch(loggerProvider).w("Building groups notifier");
-    _groupsService = ref.watch(groupsServiceProvider);
-    Result<List<Group>> fetchResult = await _groupsService.getAllGroups();
+    Result<List<Group>> fetchResult =
+        await ref.read(groupsServiceProvider).getAllGroups();
 
     if (!fetchResult.isSuccess) {
       ref.read(appErrorProvider.notifier).state = fetchResult.error;
@@ -91,23 +128,19 @@ final groupsNotifierProvider =
     AutoDisposeAsyncNotifierProvider<GroupsNotifier, List<Group>>(
         GroupsNotifier.new);
 
+// final groupProvider =
+//     Provider.autoDispose.family<AsyncValue<Group>, int>((ref, groupId) {
+//   final group = ref.watch(localGroupsRepositoryProvider).getGroup(groupId);
+
+//   return group;
+// });
+
 final groupProvider =
-    Provider.autoDispose.family<AsyncValue<Group>, int>((ref, groupId) {
-  final groups = ref.watch(groupsNotifierProvider);
+    FutureProvider.autoDispose.family<Group, int>((ref, groupId) async {
+  final group =
+      await ref.watch(localGroupsRepositoryProvider).getGroup(groupId);
 
-  return groups.when(
-    data: (data) {
-      // if (group == null) {
-      //   return const AsyncValue.error(
-      //       'Group not found', StackTrace.empty);
-      // }
-
-      Group group = data.firstWhere((element) => element.id == groupId);
-      return AsyncValue.data(group);
-    },
-    loading: () => const AsyncValue.loading(),
-    error: (e, s) => AsyncValue.error(e, s),
-  );
+  return group;
 });
 
 final localGroupsRepositoryProvider = Provider<LocalGroupsRepository>((ref) {
@@ -132,10 +165,13 @@ final groupsServiceProvider = Provider<GroupsService>((ref) {
 
   // Get auth state from notifier and assume its not error nor loading
   var authState = ref.watch(authNotifierProvider).asData!.value;
+  ConnectionStatus connectionStatus = ref.watch(connectionProvider);
+  var isOnline = connectionStatus == ConnectionStatus.connected ||
+      connectionStatus == ConnectionStatus.slow;
 
   return GroupsService(
     authState: authState,
-    isOnline: false,
+    isOnline: isOnline,
     localGroupRepository: ref.watch(
       localGroupsRepositoryProvider,
     ),

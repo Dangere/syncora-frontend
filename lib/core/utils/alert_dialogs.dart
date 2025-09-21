@@ -1,16 +1,75 @@
 import 'dart:ui';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:syncora_frontend/core/typedef.dart';
 
 class AlertDialogs {
+  static void simpleDialog(context,
+      {required String title, required String message}) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text(
+            title,
+            style: Theme.of(context).textTheme.titleMedium,
+          ),
+          content: Text(
+            message,
+            style: Theme.of(context).textTheme.bodySmall,
+          ),
+          actions: [
+            ElevatedButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: const Text("Ok"))
+          ],
+        );
+      },
+    );
+  }
+
+  static void actionsDialog(context,
+      {required String title,
+      required String message,
+      required List<DialogAction> actions}) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          // actionsOverflowAlignment: OverflowBarAlignment.center,
+          title: Text(
+            title,
+            style: Theme.of(context).textTheme.titleMedium,
+          ),
+          content: Text(
+            message,
+            style: Theme.of(context).textTheme.bodySmall,
+          ),
+
+          actions: List.generate(actions.length, (index) {
+            return ElevatedButton(
+                onPressed: actions[index].onClick,
+                child: Text(actions[index].title));
+          }),
+          actionsAlignment: MainAxisAlignment.spaceBetween,
+          actionsPadding: const EdgeInsets.all(15),
+        );
+      },
+    );
+  }
+
   static void showTextFieldDialog(context,
       {required bool barrierDismissible,
       required bool blurBackground,
       required String message,
       required Function(String) onContinue,
-      required Func<String, String?> validation}) {
-    TextEditingController textEditingController = TextEditingController();
+      required Func<String, String?> validation,
+      String? defaultText}) {
+    TextEditingController textEditingController =
+        TextEditingController(text: defaultText);
 
     String? invalidationMessage;
 
@@ -61,5 +120,20 @@ class AlertDialogs {
         });
       },
     );
+  }
+}
+
+class DialogAction {
+  final String title;
+  final VoidCallback onClick;
+
+  DialogAction({required this.onClick, required this.title});
+
+  factory DialogAction.closeAction(context) {
+    return DialogAction(
+        onClick: () {
+          Navigator.of(context).pop();
+        },
+        title: "Cancel");
   }
 }

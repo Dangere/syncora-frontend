@@ -31,4 +31,15 @@ class Task {
             ? DateTime.parse(json['lastUpdateDate'] as String)
             : null,
       );
+
+  Map<String, dynamic> toJson() => <String, dynamic>{
+        'id': id,
+        'groupId': groupId,
+        'title': title,
+        'description': description,
+        'completed': completed,
+        'completedBy': completedBy,
+        'creationDate': creationDate.toIso8601String(),
+        'lastModifiedDate': lastModifiedDate?.toIso8601String(),
+      };
 }

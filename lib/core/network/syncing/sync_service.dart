@@ -30,7 +30,7 @@ class SyncService {
     }
   }
 
-  Future<Result<void>> syncFromServer() async {
+  Future<Result<SyncPayload>> syncFromServer() async {
     Result<SyncPayload> result = await fetchPayload();
 
     if (!result.isSuccess) {
@@ -52,6 +52,6 @@ class SyncService {
     }
     // TODO: upsert tasks
 
-    return Result.success(null);
+    return Result.success(result.data!);
   }
 }

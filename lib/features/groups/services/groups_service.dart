@@ -1,7 +1,10 @@
+import 'package:flutter/material.dart';
+import 'package:logger/logger.dart';
 import 'package:syncora_frontend/core/utils/error_mapper.dart';
 import 'package:syncora_frontend/core/utils/result.dart';
 import 'package:syncora_frontend/features/authentication/models/auth_state.dart';
 import 'package:syncora_frontend/features/groups/models/group.dart';
+import 'package:syncora_frontend/features/groups/models/group_dto.dart';
 import 'package:syncora_frontend/features/groups/repositories/local_groups_repository.dart';
 import 'package:syncora_frontend/features/groups/repositories/remote_groups_repository.dart';
 
@@ -48,6 +51,46 @@ class GroupsService {
     }
   }
 
+  Future<Result<void>> updateGroupTitle(
+      String? title, String? description, int groupId) async {
+    try {
+      // Logger().w(_isOnline);
+      if (_isOnline) {
+        print('updateGroupTitle');
+
+        await _remoteGroupRepository.updateGroupDetails(
+            title, description, groupId);
+
+        print('done updateGroupTitle');
+      }
+      // await _localGroupRepository.updateGroupDetails(
+      //     title, description, groupId);
+
+      return Result.success(null);
+    } catch (e, stackTrace) {
+      return Result.failure(ErrorMapper.map(e, stackTrace));
+    }
+  }
+
+  Future<Result<void>> grantAccessToGroup(
+      {required bool allowAccess,
+      required String username,
+      required int groupId}) async {
+    try {
+      if (allowAccess) {
+        await _remoteGroupRepository.addUserToGroup(
+            username: username, groupId: groupId);
+      } else {
+        await _remoteGroupRepository.removeUserFromGroup(
+            username: username, groupId: groupId);
+      }
+
+      return Result.success(null);
+    } catch (e, stackTrace) {
+      return Result.failure(ErrorMapper.map(e, stackTrace));
+    }
+  }
+
   // Future<Result<void>> leaveGroup(int groupId) async {
   //   try {
   //     return Result.success(await _remoteGroupRepository.leaveGroup(groupId));
@@ -56,7 +99,7 @@ class GroupsService {
   //   }
   // }
 
-  Future<Result<void>> upsertGroups(List<Group> groups) async {
+  Future<Result<void>> upsertGroups(List<GroupDTO> groups) async {
     try {
       return Result.success(await _localGroupRepository.upsertGroups(groups));
     } catch (e, stackTrace) {

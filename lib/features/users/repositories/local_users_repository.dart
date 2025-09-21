@@ -40,6 +40,7 @@ class LocalUsersRepository {
     Map<String, dynamic> user =
         (await db.query("users", where: "id = ?", whereArgs: [id])).single;
 
+    if (user.isEmpty) throw Exception("User with id $id not found");
     return User.fromJson(user);
   }
 }

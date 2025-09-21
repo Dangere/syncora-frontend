@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:collection';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -7,6 +8,7 @@ import 'package:syncora_frontend/common/providers/common_providers.dart';
 import 'package:syncora_frontend/common/providers/connection_provider.dart';
 import 'package:syncora_frontend/core/constants/constants.dart';
 import 'package:syncora_frontend/core/network/signalr_client.dart';
+import 'package:syncora_frontend/core/network/syncing/model/sync_payload.dart';
 import 'package:syncora_frontend/core/network/syncing/sync_repository.dart';
 import 'package:syncora_frontend/core/network/syncing/sync_service.dart';
 import 'package:syncora_frontend/core/utils/app_error.dart';
@@ -19,7 +21,6 @@ import 'package:syncora_frontend/features/users/viewmodel/users_providers.dart';
 class SyncBackendNotifier extends AsyncNotifier<int>
     with WidgetsBindingObserver {
   SignalRClient? _syncSignalRClient;
-  late Logger _logger;
 
   final int _retryingServerConnectDurationInSeconds = 5;
   final int _retryingServerConnectTries = 20;
@@ -58,10 +59,9 @@ class SyncBackendNotifier extends AsyncNotifier<int>
       return;
     }
 
-    // ref.read(loggerProvider).d(ref.read(authNotifierProvider));
-
     state = const AsyncValue.loading();
-    Result<void> result = await ref.read(syncServiceProvider).syncFromServer();
+    Result<SyncPayload> result =
+        await ref.read(syncServiceProvider).syncFromServer();
 
     if (!result.isSuccess) {
       ref.read(appErrorProvider.notifier).state = result.error;
@@ -69,10 +69,23 @@ class SyncBackendNotifier extends AsyncNotifier<int>
       return;
     }
 
+    ref
+        .read(loggerProvider)
+        .i("Syncing data from the server... ${result.data?.toString()}");
+
     // Updating the groups notifier with the new data if it exists and there are groups
     if (ref.exists(groupsNotifierProvider)) {
       ref.read(groupsNotifierProvider.notifier).reloadGroups();
     }
+    HashSet<int> changedGroups = result.data!.groupIds();
+
+    // Updating the groups notifier with the new data
+    changedGroups.forEach((element) {
+      if (ref.exists(groupProvider(element))) {
+        ref.invalidate(groupProvider(element));
+      }
+    });
+
     // Make sure to update any part of the UI that might be listening to groups/users/tasks
 
     state = const AsyncValue.data(0);
@@ -138,13 +151,13 @@ class SyncBackendNotifier extends AsyncNotifier<int>
       // Try to connect to the hub
       result = await _syncSignalRClient!.connect();
       if (!result.isSuccess) {
-        // If we getting 401 as a return error, it means our tokens are expired, we we try to refresh tokens then ,
+        // If we getting 401 as a return error, it means our tokens are expired, we then try to refresh tokens then ,
         if (result.error!.is401UnAuthorizedError()) {
           await ref.read(authNotifierProvider.notifier).refreshTokens();
         }
 
         // If its not 401, then we keep retrying a specified number of times (_retryingServerConnectTries)
-        _logger.e(result.error!.message);
+        ref.read(loggerProvider).e(result.error!.message);
         // We wait a duration
         await Future.delayed(
             Duration(seconds: _retryingServerConnectDurationInSeconds));
@@ -178,7 +191,7 @@ class SyncBackendNotifier extends AsyncNotifier<int>
 
   void _onClosedConnection({Exception? error}) {
     ref.read(loggerProvider).d("Connection with the server has been closed");
-
+    // Make it so it tries to reconnect to the hub after a specified duration
     if (error != null) {
       ref.read(appErrorProvider.notifier).state = AppError(
           message: error.toString(),
@@ -192,19 +205,19 @@ class SyncBackendNotifier extends AsyncNotifier<int>
 
   void _onHubReconnecting({Exception? error}) {
     state = const AsyncValue.loading();
-    _logger.d("Reconnecting to hub");
+    ref.read(loggerProvider).d("Reconnecting to hub");
   }
 
   void _onHubReconnect({String? connectionId}) {
     state = const AsyncValue.data(0);
-    _logger.d("Reconnected to hub");
+    ref.read(loggerProvider).d("Reconnected to hub");
   }
 
   void dispose() {
     _stopHubConnection();
     _syncSignalRClient = null;
     WidgetsBinding.instance.removeObserver(this);
-    _logger.d("Sync notifier disposed");
+    Logger().d("Sync notifier disposed");
     _isDisposed = true;
   }
 
@@ -256,8 +269,6 @@ class SyncBackendNotifier extends AsyncNotifier<int>
     }
 
     WidgetsBinding.instance.addObserver(this);
-
-    _logger = ref.watch(loggerProvider);
 
     Result result = await initializeConnection();
 

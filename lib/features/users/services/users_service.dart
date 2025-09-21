@@ -28,4 +28,16 @@ class UsersService {
       return Result.failure(ErrorMapper.map(e, stackTrace));
     }
   }
+
+  Future<Result<List<User>>> getUsers(List<int> ids) async {
+    try {
+      List<User> users = List.empty(growable: true);
+      for (int id in ids) {
+        users.add(await _localUsersRepository.getUser(id));
+      }
+      return Result.success(users);
+    } catch (e, stackTrace) {
+      return Result.failure(ErrorMapper.map(e, stackTrace));
+    }
+  }
 }

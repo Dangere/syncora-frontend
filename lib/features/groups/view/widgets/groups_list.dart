@@ -8,6 +8,7 @@ import 'package:syncora_frontend/core/utils/alert_dialogs.dart';
 import 'package:syncora_frontend/core/utils/snack_bar_alerts.dart';
 import 'package:syncora_frontend/core/utils/validators.dart';
 import 'package:syncora_frontend/features/groups/models/group.dart';
+import 'package:syncora_frontend/features/groups/models/group_dto.dart';
 import 'package:syncora_frontend/features/groups/view/widgets/group_panel.dart';
 import 'package:syncora_frontend/features/groups/viewmodel/groups_viewmodel.dart';
 import 'package:syncora_frontend/features/users/services/users_service.dart';

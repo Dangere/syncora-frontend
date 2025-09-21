@@ -4,6 +4,7 @@ import 'package:syncora_frontend/core/data/database_manager.dart';
 import 'package:syncora_frontend/core/data/enums/database_tables.dart';
 import 'package:syncora_frontend/features/authentication/models/user.dart';
 import 'package:syncora_frontend/features/groups/models/group.dart';
+import 'package:syncora_frontend/features/groups/models/group_dto.dart';
 
 class LocalGroupsRepository {
   final DatabaseManager _databaseManager;
@@ -46,7 +47,8 @@ class LocalGroupsRepository {
 
     Group newGroup = Group(
         id: -now.millisecondsSinceEpoch,
-        groupMembers: [],
+        groupMembersIds: const [],
+        tasksIds: const [],
         ownerUserId: ownerId,
         creationDate: now,
         title: title,
@@ -66,27 +68,43 @@ class LocalGroupsRepository {
   Future<List<Group>> getAllGroups() async {
     final db = await _databaseManager.getDatabase();
 
-    // List<Map<String, dynamic>> groups = await db.rawQuery(
-    //     ''' SELECT groups.id as groupId, groups.title, groups.description, groups.creationDate, groups.ownerUserId, users.id AS userId
-    //  FROM groups
-    //  LEFT JOIN groupsMembers ON groups.id = groupsMembers.groupId
-    //  LEFT JOIN users ON groupsMembers.userId = users.id''');
-
     List<Map<String, dynamic>> groups = await db.rawQuery(
         ''' SELECT * FROM ${DatabaseTables.groups} ORDER BY date(creationDate) ASC''');
 
     List<Map<String, dynamic>> members =
         await db.rawQuery(''' SELECT * FROM ${DatabaseTables.groupsMembers}
-        LEFT JOIN ${DatabaseTables.users} ON ${DatabaseTables.groupsMembers}.userId = users.id''');
+        LEFT JOIN ${DatabaseTables.users} ON ${DatabaseTables.groupsMembers}.userId = ${DatabaseTables.users}.id''');
+
+    List<Map<String, dynamic>> tasks =
+        await db.rawQuery(''' SELECT * FROM ${DatabaseTables.tasks}
+        LEFT JOIN ${DatabaseTables.groups} ON ${DatabaseTables.tasks}.groupId = ${DatabaseTables.groups}.id''');
 
     List<Group> groupList = List.empty(growable: true);
 
     for (var i = 0; i < groups.length; i++) {
-      Group group = Group.fromJsonWithMembers(
-          groups[i],
-          members
-              .where((member) => member["groupId"] == groups[i]["id"])
-              .toList());
+      List<int> membersIdsForGroup = members
+          .where((member) => member["groupId"] == groups[i]["id"])
+          .map((e) => e["id"] as int)
+          .toList();
+
+      List<int> tasksIdsForGroup = tasks
+          .where((task) => task["groupId"] == groups[i]["id"])
+          .map((e) => e["id"] as int)
+          .toList();
+
+      // Group group = Group(
+      //     creationDate: groups[i]["creationDate"],
+      //     description: groups[i]["description"],
+      //     id: groups[i]["id"],
+      //     ownerUserId: groups[i]["ownerUserId"],
+      //     groupMembersIds: membersIdsForGroup,
+      //     taskIds: tasksIdsForGroup,
+      //     title: groups[i]["title"]);
+
+      Group group = Group.fromJsonWithIds(
+          json: groups[i],
+          taskIds: tasksIdsForGroup,
+          groupMembersIds: membersIdsForGroup);
       groupList.add(group);
     }
 
@@ -101,19 +119,66 @@ class LocalGroupsRepository {
     return groupList;
   }
 
+  Future<Group> getGroup(int groupId) async {
+    final db = await _databaseManager.getDatabase();
+
+    List<Map<String, dynamic>> groupQuery = await db.rawQuery(
+        ''' SELECT * FROM ${DatabaseTables.groups} WHERE id = $groupId''');
+
+    if (groupQuery.isEmpty) {
+      throw Exception("Group with id $groupId not found");
+    }
+
+    List<Map<String, dynamic>> members =
+        await db.rawQuery(''' SELECT * FROM ${DatabaseTables.groupsMembers}
+        LEFT JOIN ${DatabaseTables.users} ON ${DatabaseTables.groupsMembers}.userId = ${DatabaseTables.users}.id WHERE ${DatabaseTables.groupsMembers}.groupId = $groupId''');
+
+    List<Map<String, dynamic>> tasks =
+        await db.rawQuery(''' SELECT * FROM ${DatabaseTables.tasks}
+        LEFT JOIN ${DatabaseTables.groups} ON ${DatabaseTables.tasks}.groupId = ${DatabaseTables.groups}.id WHERE ${DatabaseTables.tasks}.groupId = $groupId''');
+
+    List<int> membersIdsForGroup = members
+        .where((member) => member["groupId"] == groupQuery[0]["id"])
+        .map((e) => e["id"] as int)
+        .toList();
+
+    List<int> tasksIdsForGroup = tasks
+        .where((task) => task["groupId"] == groupQuery[0]["id"])
+        .map((e) => e["id"] as int)
+        .toList();
+
+    Group group = Group.fromJsonWithIds(
+        json: groupQuery[0],
+        taskIds: tasksIdsForGroup,
+        groupMembersIds: membersIdsForGroup);
+
+    return group;
+  }
+
   Future<void> leaveGroup(int groupId) {
     // TODO: implement leaveGroup
     throw UnimplementedError();
   }
 
-  Future<void> upsertGroups(List<Group> groups) async {
+  Future<void> updateGroupDetails(
+      String? title, String? description, int groupId) async {
+    final db = await _databaseManager.getDatabase();
+    await db.update(
+      DatabaseTables.groups,
+      {"title": title, "description": description},
+      where: "id = ?",
+      whereArgs: [groupId],
+    );
+  }
+
+  Future<void> upsertGroups(List<GroupDTO> groups) async {
     // throw UnimplementedError("No upsert method");
 
     final db = await _databaseManager.getDatabase();
 
     await db.transaction((txn) async {
       final batch = txn.batch();
-      for (Group group in groups) {
+      for (GroupDTO group in groups) {
         batch.insert(
           DatabaseTables.groups,
           group.toTable(),

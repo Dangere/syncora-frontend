@@ -31,6 +31,7 @@ class MyApp extends ConsumerWidget {
     // registerSyncListeners(ref);
 
     return MaterialApp.router(
+      debugShowCheckedModeBanner: false,
       locale: locale,
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,

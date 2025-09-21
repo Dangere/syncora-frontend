@@ -27,6 +27,7 @@ final secureStorageProvider = Provider<FlutterSecureStorage>((ref) {
 });
 
 final sharedPreferencesProvider = Provider<SharedPreferences>((ref) {
+  Logger().d("This shouldn't be reached and instead initialized in main()");
   // Gets initialized at main()
   throw UnimplementedError();
 });

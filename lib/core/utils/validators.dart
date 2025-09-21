@@ -18,7 +18,7 @@ class Validators {
   }
 
   static bool validateGroupTitle(String title) {
-    final regex = RegExp(r'^[a-zA-Z0-9\s]{3,16}$');
+    final regex = RegExp(r'^[a-zA-Z0-9\s]{3,26}$');
     return regex.hasMatch(title);
   }
 

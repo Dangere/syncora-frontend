@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:syncora_frontend/common/providers/connection_provider.dart';
+import 'package:syncora_frontend/common/themes/app_sizes.dart';
 import 'package:syncora_frontend/common/widgets/syncing_icon.dart';
 import 'package:syncora_frontend/core/utils/snack_bar_alerts.dart';
 import 'package:syncora_frontend/features/authentication/models/auth_state.dart';
@@ -55,7 +56,7 @@ class _HomeScreenState extends ConsumerState<HomePage> {
             Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(10),
+                  borderRadius: BorderRadius.circular(AppSizes.borderRadius),
                   color: Colors.grey[200]),
               child: Column(
                 children: [

@@ -1,3 +1,6 @@
+import 'package:color_hash/color_hash.dart';
+import 'package:flutter/material.dart';
+
 class User {
   final int id;
   final String username;
@@ -25,4 +28,16 @@ class User {
 
   factory User.guest(String username) =>
       User(id: -1, username: username, email: "", pfpURL: "");
+
+  Color userColor() {
+    ColorHash colorHash = ColorHash(
+      username,
+      saturation: 0.5,
+      lightness: 0.5,
+      hue: (0, 360),
+    );
+    Color color = colorHash.toColor();
+
+    return color;
+  }
 }

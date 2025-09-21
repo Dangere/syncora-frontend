@@ -33,8 +33,8 @@ class AuthService {
           accessToken: loginResponse.tokens.accessToken,
           refreshToken: loginResponse.tokens.refreshToken);
 
-      Logger().w(loginResponse.tokens.accessToken);
-      Logger().w(loginResponse.tokens.refreshToken);
+      // Logger().w(loginResponse.tokens.accessToken);
+      // Logger().w(loginResponse.tokens.refreshToken);
 
       return Result.success(loginResponse.user);
     } catch (e, stackTrace) {
@@ -68,14 +68,14 @@ class AuthService {
   }
 
   Future<Result<TokensDTO>> refreshAccessToken(
-      {required TokensDTO tokens, required VoidCallback kickFunc}) async {
+      {required TokensDTO tokens, required VoidCallback onExpire}) async {
     try {
       TokensDTO refreshedTokens =
           await _authRepository.refreshAccessToken(tokens: tokens);
       return Result.success(refreshedTokens);
     } on DioException catch (e, stackTrace) {
       if (e.response?.statusCode == 401) {
-        kickFunc();
+        onExpire();
       }
       return Result.failure(ErrorMapper.map(e, stackTrace));
     } catch (e, stackTrace) {

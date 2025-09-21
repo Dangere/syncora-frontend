@@ -100,12 +100,13 @@ class AuthNotifier extends AsyncNotifier<AuthState> {
 
     _refreshTokenCompleter = Completer();
 
+    ref.read(loggerProvider).d("Refreshing tokens");
     Result<TokensDTO> result = await ref
         .read(authServiceProvider)
         .refreshAccessToken(
             tokens:
                 TokensDTO(accessToken: accessToken, refreshToken: refreshToken),
-            kickFunc: kickUser);
+            onExpire: kickUser);
 
     // if (!result.isSuccess) {
     //   if (!_refreshTokenCompleter!.isCompleted) {
@@ -132,6 +133,9 @@ class AuthNotifier extends AsyncNotifier<AuthState> {
   }
 
   Future<User?> loadSession() async {
+    ref.read(loggerProvider).w("Making up a user");
+
+    // return new User(id: -1, username: "username", email: "email");
     return await ref.read(sessionStorageProvider).loadSession();
   }
 
