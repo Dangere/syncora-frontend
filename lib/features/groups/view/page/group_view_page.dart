@@ -13,7 +13,11 @@ import 'package:syncora_frontend/features/authentication/models/auth_state.dart'
 import 'package:syncora_frontend/features/authentication/models/user.dart';
 import 'package:syncora_frontend/features/authentication/viewmodel/auth_viewmodel.dart';
 import 'package:syncora_frontend/features/groups/models/group.dart';
+import 'package:syncora_frontend/features/tasks/models/task.dart';
+import 'package:syncora_frontend/features/tasks/services/tasks_service.dart';
+import 'package:syncora_frontend/features/tasks/view/task_panel.dart';
 import 'package:syncora_frontend/features/groups/viewmodel/groups_viewmodel.dart';
+import 'package:syncora_frontend/features/tasks/viewmodel/tasks_providers.dart';
 import 'package:syncora_frontend/features/users/services/users_service.dart';
 import 'package:syncora_frontend/features/users/viewmodel/users_providers.dart';
 
@@ -81,7 +85,7 @@ class _GroupViewPageState extends ConsumerState<GroupViewPage> {
               : "Invalid Username");
     }
 
-    void createTask(int groupId, String taskContent) {
+    void createTask(int groupId) {
       AlertDialogs.showTextFieldDialog(context,
           barrierDismissible: true,
           blurBackground: false,
@@ -89,7 +93,7 @@ class _GroupViewPageState extends ConsumerState<GroupViewPage> {
           onContinue: (p0) {
             ref
                 .read(groupsNotifierProvider.notifier)
-                .allowUserAccessToGroup(groupId: groupId, username: p0.trim());
+                .createTask(groupId: groupId, title: p0, description: null);
           },
           validation: (p0) => null);
     }
@@ -106,13 +110,15 @@ class _GroupViewPageState extends ConsumerState<GroupViewPage> {
               editGroupDescription: () =>
                   groupDescriptionEditPopup(group.description),
               addUserToGroup: () => addUserToGroup(group.id),
+              createTask: () => createTask(group.id),
             ));
   }
 
   Widget _buildGroupView(Group group,
       {required VoidCallback editGroupTitle,
       required VoidCallback editGroupDescription,
-      required VoidCallback addUserToGroup}) {
+      required VoidCallback addUserToGroup,
+      required VoidCallback createTask}) {
     AuthState? authState = ref.watch(authNotifierProvider).valueOrNull;
 
     ref.read(loggerProvider).d("Displaying group view");
@@ -170,17 +176,23 @@ class _GroupViewPageState extends ConsumerState<GroupViewPage> {
             //     ? "No description"
             //     : group.description!),
             Text("Tasks"),
+            _buildTasksSection(group)
           ],
         ),
       ),
-      // This button will update the groups, but we shouldnt rebuild this widget cuz we are supposedly listening to a change in one specific group
-      floatingActionButton: FloatingActionButton(onPressed: () {
-        ref.read(syncBackendNotifierProvider.notifier).syncData();
-      }),
+
+      floatingActionButton: FloatingActionButton(
+        onPressed: createTask,
+        child: const Icon(Icons.add),
+      ),
+      // // This button will update the entire groups, but it shouldnt rebuild this widget cuz this group is supposedly listening to a change in one specific group
+      // floatingActionButton: FloatingActionButton(onPressed: () {
+      //   ref.read(syncBackendNotifierProvider.notifier).syncData();
+      // }),
     );
   }
 
-  // This is the section that displays the group members
+  // This is the section that displays the group members, TODO: make it so it has a fixed height and width regardless of available data
   Widget _buildMembersSection(
       Group group, AuthState? authState, VoidCallback addUserToGroup) {
     UsersService usersService = ref.read(usersServiceProvider);
@@ -198,12 +210,14 @@ class _GroupViewPageState extends ConsumerState<GroupViewPage> {
                 padding: const EdgeInsets.all(5.0),
                 child: SizedBox(
                   width: 70,
+                  height: 70,
                   child: Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
                       SizedBox(
                         child: CircleAvatar(
+                          radius: 25,
                           backgroundColor: users[index].userColor(),
-                          radius: 30,
                           child: const Icon(
                             Icons.person,
                           ),
@@ -221,8 +235,10 @@ class _GroupViewPageState extends ConsumerState<GroupViewPage> {
       Widget addMemberButton() => Padding(
             padding: const EdgeInsets.all(2.0),
             child: SizedBox(
-              width: 70,
+              width: 50,
+              height: 70,
               child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   IconButton(
                     icon: const Icon(
@@ -241,42 +257,134 @@ class _GroupViewPageState extends ConsumerState<GroupViewPage> {
       return members;
     }
 
-    return FutureBuilder(
-        future:
-            usersService.getUsers([group.ownerUserId] + group.groupMembersIds),
-        builder: (context, snapshot) {
-          if (snapshot.hasError) {
-            return Text(snapshot.error.toString());
-          } else if (!snapshot.hasData) {
-            return const CircularProgressIndicator();
-          }
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Container(
+        height: 80,
+        decoration: BoxDecoration(
+            color: Colors.grey[50],
+            // border: Border.all(),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.5),
+                spreadRadius: 0,
+                blurRadius: 5,
+                offset: const Offset(0.5, 0.5),
+              )
+            ],
+            borderRadius: BorderRadius.circular(AppSizes.borderRadius)),
+        width: double.infinity,
+        child: FutureBuilder(
+            future: usersService
+                .getUsers([group.ownerUserId] + group.groupMembersIds),
+            builder: (context, snapshot) {
+              if (snapshot.hasError) {
+                return Center(child: Text(snapshot.error.toString()));
+              } else if (!snapshot.hasData) {
+                return const Center(child: CircularProgressIndicator());
+              }
 
-          List<User> users = snapshot.data!.data!;
+              List<User> users = snapshot.data!.data!;
 
-          return Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Container(
-              width: double.infinity,
-              decoration: BoxDecoration(
-                  color: Colors.grey[50],
-                  // border: Border.all(),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.5),
-                      spreadRadius: 0,
-                      blurRadius: 5,
-                      offset: Offset(0.5, 0.5),
-                    )
-                  ],
-                  borderRadius: BorderRadius.circular(AppSizes.borderRadius)),
-              child: SingleChildScrollView(
+              return SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
                 child: Row(
                   children: membersListItems(users),
                 ),
-              ),
-            ),
-          );
-        });
+              );
+
+              // return Padding(
+              //   padding: const EdgeInsets.all(8.0),
+              //   child: Container(
+              //     width: double.infinity,
+              //     decoration: BoxDecoration(
+              //         color: Colors.grey[50],
+              //         // border: Border.all(),
+              //         boxShadow: [
+              //           BoxShadow(
+              //             color: Colors.black.withOpacity(0.5),
+              //             spreadRadius: 0,
+              //             blurRadius: 5,
+              //             offset: const Offset(0.5, 0.5),
+              //           )
+              //         ],
+              //         borderRadius: BorderRadius.circular(AppSizes.borderRadius)),
+              //     child: SingleChildScrollView(
+              //       scrollDirection: Axis.horizontal,
+              //       child: Row(
+              //         children: membersListItems(users),
+              //       ),
+              //     ),
+              //   ),
+              // );
+            }),
+      ),
+    );
+  }
+
+  Widget _buildTasksSection(Group group) {
+    TasksService tasksService = ref.read(tasksServiceProvider);
+
+    List<Widget> tasksListItems(List<Task> tasks) {
+      return List.generate(
+          tasks.length,
+          (index) => Column(
+                children: [
+                  TaskPanel(
+                    task: tasks[index],
+                    onDelete: () {},
+                    onChange: (bool? arg) {
+                      ref.read(groupsNotifierProvider.notifier).updateTask(
+                          taskId: tasks[index].id,
+                          groupId: group.id,
+                          completed: arg!);
+                    },
+                  ),
+                  if (index != tasks.length - 1) const Divider()
+                ],
+              ));
+    }
+
+    return Expanded(
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Container(
+          width: double.infinity,
+          decoration: BoxDecoration(
+              color: Colors.grey[50],
+              // border: Border.all(),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.5),
+                  spreadRadius: 0,
+                  blurRadius: 5,
+                  offset: const Offset(0.5, 0.5),
+                )
+              ],
+              borderRadius: BorderRadius.circular(AppSizes.borderRadius)),
+          child: FutureBuilder(
+            future: tasksService.getTasksForGroup(group.id),
+            builder: (context, snapshot) {
+              if (snapshot.hasError) {
+                return Text(snapshot.error.toString());
+              } else if (!snapshot.hasData) {
+                return const Center(child: CircularProgressIndicator());
+              }
+
+              if (!snapshot.data!.isSuccess) {
+                return Center(child: Text(snapshot.data!.error!.message));
+              }
+
+              List<Task> tasks = snapshot.data!.data!;
+
+              if (tasks.isEmpty) return const Center(child: Text("No tasks"));
+
+              return SingleChildScrollView(
+                  child: Column(children: tasksListItems(tasks)));
+            },
+          ),
+        ),
+      ),
+    );
   }
 }

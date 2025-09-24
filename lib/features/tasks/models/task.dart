@@ -3,9 +3,9 @@ class Task {
   final String title;
   final String? description;
   final bool completed;
-  final String? completedBy;
+  final int? completedById;
   final DateTime creationDate;
-  final DateTime? lastModifiedDate;
+  // final DateTime? lastModifiedDate;
   final int groupId;
 
   Task({
@@ -15,21 +15,24 @@ class Task {
     required this.groupId,
     this.description,
     this.completed = false,
-    this.completedBy,
-    this.lastModifiedDate,
+    this.completedById,
+    // this.lastModifiedDate,
   });
-
+  // Note: the local sqflite db converts bool into int so we convert it back to bool
+  // However the backend returns a bool directly so we don't need to convert
   factory Task.fromJson(Map<String, dynamic> json) => Task(
         id: json['id'],
         groupId: json['groupId'],
         title: json['title'] as String,
         description: json['description'] as String?,
-        completed: json['completed'] as bool,
-        completedBy: json['CompletedById'] as String?,
+        completed: (json['completed'] is int)
+            ? (json['completed'] == 1 ? true : false)
+            : json['completed'],
+        completedById: json['completedById'] as int?,
         creationDate: DateTime.parse(json['creationDate'] as String),
-        lastModifiedDate: json['LastModifiedDate'] != null
-            ? DateTime.parse(json['lastUpdateDate'] as String)
-            : null,
+        // lastModifiedDate: json['lastModifiedDate'] != null
+        //     ? DateTime.parse(json['lastModifiedDate'] as String)
+        //     : null,
       );
 
   Map<String, dynamic> toJson() => <String, dynamic>{
@@ -37,9 +40,9 @@ class Task {
         'groupId': groupId,
         'title': title,
         'description': description,
-        'completed': completed,
-        'completedBy': completedBy,
+        'completed': completed ? 1 : 0,
+        'CompletedById': completedById,
         'creationDate': creationDate.toIso8601String(),
-        'lastModifiedDate': lastModifiedDate?.toIso8601String(),
+        // 'lastModifiedDate': lastModifiedDate?.toIso8601String(),
       };
 }

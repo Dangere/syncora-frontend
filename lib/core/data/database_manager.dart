@@ -75,13 +75,12 @@ class DatabaseManager {
         id INTEGER PRIMARY KEY,
         title TEXT NOT NULL,
         description TEXT,
-        isCompleted INTEGER NOT NULL DEFAULT 0,
-        completedBy INTEGER,
-        completionDate TEXT,
+        completed INTEGER NOT NULL DEFAULT 0,
+        CompletedById INTEGER,
         creationDate TEXT NOT NULL,
         groupId INTEGER NOT NULL,
         FOREIGN KEY(groupId) REFERENCES  ${DatabaseTables.groups}(id) ON DELETE CASCADE ON UPDATE CASCADE
-        FOREIGN KEY(completedBy) REFERENCES  ${DatabaseTables.users}(id) ON DELETE NO ACTION ON UPDATE CASCADE
+        FOREIGN KEY(CompletedById) REFERENCES  ${DatabaseTables.users}(id) ON DELETE NO ACTION ON UPDATE CASCADE
 
       )
     ''');

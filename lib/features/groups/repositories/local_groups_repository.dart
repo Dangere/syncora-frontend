@@ -92,15 +92,6 @@ class LocalGroupsRepository {
           .map((e) => e["id"] as int)
           .toList();
 
-      // Group group = Group(
-      //     creationDate: groups[i]["creationDate"],
-      //     description: groups[i]["description"],
-      //     id: groups[i]["id"],
-      //     ownerUserId: groups[i]["ownerUserId"],
-      //     groupMembersIds: membersIdsForGroup,
-      //     taskIds: tasksIdsForGroup,
-      //     title: groups[i]["title"]);
-
       Group group = Group.fromJsonWithIds(
           json: groups[i],
           taskIds: tasksIdsForGroup,
@@ -110,12 +101,6 @@ class LocalGroupsRepository {
 
     groupList.sort((a, b) => a.creationDate.compareTo(b.creationDate));
 
-    // Logger().w(groupList.map((e) => e.toJson()).toList());
-    // Logger().w(members);
-
-    // Logger().w(await db.rawQuery(''' SELECT * FROM ${DatabaseTables.users}'''));
-
-    // throw UnimplementedError("Unfinished getAllGroups method");
     return groupList;
   }
 
@@ -147,6 +132,10 @@ class LocalGroupsRepository {
         .map((e) => e["id"] as int)
         .toList();
 
+    // tasksIdsForGroup.forEach((element) {
+    //   Logger().w(element);
+    // });
+
     Group group = Group.fromJsonWithIds(
         json: groupQuery[0],
         taskIds: tasksIdsForGroup,
@@ -176,21 +165,41 @@ class LocalGroupsRepository {
 
     final db = await _databaseManager.getDatabase();
 
+    List<int> existingGroupsIds =
+        (await db.rawQuery("SELECT id FROM ${DatabaseTables.groups}"))
+            .map((e) => e["id"] as int)
+            .toList();
+
+    Logger().w(existingGroupsIds);
+
     await db.transaction((txn) async {
       final batch = txn.batch();
       for (GroupDTO group in groups) {
-        batch.insert(
-          DatabaseTables.groups,
-          group.toTable(),
-          conflictAlgorithm: ConflictAlgorithm.replace,
-        );
+        // Check if the group already exists by its ID
 
-        for (var i = 0; i < group.groupMembers.length; i++) {
+        if (!existingGroupsIds.contains(group.id)) {
+          batch.insert(
+            DatabaseTables.groups,
+            group.toTable(),
+            conflictAlgorithm: ConflictAlgorithm.replace,
+          );
+        } else {
+          batch.update(
+            DatabaseTables.groups,
+            group.toTable(),
+            where: "id = ?",
+            whereArgs: [group.id],
+          );
+        }
+
+        batch.delete(DatabaseTables.groupsMembers,
+            where: "groupId = ?", whereArgs: [group.id]);
+        for (final memberId in group.groupMembers) {
           batch.insert(
             DatabaseTables.groupsMembers,
             {
               "groupId": group.id,
-              "userId": group.groupMembers[i],
+              "userId": memberId,
             },
             conflictAlgorithm: ConflictAlgorithm.replace,
           );

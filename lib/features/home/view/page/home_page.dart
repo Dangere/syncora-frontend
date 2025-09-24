@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 import 'package:syncora_frontend/common/providers/connection_provider.dart';
 import 'package:syncora_frontend/common/themes/app_sizes.dart';
 import 'package:syncora_frontend/common/widgets/syncing_icon.dart';
+import 'package:syncora_frontend/core/network/syncing/sync_notifier.dart';
+import 'package:syncora_frontend/core/tests.dart';
 import 'package:syncora_frontend/core/utils/snack_bar_alerts.dart';
 import 'package:syncora_frontend/features/authentication/models/auth_state.dart';
 import 'package:syncora_frontend/features/authentication/viewmodel/auth_viewmodel.dart';
@@ -77,13 +79,15 @@ class _HomeScreenState extends ConsumerState<HomePage> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          bool fakeOnline = ref.read(fakeBeingOnlineProvider);
-          ref.read(fakeBeingOnlineProvider.notifier).state = !fakeOnline;
+          // bool fakeOnline = ref.read(fakeBeingOnlineProvider);
+          // ref.read(fakeBeingOnlineProvider.notifier).state = !fakeOnline;
 
           // ref.read(syncBackendNotifierProvider.notifier).test();
+          // ref.read(syncBackendNotifierProvider.notifier).toggleSyncing();
+          Tests.printDb(ref);
         },
-        tooltip: 'Sync',
-        child: const Icon(Icons.cloud_sync),
+        tooltip: 'TEST',
+        child: const Icon(Icons.text_rotation_angleup_sharp),
       ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }

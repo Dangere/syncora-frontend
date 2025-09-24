@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:logger/logger.dart';
+import 'package:signalr_netcore/hub_connection.dart';
+import 'package:sqflite/sqflite.dart';
 import 'package:syncora_frontend/common/providers/common_providers.dart';
 import 'package:syncora_frontend/common/providers/connection_provider.dart';
 import 'package:syncora_frontend/core/constants/constants.dart';
@@ -16,6 +18,7 @@ import 'package:syncora_frontend/core/utils/result.dart';
 import 'package:syncora_frontend/features/authentication/models/auth_state.dart';
 import 'package:syncora_frontend/features/authentication/viewmodel/auth_viewmodel.dart';
 import 'package:syncora_frontend/features/groups/viewmodel/groups_viewmodel.dart';
+import 'package:syncora_frontend/features/tasks/viewmodel/tasks_providers.dart';
 import 'package:syncora_frontend/features/users/viewmodel/users_providers.dart';
 
 class SyncBackendNotifier extends AsyncNotifier<int>
@@ -25,6 +28,12 @@ class SyncBackendNotifier extends AsyncNotifier<int>
   final int _retryingServerConnectDurationInSeconds = 5;
   final int _retryingServerConnectTries = 20;
   bool _isDisposed = false;
+
+  bool disableSyncing = false;
+
+  void toggleSyncing() {
+    disableSyncing = !disableSyncing;
+  }
 
   // @override
   // void didChangeAppLifecycleState(AppLifecycleState state) {
@@ -39,6 +48,8 @@ class SyncBackendNotifier extends AsyncNotifier<int>
   // }
 
   Future<void> syncData() async {
+    if (disableSyncing) return;
+
     // TODO: Instead of waiting for it to finish loading, we should schedule it to run in the future for new data
     if (state.isLoading) return;
 
@@ -69,9 +80,7 @@ class SyncBackendNotifier extends AsyncNotifier<int>
       return;
     }
 
-    ref
-        .read(loggerProvider)
-        .i("Syncing data from the server... ${result.data?.toString()}");
+    ref.read(loggerProvider).i("Formatted data: ${result.data?.toString()}");
 
     // Updating the groups notifier with the new data if it exists and there are groups
     if (ref.exists(groupsNotifierProvider)) {
@@ -150,7 +159,9 @@ class SyncBackendNotifier extends AsyncNotifier<int>
 
       // Try to connect to the hub
       result = await _syncSignalRClient!.connect();
-      if (!result.isSuccess) {
+      if (!result.isSuccess &&
+          _syncSignalRClient!.connection.state ==
+              HubConnectionState.Disconnected) {
         // If we getting 401 as a return error, it means our tokens are expired, we then try to refresh tokens then ,
         if (result.error!.is401UnAuthorizedError()) {
           await ref.read(authNotifierProvider.notifier).refreshTokens();
@@ -290,7 +301,8 @@ final syncServiceProvider = Provider<SyncService>((ref) {
   return SyncService(
       syncRepository: ref.watch(syncRepositoryProvider),
       groupsService: ref.watch(groupsServiceProvider),
-      usersService: ref.watch(usersServiceProvider));
+      usersService: ref.watch(usersServiceProvider),
+      tasksService: ref.watch(tasksServiceProvider));
 });
 
 final syncRepositoryProvider = Provider<SyncRepository>((ref) {

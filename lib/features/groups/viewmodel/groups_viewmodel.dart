@@ -10,6 +10,7 @@ import 'package:syncora_frontend/features/groups/models/group.dart';
 import 'package:syncora_frontend/features/groups/repositories/local_groups_repository.dart';
 import 'package:syncora_frontend/features/groups/repositories/remote_groups_repository.dart';
 import 'package:syncora_frontend/features/groups/services/groups_service.dart';
+import 'package:syncora_frontend/features/tasks/viewmodel/tasks_providers.dart';
 
 class GroupsNotifier extends AutoDisposeAsyncNotifier<List<Group>> {
   Future<void> createGroup(String title, String description) async {
@@ -63,6 +64,50 @@ class GroupsNotifier extends AutoDisposeAsyncNotifier<List<Group>> {
         .read(groupsServiceProvider)
         .grantAccessToGroup(
             allowAccess: false, groupId: groupId, username: username);
+
+    if (!updateResult.isSuccess) {
+      ref.read(appErrorProvider.notifier).state = updateResult.error;
+      return;
+    }
+  }
+
+  Future<void> createTask(
+      {required int groupId,
+      required String title,
+      required String? description}) async {
+    Result<void> createResult = await ref
+        .read(tasksServiceProvider)
+        .createTask(title: title, description: description, groupId: groupId);
+
+    if (!createResult.isSuccess) {
+      ref.read(appErrorProvider.notifier).state = createResult.error;
+      return;
+    }
+  }
+
+  Future<void> deleteTask({required int taskId, required int groupId}) async {
+    Result<void> deleteResult = await ref
+        .read(tasksServiceProvider)
+        .deleteTask(groupId: groupId, taskId: taskId);
+
+    if (!deleteResult.isSuccess) {
+      ref.read(appErrorProvider.notifier).state = deleteResult.error;
+      return;
+    }
+  }
+
+  Future<void> updateTask(
+      {required int taskId,
+      required int groupId,
+      String? title,
+      String? description,
+      bool? completed}) async {
+    Result<void> updateResult = await ref.read(tasksServiceProvider).updateTask(
+        groupId: groupId,
+        taskId: taskId,
+        title: title,
+        description: description,
+        completed: completed);
 
     if (!updateResult.isSuccess) {
       ref.read(appErrorProvider.notifier).state = updateResult.error;

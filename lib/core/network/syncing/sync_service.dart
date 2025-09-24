@@ -2,21 +2,26 @@ import 'package:syncora_frontend/core/network/syncing/model/sync_payload.dart';
 import 'package:syncora_frontend/core/network/syncing/sync_repository.dart';
 import 'package:syncora_frontend/core/utils/error_mapper.dart';
 import 'package:syncora_frontend/core/utils/result.dart';
+import 'package:syncora_frontend/features/groups/models/group.dart';
 import 'package:syncora_frontend/features/groups/services/groups_service.dart';
+import 'package:syncora_frontend/features/tasks/services/tasks_service.dart';
 import 'package:syncora_frontend/features/users/services/users_service.dart';
 
 class SyncService {
   final SyncRepository _syncRepository;
   final GroupsService _groupsService;
   final UsersService _usersService;
+  final TasksService _tasksService;
 
   SyncService(
       {required SyncRepository syncRepository,
       required GroupsService groupsService,
-      required UsersService usersService})
+      required UsersService usersService,
+      required TasksService tasksService})
       : _syncRepository = syncRepository,
         _groupsService = groupsService,
-        _usersService = usersService;
+        _usersService = usersService,
+        _tasksService = tasksService;
 
   Future<Result<SyncPayload>> fetchPayload() async {
     try {
@@ -37,6 +42,7 @@ class SyncService {
       return Result.failure(result.error!);
     }
 
+    // Upserting the same user for some reason makes a group deletes itself
     Result<void> upsertUsersResult =
         await _usersService.upsertUsers(result.data!.users);
 
@@ -50,7 +56,13 @@ class SyncService {
     if (!upsertGroupsResult.isSuccess) {
       return Result.failure(upsertGroupsResult.error!);
     }
-    // TODO: upsert tasks
+
+    Result<void> upsertTasksResult =
+        await _tasksService.upsertTasks(result.data!.tasks);
+
+    if (!upsertTasksResult.isSuccess) {
+      return Result.failure(upsertTasksResult.error!);
+    }
 
     return Result.success(result.data!);
   }

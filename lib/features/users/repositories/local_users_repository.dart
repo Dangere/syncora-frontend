@@ -1,5 +1,7 @@
+import 'package:logger/logger.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:syncora_frontend/core/data/database_manager.dart';
+import 'package:syncora_frontend/core/data/enums/database_tables.dart';
 import 'package:syncora_frontend/features/authentication/models/user.dart';
 
 class LocalUsersRepository {
@@ -12,7 +14,7 @@ class LocalUsersRepository {
 
     await db.transaction((txn) async {
       await txn.insert(
-        "users",
+        DatabaseTables.users,
         user.toJson(),
         conflictAlgorithm: ConflictAlgorithm.replace,
       );
@@ -22,14 +24,29 @@ class LocalUsersRepository {
   Future<void> upsertUsers(List<User> users) async {
     final db = await _databaseManager.getDatabase();
 
+    List<int> existingUserIds =
+        (await db.rawQuery("SELECT id FROM ${DatabaseTables.users}"))
+            .map((e) => e["id"] as int)
+            .toList();
+
     await db.transaction((txn) async {
       final batch = txn.batch();
+
       for (User user in users) {
-        batch.insert(
-          "users",
-          user.toJson(),
-          conflictAlgorithm: ConflictAlgorithm.replace,
-        );
+        if (!existingUserIds.contains(user.id)) {
+          batch.insert(
+            DatabaseTables.users,
+            user.toJson(),
+            conflictAlgorithm: ConflictAlgorithm.replace,
+          );
+        } else {
+          batch.update(
+            DatabaseTables.users,
+            user.toJson(),
+            where: "id = ?",
+            whereArgs: [user.id],
+          );
+        }
       }
       batch.commit(noResult: true);
     });
@@ -38,7 +55,8 @@ class LocalUsersRepository {
   Future<User> getUser(int id) async {
     final db = await _databaseManager.getDatabase();
     Map<String, dynamic> user =
-        (await db.query("users", where: "id = ?", whereArgs: [id])).single;
+        (await db.query(DatabaseTables.users, where: "id = ?", whereArgs: [id]))
+            .single;
 
     if (user.isEmpty) throw Exception("User with id $id not found");
     return User.fromJson(user);

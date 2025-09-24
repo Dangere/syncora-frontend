@@ -30,6 +30,10 @@ class GroupsService {
   Future<Result<List<Group>>> getAllGroups() async {
     try {
       List<Group> groups = await _localGroupRepository.getAllGroups();
+
+      // groups.forEach((element) {
+      //   Logger().d(element.toTable());
+      // });
       // for (var i = 0; i < groups.length; i++) {
       //   _localGroupRepository.insertGroup(groups[i].toJson());
       // }
@@ -43,6 +47,10 @@ class GroupsService {
   Future<Result<Group>> createGroup(String title, String description) async {
     try {
       int userId = _authState.user!.id;
+
+      if (_isOnline) {
+        await _remoteGroupRepository.createGroup(title, description);
+      }
 
       return Result.success(
           await _localGroupRepository.createGroup(title, description, userId));
