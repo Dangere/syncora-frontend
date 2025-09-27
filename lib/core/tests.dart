@@ -86,7 +86,7 @@ class Tests {
       groupId: group.id,
       title: "Task 1",
       description: "Description 1",
-      completed: true,
+      assignedTo: [],
       completedById: userId,
       creationDate: DateTime.now(),
     );
@@ -104,7 +104,7 @@ class Tests {
     Result<List<Task>> tasks =
         await ref.read(tasksServiceProvider).getTasksForGroup(group.id);
 
-    print(tasks.data!.first.completed);
+    print(tasks.data!.first.completedById);
   }
 
   static Future<void> printDb(WidgetRef ref) async {

@@ -71,27 +71,36 @@ class DatabaseManager {
     ''');
 
     await db.execute('''
-      CREATE TABLE ${DatabaseTables.tasks} (
-        id INTEGER PRIMARY KEY,
-        title TEXT NOT NULL,
-        description TEXT,
-        completed INTEGER NOT NULL DEFAULT 0,
-        CompletedById INTEGER,
-        creationDate TEXT NOT NULL,
-        groupId INTEGER NOT NULL,
-        FOREIGN KEY(groupId) REFERENCES  ${DatabaseTables.groups}(id) ON DELETE CASCADE ON UPDATE CASCADE
-        FOREIGN KEY(CompletedById) REFERENCES  ${DatabaseTables.users}(id) ON DELETE NO ACTION ON UPDATE CASCADE
-
-      )
-    ''');
-
-    await db.execute('''
       CREATE TABLE ${DatabaseTables.groupsMembers} (
         id INTEGER PRIMARY KEY,
         groupId INTEGER NOT NULL,
         userId INTEGER NOT NULL,
         FOREIGN KEY(groupId) REFERENCES  ${DatabaseTables.groups}(id) ON DELETE CASCADE ON UPDATE CASCADE,
-        FOREIGN KEY(userId) REFERENCES  ${DatabaseTables.users}(id) ON UPDATE CASCADE
+        FOREIGN KEY(userId) REFERENCES  ${DatabaseTables.users}(id) ON DELETE CASCADE ON UPDATE CASCADE
+      )
+    ''');
+
+    await db.execute('''
+      CREATE TABLE ${DatabaseTables.tasks} (
+        id INTEGER PRIMARY KEY,
+        title TEXT NOT NULL,
+        description TEXT,
+        completedById INTEGER,
+        creationDate TEXT NOT NULL,
+        groupId INTEGER NOT NULL,
+        FOREIGN KEY(groupId) REFERENCES  ${DatabaseTables.groups}(id) ON DELETE CASCADE ON UPDATE CASCADE
+        FOREIGN KEY(completedById) REFERENCES  ${DatabaseTables.users}(id) ON DELETE NO ACTION ON UPDATE CASCADE
+
+      )
+    ''');
+
+    await db.execute('''
+      CREATE TABLE ${DatabaseTables.tasksAssignees} (
+        id INTEGER PRIMARY KEY,
+        taskId INTEGER NOT NULL,
+        userId INTEGER NOT NULL,
+        FOREIGN KEY(taskId) REFERENCES  ${DatabaseTables.tasks}(id) ON DELETE CASCADE ON UPDATE CASCADE,
+        FOREIGN KEY(userId) REFERENCES  ${DatabaseTables.users}(id) ON DELETE CASCADE ON UPDATE CASCADE 
       )
     ''');
 

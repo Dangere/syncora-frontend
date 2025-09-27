@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:logger/logger.dart';
 import 'package:syncora_frontend/core/constants/constants.dart';
 
 class RemoteTasksRepository {
@@ -26,13 +27,39 @@ class RemoteTasksRepository {
       {required int taskId,
       required int groupId,
       String? title,
-      String? description,
-      bool? completed}) async {
+      String? description}) async {
     await _dio.put('${Constants.BASE_API_URL}/groups/$groupId/tasks/$taskId',
         data: {
           "title": title,
-          "description": description,
-          "completed": completed
+          "description": description
         }).timeout(const Duration(seconds: 10));
   }
+
+  Future<void> assignTask(
+      {required int taskId,
+      required int groupId,
+      required List<int> ids}) async {
+    if (ids.isEmpty) {
+      throw Exception('No users selected');
+    }
+
+    String idsString = ids.map((id) => 'ids=$id').join("&");
+
+    await _dio
+        .put(
+          '${Constants.BASE_API_URL}/groups/$groupId/tasks/$taskId/assign?$idsString',
+        )
+        .timeout(const Duration(seconds: 10));
+  }
+
+  //   Future<void> markTask(
+  //     {required int taskId,
+  //     required int groupId,
+  //     required bool isDone}) async {
+  //   await _dio.put('${Constants.BASE_API_URL}/groups/$groupId/tasks/$taskId/',
+  //       data: {
+  //         "title": title,
+  //         "description": description
+  //       }).timeout(const Duration(seconds: 10));
+  // }
 }

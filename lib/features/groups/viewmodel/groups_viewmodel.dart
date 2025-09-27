@@ -100,14 +100,26 @@ class GroupsNotifier extends AutoDisposeAsyncNotifier<List<Group>> {
       {required int taskId,
       required int groupId,
       String? title,
-      String? description,
-      bool? completed}) async {
+      String? description}) async {
     Result<void> updateResult = await ref.read(tasksServiceProvider).updateTask(
         groupId: groupId,
         taskId: taskId,
         title: title,
-        description: description,
-        completed: completed);
+        description: description);
+
+    if (!updateResult.isSuccess) {
+      ref.read(appErrorProvider.notifier).state = updateResult.error;
+      return;
+    }
+  }
+
+  Future<void> assignTask(
+      {required int taskId,
+      required int groupId,
+      required List<int> ids}) async {
+    Result<void> updateResult = await ref
+        .read(tasksServiceProvider)
+        .assignTaskToUsers(groupId: groupId, taskId: taskId, ids: ids);
 
     if (!updateResult.isSuccess) {
       ref.read(appErrorProvider.notifier).state = updateResult.error;

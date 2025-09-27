@@ -10,6 +10,8 @@ class SyncRepository {
   final Dio _dio;
   final DatabaseManager _databaseManager;
 
+  final bool includeDeleted = true;
+
   SyncRepository({required Dio dio, required DatabaseManager databaseManager})
       : _dio = dio,
         _databaseManager = databaseManager;
@@ -17,7 +19,7 @@ class SyncRepository {
   Future<SyncPayload> sync(String since) async {
     final response = await _dio
         .get(
-          '${Constants.BASE_API_URL}/sync/$since?includeDeleted=false',
+          '${Constants.BASE_API_URL}/sync/$since?includeDeleted=$includeDeleted',
         )
         .timeout(const Duration(seconds: 10));
     Logger().d(response.data);

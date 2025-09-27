@@ -114,4 +114,15 @@ class GroupsService {
       return Result.failure(ErrorMapper.map(e, stackTrace));
     }
   }
+
+  Future<Result<void>> deleteGroups(List<int> groupsIds) async {
+    try {
+      for (var groupId in groupsIds) {
+        await _localGroupRepository.deleteGroup(groupId);
+      }
+      return Result.success(null);
+    } catch (e, stackTrace) {
+      return Result.failure(ErrorMapper.map(e, stackTrace));
+    }
+  }
 }

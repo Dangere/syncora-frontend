@@ -2,7 +2,6 @@ import 'package:syncora_frontend/core/network/syncing/model/sync_payload.dart';
 import 'package:syncora_frontend/core/network/syncing/sync_repository.dart';
 import 'package:syncora_frontend/core/utils/error_mapper.dart';
 import 'package:syncora_frontend/core/utils/result.dart';
-import 'package:syncora_frontend/features/groups/models/group.dart';
 import 'package:syncora_frontend/features/groups/services/groups_service.dart';
 import 'package:syncora_frontend/features/tasks/services/tasks_service.dart';
 import 'package:syncora_frontend/features/users/services/users_service.dart';
@@ -63,6 +62,17 @@ class SyncService {
     if (!upsertTasksResult.isSuccess) {
       return Result.failure(upsertTasksResult.error!);
     }
+
+    if (result.data!.kickedGroupsIds != null) {
+      Result<void> kickFromGroupsResult =
+          await _groupsService.deleteGroups(result.data!.kickedGroupsIds!);
+
+      if (!kickFromGroupsResult.isSuccess) {
+        return Result.failure(kickFromGroupsResult.error!);
+      }
+    }
+
+    await _usersService.purgeOrphanedUsers();
 
     return Result.success(result.data!);
   }

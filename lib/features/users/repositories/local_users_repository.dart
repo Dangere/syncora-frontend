@@ -61,4 +61,11 @@ class LocalUsersRepository {
     if (user.isEmpty) throw Exception("User with id $id not found");
     return User.fromJson(user);
   }
+
+  // Removes users that dont belong to any group
+  Future<void> purgeOrphanedUsers() async {
+    final db = await _databaseManager.getDatabase();
+    await db.rawQuery(
+        "DELETE FROM ${DatabaseTables.users} WHERE id NOT IN (SELECT userId FROM ${DatabaseTables.groupsMembers}) AND id NOT IN (SELECT ownerUserId FROM ${DatabaseTables.groups})");
+  }
 }

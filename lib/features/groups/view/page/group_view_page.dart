@@ -6,6 +6,7 @@ import 'package:syncora_frontend/common/themes/app_sizes.dart';
 import 'package:syncora_frontend/common/themes/app_spacing.dart';
 import 'package:syncora_frontend/common/widgets/marquee_text.dart';
 import 'package:syncora_frontend/core/network/syncing/sync_notifier.dart';
+import 'package:syncora_frontend/core/typedef.dart';
 import 'package:syncora_frontend/core/utils/alert_dialogs.dart';
 import 'package:syncora_frontend/core/utils/snack_bar_alerts.dart';
 import 'package:syncora_frontend/core/utils/validators.dart';
@@ -36,7 +37,25 @@ class _GroupViewPageState extends ConsumerState<GroupViewPage> {
 
     SnackBarAlerts.registerErrorListener(ref, context);
 
+    return group.when(
+        // This tells .when() to IGNORE the loading state on a refresh
+        // and just keep showing the previous data.
+        skipLoadingOnRefresh: true,
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (error, stackTrace) => Center(child: Text(error.toString())),
+        data: (group) => _buildGroupView(
+              group,
+            ));
+  }
+
+  Widget _buildGroupView(Group group) {
+    AuthState? authState = ref.watch(authNotifierProvider).valueOrNull;
+
+    bool isOwner = authState?.user?.id == group.ownerUserId;
+
     void groupTitleEditPopup(String defaultText) {
+      if (!isOwner) return;
+
       AlertDialogs.showTextFieldDialog(context,
           defaultText: defaultText,
           barrierDismissible: true,
@@ -52,6 +71,8 @@ class _GroupViewPageState extends ConsumerState<GroupViewPage> {
     }
 
     void groupDescriptionEditPopup(String? defaultText) {
+      if (!isOwner) return;
+
       AlertDialogs.showTextFieldDialog(context,
           defaultText: defaultText,
           barrierDismissible: true,
@@ -70,7 +91,28 @@ class _GroupViewPageState extends ConsumerState<GroupViewPage> {
       });
     }
 
-    void addUserToGroup(int groupId) {
+    void displayGroupDescription(String? description, bool isOwner) {
+      if (!isOwner) return;
+
+      AlertDialogs.actionsDialog(context,
+          title: "Description",
+          message: group.description ?? "No description.",
+          actions: [
+            DialogAction.closeAction(context),
+            if (isOwner)
+              DialogAction(
+                  onClick: () {
+                    Navigator.pop(context);
+                    groupDescriptionEditPopup(group.description);
+                    ();
+                  },
+                  title: "Edit"),
+          ]);
+    }
+
+    void addUserToGroupPopUp(int groupId) {
+      if (!isOwner) return;
+
       AlertDialogs.showTextFieldDialog(context,
           barrierDismissible: true,
           blurBackground: false,
@@ -85,7 +127,8 @@ class _GroupViewPageState extends ConsumerState<GroupViewPage> {
               : "Invalid Username");
     }
 
-    void createTask(int groupId) {
+    void createTaskPopUp(int groupId) {
+      if (!isOwner) return;
       AlertDialogs.showTextFieldDialog(context,
           barrierDismissible: true,
           blurBackground: false,
@@ -98,29 +141,6 @@ class _GroupViewPageState extends ConsumerState<GroupViewPage> {
           validation: (p0) => null);
     }
 
-    return group.when(
-        // This tells .when() to IGNORE the loading state on a refresh
-        // and just keep showing the previous data.
-        skipLoadingOnRefresh: true,
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (error, stackTrace) => Center(child: Text(error.toString())),
-        data: (group) => _buildGroupView(
-              group,
-              editGroupTitle: () => groupTitleEditPopup(group.title),
-              editGroupDescription: () =>
-                  groupDescriptionEditPopup(group.description),
-              addUserToGroup: () => addUserToGroup(group.id),
-              createTask: () => createTask(group.id),
-            ));
-  }
-
-  Widget _buildGroupView(Group group,
-      {required VoidCallback editGroupTitle,
-      required VoidCallback editGroupDescription,
-      required VoidCallback addUserToGroup,
-      required VoidCallback createTask}) {
-    AuthState? authState = ref.watch(authNotifierProvider).valueOrNull;
-
     ref.read(loggerProvider).d("Displaying group view");
     return Scaffold(
       appBar: AppBar(
@@ -129,13 +149,14 @@ class _GroupViewPageState extends ConsumerState<GroupViewPage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(group.title),
-            IconButton(
-              onPressed: editGroupTitle,
-              icon: const Icon(
-                Icons.edit,
-                color: Colors.grey,
-              ),
-            )
+            if (isOwner)
+              IconButton(
+                onPressed: () => groupTitleEditPopup(group.title),
+                icon: const Icon(
+                  Icons.edit,
+                  color: Colors.grey,
+                ),
+              )
           ],
         ),
         actions: [
@@ -147,19 +168,7 @@ class _GroupViewPageState extends ConsumerState<GroupViewPage> {
                 //     title: "Description",
                 //     message: group.description ?? "No description.");
 
-                AlertDialogs.actionsDialog(context,
-                    title: "Description",
-                    message: group.description ?? "No description.",
-                    actions: [
-                      DialogAction.closeAction(context),
-                      if (authState?.user?.id == group.ownerUserId)
-                        DialogAction(
-                            onClick: () {
-                              Navigator.pop(context);
-                              editGroupDescription();
-                            },
-                            title: "Edit"),
-                    ]);
+                displayGroupDescription(group.description, isOwner);
               },
               icon: const Icon(Icons.info_outline))
         ],
@@ -170,19 +179,20 @@ class _GroupViewPageState extends ConsumerState<GroupViewPage> {
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
             Text("Members"),
-            _buildMembersSection(group, authState, addUserToGroup),
+            _buildMembersSection(
+                group, authState, () => addUserToGroupPopUp(group.id)),
             // Text(group.groupMembersIds.length.toString()),
             // Text(group.description == null || group.description!.isEmpty
             //     ? "No description"
             //     : group.description!),
             Text("Tasks"),
-            _buildTasksSection(group)
+            _buildTasksSection(group, isOwner)
           ],
         ),
       ),
 
       floatingActionButton: FloatingActionButton(
-        onPressed: createTask,
+        onPressed: () => createTaskPopUp(group.id),
         child: const Icon(Icons.add),
       ),
       // // This button will update the entire groups, but it shouldnt rebuild this widget cuz this group is supposedly listening to a change in one specific group
@@ -252,7 +262,8 @@ class _GroupViewPageState extends ConsumerState<GroupViewPage> {
             ),
           );
 
-      members.add(addMemberButton());
+      if (authState?.user?.id == group.ownerUserId)
+        members.add(addMemberButton());
 
       return members;
     }
@@ -292,38 +303,23 @@ class _GroupViewPageState extends ConsumerState<GroupViewPage> {
                   children: membersListItems(users),
                 ),
               );
-
-              // return Padding(
-              //   padding: const EdgeInsets.all(8.0),
-              //   child: Container(
-              //     width: double.infinity,
-              //     decoration: BoxDecoration(
-              //         color: Colors.grey[50],
-              //         // border: Border.all(),
-              //         boxShadow: [
-              //           BoxShadow(
-              //             color: Colors.black.withOpacity(0.5),
-              //             spreadRadius: 0,
-              //             blurRadius: 5,
-              //             offset: const Offset(0.5, 0.5),
-              //           )
-              //         ],
-              //         borderRadius: BorderRadius.circular(AppSizes.borderRadius)),
-              //     child: SingleChildScrollView(
-              //       scrollDirection: Axis.horizontal,
-              //       child: Row(
-              //         children: membersListItems(users),
-              //       ),
-              //     ),
-              //   ),
-              // );
             }),
       ),
     );
   }
 
-  Widget _buildTasksSection(Group group) {
+  Widget _buildTasksSection(Group group, bool isOwner) {
     TasksService tasksService = ref.read(tasksServiceProvider);
+
+    void assignUsersPopUp(int groupId, int taskId) {
+      if (!isOwner) return;
+      AlertDialogs.showTextFieldDialog(context,
+          barrierDismissible: true,
+          blurBackground: false,
+          message: "Assign users to task",
+          onContinue: (p0) {},
+          validation: (p0) => null);
+    }
 
     List<Widget> tasksListItems(List<Task> tasks) {
       return List.generate(
@@ -334,10 +330,12 @@ class _GroupViewPageState extends ConsumerState<GroupViewPage> {
                     task: tasks[index],
                     onDelete: () {},
                     onChange: (bool? arg) {
-                      ref.read(groupsNotifierProvider.notifier).updateTask(
-                          taskId: tasks[index].id,
-                          groupId: group.id,
-                          completed: arg!);
+                      // ref.read(groupsNotifierProvider.notifier).updateTask(
+                      //     taskId: tasks[index].id,
+                      //     groupId: group.id,);
+                    },
+                    onTap: () {
+                      assignUsersPopUp(group.id, tasks[index].id);
                     },
                   ),
                   if (index != tasks.length - 1) const Divider()
@@ -372,6 +370,7 @@ class _GroupViewPageState extends ConsumerState<GroupViewPage> {
               }
 
               if (!snapshot.data!.isSuccess) {
+                print(snapshot.data!.error!.stackTrace?.toString());
                 return Center(child: Text(snapshot.data!.error!.message));
               }
 

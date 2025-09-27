@@ -14,6 +14,7 @@ class SyncPayload {
 
   final List<GroupDTO>? deletedGroups;
   final List<Task>? deletedTasks;
+  final List<int>? kickedGroupsIds;
 
   SyncPayload(
       {required this.timestamp,
@@ -21,7 +22,8 @@ class SyncPayload {
       required this.tasks,
       required this.users,
       required this.deletedGroups,
-      required this.deletedTasks});
+      required this.deletedTasks,
+      required this.kickedGroupsIds});
 
   factory SyncPayload.fromJson(Map<String, dynamic> json) => SyncPayload(
       timestamp: json['timestamp'],
@@ -35,7 +37,10 @@ class SyncPayload {
               json['deletedGroups'].map((x) => GroupDTO.fromJson(x))),
       deletedTasks: json['deletedTasks'] == null
           ? null
-          : List<Task>.from(json['deletedTasks'].map((x) => Task.fromJson(x))));
+          : List<Task>.from(json['deletedTasks'].map((x) => Task.fromJson(x))),
+      kickedGroupsIds: json['kickedGroupsIds'] == null
+          ? null
+          : List<int>.from(json['kickedGroupsIds']));
 
   HashSet<int> groupIds() {
     HashSet<int> ids = HashSet<int>();
@@ -57,6 +62,7 @@ class SyncPayload {
         'users': users.map((x) => x.toJson()).toList(),
         'deletedGroups': deletedGroups?.map((x) => x.toJson()).toList(),
         'deletedTasks': deletedTasks?.map((x) => x.toJson()).toList(),
+        'kickedGroupsIds': kickedGroupsIds?.toList()
       };
 
   @override

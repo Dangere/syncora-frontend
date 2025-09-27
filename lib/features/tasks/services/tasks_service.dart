@@ -43,15 +43,13 @@ class TasksService {
       {required int taskId,
       required int groupId,
       String? title,
-      String? description,
-      bool? completed}) async {
+      String? description}) async {
     try {
       return Result.success(await remoteTasksRepository.updateTask(
           groupId: groupId,
           taskId: taskId,
           title: title,
-          description: description,
-          completed: completed));
+          description: description));
     } catch (e, stackTrace) {
       return Result.failure(ErrorMapper.map(e, stackTrace));
     }
@@ -64,6 +62,18 @@ class TasksService {
     try {
       return Result.success(await remoteTasksRepository.createTask(
           groupId: groupId, title: title, description: description));
+    } catch (e, stackTrace) {
+      return Result.failure(ErrorMapper.map(e, stackTrace));
+    }
+  }
+
+  Future<Result<void>> assignTaskToUsers(
+      {required int taskId,
+      required int groupId,
+      required List<int> ids}) async {
+    try {
+      return Result.success(await remoteTasksRepository.assignTask(
+          taskId: taskId, groupId: groupId, ids: ids));
     } catch (e, stackTrace) {
       return Result.failure(ErrorMapper.map(e, stackTrace));
     }

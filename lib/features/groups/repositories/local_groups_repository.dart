@@ -208,4 +208,10 @@ class LocalGroupsRepository {
       batch.commit(noResult: true);
     });
   }
+
+  Future<void> deleteGroup(int groupId) async {
+    final db = await _databaseManager.getDatabase();
+    await db
+        .delete(DatabaseTables.groups, where: "id = ?", whereArgs: [groupId]);
+  }
 }

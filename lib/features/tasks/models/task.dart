@@ -2,19 +2,19 @@ class Task {
   final int id;
   final String title;
   final String? description;
-  final bool completed;
   final int? completedById;
   final DateTime creationDate;
   // final DateTime? lastModifiedDate;
   final int groupId;
+  final List<int> assignedTo;
 
   Task({
     required this.id,
     required this.title,
     required this.creationDate,
     required this.groupId,
+    required this.assignedTo,
     this.description,
-    this.completed = false,
     this.completedById,
     // this.lastModifiedDate,
   });
@@ -25,9 +25,7 @@ class Task {
         groupId: json['groupId'],
         title: json['title'] as String,
         description: json['description'] as String?,
-        completed: (json['completed'] is int)
-            ? (json['completed'] == 1 ? true : false)
-            : json['completed'],
+        assignedTo: List<int>.from(json['assignedTo']),
         completedById: json['completedById'] as int?,
         creationDate: DateTime.parse(json['creationDate'] as String),
         // lastModifiedDate: json['lastModifiedDate'] != null
@@ -40,9 +38,19 @@ class Task {
         'groupId': groupId,
         'title': title,
         'description': description,
-        'completed': completed ? 1 : 0,
+        'assignedTo': assignedTo,
         'CompletedById': completedById,
         'creationDate': creationDate.toIso8601String(),
         // 'lastModifiedDate': lastModifiedDate?.toIso8601String(),
+      };
+
+  Map<String, dynamic> toTable() => {
+        "id": id,
+        "groupId": groupId,
+        "title": title,
+        "description": description,
+        "completedById": completedById,
+        "creationDate": creationDate.toIso8601String(),
+        // "lastModifiedDate": lastModifiedDate?.toIso8601String(),
       };
 }
