@@ -4,7 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:syncora_frontend/common/providers/common_providers.dart';
 import 'package:syncora_frontend/common/providers/connection_provider.dart';
+import 'package:syncora_frontend/core/utils/app_error.dart';
 import 'package:syncora_frontend/core/utils/result.dart';
+import 'package:syncora_frontend/features/authentication/models/auth_state.dart';
 import 'package:syncora_frontend/features/authentication/viewmodel/auth_viewmodel.dart';
 import 'package:syncora_frontend/features/groups/models/group.dart';
 import 'package:syncora_frontend/features/groups/repositories/local_groups_repository.dart';
@@ -12,7 +14,7 @@ import 'package:syncora_frontend/features/groups/repositories/remote_groups_repo
 import 'package:syncora_frontend/features/groups/services/groups_service.dart';
 import 'package:syncora_frontend/features/tasks/viewmodel/tasks_providers.dart';
 
-class GroupsNotifier extends AutoDisposeAsyncNotifier<List<Group>> {
+class GroupsNotifier extends AsyncNotifier<List<Group>> {
   Future<void> createGroup(String title, String description) async {
     // state = const AsyncValue.loading();
 
@@ -169,6 +171,23 @@ class GroupsNotifier extends AutoDisposeAsyncNotifier<List<Group>> {
   @override
   FutureOr<List<Group>> build() async {
     ref.watch(loggerProvider).w("Building groups notifier");
+    var authState = ref.watch(authNotifierProvider);
+    authState.when(
+        data: (data) {
+          if (data.isUnauthenticated) {
+            throw AppError(
+                message: "User is not logged in",
+                stackTrace: StackTrace.current);
+          }
+        },
+        error: (error, stackTrace) {
+          throw error;
+        },
+        loading: () => Completer<int>().future);
+
+    if (authState.isLoading) {
+      return Completer<List<Group>>().future;
+    }
     Result<List<Group>> fetchResult =
         await ref.read(groupsServiceProvider).getAllGroups();
 
@@ -182,8 +201,7 @@ class GroupsNotifier extends AutoDisposeAsyncNotifier<List<Group>> {
 }
 
 final groupsNotifierProvider =
-    AutoDisposeAsyncNotifierProvider<GroupsNotifier, List<Group>>(
-        GroupsNotifier.new);
+    AsyncNotifierProvider<GroupsNotifier, List<Group>>(GroupsNotifier.new);
 
 // final groupProvider =
 //     Provider.autoDispose.family<AsyncValue<Group>, int>((ref, groupId) {
