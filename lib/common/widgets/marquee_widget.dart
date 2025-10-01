@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 
-class MarqueeText extends StatefulWidget {
+class MarqueeWidget extends StatefulWidget {
   final Widget child;
   final Axis direction;
   final Duration animationDuration, backDuration, pauseDuration;
 
-  const MarqueeText({
+  const MarqueeWidget({
     super.key,
     required this.child,
     this.direction = Axis.horizontal,
@@ -15,10 +15,10 @@ class MarqueeText extends StatefulWidget {
   });
 
   @override
-  MarqueeTextState createState() => MarqueeTextState();
+  MarqueeWidgetState createState() => MarqueeWidgetState();
 }
 
-class MarqueeTextState extends State<MarqueeText> {
+class MarqueeWidgetState extends State<MarqueeWidget> {
   late ScrollController scrollController;
 
   @override

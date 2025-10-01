@@ -26,7 +26,7 @@ class SyncBackendNotifier extends AsyncNotifier<int>
   SignalRClient? _syncSignalRClient;
 
   final int _retryingServerConnectDurationInSeconds = 5;
-  final int _retryingServerConnectTries = 20;
+  final int _retryingServerConnectTries = 200;
   bool _isDisposed = false;
 
   bool disableSyncing = false;
@@ -80,7 +80,7 @@ class SyncBackendNotifier extends AsyncNotifier<int>
       return;
     }
 
-    ref.read(loggerProvider).i("Formatted data: ${result.data?.toString()}");
+    // ref.read(loggerProvider).i("Formatted data: ${result.data?.toString()}");
 
     // Updating the groups notifier with the new data if it exists and there are groups
     if (ref.exists(groupsNotifierProvider)) {
@@ -212,6 +212,8 @@ class SyncBackendNotifier extends AsyncNotifier<int>
           .read(loggerProvider)
           .d("Connection with the server has been closed, error: $error");
     }
+
+    _startHubConnection();
   }
 
   void _onHubReconnecting({Exception? error}) {

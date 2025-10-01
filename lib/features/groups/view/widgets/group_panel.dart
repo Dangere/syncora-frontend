@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:syncora_frontend/common/themes/app_sizes.dart';
-import 'package:syncora_frontend/common/widgets/marquee_text.dart';
+import 'package:syncora_frontend/common/widgets/marquee_widget.dart';
 import 'package:syncora_frontend/features/groups/models/group.dart';
 
 class GroupPanel extends StatelessWidget {
@@ -32,7 +32,7 @@ class GroupPanel extends StatelessWidget {
                 child: ConstrainedBox(
                     constraints:
                         const BoxConstraints(maxWidth: 150, maxHeight: 20),
-                    child: MarqueeText(
+                    child: MarqueeWidget(
                       child: Text(
                         "${group.title} (${group.id})",
                       ),

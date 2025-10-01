@@ -170,8 +170,6 @@ class LocalGroupsRepository {
             .map((e) => e["id"] as int)
             .toList();
 
-    Logger().w(existingGroupsIds);
-
     await db.transaction((txn) async {
       final batch = txn.batch();
       for (GroupDTO group in groups) {

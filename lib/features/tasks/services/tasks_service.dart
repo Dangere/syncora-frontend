@@ -78,4 +78,29 @@ class TasksService {
       return Result.failure(ErrorMapper.map(e, stackTrace));
     }
   }
+
+  Future<Result<void>> setAssignedUsersToTask(
+      {required int taskId,
+      required int groupId,
+      required List<int> ids}) async {
+    try {
+      return Result.success(await remoteTasksRepository.setAssignTask(
+          taskId: taskId, groupId: groupId, ids: ids));
+    } catch (e, stackTrace) {
+      return Result.failure(ErrorMapper.map(e, stackTrace));
+    }
+  }
+
+  Future<Result<void>> markTask(
+      {required int taskId, required int groupId, required bool isDone}) async {
+    try {
+      return Result.success(await remoteTasksRepository.markTask(
+        taskId: taskId,
+        groupId: groupId,
+        isDone: isDone,
+      ));
+    } catch (e, stackTrace) {
+      return Result.failure(ErrorMapper.map(e, stackTrace));
+    }
+  }
 }

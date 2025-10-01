@@ -129,6 +129,32 @@ class GroupsNotifier extends AsyncNotifier<List<Group>> {
     }
   }
 
+  Future<void> setAssignTask(
+      {required int taskId,
+      required int groupId,
+      required List<int> ids}) async {
+    Result<void> updateResult = await ref
+        .read(tasksServiceProvider)
+        .setAssignedUsersToTask(taskId: taskId, groupId: groupId, ids: ids);
+
+    if (!updateResult.isSuccess) {
+      ref.read(appErrorProvider.notifier).state = updateResult.error;
+      return;
+    }
+  }
+
+  Future<void> markTask(
+      {required int taskId, required int groupId, required bool isDone}) async {
+    Result<void> updateResult = await ref
+        .read(tasksServiceProvider)
+        .markTask(taskId: taskId, groupId: groupId, isDone: isDone);
+
+    if (!updateResult.isSuccess) {
+      ref.read(appErrorProvider.notifier).state = updateResult.error;
+      return;
+    }
+  }
+
   // Future<void> upsertGroups(List<Group> groups) async {
   //   Result<List<Group>> upsertResult =
   //       await _groupsService.upsertGroups(groups);

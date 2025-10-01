@@ -52,14 +52,26 @@ class RemoteTasksRepository {
         .timeout(const Duration(seconds: 10));
   }
 
-  //   Future<void> markTask(
-  //     {required int taskId,
-  //     required int groupId,
-  //     required bool isDone}) async {
-  //   await _dio.put('${Constants.BASE_API_URL}/groups/$groupId/tasks/$taskId/',
-  //       data: {
-  //         "title": title,
-  //         "description": description
-  //       }).timeout(const Duration(seconds: 10));
-  // }
+  // Directly sets the list of users assigned to a task
+  Future<void> setAssignTask(
+      {required int taskId,
+      required int groupId,
+      required List<int> ids}) async {
+    String idsString = ids.map((id) => 'ids=$id').join("&");
+
+    await _dio
+        .put(
+          '${Constants.BASE_API_URL}/groups/$groupId/tasks/$taskId/set-assign?$idsString',
+        )
+        .timeout(const Duration(seconds: 10));
+  }
+
+  Future<void> markTask(
+      {required int taskId, required int groupId, required bool isDone}) async {
+    await _dio
+        .put(
+          '${Constants.BASE_API_URL}/groups/$groupId/tasks/$taskId/mark?isDone=$isDone',
+        )
+        .timeout(const Duration(seconds: 10));
+  }
 }
