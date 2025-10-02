@@ -110,6 +110,18 @@ class DatabaseManager {
         timestamp TEXT NOT NULL
       )
     ''');
+
+    await db.execute('''
+      CREATE TABLE ${DatabaseTables.outbox} (
+        id INTEGER PRIMARY KEY,
+        entityTempId INTEGER NOT NULL,
+        entityType INTEGER NOT NULL,
+        actionType INTEGER NOT NULL,
+        payload TEXT NOT NULL, 
+        status INTEGER NOT NULL,
+        creationDate TEXT NOT NULL,
+      )
+    ''');
   }
 
   Future<void> ensureDeleted() async {

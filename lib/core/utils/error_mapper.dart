@@ -8,7 +8,7 @@ import 'package:syncora_frontend/core/utils/app_error.dart';
 class ErrorMapper {
   static AppError map(Object e, StackTrace stackTrace) {
     if (e is DioException) {
-      return AppError(message: mapDioErrorToMessage(e), errorObject: e);
+      return AppError(message: _mapDioErrorToMessage(e), errorObject: e);
     }
 
     if (e is TimeoutException) {
@@ -39,7 +39,7 @@ class ErrorMapper {
         p0.toString().contains("dart:ui"));
   }
 
-  static String mapDioErrorToMessage(DioException e) {
+  static String _mapDioErrorToMessage(DioException e) {
     switch (e.type) {
       case DioExceptionType.connectionTimeout:
         return "Connection timed out. Please check your internet and try again.";

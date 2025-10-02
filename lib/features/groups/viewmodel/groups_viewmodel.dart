@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:syncora_frontend/common/providers/common_providers.dart';
 import 'package:syncora_frontend/common/providers/connection_provider.dart';
+import 'package:syncora_frontend/core/network/outbox/model/outbox_entry.dart';
+import 'package:syncora_frontend/core/network/outbox/outbox_viewmodel.dart';
 import 'package:syncora_frontend/core/utils/app_error.dart';
 import 'package:syncora_frontend/core/utils/result.dart';
 import 'package:syncora_frontend/features/authentication/models/auth_state.dart';
@@ -18,13 +20,23 @@ class GroupsNotifier extends AsyncNotifier<List<Group>> {
   Future<void> createGroup(String title, String description) async {
     // state = const AsyncValue.loading();
 
-    Result<Group> newGroupResult =
-        await ref.read(groupsServiceProvider).createGroup(title, description);
+    int? userId = ref.read(authNotifierProvider).value?.user?.id;
 
-    if (!newGroupResult.isSuccess) {
-      ref.read(appErrorProvider.notifier).state = newGroupResult.error;
-      return;
-    }
+    Group newGroupResult = await ref
+        .read(localGroupsRepositoryProvider)
+        .createGroup(title, description, userId!);
+
+    ref.read(outboxProvider.notifier).enqueue(OutboxEntry.entry(
+          entityTempId: newGroupResult.id,
+          entityType: OutboxEntityType.group,
+          actionType: OutBoxActionType.create,
+          payload: {},
+        ));
+
+    // if (!newGroupResult.isSuccess) {
+    //   ref.read(appErrorProvider.notifier).state = newGroupResult.error;
+    //   return;
+    // }
 
     reloadGroups();
   }

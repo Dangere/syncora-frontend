@@ -4,7 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:syncora_frontend/common/providers/connection_provider.dart';
 import 'package:syncora_frontend/common/themes/app_sizes.dart';
 import 'package:syncora_frontend/common/widgets/syncing_icon.dart';
-import 'package:syncora_frontend/core/network/syncing/sync_notifier.dart';
+import 'package:syncora_frontend/core/network/syncing/sync_viewmodel.dart';
 import 'package:syncora_frontend/core/tests.dart';
 import 'package:syncora_frontend/core/utils/snack_bar_alerts.dart';
 import 'package:syncora_frontend/features/authentication/models/auth_state.dart';

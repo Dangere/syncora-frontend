@@ -5,4 +5,7 @@ class DatabaseTables {
   static const String tasks = 'tasks';
   static const String tasksAssignees = 'tasks_assignees';
   static const String syncTimestamps = 'sync_timestamps';
+
+  static const String outbox = 'outbox';
+
 }
