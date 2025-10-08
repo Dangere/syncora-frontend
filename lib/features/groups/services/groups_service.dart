@@ -1,5 +1,6 @@
-import 'package:flutter/material.dart';
-import 'package:logger/logger.dart';
+import 'package:syncora_frontend/core/network/outbox/model/outbox_entry.dart';
+import 'package:syncora_frontend/core/network/outbox/outbox_service.dart';
+import 'package:syncora_frontend/core/typedef.dart';
 import 'package:syncora_frontend/core/utils/error_mapper.dart';
 import 'package:syncora_frontend/core/utils/result.dart';
 import 'package:syncora_frontend/features/authentication/models/auth_state.dart';
@@ -11,8 +12,9 @@ import 'package:syncora_frontend/features/groups/repositories/remote_groups_repo
 // If group is shared, user can leave and modify it when online only using remote requests
 // When its local group, the user can leave and modify it when online or offline
 class GroupsService {
-  final LocalGroupsRepository _localGroupRepository;
-  final RemoteGroupsRepository _remoteGroupRepository;
+  final LocalGroupsRepository _localGroupsRepository;
+  final RemoteGroupsRepository _remoteGroupsRepository;
+  final OutBoxEnqueueFunc<OutboxEntry, AsyncResultCallback> _enqueueEntry;
 
   final AuthState _authState;
   final bool _isOnline;
@@ -20,16 +22,18 @@ class GroupsService {
   GroupsService(
       {required AuthState authState,
       required bool isOnline,
-      required LocalGroupsRepository localGroupRepository,
-      required RemoteGroupsRepository remoteGroupRepository})
-      : _localGroupRepository = localGroupRepository,
-        _remoteGroupRepository = remoteGroupRepository,
+      required LocalGroupsRepository localGroupsRepository,
+      required RemoteGroupsRepository remoteGroupsRepository,
+      required OutBoxEnqueueFunc enqueueEntry})
+      : _localGroupsRepository = localGroupsRepository,
+        _remoteGroupsRepository = remoteGroupsRepository,
         _authState = authState,
-        _isOnline = isOnline;
+        _isOnline = isOnline,
+        _enqueueEntry = enqueueEntry;
 
   Future<Result<List<Group>>> getAllGroups() async {
     try {
-      List<Group> groups = await _localGroupRepository.getAllGroups();
+      List<Group> groups = await _localGroupsRepository.getAllGroups();
 
       // groups.forEach((element) {
       //   Logger().d(element.toTable());
@@ -47,13 +51,33 @@ class GroupsService {
   Future<Result<Group>> createGroup(String title, String description) async {
     try {
       int userId = _authState.user!.id;
+      final now = DateTime.now().toUtc();
 
-      if (_isOnline) {
-        await _remoteGroupRepository.createGroup(title, description);
-      }
+      Group newGroup = Group(
+          id: -now.millisecondsSinceEpoch,
+          groupMembersIds: const [],
+          tasksIds: const [],
+          ownerUserId: userId,
+          creationDate: now,
+          title: title,
+          description: description);
 
-      return Result.success(
-          await _localGroupRepository.createGroup(title, description, userId));
+      Result enqueueResult = await _enqueueEntry(
+        OutboxEntry.entry(
+          entityTempId: newGroup.id,
+          entityType: OutboxEntityType.group,
+          actionType: OutboxActionType.create,
+          payload: newGroup.toTable(),
+        ),
+        () async {
+          return Result.wrap(() async {
+            await _localGroupsRepository.createGroup(newGroup);
+          });
+        },
+      );
+      if (!enqueueResult.isSuccess) return Result.failure(enqueueResult.error!);
+
+      return Result.success(newGroup);
     } catch (e, stackTrace) {
       return Result.failure(ErrorMapper.map(e, stackTrace));
     }
@@ -66,7 +90,7 @@ class GroupsService {
       if (_isOnline) {
         print('updateGroupTitle');
 
-        await _remoteGroupRepository.updateGroupDetails(
+        await _remoteGroupsRepository.updateGroupDetails(
             title, description, groupId);
 
         print('done updateGroupTitle');
@@ -86,10 +110,10 @@ class GroupsService {
       required int groupId}) async {
     try {
       if (allowAccess) {
-        await _remoteGroupRepository.addUserToGroup(
+        await _remoteGroupsRepository.addUserToGroup(
             username: username, groupId: groupId);
       } else {
-        await _remoteGroupRepository.removeUserFromGroup(
+        await _remoteGroupsRepository.removeUserFromGroup(
             username: username, groupId: groupId);
       }
 
@@ -109,7 +133,7 @@ class GroupsService {
 
   Future<Result<void>> upsertGroups(List<GroupDTO> groups) async {
     try {
-      return Result.success(await _localGroupRepository.upsertGroups(groups));
+      return Result.success(await _localGroupsRepository.upsertGroups(groups));
     } catch (e, stackTrace) {
       return Result.failure(ErrorMapper.map(e, stackTrace));
     }
@@ -118,7 +142,7 @@ class GroupsService {
   Future<Result<void>> deleteGroups(List<int> groupsIds) async {
     try {
       for (var groupId in groupsIds) {
-        await _localGroupRepository.deleteGroup(groupId);
+        await _localGroupsRepository.deleteGroup(groupId);
       }
       return Result.success(null);
     } catch (e, stackTrace) {

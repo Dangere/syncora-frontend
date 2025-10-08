@@ -5,16 +5,18 @@ import 'package:syncora_frontend/features/tasks/repositories/local_tasks_reposit
 import 'package:syncora_frontend/features/tasks/repositories/remote_tasks_repository.dart';
 
 class TasksService {
-  final LocalTasksRepository localTasksRepository;
-  final RemoteTasksRepository remoteTasksRepository;
+  final LocalTasksRepository _localTasksRepository;
+  final RemoteTasksRepository _remoteTasksRepository;
 
   TasksService(
-      {required this.localTasksRepository,
-      required this.remoteTasksRepository});
+      {required LocalTasksRepository localTasksRepository,
+      required RemoteTasksRepository remoteTasksRepository})
+      : _remoteTasksRepository = remoteTasksRepository,
+        _localTasksRepository = localTasksRepository;
 
   Future<Result<List<Task>>> getTasksForGroup(int groupId) async {
     try {
-      List<Task> tasks = await localTasksRepository.getTasksForGroup(groupId);
+      List<Task> tasks = await _localTasksRepository.getTasksForGroup(groupId);
       return Result.success(tasks);
     } catch (e, stackTrace) {
       return Result.failure(ErrorMapper.map(e, stackTrace));
@@ -23,7 +25,7 @@ class TasksService {
 
   Future<Result<void>> upsertTasks(List<Task> tasks) async {
     try {
-      return Result.success(await localTasksRepository.upsertTasks(tasks));
+      return Result.success(await _localTasksRepository.upsertTasks(tasks));
     } catch (e, stackTrace) {
       return Result.failure(ErrorMapper.map(e, stackTrace));
     }
@@ -32,7 +34,7 @@ class TasksService {
   Future<Result<void>> deleteTask(
       {required int taskId, required int groupId}) async {
     try {
-      return Result.success(await remoteTasksRepository.deleteTask(
+      return Result.success(await _remoteTasksRepository.deleteTask(
           groupId: groupId, taskId: taskId));
     } catch (e, stackTrace) {
       return Result.failure(ErrorMapper.map(e, stackTrace));
@@ -45,7 +47,7 @@ class TasksService {
       String? title,
       String? description}) async {
     try {
-      return Result.success(await remoteTasksRepository.updateTask(
+      return Result.success(await _remoteTasksRepository.updateTask(
           groupId: groupId,
           taskId: taskId,
           title: title,
@@ -60,7 +62,7 @@ class TasksService {
       String? description,
       required int groupId}) async {
     try {
-      return Result.success(await remoteTasksRepository.createTask(
+      return Result.success(await _remoteTasksRepository.createTask(
           groupId: groupId, title: title, description: description));
     } catch (e, stackTrace) {
       return Result.failure(ErrorMapper.map(e, stackTrace));
@@ -72,7 +74,7 @@ class TasksService {
       required int groupId,
       required List<int> ids}) async {
     try {
-      return Result.success(await remoteTasksRepository.assignTask(
+      return Result.success(await _remoteTasksRepository.assignTask(
           taskId: taskId, groupId: groupId, ids: ids));
     } catch (e, stackTrace) {
       return Result.failure(ErrorMapper.map(e, stackTrace));
@@ -84,7 +86,7 @@ class TasksService {
       required int groupId,
       required List<int> ids}) async {
     try {
-      return Result.success(await remoteTasksRepository.setAssignTask(
+      return Result.success(await _remoteTasksRepository.setAssignTask(
           taskId: taskId, groupId: groupId, ids: ids));
     } catch (e, stackTrace) {
       return Result.failure(ErrorMapper.map(e, stackTrace));
@@ -94,7 +96,7 @@ class TasksService {
   Future<Result<void>> markTask(
       {required int taskId, required int groupId, required bool isDone}) async {
     try {
-      return Result.success(await remoteTasksRepository.markTask(
+      return Result.success(await _remoteTasksRepository.markTask(
         taskId: taskId,
         groupId: groupId,
         isDone: isDone,

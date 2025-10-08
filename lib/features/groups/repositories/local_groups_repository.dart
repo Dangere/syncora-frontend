@@ -1,8 +1,6 @@
-import 'package:logger/logger.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:syncora_frontend/core/data/database_manager.dart';
 import 'package:syncora_frontend/core/data/enums/database_tables.dart';
-import 'package:syncora_frontend/features/authentication/models/user.dart';
 import 'package:syncora_frontend/features/groups/models/group.dart';
 import 'package:syncora_frontend/features/groups/models/group_dto.dart';
 
@@ -11,58 +9,18 @@ class LocalGroupsRepository {
 
   LocalGroupsRepository(this._databaseManager);
 
-  // Future<void> seedTempGroupMembers(int groupId) async {
-  //   final db = await _databaseManager.getDatabase();
-  //   final now = DateTime.now().toUtc();
-
-  //   int firstUserId = -now.millisecondsSinceEpoch;
-  //   int secondUserId = -now.millisecondsSinceEpoch + 1;
-
-  //   User user = User(
-  //       id: firstUserId,
-  //       username: "user" + firstUserId.toString().substring(5, 10),
-  //       email: firstUserId.toString());
-  //   User user2 = User(
-  //       id: secondUserId,
-  //       username: "user" + secondUserId.toString().substring(4, 10),
-  //       email: secondUserId.toString());
-
-  //   await db.transaction((txn) async {
-  //     final batch = txn.batch();
-  //     batch.insert("users", user.toJson());
-  //     batch.insert("users", user2.toJson());
-  //     // make sure groupsMembers cant have deduplicated entries or at least use distinct when querying
-  //     batch
-  //         .insert("groupsMembers", {"groupId": groupId, "userId": firstUserId});
-  //     batch.insert(
-  //         "groupsMembers", {"groupId": groupId, "userId": secondUserId});
-
-  //     await batch.commit(noResult: true);
-  //   });
-  // }
-
-  Future<Group> createGroup(
-      String title, String description, int ownerId) async {
-    final now = DateTime.now().toUtc();
-
-    Group newGroup = Group(
-        id: -now.millisecondsSinceEpoch,
-        groupMembersIds: const [],
-        tasksIds: const [],
-        ownerUserId: ownerId,
-        creationDate: now,
-        title: title,
-        description: description);
-
+  Future<void> createGroup(Group newGroup) async {
     final db = await _databaseManager.getDatabase();
 
     await db.insert(DatabaseTables.groups, newGroup.toTable());
+  }
 
-    // await seedTempGroupMembers(newGroup.id);
+  Future<bool> groupExist(int groupId) async {
+    final db = await _databaseManager.getDatabase();
 
-    // Logger().w(await db.rawQuery('SELECT * FROM groups'));
-
-    return newGroup;
+    List<Map<String, dynamic>> groupQuery = await db.rawQuery(
+        ''' SELECT * FROM ${DatabaseTables.groups} WHERE id = $groupId''');
+    return groupQuery.isNotEmpty;
   }
 
   Future<List<Group>> getAllGroups() async {
@@ -108,7 +66,7 @@ class LocalGroupsRepository {
     final db = await _databaseManager.getDatabase();
 
     List<Map<String, dynamic>> groupQuery = await db.rawQuery(
-        ''' SELECT * FROM ${DatabaseTables.groups} WHERE id = $groupId''');
+        ''' SELECT * FROM ${DatabaseTables.groups} WHERE id = $groupId ''');
 
     if (groupQuery.isEmpty) {
       throw Exception("Group with id $groupId not found");
@@ -133,7 +91,7 @@ class LocalGroupsRepository {
         .toList();
 
     // tasksIdsForGroup.forEach((element) {
-    //   Logger().w(element);
+    //
     // });
 
     Group group = Group.fromJsonWithIds(
@@ -207,9 +165,22 @@ class LocalGroupsRepository {
     });
   }
 
-  Future<void> deleteGroup(int groupId) async {
+  Future<int> deleteGroup(int groupId) async {
     final db = await _databaseManager.getDatabase();
-    await db
+
+    return await db
         .delete(DatabaseTables.groups, where: "id = ?", whereArgs: [groupId]);
+  }
+
+  // Method used to update temp ids of groups to ones issued by the backend
+  Future<int> updateGroupId(int tempId, int newId) async {
+    final db = await _databaseManager.getDatabase();
+
+    return await db.update(
+      DatabaseTables.groups,
+      {"id": newId},
+      where: "id = ?",
+      whereArgs: [tempId],
+    );
   }
 }

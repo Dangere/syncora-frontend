@@ -77,17 +77,34 @@ class _HomeScreenState extends ConsumerState<HomePage> {
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          // bool fakeOnline = ref.read(fakeBeingOnlineProvider);
-          // ref.read(fakeBeingOnlineProvider.notifier).state = !fakeOnline;
+      floatingActionButton: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          IconButton(
+            onPressed: () {
+              bool fakeOnline = ref.read(fakeBeingOnlineProvider);
+              ref.read(fakeBeingOnlineProvider.notifier).state = !fakeOnline;
 
-          // ref.read(syncBackendNotifierProvider.notifier).test();
-          // ref.read(syncBackendNotifierProvider.notifier).toggleSyncing();
-          Tests.printDb(ref);
-        },
-        tooltip: 'TEST',
-        child: const Icon(Icons.text_rotation_angleup_sharp),
+              // ref.read(syncBackendNotifierProvider.notifier).test();
+              // ref.read(syncBackendNotifierProvider.notifier).toggleSyncing();
+            },
+            tooltip: 'TEST',
+            icon: const Icon(Icons.signal_wifi_connected_no_internet_4_rounded),
+          ),
+          IconButton(
+            onPressed: () {
+              // bool fakeOnline = ref.read(fakeBeingOnlineProvider);
+              // ref.read(fakeBeingOnlineProvider.notifier).state = !fakeOnline;
+
+              // ref.read(syncBackendNotifierProvider.notifier).test();
+              // ref.read(syncBackendNotifierProvider.notifier).toggleSyncing();
+              // Tests.printDb(ref);
+              Tests.test_outbox_sorter();
+            },
+            tooltip: 'TEST',
+            icon: const Icon(Icons.text_rotation_angleup_sharp),
+          ),
+        ],
       ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }

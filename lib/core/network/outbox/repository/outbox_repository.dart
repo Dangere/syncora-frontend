@@ -15,6 +15,13 @@ class OutboxRepository {
     await db.insert(DatabaseTables.outbox, entry.toTable());
   }
 
+  Future<void> deleteEntry(int entryId) async {
+    Database db = await _databaseManager.getDatabase();
+
+    await db
+        .delete(DatabaseTables.outbox, where: "id = ?", whereArgs: [entryId]);
+  }
+
   Future<List<OutboxEntry>> getPendingEntries() async {
     Database db = await _databaseManager.getDatabase();
 
@@ -26,5 +33,21 @@ class OutboxRepository {
         query.map((e) => OutboxEntry.fromTable(e)).toList();
 
     return entries;
+  }
+
+  Future<void> completeEntry(int id) async {
+    Database db = await _databaseManager.getDatabase();
+
+    await db.update(
+        DatabaseTables.outbox, {"status": OutboxStatus.complete.index},
+        where: "id = ?", whereArgs: [id]);
+  }
+
+  Future<void> failEntry(int id) async {
+    Database db = await _databaseManager.getDatabase();
+
+    await db.update(
+        DatabaseTables.outbox, {"status": OutboxStatus.failed.index},
+        where: "id = ?", whereArgs: [id]);
   }
 }

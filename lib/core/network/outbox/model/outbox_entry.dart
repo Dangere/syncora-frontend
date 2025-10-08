@@ -1,10 +1,12 @@
 import 'dart:convert';
 
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 class OutboxEntry {
   final int? id;
-  final int entityTempId;
+  final int entityId;
   final OutboxEntityType entityType;
-  final OutBoxActionType actionType;
+  final OutboxActionType actionType;
   final Map<String, dynamic> payload;
   final OutboxStatus status;
 
@@ -12,7 +14,7 @@ class OutboxEntry {
 
   OutboxEntry(
       {this.id,
-      required this.entityTempId,
+      required this.entityId,
       required this.entityType,
       required this.actionType,
       required this.payload,
@@ -20,7 +22,7 @@ class OutboxEntry {
       required this.creationDate});
 
   Map<String, dynamic> toTable() => {
-        "entityTempId": entityTempId,
+        "entityId": entityId,
         "entityType": entityType.index,
         "actionType": actionType.index,
         "payload": jsonEncode(payload),
@@ -31,31 +33,35 @@ class OutboxEntry {
   factory OutboxEntry.fromTable(Map<String, dynamic> data) {
     return OutboxEntry(
         id: data["id"],
-        entityTempId: data["entityTempId"],
+        entityId: data["entityId"],
         entityType: OutboxEntityType.values[data["entityType"] as int],
-        actionType: OutBoxActionType.values[data["actionType"] as int],
+        actionType: OutboxActionType.values[data["actionType"] as int],
         payload: jsonDecode(data["payload"]),
         status: OutboxStatus.values[data["status"] as int],
         creationDate: DateTime.parse(data["creationDate"]));
   }
 
   factory OutboxEntry.entry(
-      {required entityTempId,
-      required entityType,
-      required actionType,
-      required payload}) {
+      {required int entityTempId,
+      required OutboxEntityType entityType,
+      required OutboxActionType actionType,
+      required Map<String, dynamic> payload}) {
     return OutboxEntry(
-        entityTempId: entityTempId,
+        entityId: entityTempId,
         entityType: entityType,
         actionType: actionType,
         payload: payload,
         status: OutboxStatus.pending,
         creationDate: DateTime.now().toUtc());
   }
+
+  @override
+  toString() =>
+      'OutboxEntry(id: $id, entityId: $entityId, entityType: $entityType, actionType: $actionType, payload: $payload, status: $status, creationDate: $creationDate)';
 }
 
 enum OutboxStatus { pending, complete, inProcess, failed }
 
-enum OutboxEntityType { task, group }
+enum OutboxEntityType { group, task }
 
-enum OutBoxActionType { create, delete, update, mark }
+enum OutboxActionType { create, delete, update, mark }

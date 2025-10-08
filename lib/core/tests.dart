@@ -3,12 +3,16 @@
 
 import 'dart:convert';
 
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:logger/logger.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:syncora_frontend/common/providers/common_providers.dart';
 import 'package:syncora_frontend/core/data/enums/database_tables.dart';
+import 'package:syncora_frontend/core/network/outbox/model/outbox_entry.dart';
+import 'package:syncora_frontend/core/network/outbox/outbox_sorter.dart';
 import 'package:syncora_frontend/core/network/syncing/model/sync_payload.dart';
+import 'package:syncora_frontend/core/utils/alert_dialogs.dart';
 import 'package:syncora_frontend/core/utils/result.dart';
 import 'package:syncora_frontend/features/authentication/models/auth_state.dart';
 import 'package:syncora_frontend/features/authentication/viewmodel/auth_viewmodel.dart';
@@ -107,6 +111,88 @@ class Tests {
     print(tasks.data!.first.completedById);
   }
 
+  static void test_negative_id(WidgetRef ref, BuildContext context) async {
+    AlertDialogs.showTextFieldDialog(
+      context,
+      barrierDismissible: true,
+      blurBackground: false,
+      message: "message",
+      onContinue: (p0) async {
+        Database db = await ref.read(localDbProvider).getDatabase();
+        Logger().f(await db.update(
+          DatabaseTables.groups,
+          {"id": 44444444444},
+          where: "id = ?",
+          whereArgs: [p0],
+        ));
+      },
+      validation: (arg) {},
+    );
+  }
+
+  static void test_outbox_sorter() {
+    List<OutboxEntry> entries = [
+      OutboxEntry(
+        id: 2,
+        entityType: OutboxEntityType.task,
+        actionType: OutboxActionType.delete,
+        entityId: -2332,
+        status: OutboxStatus.pending,
+        payload: {},
+        creationDate: DateTime.now(),
+      ),
+      OutboxEntry(
+        id: 3,
+        entityType: OutboxEntityType.group,
+        actionType: OutboxActionType.update,
+        entityId: -2442,
+        status: OutboxStatus.pending,
+        payload: {},
+        creationDate: DateTime.now(),
+      ),
+      OutboxEntry(
+        id: 4,
+        entityType: OutboxEntityType.task,
+        actionType: OutboxActionType.update,
+        entityId: -22232,
+        status: OutboxStatus.pending,
+        payload: {},
+        creationDate: DateTime.now(),
+      ),
+      OutboxEntry(
+        id: 4,
+        entityType: OutboxEntityType.task,
+        actionType: OutboxActionType.mark,
+        entityId: -22232,
+        status: OutboxStatus.pending,
+        payload: {},
+        creationDate: DateTime.now(),
+      ),
+      OutboxEntry(
+        id: 4,
+        entityType: OutboxEntityType.task,
+        actionType: OutboxActionType.create,
+        entityId: -2222,
+        status: OutboxStatus.pending,
+        payload: {},
+        creationDate: DateTime.now(),
+      ),
+      OutboxEntry(
+        id: 1,
+        entityType: OutboxEntityType.group,
+        actionType: OutboxActionType.create,
+        entityId: -232,
+        status: OutboxStatus.pending,
+        payload: {},
+        creationDate: DateTime.now(),
+      ),
+    ];
+
+    var sortedEntries = OutboxSorter.sort(entries);
+    // Priority, Create group -> modify group -> create task -> modify task
+    Logger().f(sortedEntries);
+  }
+
   static Future<void> printDb(WidgetRef ref) async {
     Database db = await ref.read(localDbProvider).getDatabase();
 
@@ -119,11 +205,15 @@ class Tests {
     var groupMembersRawQuery =
         await db.rawQuery("SELECT * FROM ${DatabaseTables.groupsMembers}");
 
+    var outboxRawQuery =
+        await db.rawQuery("SELECT * FROM ${DatabaseTables.outbox}");
+
     Logger().f(groupsRawQuery, stackTrace: StackTrace.fromString("GROUPS"));
     Logger().f(usersRawQuery, stackTrace: StackTrace.fromString("USERS"));
     Logger().f(groupMembersRawQuery,
         stackTrace: StackTrace.fromString("GROUP MEMBERS"));
 
     Logger().f(tasksRawQuery, stackTrace: StackTrace.fromString("TASKS"));
+    Logger().f(outboxRawQuery, stackTrace: StackTrace.fromString("OUTBOX"));
   }
 }

@@ -31,13 +31,12 @@ class AuthInterceptor extends Interceptor {
 
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) async {
-    // If we have an access token and the error is 401 unauthorized
-
-    ref.read(loggerProvider).d("Error: ${err.response?.statusCode}");
+    ref.read(loggerProvider).i("Dio Error: ${err.response?.statusCode}");
 
     int? status = err.response?.statusCode;
     bool haveAccessToken = _sessionStorage.accessToken != null;
 
+    // If we have an access token and the error is 401 unauthorized
     if (haveAccessToken && status == 401) {
       try {
         if (_refreshTokenCompleter != null) {

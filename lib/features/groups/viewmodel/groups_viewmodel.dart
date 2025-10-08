@@ -20,23 +20,13 @@ class GroupsNotifier extends AsyncNotifier<List<Group>> {
   Future<void> createGroup(String title, String description) async {
     // state = const AsyncValue.loading();
 
-    int? userId = ref.read(authNotifierProvider).value?.user?.id;
+    Result<Group> newGroupResult =
+        await ref.read(groupsServiceProvider).createGroup(title, description);
 
-    Group newGroupResult = await ref
-        .read(localGroupsRepositoryProvider)
-        .createGroup(title, description, userId!);
-
-    ref.read(outboxProvider.notifier).enqueue(OutboxEntry.entry(
-          entityTempId: newGroupResult.id,
-          entityType: OutboxEntityType.group,
-          actionType: OutBoxActionType.create,
-          payload: {},
-        ));
-
-    // if (!newGroupResult.isSuccess) {
-    //   ref.read(appErrorProvider.notifier).state = newGroupResult.error;
-    //   return;
-    // }
+    if (!newGroupResult.isSuccess) {
+      ref.read(appErrorProvider.notifier).state = newGroupResult.error;
+      return;
+    }
 
     reloadGroups();
   }
@@ -167,33 +157,6 @@ class GroupsNotifier extends AsyncNotifier<List<Group>> {
     }
   }
 
-  // Future<void> upsertGroups(List<Group> groups) async {
-  //   Result<List<Group>> upsertResult =
-  //       await _groupsService.upsertGroups(groups);
-
-  //   if (!upsertResult.isSuccess) {
-  //     ref.read(appErrorProvider.notifier).state = upsertResult.error;
-  //     return;
-  //   }
-
-  //   state = AsyncValue.data(upsertResult.data!);
-  // }
-
-  // Future<void> fetchAndCacheRemoteGroups() async {
-  //   // state = const AsyncValue.loading();
-  //   Result<void> fetchResult = await _groupsService.cacheRemoteGroups();
-
-  //   if (!fetchResult.isSuccess) {
-  //     ref.read(appErrorProvider.notifier).state = fetchResult.error;
-  //   }
-
-  //   Result<List<Group>> cachedResult = await _groupsService.getAllGroups();
-  //   if (!cachedResult.isSuccess) {
-  //     ref.read(appErrorProvider.notifier).state = fetchResult.error;
-  //   }
-  //   state = AsyncValue.data(cachedResult.data!);
-  // }
-
   Future<void> reloadGroups() async {
     Result<List<Group>> fetchResult =
         await ref.read(groupsServiceProvider).getAllGroups();
@@ -285,9 +248,11 @@ final groupsServiceProvider = Provider<GroupsService>((ref) {
   return GroupsService(
     authState: authState,
     isOnline: isOnline,
-    localGroupRepository: ref.watch(
+    localGroupsRepository: ref.watch(
       localGroupsRepositoryProvider,
     ),
-    remoteGroupRepository: ref.watch(remoteGroupsRepositoryProvider),
+    remoteGroupsRepository: ref.watch(remoteGroupsRepositoryProvider),
+    enqueueEntry: (entry, onAfterEnqueue) =>
+        ref.read(outboxProvider.notifier).enqueue(entry, onAfterEnqueue),
   );
 });
