@@ -1,7 +1,5 @@
 import 'dart:convert';
 
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-
 class OutboxEntry {
   final int? id;
   final int entityId;
@@ -42,12 +40,12 @@ class OutboxEntry {
   }
 
   factory OutboxEntry.entry(
-      {required int entityTempId,
+      {required int entityId,
       required OutboxEntityType entityType,
       required OutboxActionType actionType,
       required Map<String, dynamic> payload}) {
     return OutboxEntry(
-        entityId: entityTempId,
+        entityId: entityId,
         entityType: entityType,
         actionType: actionType,
         payload: payload,

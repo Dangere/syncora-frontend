@@ -1,8 +1,11 @@
+import 'dart:collection';
+
+import 'package:syncora_frontend/core/network/outbox/enqueue_request.dart';
 import 'package:syncora_frontend/core/network/outbox/interface/outbox_processor_interface.dart';
 import 'package:syncora_frontend/core/network/outbox/model/outbox_entry.dart';
+import 'package:syncora_frontend/core/network/outbox/outbox_id_mapper.dart';
 import 'package:syncora_frontend/core/network/outbox/outbox_sorter.dart';
 import 'package:syncora_frontend/core/network/outbox/repository/outbox_repository.dart';
-import 'package:syncora_frontend/core/typedef.dart';
 import 'package:syncora_frontend/core/utils/app_error.dart';
 import 'package:syncora_frontend/core/utils/error_mapper.dart';
 import 'package:syncora_frontend/core/utils/result.dart';
@@ -10,34 +13,39 @@ import 'package:syncora_frontend/core/utils/result.dart';
 class OutboxService {
   final OutboxRepository _outboxRepository;
   final Map<OutboxEntityType, OutboxProcessor> _processors;
-  OutboxService({required outboxRepository, required processors})
+  OutboxService(
+      {required OutboxRepository outboxRepository,
+      required Map<OutboxEntityType, OutboxProcessor> processors,
+      required OutboxIdMapper idMapper})
       : _outboxRepository = outboxRepository,
         _processors = processors;
 
   // Enqueue an entry to sync local data creation/update/delete with the cloud
   // It also makes sure the entry is inserted first then modify local data to avoid ghost data not syncing
-  Future<Result<void>> enqueue(
-      OutboxEntry entry, AsyncResultCallback<void>? onAfterEnqueue) async {
+  Future<Result<void>> enqueue(EnqueueRequest request) async {
     try {
       // TODO: Add some filtering here so if we are trying to add a task to a group that we delete, it should cancel out
-      await _outboxRepository.insertEntry(entry);
+      await _outboxRepository.insertEntry(request.entry);
 
-      if (onAfterEnqueue == null) return Result.success(null);
+      if (request.onAfterEnqueue == null) return Result.success(null);
 
       // If we got local creation or updating needing to be done, we call it
-      Result result = await onAfterEnqueue();
+      Result result = await request.onAfterEnqueue!();
 
       if (result.isSuccess) return Result.success(null);
 
       // If it fails, we roll back the creation of the entry
-      await _outboxRepository.deleteEntry(entry.id!);
+      await _outboxRepository.deleteEntry(request.entry.id!);
       return result;
     } catch (e, stackTrace) {
       return Result.failure(ErrorMapper.map(e, stackTrace));
     }
   }
 
-  Future<Result<void>> processQueue() async {
+  // Processes the outbox queue and returns a list of all modified groups for UI updates
+  Future<Result<HashSet<int>>> processQueue() async {
+    HashSet<int> modifiedGroupIds = HashSet<int>();
+
     // dependency-aware sorting, Create group -> modify group -> create task -> modify task
     var entries =
         OutboxSorter.sort(await _outboxRepository.getPendingEntries());
@@ -49,16 +57,30 @@ class OutboxService {
             stackTrace: StackTrace.current));
       }
 
-      Result processResult =
+      // TODO: One thing to consider is if the refresh token runs out and the user get a 401 response which kicks them, however in the process it will revert the changes made offline and stored in outbox.
+
+      // We process the entry, it runs a while loop until it succeeds and returns the group that was modified or returns an 401 error or generic error
+      Result<int> processResult =
           await _processors[entry.entityType]!.processOutbox(entry);
 
-      if (!processResult.isSuccess) {
+      if (processResult.isSuccess) {
+        _outboxRepository.completeEntry(entry.id!);
+
+        modifiedGroupIds.add(processResult.data!);
+      } else {
+        // If the processes fails because of a 401 error or generic error we revert the local changes
+        Result revertResult =
+            await _processors[entry.entityType]!.revertProcess(entry);
+
+        if (!revertResult.isSuccess) {
+          // If we failed to revert the changes, we dont mark the entry as failed yet so its processed in the future
+          return Result.failure(revertResult.error!);
+        }
+
         _outboxRepository.failEntry(entry.id!);
         return Result.failure(processResult.error!);
-      } else {
-        _outboxRepository.completeEntry(entry.id!);
       }
     }
-    return Result.success(null);
+    return Result.success(modifiedGroupIds);
   }
 }

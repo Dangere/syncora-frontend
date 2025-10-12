@@ -52,6 +52,8 @@ class SyncBackendNotifier extends AsyncNotifier<int>
     // TODO: Instead of waiting for it to finish loading, we should schedule it to run in the future for new data
     if (state.isLoading) return;
 
+    // await Future.delayed(Duration(seconds: 5));
+
     if (ref.read(isGuestProvider)) {
       ref.read(appErrorProvider.notifier).state =
           AppError(message: "Can't sync and backup data when in guest mode");

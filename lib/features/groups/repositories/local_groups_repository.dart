@@ -107,12 +107,24 @@ class LocalGroupsRepository {
     throw UnimplementedError();
   }
 
-  Future<void> updateGroupDetails(
+  Future<int> updateGroupDetails(
       String? title, String? description, int groupId) async {
     final db = await _databaseManager.getDatabase();
-    await db.update(
+
+    if (title == null && description == null) return 0;
+
+    Map<String, Object?> values = {};
+    if (title != null) {
+      values["title"] = title;
+    }
+
+    if (description != null) {
+      values["description"] = description;
+    }
+
+    return await db.update(
       DatabaseTables.groups,
-      {"title": title, "description": description},
+      values,
       where: "id = ?",
       whereArgs: [groupId],
     );
@@ -178,7 +190,7 @@ class LocalGroupsRepository {
 
     return await db.update(
       DatabaseTables.groups,
-      {"id": newId},
+      {"id": newId, "clientGeneratedId": tempId},
       where: "id = ?",
       whereArgs: [tempId],
     );

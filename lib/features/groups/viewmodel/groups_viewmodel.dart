@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:syncora_frontend/common/providers/common_providers.dart';
 import 'package:syncora_frontend/common/providers/connection_provider.dart';
+import 'package:syncora_frontend/core/network/outbox/enqueue_request.dart';
 import 'package:syncora_frontend/core/network/outbox/model/outbox_entry.dart';
 import 'package:syncora_frontend/core/network/outbox/outbox_viewmodel.dart';
 import 'package:syncora_frontend/core/utils/app_error.dart';
@@ -31,14 +32,14 @@ class GroupsNotifier extends AsyncNotifier<List<Group>> {
     reloadGroups();
   }
 
-  Future<void> updateGroupDetail(
+  Future<void> updateGroupDetails(
       String? title, String? description, int groupId) async {
     if (title == null && description == null) return;
 
     ref.read(loggerProvider).d("Updating group details");
     Result<void> updateResult = await ref
         .read(groupsServiceProvider)
-        .updateGroupTitle(title, description, groupId);
+        .updateGroupDetails(title, description, groupId);
     ref.read(loggerProvider).d("Done updating group details");
 
     if (!updateResult.isSuccess) {
@@ -204,13 +205,6 @@ class GroupsNotifier extends AsyncNotifier<List<Group>> {
 final groupsNotifierProvider =
     AsyncNotifierProvider<GroupsNotifier, List<Group>>(GroupsNotifier.new);
 
-// final groupProvider =
-//     Provider.autoDispose.family<AsyncValue<Group>, int>((ref, groupId) {
-//   final group = ref.watch(localGroupsRepositoryProvider).getGroup(groupId);
-
-//   return group;
-// });
-
 final groupProvider =
     FutureProvider.autoDispose.family<Group, int>((ref, groupId) async {
   final group =
@@ -223,12 +217,6 @@ final localGroupsRepositoryProvider = Provider<LocalGroupsRepository>((ref) {
   return LocalGroupsRepository(ref.read(localDbProvider));
 });
 
-// Using `autoDispose` along with `ref.read` to make sure
-// Everything downstream (like GroupService, GroupRepository, etc.)
-// gets rebuilt with fresh data when the parent Notifier (GroupNotifier) is re-instantiated.
-// Should be careful when using ref.read instead of ref.watch because
-// state change in lower dependencies won’t trigger rebuilds unless re-read manually or disposed at parent level.
-// This mimics the behavior of transient dependencies in ASP.NET core.
 final remoteGroupsRepositoryProvider = Provider<RemoteGroupsRepository>((ref) {
   return RemoteGroupsRepository(dio: ref.read(dioProvider));
 });
@@ -252,7 +240,7 @@ final groupsServiceProvider = Provider<GroupsService>((ref) {
       localGroupsRepositoryProvider,
     ),
     remoteGroupsRepository: ref.watch(remoteGroupsRepositoryProvider),
-    enqueueEntry: (entry, onAfterEnqueue) =>
-        ref.read(outboxProvider.notifier).enqueue(entry, onAfterEnqueue),
+    enqueueEntry: (enqueueRequest) =>
+        ref.read(outboxProvider.notifier).enqueue(enqueueRequest),
   );
 });

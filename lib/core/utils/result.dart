@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:syncora_frontend/core/typedef.dart';
 import 'package:syncora_frontend/core/utils/app_error.dart';
 import 'package:syncora_frontend/core/utils/error_mapper.dart';
 
@@ -25,4 +26,6 @@ class Result<T> {
       return Result.failure(ErrorMapper.map(e, stackTrace));
     }
   }
+
+  E? errorObject<E>() => error?.errorObject as E;
 }

@@ -63,7 +63,7 @@ class _GroupViewPageState extends ConsumerState<GroupViewPage> {
           message: "Edit Group title", onContinue: (p0) {
         ref
             .read(groupsNotifierProvider.notifier)
-            .updateGroupDetail(p0, null, widget.groupId);
+            .updateGroupDetails(p0, null, widget.groupId);
       }, validation: (p0) {
         if (p0.trim() == defaultText) return "New title is not changed";
         return Validators.validateGroupTitle(p0) ? null : "Invalid title";
@@ -80,7 +80,7 @@ class _GroupViewPageState extends ConsumerState<GroupViewPage> {
           message: "Edit Group Description", onContinue: (p0) {
         ref
             .read(groupsNotifierProvider.notifier)
-            .updateGroupDetail(null, p0, widget.groupId);
+            .updateGroupDetails(null, p0, widget.groupId);
       }, validation: (p0) {
         if (p0.trim() == defaultText) {
           return "New description is not changed";

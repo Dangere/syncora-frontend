@@ -79,4 +79,16 @@ class LocalTasksRepository {
       batch.commit(noResult: true);
     });
   }
+
+  // Method used to update temp ids of tasks to ones issued by the backend
+  Future<int> updateTaskId(int tempId, int newId) async {
+    final db = await _databaseManager.getDatabase();
+
+    return await db.update(
+      DatabaseTables.tasks,
+      {"id": newId, "clientGeneratedId": tempId},
+      where: "id = ?",
+      whereArgs: [tempId],
+    );
+  }
 }

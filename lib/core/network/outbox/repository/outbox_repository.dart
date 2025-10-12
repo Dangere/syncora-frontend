@@ -50,4 +50,22 @@ class OutboxRepository {
         DatabaseTables.outbox, {"status": OutboxStatus.failed.index},
         where: "id = ?", whereArgs: [id]);
   }
+
+  // Returns the server id of a row in tasks or group tables using temp ids
+  Future<int> getServerId(int tempId) async {
+    Database db = await _databaseManager.getDatabase();
+
+    var result = await db.query(DatabaseTables.groups,
+        where: "clientGeneratedId = ?", whereArgs: [tempId]);
+    if (result.isEmpty) {
+      result = await db.query(DatabaseTables.tasks,
+          where: "clientGeneratedId = ?", whereArgs: [tempId]);
+    }
+
+    if (result.isEmpty) {
+      throw Exception("Group or task with temp id $tempId was not found");
+    }
+
+    return result.first["id"] as int;
+  }
 }

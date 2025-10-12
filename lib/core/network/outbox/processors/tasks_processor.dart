@@ -13,8 +13,16 @@ class TasksProcessor implements OutboxProcessor {
       : _localTasksRepository = localTasksRepository,
         _remoteTasksRepository = remoteTasksRepository;
   @override
-  Future<Result<void>> processOutbox(OutboxEntry entry) {
+  Future<Result<int>> processOutbox(OutboxEntry entry) {
+    // int groupId = entry.payload["groupId"];
+
     // TODO: implement processOutbox
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<Result<void>> revertProcess(OutboxEntry entry) {
+    // TODO: implement revertProcess
     throw UnimplementedError();
   }
 }

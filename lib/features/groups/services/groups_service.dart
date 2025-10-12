@@ -1,3 +1,4 @@
+import 'package:syncora_frontend/core/network/outbox/enqueue_request.dart';
 import 'package:syncora_frontend/core/network/outbox/model/outbox_entry.dart';
 import 'package:syncora_frontend/core/network/outbox/outbox_service.dart';
 import 'package:syncora_frontend/core/typedef.dart';
@@ -14,7 +15,7 @@ import 'package:syncora_frontend/features/groups/repositories/remote_groups_repo
 class GroupsService {
   final LocalGroupsRepository _localGroupsRepository;
   final RemoteGroupsRepository _remoteGroupsRepository;
-  final OutBoxEnqueueFunc<OutboxEntry, AsyncResultCallback> _enqueueEntry;
+  final AsyncFunc<EnqueueRequest, Result<void>> _enqueueEntry;
 
   final AuthState _authState;
   final bool _isOnline;
@@ -24,7 +25,7 @@ class GroupsService {
       required bool isOnline,
       required LocalGroupsRepository localGroupsRepository,
       required RemoteGroupsRepository remoteGroupsRepository,
-      required OutBoxEnqueueFunc enqueueEntry})
+      required AsyncFunc<EnqueueRequest, Result<void>> enqueueEntry})
       : _localGroupsRepository = localGroupsRepository,
         _remoteGroupsRepository = remoteGroupsRepository,
         _authState = authState,
@@ -49,54 +50,67 @@ class GroupsService {
   }
 
   Future<Result<Group>> createGroup(String title, String description) async {
-    try {
-      int userId = _authState.user!.id;
-      final now = DateTime.now().toUtc();
+    int userId = _authState.user!.id;
+    final now = DateTime.now().toUtc();
 
-      Group newGroup = Group(
-          id: -now.millisecondsSinceEpoch,
-          groupMembersIds: const [],
-          tasksIds: const [],
-          ownerUserId: userId,
-          creationDate: now,
-          title: title,
-          description: description);
+    Group newGroup = Group(
+        id: -now.millisecondsSinceEpoch,
+        groupMembersIds: const [],
+        tasksIds: const [],
+        ownerUserId: userId,
+        creationDate: now,
+        title: title,
+        description: description);
 
-      Result enqueueResult = await _enqueueEntry(
-        OutboxEntry.entry(
-          entityTempId: newGroup.id,
-          entityType: OutboxEntityType.group,
-          actionType: OutboxActionType.create,
-          payload: newGroup.toTable(),
-        ),
-        () async {
-          return Result.wrap(() async {
-            await _localGroupsRepository.createGroup(newGroup);
-          });
-        },
-      );
-      if (!enqueueResult.isSuccess) return Result.failure(enqueueResult.error!);
+    Result enqueueResult = await _enqueueEntry(EnqueueRequest(
+      entry: OutboxEntry.entry(
+        entityId: newGroup.id,
+        entityType: OutboxEntityType.group,
+        actionType: OutboxActionType.create,
+        payload: newGroup.toTable(),
+      ),
+      onAfterEnqueue: () async {
+        try {
+          await _localGroupsRepository.createGroup(newGroup);
+          return Result.success(null);
+        } catch (e, stackTrace) {
+          return Result.failure(ErrorMapper.map(e, stackTrace));
+        }
+      },
+    ));
+    if (!enqueueResult.isSuccess) return Result.failure(enqueueResult.error!);
 
-      return Result.success(newGroup);
-    } catch (e, stackTrace) {
-      return Result.failure(ErrorMapper.map(e, stackTrace));
-    }
+    return Result.success(newGroup);
   }
 
-  Future<Result<void>> updateGroupTitle(
+  Future<Result<void>> updateGroupDetails(
       String? title, String? description, int groupId) async {
     try {
-      // Logger().w(_isOnline);
-      if (_isOnline) {
-        print('updateGroupTitle');
+      Group group = await _localGroupsRepository.getGroup(groupId);
 
-        await _remoteGroupsRepository.updateGroupDetails(
-            title, description, groupId);
-
-        print('done updateGroupTitle');
-      }
-      // await _localGroupRepository.updateGroupDetails(
-      //     title, description, groupId);
+      Result enqueueResult = await _enqueueEntry(EnqueueRequest(
+        entry: OutboxEntry.entry(
+          entityId: groupId,
+          entityType: OutboxEntityType.group,
+          actionType: OutboxActionType.update,
+          payload: {
+            "title": title,
+            "description": description,
+            "oldTitle": group.title,
+            "oldDescription": group.description
+          },
+        ),
+        onAfterEnqueue: () async {
+          try {
+            await _localGroupsRepository.updateGroupDetails(
+                title, description, groupId);
+            return Result.success(null);
+          } catch (e, stackTrace) {
+            return Result.failure(ErrorMapper.map(e, stackTrace));
+          }
+        },
+      ));
+      if (!enqueueResult.isSuccess) return Result.failure(enqueueResult.error!);
 
       return Result.success(null);
     } catch (e, stackTrace) {
@@ -108,6 +122,11 @@ class GroupsService {
       {required bool allowAccess,
       required String username,
       required int groupId}) async {
+    if (!_isOnline) {
+      return Result.failureMessage(
+          "Can't grant access or revoke it when offline");
+    }
+
     try {
       if (allowAccess) {
         await _remoteGroupsRepository.addUserToGroup(
