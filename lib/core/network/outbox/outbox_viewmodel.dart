@@ -47,18 +47,25 @@ class OutboxNotifier extends AsyncNotifier<OutboxStatus> {
 
     if (!response.isSuccess) {
       ref.read(appErrorProvider.notifier).state = response.error;
-    } else {
-      // Updating the UI for groups list
-      if (ref.exists(groupsNotifierProvider)) {
-        ref.read(groupsNotifierProvider.notifier).reloadGroups();
-        // Updating the UI for current displayed groups, including with real ids and temp ones
-        ref
-            .read(groupsNotifierProvider.notifier)
-            .reloadViewedGroups(response.data!.modifiedGroupIds.toList());
-      }
-
-      ref.read(loggerProvider).i("Done processing Outbox Queue!");
     }
+
+    // Updating the UI for groups list
+    if (ref.exists(groupsNotifierProvider)) {
+      ref.read(groupsNotifierProvider.notifier).reloadGroups();
+      // Updating the UI for current displayed groups, including with real ids and temp ones
+      ref
+          .read(groupsNotifierProvider.notifier)
+          .reloadViewedGroups(response.data!.modifiedGroupIds.toList());
+    }
+
+    // Displaying errors
+    response.data!.errors.forEach((error) async {
+      ref.read(appErrorProvider.notifier).state = error;
+      await Future.delayed(const Duration(seconds: 2));
+    });
+
+    ref.read(loggerProvider).i("Done processing Outbox Queue!");
+
     return response;
   }
 

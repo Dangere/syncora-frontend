@@ -43,6 +43,15 @@ class GroupsProcessor extends OutboxProcessor {
           // The create event
           case OutboxActionType.create:
             {
+              // throw DioException.badResponse(
+              //     statusCode: 403,
+              //     requestOptions: RequestOptions(),
+              //     response: Response(
+              //         data: "Group already exists",
+              //         statusMessage: "Group already exists",
+              //         requestOptions: RequestOptions(),
+              //         statusCode: 403));
+
               GroupDTO newGroup = await _remoteGroupsRepository.createGroup(
                   entry.payload['title'], entry.payload['description']);
 

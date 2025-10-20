@@ -27,15 +27,15 @@ class LocalGroupsRepository {
     final db = await _databaseManager.getDatabase();
 
     List<Map<String, dynamic>> groups = await db.rawQuery(
-        ''' SELECT * FROM ${DatabaseTables.groups} ORDER BY date(creationDate) ASC''');
+        ''' SELECT * FROM ${DatabaseTables.groups} WHERE isDeleted = 0 ORDER BY date(creationDate) ASC''');
 
     List<Map<String, dynamic>> members =
         await db.rawQuery(''' SELECT * FROM ${DatabaseTables.groupsMembers}
-        LEFT JOIN ${DatabaseTables.users} ON ${DatabaseTables.groupsMembers}.userId = ${DatabaseTables.users}.id''');
+        LEFT JOIN ${DatabaseTables.users} ON ${DatabaseTables.groupsMembers}.userId = ${DatabaseTables.users}.id ''');
 
     List<Map<String, dynamic>> tasks =
         await db.rawQuery(''' SELECT * FROM ${DatabaseTables.tasks}
-        LEFT JOIN ${DatabaseTables.groups} ON ${DatabaseTables.tasks}.groupId = ${DatabaseTables.groups}.id''');
+        LEFT JOIN ${DatabaseTables.groups} ON ${DatabaseTables.tasks}.groupId = ${DatabaseTables.groups}.id WHERE ${DatabaseTables.groups}.isDeleted = 0''');
 
     List<Group> groupList = List.empty(growable: true);
 
@@ -66,7 +66,7 @@ class LocalGroupsRepository {
     final db = await _databaseManager.getDatabase();
 
     List<Map<String, dynamic>> groupQuery = await db.rawQuery(
-        ''' SELECT * FROM ${DatabaseTables.groups} WHERE id = $groupId''');
+        ''' SELECT * FROM ${DatabaseTables.groups} WHERE id = $groupId AND isDeleted = 0''');
 
     if (groupQuery.isEmpty) {
       throw Exception("Group with id $groupId not found");

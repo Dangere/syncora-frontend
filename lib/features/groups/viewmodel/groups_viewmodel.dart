@@ -247,7 +247,7 @@ final groupViewProvider =
   }
 
   Group? group = await ref.watch(groupViewGetterProvider(resolvedId).future);
-  if (group == null) throw Exception("Group with id $resolvedId not found");
+  if (group == null) throw Exception("Group is not found");
 
   return group;
 });
