@@ -109,7 +109,7 @@ class GroupsProcessor extends OutboxProcessor {
         case OutboxActionType.create:
           // Marks group as deleted but not fully wiped off, so it can be recovered possibly
           await _localGroupsRepository.markGroupAsDeleted(entry.entityId);
-          return Result.success(groupId!);
+          return Result.success(entry.entityId);
         case OutboxActionType.update:
           await _localGroupsRepository.updateGroupDetails(
               entry.payload["oldTitle"],

@@ -1,4 +1,5 @@
 import 'package:syncora_frontend/core/network/outbox/repository/outbox_repository.dart';
+import 'package:syncora_frontend/core/utils/error_mapper.dart';
 import 'package:syncora_frontend/core/utils/result.dart';
 
 class OutboxIdMapper {
@@ -15,10 +16,13 @@ class OutboxIdMapper {
       return Result.success(_cache[tempId]!);
     }
 
-    int serverId = await _outboxRepository.getServerId(tempId);
-    _cache[tempId] = serverId;
-
-    return Result.success(serverId);
+    try {
+      int serverId = await _outboxRepository.getServerId(tempId);
+      _cache[tempId] = serverId;
+      return Result.success(serverId);
+    } catch (e, stackTrace) {
+      return Result.failure(ErrorMapper.map(e, stackTrace));
+    }
   }
 
   /// Cache the retrieved server id to avoid unnecessary qb calls

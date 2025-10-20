@@ -174,16 +174,16 @@ class GroupsNotifier extends AsyncNotifier<List<Group>> {
 
   // Takes in an id of a group that was modified to check if it's 're currently displayed then refresh the UI corresponding to it
   void reloadViewedGroup(int groupId) async {
-    if (ref.exists(groupViewProvider(groupId))) {
-      ref.invalidate(groupViewProvider(groupId));
+    if (ref.exists(groupViewGetterProvider(groupId))) {
+      ref.invalidate(groupViewGetterProvider(groupId));
     }
   }
 
   // Takes in a list of ids of groups that were modified to check if they're currently displayed then refresh the UI corresponding to them
   void reloadViewedGroups(List<int> groupIds) async {
     for (var id in groupIds) {
-      if (ref.exists(groupViewProvider(id))) {
-        ref.invalidate(groupViewProvider(id));
+      if (ref.exists(groupViewGetterProvider(id))) {
+        ref.invalidate(groupViewGetterProvider(id));
       }
     }
   }
@@ -224,42 +224,33 @@ class GroupsNotifier extends AsyncNotifier<List<Group>> {
 final groupsNotifierProvider =
     AsyncNotifierProvider<GroupsNotifier, List<Group>>(GroupsNotifier.new);
 
-// final groupProvider =
-//     FutureProvider.autoDispose.family<Group, int>((ref, groupId) async {
-//   final group =
-//       await ref.watch(localGroupsRepositoryProvider).getGroup(groupId);
-
-//   return group;
-// });
-
-final currentViewedGroupsProvider = Provider<List<int>>((ref) {
-  return [];
+final groupViewGetterProvider =
+    FutureProvider.family.autoDispose<Group, int>((ref, id) async {
+  // return null;
+  return await ref.read(localGroupsRepositoryProvider).getGroup(id);
 });
 
-// Group view notifier will return null if the group is not found
-class GroupViewNotifier extends AutoDisposeFamilyAsyncNotifier<Group?, int> {
-  void onDispose() {
-    ref.read(currentViewedGroupsProvider).remove(arg);
-    ref.watch(loggerProvider).w("disposing group view notifier, with id $arg");
-  }
-
-  @override
-  FutureOr<Group?> build(int arg) async {
-    ref.read(currentViewedGroupsProvider).add(arg);
-    ref.onDispose(onDispose);
-    ref.watch(loggerProvider).w("Building group view notifier, with id $arg");
-
-    try {
-      return await ref.watch(localGroupsRepositoryProvider).getGroup(arg);
-    } catch (e) {
-      return null;
-    }
-  }
-}
-
+// UI calls groupViewProvider with a temp or a server id, groupViewProvider tries to map the temp id to a server id then calls groupViewGetterProvider to get the group.
+// If groupViewGetterProvider is invalidated (To refresh UI) then groupViewProvider is invalidated and tries to map the temp id to a server id then calls groupViewGetterProvider with the resolved Id
+// Ultimately groupViewGetterProvider is updated to respond to a new Id when invalidated
 final groupViewProvider =
-    AutoDisposeAsyncNotifierProvider.family<GroupViewNotifier, Group?, int>(
-        GroupViewNotifier.new);
+    FutureProvider.family.autoDispose<Group, int>((ref, id) async {
+  int resolvedId;
+
+  Result<int> serverId = await ref.read(outboxIdMapperProvider).getServerId(id);
+
+  // If id doesn't have a server id, use the temp id
+  if (!serverId.isSuccess) {
+    resolvedId = id;
+  } else {
+    resolvedId = serverId.data!;
+  }
+
+  Group? group = await ref.watch(groupViewGetterProvider(resolvedId).future);
+  if (group == null) throw Exception("Group with id $resolvedId not found");
+
+  return group;
+});
 
 final localGroupsRepositoryProvider = Provider<LocalGroupsRepository>((ref) {
   return LocalGroupsRepository(ref.read(localDbProvider));
@@ -270,12 +261,6 @@ final remoteGroupsRepositoryProvider = Provider<RemoteGroupsRepository>((ref) {
 });
 
 final groupsServiceProvider = Provider<GroupsService>((ref) {
-  // ConnectionStatus connectionStatus = ref.watch(connectionProvider);
-  // bool isOnline = connectionStatus == ConnectionStatus.connected ||
-  //     connectionStatus == ConnectionStatus.slow;
-  // ref.read(loggerProvider).d("Constructing groups service");
-
-  // Get auth state from notifier and assume its not error nor loading
   var authState = ref.watch(authNotifierProvider).asData!.value;
   ConnectionStatus connectionStatus = ref.watch(connectionProvider);
   var isOnline = connectionStatus == ConnectionStatus.connected ||

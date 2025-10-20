@@ -32,20 +32,21 @@ class GroupViewPage extends ConsumerStatefulWidget {
 class _GroupViewPageState extends ConsumerState<GroupViewPage> {
   @override
   Widget build(BuildContext context) {
-    AsyncValue<Group?> group = ref.watch(groupViewProvider(widget.groupId));
+    AsyncValue<Group> groupAsync = ref.watch(groupViewProvider(widget.groupId));
 
     SnackBarAlerts.registerErrorListener(ref, context);
 
-    return group.when(
-        // This tells .when() to IGNORE the loading state on a refresh
-        // and just keep showing the previous data.
-        skipLoadingOnRefresh: true,
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (error, stackTrace) => Center(child: Text(error.toString())),
-        data: (group) => _buildGroupView(group!));
-  }
+    if ((groupAsync.isLoading && !groupAsync.hasValue) || groupAsync.hasError) {
+      return Scaffold(
+          appBar: AppBar(),
+          body: Center(
+              child: groupAsync.isLoading
+                  ? const CircularProgressIndicator()
+                  : Text(groupAsync.error.toString())));
+    }
 
-  Widget _buildGroupView(Group group) {
+    Group group = groupAsync.value!;
+
     AuthState? authState = ref.watch(authNotifierProvider).valueOrNull;
     UsersService usersService = ref.read(usersServiceProvider);
 
