@@ -1,8 +1,10 @@
 import 'dart:collection';
 
-import 'package:syncora_frontend/core/network/outbox/enqueue_request.dart';
+import 'package:dio/dio.dart';
+import 'package:syncora_frontend/core/network/outbox/model/enqueue_request.dart';
 import 'package:syncora_frontend/core/network/outbox/interface/outbox_processor_interface.dart';
 import 'package:syncora_frontend/core/network/outbox/model/outbox_entry.dart';
+import 'package:syncora_frontend/core/network/outbox/model/queue_processor_response.dart';
 import 'package:syncora_frontend/core/network/outbox/outbox_id_mapper.dart';
 import 'package:syncora_frontend/core/network/outbox/outbox_sorter.dart';
 import 'package:syncora_frontend/core/network/outbox/repository/outbox_repository.dart';
@@ -43,8 +45,9 @@ class OutboxService {
   }
 
   // Processes the outbox queue and returns a list of all modified groups for UI updates
-  Future<Result<HashSet<int>>> processQueue() async {
+  Future<Result<QueueProcessorResponse>> processQueue() async {
     HashSet<int> modifiedGroupIds = HashSet<int>();
+    List<AppError> errors = [];
 
     // dependency-aware sorting, Create group -> modify group -> create task -> modify task
     var entries =
@@ -59,28 +62,40 @@ class OutboxService {
 
       // TODO: One thing to consider is if the refresh token runs out and the user get a 401 response which kicks them, however in the process it will revert the changes made offline and stored in outbox.
 
-      // We process the entry, it runs a while loop until it succeeds and returns the group that was modified or returns an 401 error or generic error
+      // We process the entry, it runs a while loop until it succeeds and returns the group that was modified or returns an 403 error or generic error
       Result<int> processResult =
           await _processors[entry.entityType]!.processOutbox(entry);
 
       if (processResult.isSuccess) {
         _outboxRepository.completeEntry(entry.id!);
 
+        // We store the group id
         modifiedGroupIds.add(processResult.data!);
+
+        // And if its a group creation, we we store the old temp group id as a modified group for UI updates
+        if (entry.actionType == OutboxActionType.create &&
+            entry.entityType == OutboxEntityType.group) {
+          modifiedGroupIds.add(entry.entityId);
+        }
       } else {
-        // If the processes fails because of a 401 error or generic error we revert the local changes
-        Result revertResult =
+        // If the processes fails because of a 403 error or generic error we revert the local changes
+        Result<int> revertResult =
             await _processors[entry.entityType]!.revertProcess(entry);
 
+        // If we failed to revert the changes, we dont mark the entry as failed yet so its processed in the future
         if (!revertResult.isSuccess) {
-          // If we failed to revert the changes, we dont mark the entry as failed yet so its processed in the future
+          errors.add(revertResult.error!);
+
           return Result.failure(revertResult.error!);
         }
 
+        modifiedGroupIds.add(revertResult.data!);
         _outboxRepository.failEntry(entry.id!);
-        return Result.failure(processResult.error!);
+
+        // We store the fail response error
+        errors.add(processResult.error!);
       }
     }
-    return Result.success(modifiedGroupIds);
+    return Result.success(QueueProcessorResponse(modifiedGroupIds, errors));
   }
 }

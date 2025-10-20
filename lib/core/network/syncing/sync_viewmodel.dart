@@ -85,16 +85,13 @@ class SyncBackendNotifier extends AsyncNotifier<int>
 
     // Updating the groups notifier with the new data if it exists and there are groups
     if (ref.exists(groupsNotifierProvider)) {
+      // Updating the UI for groups list
       ref.read(groupsNotifierProvider.notifier).reloadGroups();
+      // Updating the UI for current displayed group
+      ref
+          .read(groupsNotifierProvider.notifier)
+          .reloadViewedGroups(result.data!.groupIds().toList());
     }
-    HashSet<int> changedGroups = result.data!.groupIds();
-
-    // Updating the groups notifier with the new data
-    changedGroups.forEach((element) {
-      if (ref.exists(groupProvider(element))) {
-        ref.invalidate(groupProvider(element));
-      }
-    });
 
     // Make sure to update any part of the UI that might be listening to groups/users/tasks
 
@@ -227,7 +224,7 @@ class SyncBackendNotifier extends AsyncNotifier<int>
     ref.read(loggerProvider).d("Reconnected to hub");
   }
 
-  void dispose() {
+  void onDispose() {
     _stopHubConnection();
     _syncSignalRClient = null;
     WidgetsBinding.instance.removeObserver(this);
@@ -291,7 +288,7 @@ class SyncBackendNotifier extends AsyncNotifier<int>
     }
 
     await syncData();
-    ref.onDispose(dispose);
+    ref.onDispose(onDispose);
 
     return 0;
   }

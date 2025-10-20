@@ -66,7 +66,7 @@ class LocalGroupsRepository {
     final db = await _databaseManager.getDatabase();
 
     List<Map<String, dynamic>> groupQuery = await db.rawQuery(
-        ''' SELECT * FROM ${DatabaseTables.groups} WHERE id = $groupId ''');
+        ''' SELECT * FROM ${DatabaseTables.groups} WHERE id = $groupId''');
 
     if (groupQuery.isEmpty) {
       throw Exception("Group with id $groupId not found");
@@ -177,11 +177,28 @@ class LocalGroupsRepository {
     });
   }
 
-  Future<int> deleteGroup(int groupId) async {
+  // Method used to mark group as deleted
+  Future<int> markGroupAsDeleted(int groupId) async {
     final db = await _databaseManager.getDatabase();
 
-    return await db
-        .delete(DatabaseTables.groups, where: "id = ?", whereArgs: [groupId]);
+    return await db.update(DatabaseTables.groups, {"isDeleted": 1},
+        where: "id = ?", whereArgs: [groupId]);
+  }
+
+  // Method used to unmark group as deleted
+  Future<int> unmarkGroupAsDeleted(int groupId) async {
+    final db = await _databaseManager.getDatabase();
+
+    return await db.update(DatabaseTables.groups, {"isDeleted": 0},
+        where: "id = ?", whereArgs: [groupId]);
+  }
+
+  // Method used to wipe groups marked as deleted
+  Future<int> wipeDeletedGroup(int groupId) async {
+    final db = await _databaseManager.getDatabase();
+
+    return await db.delete(DatabaseTables.groups,
+        where: "isDeleted = ? AND id != ?", whereArgs: [1, groupId]);
   }
 
   // Method used to update temp ids of groups to ones issued by the backend

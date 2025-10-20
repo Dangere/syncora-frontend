@@ -65,7 +65,7 @@ class SyncService {
 
     if (result.data!.kickedGroupsIds != null) {
       Result<void> kickFromGroupsResult =
-          await _groupsService.deleteGroups(result.data!.kickedGroupsIds!);
+          await _groupsService.kickFromGroups(result.data!.kickedGroupsIds!);
 
       if (!kickFromGroupsResult.isSuccess) {
         return Result.failure(kickFromGroupsResult.error!);

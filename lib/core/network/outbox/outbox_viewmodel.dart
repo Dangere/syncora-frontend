@@ -4,8 +4,9 @@ import 'dart:collection';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:syncora_frontend/common/providers/common_providers.dart';
 import 'package:syncora_frontend/common/providers/connection_provider.dart';
-import 'package:syncora_frontend/core/network/outbox/enqueue_request.dart';
+import 'package:syncora_frontend/core/network/outbox/model/enqueue_request.dart';
 import 'package:syncora_frontend/core/network/outbox/model/outbox_entry.dart';
+import 'package:syncora_frontend/core/network/outbox/model/queue_processor_response.dart';
 import 'package:syncora_frontend/core/network/outbox/outbox_id_mapper.dart';
 import 'package:syncora_frontend/core/network/outbox/outbox_service.dart';
 import 'package:syncora_frontend/core/network/outbox/processors/groups_processor.dart';
@@ -32,31 +33,33 @@ class OutboxNotifier extends AsyncNotifier<OutboxStatus> {
     return result;
   }
 
+  // Processes the outbox queue and updates the UI with new data
   Future<Result<void>> processQueue() async {
     if (ref.read(connectionProvider) == ConnectionStatus.disconnected) {
       return Result.failureMessage("Cant process outbox queue when offline");
     }
 
+    await Future.delayed(Duration(seconds: 5));
+
     ref.read(loggerProvider).i("Processing Outbox Queue!");
-    Result<HashSet<int>> result =
+    Result<QueueProcessorResponse> response =
         await ref.read(outboxServiceProvider).processQueue();
 
-    if (!result.isSuccess) {
-      ref.read(appErrorProvider.notifier).state = result.error;
+    if (!response.isSuccess) {
+      ref.read(appErrorProvider.notifier).state = response.error;
     } else {
       // Updating the UI for groups list
       if (ref.exists(groupsNotifierProvider)) {
         ref.read(groupsNotifierProvider.notifier).reloadGroups();
+        // Updating the UI for current displayed groups, including with real ids and temp ones
+        ref
+            .read(groupsNotifierProvider.notifier)
+            .reloadViewedGroups(response.data!.modifiedGroupIds.toList());
       }
-      // Updating the UI for current displayed group
-      result.data!.forEach((element) {
-        if (ref.exists(groupProvider(element))) {
-          ref.invalidate(groupProvider(element));
-        }
-      });
+
       ref.read(loggerProvider).i("Done processing Outbox Queue!");
     }
-    return result;
+    return response;
   }
 
   @override
@@ -94,15 +97,18 @@ final outboxIdMapperProvider = Provider<OutboxIdMapper>((ref) {
 
 final tasksProcessorProvider = Provider<TasksProcessor>((ref) {
   return TasksProcessor(
+      delayBeforeSyncReattempt: const Duration(milliseconds: 1000),
       localTasksRepository: ref.watch(localTasksRepositoryProvider),
-      remoteTasksRepository: ref.watch(remoteTasksRepositoryProvider));
+      remoteTasksRepository: ref.watch(remoteTasksRepositoryProvider),
+      logger: ref.read(loggerProvider),
+      idMapper: ref.watch(outboxIdMapperProvider));
 });
 
 final groupProcessorProvider = Provider<GroupsProcessor>((ref) {
   return GroupsProcessor(
+      delayBeforeSyncReattempt: const Duration(milliseconds: 1000),
       localGroupsRepository: ref.watch(localGroupsRepositoryProvider),
       remoteGroupsRepository: ref.watch(remoteGroupsRepositoryProvider),
       logger: ref.read(loggerProvider),
-      delayBeforeSyncReattempt: const Duration(milliseconds: 1000),
       idMapper: ref.watch(outboxIdMapperProvider));
 });

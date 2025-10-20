@@ -1,20 +1,24 @@
 import 'package:dio/dio.dart';
 import 'package:logger/logger.dart';
 import 'package:syncora_frontend/core/constants/constants.dart';
+import 'package:syncora_frontend/features/tasks/models/task.dart';
 
 class RemoteTasksRepository {
   final Dio _dio;
 
   RemoteTasksRepository({required Dio dio}) : _dio = dio;
 
-  Future<void> createTask(
+  Future<Task> createTask(
       {required String title,
       String? description,
       required int groupId}) async {
-    await _dio.post('${Constants.BASE_API_URL}/groups/$groupId/tasks', data: {
+    final response = await _dio
+        .post('${Constants.BASE_API_URL}/groups/$groupId/tasks', data: {
       "title": title,
       "description": description,
     }).timeout(const Duration(seconds: 10));
+
+    return Task.fromJson(response.data);
   }
 
   Future<void> deleteTask({required int taskId, required int groupId}) async {

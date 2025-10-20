@@ -16,7 +16,7 @@ class AuthRepository {
         .post("${Constants.BASE_API_URL}/authentication/login", data: {
       "Email": email,
       "Password": password
-    }).timeout(const Duration(seconds: 10));
+    }).timeout(const Duration(seconds: 20));
 
     AuthResponseDTO authResponse = AuthResponseDTO.fromJson(response.data);
 
@@ -32,7 +32,7 @@ class AuthRepository {
       "Email": email,
       "Username": username,
       "Password": password
-    }).timeout(const Duration(seconds: 10));
+    }).timeout(const Duration(seconds: 20));
 
     AuthResponseDTO authResponse = AuthResponseDTO.fromJson(response.data);
 

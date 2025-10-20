@@ -1,4 +1,5 @@
 import 'package:syncora_frontend/core/network/outbox/repository/outbox_repository.dart';
+import 'package:syncora_frontend/core/utils/result.dart';
 
 class OutboxIdMapper {
   final Map<int, int> _cache = {};
@@ -7,17 +8,17 @@ class OutboxIdMapper {
   OutboxIdMapper(this._outboxRepository);
 
   // Returns the server id using temp generated ids
-  Future<int> getServerId(int tempId) async {
+  Future<Result<int>> getServerId(int tempId) async {
     // If a tempId is not negative then its a server id
-    if (tempId > 0) return tempId;
+    if (tempId > 0) return Result.success(tempId);
     if (_cache.containsKey(tempId)) {
-      return _cache[tempId]!;
+      return Result.success(_cache[tempId]!);
     }
 
     int serverId = await _outboxRepository.getServerId(tempId);
     _cache[tempId] = serverId;
 
-    return serverId;
+    return Result.success(serverId);
   }
 
   /// Cache the retrieved server id to avoid unnecessary qb calls

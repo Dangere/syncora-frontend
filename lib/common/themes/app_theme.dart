@@ -2,15 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class AppTheme {
-  static ColorScheme lightColorScheme =
-      ColorScheme.fromSeed(seedColor: Colors.blue, brightness: Brightness.light)
-          .copyWith(
-    primary: Colors.blue,
+  static ColorScheme lightColorScheme = ColorScheme.fromSeed(
+          seedColor: Color(0xFFB284BE), brightness: Brightness.light)
+      .copyWith(
+    primary: Color(0xFFB284BE),
   );
-  static ColorScheme darkColorScheme =
-      ColorScheme.fromSeed(seedColor: Colors.blue, brightness: Brightness.dark)
-          .copyWith(
-    primary: Colors.blue,
+  static ColorScheme darkColorScheme = ColorScheme.fromSeed(
+          seedColor: Color(0xFFB284BE), brightness: Brightness.dark)
+      .copyWith(
+    primary: Color(0xFFB284BE),
   );
 
   static ThemeData appLightTheme = ThemeData(

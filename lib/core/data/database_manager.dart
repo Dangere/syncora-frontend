@@ -66,6 +66,7 @@ class DatabaseManager {
         title TEXT NOT NULL,
         description TEXT,
         creationDate TEXT NOT NULL,
+        isDeleted INTEGER NOT NULL DEFAULT 0,
         FOREIGN KEY(ownerUserId) REFERENCES ${DatabaseTables.users}(id) ON DELETE CASCADE ON UPDATE CASCADE
       
       )

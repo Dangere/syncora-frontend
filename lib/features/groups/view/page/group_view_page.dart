@@ -32,7 +32,7 @@ class GroupViewPage extends ConsumerStatefulWidget {
 class _GroupViewPageState extends ConsumerState<GroupViewPage> {
   @override
   Widget build(BuildContext context) {
-    AsyncValue<Group> group = ref.watch(groupProvider(widget.groupId));
+    AsyncValue<Group?> group = ref.watch(groupViewProvider(widget.groupId));
 
     SnackBarAlerts.registerErrorListener(ref, context);
 
@@ -42,9 +42,7 @@ class _GroupViewPageState extends ConsumerState<GroupViewPage> {
         skipLoadingOnRefresh: true,
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (error, stackTrace) => Center(child: Text(error.toString())),
-        data: (group) => _buildGroupView(
-              group,
-            ));
+        data: (group) => _buildGroupView(group!));
   }
 
   Widget _buildGroupView(Group group) {
@@ -54,8 +52,6 @@ class _GroupViewPageState extends ConsumerState<GroupViewPage> {
     bool isOwner = authState?.user?.id == group.ownerUserId;
 
     void groupTitleEditPopup(String defaultText) {
-      if (!isOwner) return;
-
       AlertDialogs.showTextFieldDialog(context,
           defaultText: defaultText,
           barrierDismissible: true,

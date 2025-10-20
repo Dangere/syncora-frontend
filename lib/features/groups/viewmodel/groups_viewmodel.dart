@@ -1,11 +1,7 @@
 import 'dart:async';
-
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:syncora_frontend/common/providers/common_providers.dart';
 import 'package:syncora_frontend/common/providers/connection_provider.dart';
-import 'package:syncora_frontend/core/network/outbox/enqueue_request.dart';
-import 'package:syncora_frontend/core/network/outbox/model/outbox_entry.dart';
 import 'package:syncora_frontend/core/network/outbox/outbox_viewmodel.dart';
 import 'package:syncora_frontend/core/utils/app_error.dart';
 import 'package:syncora_frontend/core/utils/result.dart';
@@ -48,6 +44,7 @@ class GroupsNotifier extends AsyncNotifier<List<Group>> {
     }
 
     reloadGroups();
+    reloadViewedGroup(groupId);
   }
 
   Future<void> allowUserAccessToGroup(
@@ -88,6 +85,8 @@ class GroupsNotifier extends AsyncNotifier<List<Group>> {
       ref.read(appErrorProvider.notifier).state = createResult.error;
       return;
     }
+
+    reloadViewedGroup(groupId);
   }
 
   Future<void> deleteTask({required int taskId, required int groupId}) async {
@@ -99,6 +98,7 @@ class GroupsNotifier extends AsyncNotifier<List<Group>> {
       ref.read(appErrorProvider.notifier).state = deleteResult.error;
       return;
     }
+    reloadViewedGroup(groupId);
   }
 
   Future<void> updateTask(
@@ -116,6 +116,8 @@ class GroupsNotifier extends AsyncNotifier<List<Group>> {
       ref.read(appErrorProvider.notifier).state = updateResult.error;
       return;
     }
+
+    reloadViewedGroup(groupId);
   }
 
   Future<void> assignTask(
@@ -156,6 +158,7 @@ class GroupsNotifier extends AsyncNotifier<List<Group>> {
       ref.read(appErrorProvider.notifier).state = updateResult.error;
       return;
     }
+    reloadViewedGroup(groupId);
   }
 
   Future<void> reloadGroups() async {
@@ -167,6 +170,22 @@ class GroupsNotifier extends AsyncNotifier<List<Group>> {
     }
 
     state = AsyncValue.data(fetchResult.data!);
+  }
+
+  // Takes in an id of a group that was modified to check if it's 're currently displayed then refresh the UI corresponding to it
+  void reloadViewedGroup(int groupId) async {
+    if (ref.exists(groupViewProvider(groupId))) {
+      ref.invalidate(groupViewProvider(groupId));
+    }
+  }
+
+  // Takes in a list of ids of groups that were modified to check if they're currently displayed then refresh the UI corresponding to them
+  void reloadViewedGroups(List<int> groupIds) async {
+    for (var id in groupIds) {
+      if (ref.exists(groupViewProvider(id))) {
+        ref.invalidate(groupViewProvider(id));
+      }
+    }
   }
 
   // TODO: A bug that happens is when the build method is being rebuilt when a notifier such as groupsServiceProvider rebuilds, it cases an error "_groupsService has already been initialized"
@@ -205,13 +224,42 @@ class GroupsNotifier extends AsyncNotifier<List<Group>> {
 final groupsNotifierProvider =
     AsyncNotifierProvider<GroupsNotifier, List<Group>>(GroupsNotifier.new);
 
-final groupProvider =
-    FutureProvider.autoDispose.family<Group, int>((ref, groupId) async {
-  final group =
-      await ref.watch(localGroupsRepositoryProvider).getGroup(groupId);
+// final groupProvider =
+//     FutureProvider.autoDispose.family<Group, int>((ref, groupId) async {
+//   final group =
+//       await ref.watch(localGroupsRepositoryProvider).getGroup(groupId);
 
-  return group;
+//   return group;
+// });
+
+final currentViewedGroupsProvider = Provider<List<int>>((ref) {
+  return [];
 });
+
+// Group view notifier will return null if the group is not found
+class GroupViewNotifier extends AutoDisposeFamilyAsyncNotifier<Group?, int> {
+  void onDispose() {
+    ref.read(currentViewedGroupsProvider).remove(arg);
+    ref.watch(loggerProvider).w("disposing group view notifier, with id $arg");
+  }
+
+  @override
+  FutureOr<Group?> build(int arg) async {
+    ref.read(currentViewedGroupsProvider).add(arg);
+    ref.onDispose(onDispose);
+    ref.watch(loggerProvider).w("Building group view notifier, with id $arg");
+
+    try {
+      return await ref.watch(localGroupsRepositoryProvider).getGroup(arg);
+    } catch (e) {
+      return null;
+    }
+  }
+}
+
+final groupViewProvider =
+    AutoDisposeAsyncNotifierProvider.family<GroupViewNotifier, Group?, int>(
+        GroupViewNotifier.new);
 
 final localGroupsRepositoryProvider = Provider<LocalGroupsRepository>((ref) {
   return LocalGroupsRepository(ref.read(localDbProvider));

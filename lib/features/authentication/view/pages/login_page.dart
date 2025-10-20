@@ -82,10 +82,16 @@ class _LoginPageState extends ConsumerState<LoginPage> {
         isLoading: user.isLoading,
         overlay: const CircularProgressIndicator(),
         body: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
             // Title
-            Text("Syncora", style: Theme.of(context).textTheme.headlineLarge),
+            Text("Syncora",
+                style: Theme.of(context)
+                    .textTheme
+                    .headlineLarge!
+                    .copyWith(fontSize: 60)
+                    .copyWith(color: Theme.of(context).colorScheme.primary)
+                    .copyWith(fontWeight: FontWeight.bold)),
             // Forms and login buttons
             Form(
               key: _formKey,

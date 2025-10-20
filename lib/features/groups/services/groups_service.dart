@@ -1,4 +1,4 @@
-import 'package:syncora_frontend/core/network/outbox/enqueue_request.dart';
+import 'package:syncora_frontend/core/network/outbox/model/enqueue_request.dart';
 import 'package:syncora_frontend/core/network/outbox/model/outbox_entry.dart';
 import 'package:syncora_frontend/core/network/outbox/outbox_service.dart';
 import 'package:syncora_frontend/core/typedef.dart';
@@ -142,28 +142,65 @@ class GroupsService {
     }
   }
 
-  // Future<Result<void>> leaveGroup(int groupId) async {
-  //   try {
-  //     return Result.success(await _remoteGroupRepository.leaveGroup(groupId));
-  //   } catch (e, stackTrace) {
-  //     return Result.failure(ErrorMapper.map(e, stackTrace));
-  //   }
-  // }
-
-  Future<Result<void>> upsertGroups(List<GroupDTO> groups) async {
+  Future<Result<void>> leaveGroup(int groupId) async {
+    if (!_isOnline) {
+      return Result.failureMessage("Can't leave group when offline");
+    }
     try {
-      return Result.success(await _localGroupsRepository.upsertGroups(groups));
+      // return Result.success(await _remoteGroupRepository.leaveGroup(groupId));
+      throw UnimplementedError();
     } catch (e, stackTrace) {
       return Result.failure(ErrorMapper.map(e, stackTrace));
     }
   }
 
-  Future<Result<void>> deleteGroups(List<int> groupsIds) async {
+  // Deletes group by marking it as deleted which will be synced to server then fully deleted later
+  // TODO: Handle this when the user is in guest mode and have no server data
+  Future<Result<void>> deleteGroup(int groupId) async {
     try {
-      for (var groupId in groupsIds) {
-        await _localGroupsRepository.deleteGroup(groupId);
-      }
+      Result enqueueResult = await _enqueueEntry(EnqueueRequest(
+        entry: OutboxEntry.entry(
+          entityId: groupId,
+          entityType: OutboxEntityType.group,
+          actionType: OutboxActionType.delete,
+          payload: {},
+        ),
+        onAfterEnqueue: () async {
+          try {
+            await _localGroupsRepository.markGroupAsDeleted(groupId);
+            return Result.success(null);
+          } catch (e, stackTrace) {
+            return Result.failure(ErrorMapper.map(e, stackTrace));
+          }
+        },
+      ));
+      if (!enqueueResult.isSuccess) return Result.failure(enqueueResult.error!);
+
+      await _localGroupsRepository.markGroupAsDeleted(groupId);
+
       return Result.success(null);
+    } catch (e, stackTrace) {
+      return Result.failure(ErrorMapper.map(e, stackTrace));
+    }
+  }
+
+  Future<Result<void>> kickFromGroups(List<int> groupsIds) async {
+    try {
+      // TODO: show some kind of snackbar or pop up
+      for (var groupId in groupsIds) {
+        await _localGroupsRepository.markGroupAsDeleted(groupId);
+        await _localGroupsRepository.wipeDeletedGroup(groupId);
+      }
+
+      return Result.success(null);
+    } catch (e, stackTrace) {
+      return Result.failure(ErrorMapper.map(e, stackTrace));
+    }
+  }
+
+  Future<Result<void>> upsertGroups(List<GroupDTO> groups) async {
+    try {
+      return Result.success(await _localGroupsRepository.upsertGroups(groups));
     } catch (e, stackTrace) {
       return Result.failure(ErrorMapper.map(e, stackTrace));
     }
