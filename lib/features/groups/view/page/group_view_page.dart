@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:logger/logger.dart';
 import 'package:syncora_frontend/common/providers/common_providers.dart';
 import 'package:syncora_frontend/common/themes/app_sizes.dart';
 import 'package:syncora_frontend/common/themes/app_spacing.dart';
@@ -36,6 +38,20 @@ class _GroupViewPageState extends ConsumerState<GroupViewPage> {
     AsyncValue<Group> groupAsync = ref.watch(groupViewProvider(widget.groupId));
 
     SnackBarAlerts.registerErrorListener(ref, context);
+
+    // WidgetsBinding.instance.addPostFrameCallback((_) {
+    //   if (groupAsync.hasError && context.canPop()) {
+    //     Logger().e("POPPINGG!!");
+    //     context.pop();
+    //   }
+    // });
+
+    Future.microtask(() {
+      if (groupAsync.hasError && context.canPop()) {
+        Logger().e("POPPINGG!!");
+        context.pop();
+      }
+    });
 
     if ((groupAsync.isLoading && !groupAsync.hasValue) || groupAsync.hasError) {
       return Scaffold(

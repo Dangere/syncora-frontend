@@ -61,14 +61,14 @@ class GroupsNotifier extends AsyncNotifier<List<Group>> {
   }
 
   Future<void> leaveGroup(int groupId) async {
-    // Result<void> deleteResult =
-    //     await ref.read(groupsServiceProvider).deleteGroup(groupId);
+    Result<void> leaveResult =
+        await ref.read(groupsServiceProvider).leaveGroup(groupId);
 
-    // if (!deleteResult.isSuccess) {
-    //   ref.read(appErrorProvider.notifier).state = deleteResult.error;
-    //   return;
-    // }
-    // reloadViewedGroup(groupId);
+    if (!leaveResult.isSuccess) {
+      ref.read(appErrorProvider.notifier).state = leaveResult.error;
+      return;
+    }
+    reloadViewedGroup(groupId);
   }
 
   Future<void> allowUserAccessToGroup(

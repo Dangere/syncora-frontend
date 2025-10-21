@@ -35,6 +35,14 @@ class GroupsProcessor extends OutboxProcessor {
       if (!result.isSuccess) return Result.failure(result.error!);
       groupId = result.data;
     }
+    // throw DioException.badResponse(
+    //     statusCode: 403,
+    //     requestOptions: RequestOptions(),
+    //     response: Response(
+    //         data: "Group already exists",
+    //         statusMessage: "Group already exists",
+    //         requestOptions: RequestOptions(),
+    //         statusCode: 403));
 
     // This will keep processing the entry until its complete or rejected with 401
     while (true) {
@@ -43,15 +51,6 @@ class GroupsProcessor extends OutboxProcessor {
           // The create event
           case OutboxActionType.create:
             {
-              // throw DioException.badResponse(
-              //     statusCode: 403,
-              //     requestOptions: RequestOptions(),
-              //     response: Response(
-              //         data: "Group already exists",
-              //         statusMessage: "Group already exists",
-              //         requestOptions: RequestOptions(),
-              //         statusCode: 403));
-
               GroupDTO newGroup = await _remoteGroupsRepository.createGroup(
                   entry.payload['title'], entry.payload['description']);
 
@@ -71,6 +70,14 @@ class GroupsProcessor extends OutboxProcessor {
             }
           // The delete event
           case OutboxActionType.delete:
+            {
+              await _remoteGroupsRepository.deleteGroup(groupId!);
+              await _localGroupsRepository.wipeDeletedGroup(groupId);
+
+              return Result.success(groupId);
+            }
+          // The leave event
+          case OutboxActionType.leave:
             {
               await _remoteGroupsRepository.leaveGroup(groupId!);
               await _localGroupsRepository.wipeDeletedGroup(groupId);
@@ -116,19 +123,30 @@ class GroupsProcessor extends OutboxProcessor {
     try {
       switch (entry.actionType) {
         case OutboxActionType.create:
-          // Marks group as deleted but not fully wiped off, so it can be recovered possibly
-          await _localGroupsRepository.markGroupAsDeleted(entry.entityId);
-          return Result.success(entry.entityId);
+          {
+            // Marks group as deleted but not fully wiped off, so it can be recovered possibly
+            await _localGroupsRepository.markGroupAsDeleted(entry.entityId);
+            return Result.success(entry.entityId);
+          }
         case OutboxActionType.update:
-          await _localGroupsRepository.updateGroupDetails(
-              entry.payload["oldTitle"],
-              entry.payload["oldDescription"],
-              groupId!);
-          return Result.success(groupId);
+          {
+            await _localGroupsRepository.updateGroupDetails(
+                entry.payload["oldTitle"],
+                entry.payload["oldDescription"],
+                groupId!);
+            return Result.success(groupId);
+          }
 
         case OutboxActionType.delete:
-          await _localGroupsRepository.unmarkGroupAsDeleted(entry.entityId);
+          {
+            await _localGroupsRepository.unmarkGroupAsDeleted(entry.entityId);
+          }
           return Result.success(groupId!);
+        case OutboxActionType.leave:
+          {
+            await _localGroupsRepository.unmarkGroupAsDeleted(entry.entityId);
+            return Result.success(groupId!);
+          }
 
         default:
       }

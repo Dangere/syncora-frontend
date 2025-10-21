@@ -53,8 +53,13 @@ class RemoteGroupsRepository {
         .timeout(const Duration(seconds: 10));
   }
 
-  Future<void> leaveGroup(int groupId) {
-    // TODO: implement leaveGroup
+  Future<void> leaveGroup(int groupId) async {
+    await _dio
+        .post('${Constants.BASE_API_URL}/groups/$groupId/leave')
+        .timeout(const Duration(seconds: 10));
+  }
+
+  Future<void> deleteGroup(int groupId) async {
     throw UnimplementedError();
   }
 }

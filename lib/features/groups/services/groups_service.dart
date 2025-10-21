@@ -147,8 +147,25 @@ class GroupsService {
       return Result.failureMessage("Can't leave group when offline");
     }
     try {
-      // return Result.success(await _remoteGroupRepository.leaveGroup(groupId));
-      throw UnimplementedError();
+      Result enqueueResult = await _enqueueEntry(EnqueueRequest(
+        entry: OutboxEntry.entry(
+          entityId: groupId,
+          entityType: OutboxEntityType.group,
+          actionType: OutboxActionType.leave,
+          payload: {},
+        ),
+        onAfterEnqueue: () async {
+          try {
+            await _localGroupsRepository.markGroupAsDeleted(groupId);
+            return Result.success(null);
+          } catch (e, stackTrace) {
+            return Result.failure(ErrorMapper.map(e, stackTrace));
+          }
+        },
+      ));
+      if (!enqueueResult.isSuccess) return Result.failure(enqueueResult.error!);
+
+      return Result.success(null);
     } catch (e, stackTrace) {
       return Result.failure(ErrorMapper.map(e, stackTrace));
     }
@@ -175,8 +192,6 @@ class GroupsService {
         },
       ));
       if (!enqueueResult.isSuccess) return Result.failure(enqueueResult.error!);
-
-      await _localGroupsRepository.markGroupAsDeleted(groupId);
 
       return Result.success(null);
     } catch (e, stackTrace) {

@@ -62,4 +62,4 @@ enum OutboxStatus { pending, complete, inProcess, failed }
 
 enum OutboxEntityType { group, task }
 
-enum OutboxActionType { create, delete, update, mark }
+enum OutboxActionType { create, delete, update, mark, leave }
