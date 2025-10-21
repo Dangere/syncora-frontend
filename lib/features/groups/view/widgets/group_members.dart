@@ -12,14 +12,14 @@ class GroupMembers extends StatelessWidget {
       required this.isOwner,
       required this.group,
       this.authState,
-      required this.addUserToGroup,
+      required this.onAddUserButton,
       required this.members,
       required this.onMemberClick});
 
   final bool isOwner;
   final Group group;
   final AuthState? authState;
-  final VoidCallback addUserToGroup;
+  final VoidCallback onAddUserButton;
   final List<User> members;
   final Func<int, void> onMemberClick;
 
@@ -44,7 +44,7 @@ class GroupMembers extends StatelessWidget {
                     Icons.group_add_rounded,
                     color: Colors.grey,
                   ),
-                  onPressed: addUserToGroup,
+                  onPressed: onAddUserButton,
                 )
               ],
             ),

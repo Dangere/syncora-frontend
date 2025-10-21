@@ -12,6 +12,7 @@ import 'package:syncora_frontend/core/network/outbox/outbox_service.dart';
 import 'package:syncora_frontend/core/network/outbox/processors/groups_processor.dart';
 import 'package:syncora_frontend/core/network/outbox/processors/tasks_processor.dart';
 import 'package:syncora_frontend/core/network/outbox/repository/outbox_repository.dart';
+import 'package:syncora_frontend/core/utils/app_error.dart';
 import 'package:syncora_frontend/core/utils/result.dart';
 import 'package:syncora_frontend/features/groups/viewmodel/groups_viewmodel.dart';
 import 'package:syncora_frontend/features/tasks/viewmodel/tasks_providers.dart';
@@ -39,7 +40,7 @@ class OutboxNotifier extends AsyncNotifier<OutboxStatus> {
       return Result.failureMessage("Cant process outbox queue when offline");
     }
 
-    await Future.delayed(Duration(seconds: 5));
+    // await Future.delayed(Duration(seconds: 5));
 
     ref.read(loggerProvider).i("Processing Outbox Queue!");
     Result<QueueProcessorResponse> response =
@@ -59,14 +60,19 @@ class OutboxNotifier extends AsyncNotifier<OutboxStatus> {
     }
 
     // Displaying errors
-    response.data!.errors.forEach((error) async {
-      ref.read(appErrorProvider.notifier).state = error;
-      await Future.delayed(const Duration(seconds: 2));
-    });
+    displayErrors(response.data!.errors);
 
     ref.read(loggerProvider).i("Done processing Outbox Queue!");
 
     return response;
+  }
+
+  void displayErrors(List<AppError<Exception>> errors) async {
+    for (var i = 0; i < errors.length; i++) {
+      ref.read(loggerProvider).e("Displaying error!");
+      ref.read(appErrorProvider.notifier).state = errors[i];
+      await Future.delayed(Duration(seconds: 2));
+    }
   }
 
   @override

@@ -11,6 +11,7 @@ import 'package:syncora_frontend/features/authentication/models/auth_state.dart'
 import 'package:syncora_frontend/features/authentication/models/user.dart';
 import 'package:syncora_frontend/features/authentication/viewmodel/auth_viewmodel.dart';
 import 'package:syncora_frontend/features/groups/models/group.dart';
+import 'package:syncora_frontend/features/groups/view/popups/group_popups.dart';
 import 'package:syncora_frontend/features/groups/view/widgets/group_members.dart';
 import 'package:syncora_frontend/features/tasks/models/task.dart';
 import 'package:syncora_frontend/features/tasks/services/tasks_service.dart';
@@ -52,107 +53,6 @@ class _GroupViewPageState extends ConsumerState<GroupViewPage> {
 
     bool isOwner = authState?.user?.id == group.ownerUserId;
 
-    void groupTitleEditPopup(String defaultText) {
-      AlertDialogs.showTextFieldDialog(context,
-          defaultText: defaultText,
-          barrierDismissible: true,
-          blurBackground: false,
-          message: "Edit Group title", onContinue: (p0) {
-        ref
-            .read(groupsNotifierProvider.notifier)
-            .updateGroupDetails(p0, null, group.id);
-      }, validation: (p0) {
-        if (p0.trim() == defaultText) return "New title is not changed";
-        return Validators.validateGroupTitle(p0) ? null : "Invalid title";
-      });
-    }
-
-    void groupDescriptionEditPopup(String? defaultText) {
-      if (!isOwner) return;
-
-      AlertDialogs.showTextFieldDialog(context,
-          defaultText: defaultText,
-          barrierDismissible: true,
-          blurBackground: false,
-          message: "Edit Group Description", onContinue: (p0) {
-        ref
-            .read(groupsNotifierProvider.notifier)
-            .updateGroupDetails(null, p0, group.id);
-      }, validation: (p0) {
-        if (p0.trim() == defaultText) {
-          return "New description is not changed";
-        }
-        return Validators.validateGroupDescription(p0)
-            ? null
-            : "Invalid description";
-      });
-    }
-
-    void displayGroupDescription(String? description, bool isOwner) {
-      AlertDialogs.actionsDialog(context,
-          title: "Description",
-          message: group.description ?? "No description.",
-          actions: [
-            DialogAction.closeAction(context),
-            if (isOwner)
-              DialogAction(
-                  onClick: () {
-                    Navigator.pop(context);
-                    groupDescriptionEditPopup(group.description);
-                    ();
-                  },
-                  title: "Edit"),
-          ]);
-    }
-
-    void addUserToGroupPopup(int groupId) {
-      if (!isOwner) return;
-
-      AlertDialogs.showTextFieldDialog(context,
-          barrierDismissible: true,
-          blurBackground: false,
-          message: "Add user to group",
-          onContinue: (p0) {
-            ref
-                .read(groupsNotifierProvider.notifier)
-                .allowUserAccessToGroup(groupId: groupId, username: p0.trim());
-          },
-          validation: (p0) => Validators.validateUsername(p0.trim())
-              ? null
-              : "Invalid Username");
-    }
-
-    void removeUserFromGroupPopup(int groupId, String username) {
-      if (!isOwner) return;
-
-      AlertDialogs.showTextFieldDialog(context,
-          barrierDismissible: true,
-          blurBackground: false,
-          message: "Are you sure you want to remove user from group?",
-          onContinue: (p0) {
-            ref
-                .read(groupsNotifierProvider.notifier)
-                .removeUserAccessToGroup(groupId: groupId, username: username);
-          },
-          validation: (p0) => Validators.validateUsername(p0.trim())
-              ? null
-              : "Invalid Username");
-    }
-
-    void createTaskPopup(int groupId) {
-      if (!isOwner) return;
-      AlertDialogs.showTextFieldDialog(context,
-          barrierDismissible: true,
-          blurBackground: false,
-          message: "Create new task",
-          onContinue: (p0) {
-            ref
-                .read(groupsNotifierProvider.notifier)
-                .createTask(groupId: groupId, title: p0, description: null);
-          },
-          validation: (p0) => null);
-    }
-
     ref.read(loggerProvider).d("Displaying group view");
     return Scaffold(
       appBar: AppBar(
@@ -163,7 +63,8 @@ class _GroupViewPageState extends ConsumerState<GroupViewPage> {
             Text(group.title),
             if (isOwner)
               IconButton(
-                onPressed: () => groupTitleEditPopup(group.title),
+                onPressed: () => GroupPopups.groupTitleEditPopup(
+                    context, ref, group.id, group.title),
                 icon: const Icon(
                   Icons.edit,
                   color: Colors.grey,
@@ -172,15 +73,11 @@ class _GroupViewPageState extends ConsumerState<GroupViewPage> {
           ],
         ),
         actions: [
-          // if (authState?.user?.id == group.ownerUserId)
           IconButton(
               padding: const EdgeInsets.all(AppSpacing.md),
               onPressed: () {
-                // AlertDialogs.simpleDialog(context,
-                //     title: "Description",
-                //     message: group.description ?? "No description.");
-
-                displayGroupDescription(group.description, isOwner);
+                GroupPopups.displayGroupInfo(
+                    context, ref, group, group.description, isOwner);
               },
               icon: const Icon(Icons.info_outline))
         ],
@@ -211,10 +108,14 @@ class _GroupViewPageState extends ConsumerState<GroupViewPage> {
                     isOwner: isOwner,
                     group: group,
                     authState: authState,
-                    addUserToGroup: () => addUserToGroupPopup(group.id),
+                    onAddUserButton: () =>
+                        GroupPopups.addUserToGroupPopup(context, ref, group.id),
                     members: members,
                     onMemberClick: (id) {
-                      removeUserFromGroupPopup(group.id,
+                      GroupPopups.removeUserFromGroupPopup(
+                          context,
+                          ref,
+                          group.id,
                           members.firstWhere((e) => e.id == id).username);
                     },
                   ),
@@ -230,7 +131,7 @@ class _GroupViewPageState extends ConsumerState<GroupViewPage> {
       ),
 
       floatingActionButton: FloatingActionButton(
-        onPressed: () => createTaskPopup(group.id),
+        onPressed: () => GroupPopups.createTaskPopup(context, ref, group.id),
         child: const Icon(Icons.add),
       ),
       // // This button will update the entire groups, but it shouldnt rebuild this widget cuz this group is supposedly listening to a change in one specific group
@@ -239,8 +140,6 @@ class _GroupViewPageState extends ConsumerState<GroupViewPage> {
       // }),
     );
   }
-
-  // This is the section that displays the group members, TODO: make it so it has a fixed height and width regardless of available data
 
   Widget _buildTasksSection(Group group, bool isOwner, List<User> members) {
     TasksService tasksService = ref.read(tasksServiceProvider);

@@ -51,7 +51,11 @@ class SyncPayload {
     for (var element in tasks) {
       ids.add(element.groupId);
     }
-
+    if (kickedGroupsIds != null) {
+      for (var element in kickedGroupsIds!) {
+        ids.add(element);
+      }
+    }
     return ids;
   }
 

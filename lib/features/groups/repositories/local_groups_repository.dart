@@ -198,7 +198,7 @@ class LocalGroupsRepository {
     final db = await _databaseManager.getDatabase();
 
     return await db.delete(DatabaseTables.groups,
-        where: "isDeleted = ? AND id != ?", whereArgs: [1, groupId]);
+        where: "isDeleted = ? AND id = ?", whereArgs: [1, groupId]);
   }
 
   // Method used to update temp ids of groups to ones issued by the backend

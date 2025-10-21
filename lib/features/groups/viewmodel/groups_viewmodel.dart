@@ -47,6 +47,30 @@ class GroupsNotifier extends AsyncNotifier<List<Group>> {
     reloadViewedGroup(groupId);
   }
 
+  Future<void> deleteGroup(int groupId) async {
+    Result<void> deleteResult =
+        await ref.read(groupsServiceProvider).deleteGroup(groupId);
+
+    if (!deleteResult.isSuccess) {
+      ref.read(appErrorProvider.notifier).state = deleteResult.error;
+      return;
+    }
+    reloadGroups();
+
+    reloadViewedGroup(groupId);
+  }
+
+  Future<void> leaveGroup(int groupId) async {
+    // Result<void> deleteResult =
+    //     await ref.read(groupsServiceProvider).deleteGroup(groupId);
+
+    // if (!deleteResult.isSuccess) {
+    //   ref.read(appErrorProvider.notifier).state = deleteResult.error;
+    //   return;
+    // }
+    // reloadViewedGroup(groupId);
+  }
+
   Future<void> allowUserAccessToGroup(
       {required int groupId, required String username}) async {
     Result<void> updateResult = await ref
@@ -225,9 +249,13 @@ final groupsNotifierProvider =
     AsyncNotifierProvider<GroupsNotifier, List<Group>>(GroupsNotifier.new);
 
 final groupViewGetterProvider =
-    FutureProvider.family.autoDispose<Group, int>((ref, id) async {
+    FutureProvider.family.autoDispose<Group?, int>((ref, id) async {
   // return null;
-  return await ref.read(localGroupsRepositoryProvider).getGroup(id);
+  try {
+    return await ref.read(localGroupsRepositoryProvider).getGroup(id);
+  } catch (e) {
+    return null;
+  }
 });
 
 // UI calls groupViewProvider with a temp or a server id, groupViewProvider tries to map the temp id to a server id then calls groupViewGetterProvider to get the group.

@@ -99,7 +99,7 @@ class _HomeScreenState extends ConsumerState<HomePage> {
               // ref.read(syncBackendNotifierProvider.notifier).test();
               // ref.read(syncBackendNotifierProvider.notifier).toggleSyncing();
               // Tests.printDb(ref);
-              Tests.test_outbox_sorter();
+              Tests.printDb(ref);
             },
             tooltip: 'TEST',
             icon: const Icon(Icons.text_rotation_angleup_sharp),

@@ -67,7 +67,8 @@ class AlertDialogs {
       required String message,
       required Function(String) onContinue,
       required Func<String, String?> validation,
-      String? defaultText}) {
+      String? defaultText,
+      String? defaultHintText}) {
     TextEditingController textEditingController =
         TextEditingController(text: defaultText);
 
@@ -90,7 +91,7 @@ class AlertDialogs {
                 controller: textEditingController,
                 autofocus: true,
                 decoration: InputDecoration(
-                    hintText: "Enter text here",
+                    hintText: defaultHintText ?? "Enter text here",
                     errorText: invalidationMessage),
               ),
               // actionsAlignment: MainAxisAlignment.spaceBetween,
