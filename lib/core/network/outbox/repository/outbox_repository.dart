@@ -9,10 +9,10 @@ class OutboxRepository {
   OutboxRepository({required databaseManager})
       : _databaseManager = databaseManager;
 
-  Future<void> insertEntry(OutboxEntry entry) async {
+  Future<int> insertEntry(OutboxEntry entry) async {
     Database db = await _databaseManager.getDatabase();
 
-    await db.insert(DatabaseTables.outbox, entry.toTable());
+    return await db.insert(DatabaseTables.outbox, entry.toTable());
   }
 
   Future<void> deleteEntry(int entryId) async {

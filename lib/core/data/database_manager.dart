@@ -49,6 +49,7 @@ class DatabaseManager {
   Future<void> _onCreate(Database db, int version) async {
     await db.execute('''
       CREATE TABLE ${DatabaseTables.users}  (
+        
         id INTEGER PRIMARY KEY,
         username TEXT UNIQUE NOT NULL,
         email TEXT UNIQUE NOT NULL,
@@ -128,12 +129,11 @@ class DatabaseManager {
   }
 
   Future<void> ensureDeleted() async {
+    Logger().d("Deleting database");
     String path = await getDatabasesPath();
     await deleteDatabase(join(path, "syncora_database.db"));
     await _db?.close();
     _db = null;
-
-    Logger().d("Deleted database");
   }
   // Future<void> insertRow(DatabaseTables table, Map<String, Object?> row) async {
   //   // Get a reference to the database.

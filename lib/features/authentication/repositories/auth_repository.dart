@@ -26,7 +26,7 @@ class AuthRepository {
 
   Future<AuthResponseDTO> registerWithEmailAndPassword(
       String email, String username, String password) async {
-    // Getting the login response
+    // Getting the register response
     final response = await _dio
         .post("${Constants.BASE_API_URL}/authentication/register", data: {
       "Email": email,
@@ -41,7 +41,7 @@ class AuthRepository {
   }
 
   Future<TokensDTO> refreshAccessToken({required TokensDTO tokens}) async {
-    // Using a different instance of Dio incase the main instance is calling this method
+    // Using a different instance of Dio because the main instance is calling this method
     // To refresh tokens
     Dio dio = Dio();
 
@@ -56,5 +56,35 @@ class AuthRepository {
 
     return TokensDTO(
         accessToken: fetchedAccessToken, refreshToken: fetchedRefreshToken);
+  }
+
+  Future<AuthResponseDTO> loginWithGoogle(String idToken) async {
+    // Getting the login response
+    final response = await _dio
+        .post("${Constants.BASE_API_URL}/authentication/login/google/$idToken")
+        .timeout(const Duration(seconds: 20));
+
+    AuthResponseDTO authResponse = AuthResponseDTO.fromJson(response.data);
+
+    // Returning the authentication response
+    return authResponse;
+  }
+
+  // We could first ask for additional information from the user before registering
+  Future<AuthResponseDTO> registerWithGoogle(String idToken,
+      {required String username, required String password}) async {
+    // Getting the register response
+    final response = await _dio.post(
+        "${Constants.BASE_API_URL}/authentication/register/google",
+        data: {
+          "IdToken": idToken,
+          "Username": username,
+          "Password": password
+        }).timeout(const Duration(seconds: 20));
+
+    AuthResponseDTO authResponse = AuthResponseDTO.fromJson(response.data);
+
+    // Returning the authentication response
+    return authResponse;
   }
 }

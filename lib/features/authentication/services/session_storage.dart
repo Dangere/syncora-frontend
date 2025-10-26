@@ -3,7 +3,10 @@ import 'dart:convert';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:syncora_frontend/core/data/database_manager.dart';
+import 'package:syncora_frontend/core/data/enums/database_tables.dart';
+import 'package:syncora_frontend/features/authentication/models/tokens_dto.dart';
 import 'package:syncora_frontend/features/authentication/models/user.dart';
+import 'package:syncora_frontend/features/users/services/users_service.dart';
 
 class SessionStorage {
   final FlutterSecureStorage _secureStorage;
@@ -41,12 +44,13 @@ class SessionStorage {
     return null;
   }
 
-  Future<void> saveSession(
-      {required User user, String? accessToken, String? refreshToken}) async {
+  Future<void> saveSession({required User user, TokensDTO? tokens}) async {
     var db = await _databaseManager.getDatabase();
-    await db.insert("users", user.toJson());
+
+    db.insert(DatabaseTables.users, user.toJson());
     await _sharedPreferences.setString("user", json.encode(user));
-    await updateTokens(accessToken: accessToken, refreshToken: refreshToken);
+    await updateTokens(
+        accessToken: tokens?.accessToken, refreshToken: tokens?.refreshToken);
   }
 
   Future<void> updateTokens({String? accessToken, String? refreshToken}) async {

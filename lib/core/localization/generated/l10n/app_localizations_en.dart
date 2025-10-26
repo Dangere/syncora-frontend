@@ -26,5 +26,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get loginPage_guestPopError_invalid => 'invalid username format';
 
   @override
+  String get registerPageTitle => 'Register';
+
+  @override
   String get groupsFrontPageTitle => 'Groups';
 }

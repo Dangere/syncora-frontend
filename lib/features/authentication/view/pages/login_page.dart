@@ -51,6 +51,10 @@ class _LoginPageState extends ConsumerState<LoginPage> {
           emailController.text.trim(), passwordController.text.trim());
     }
 
+    void googleLogin() {
+      ref.read(authNotifierProvider.notifier).loginUsingGoogle();
+    }
+
     void guestLogin() {
       if (user.isLoading) return;
 
@@ -82,7 +86,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
         isLoading: user.isLoading,
         overlay: const CircularProgressIndicator(),
         body: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             // Title
             Text("Syncora",
@@ -158,28 +162,34 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                         );
                       }),
                       AppSpacing.horizontalSpaceLg,
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          ElevatedButton(
-                              onPressed: login,
-                              child: Text(
-                                  AppLocalizations.of(context).loginButton)),
-                          ElevatedButton(
-                              onPressed: guestLogin,
-                              style: ButtonStyle(
-                                  backgroundColor: MaterialStateProperty.all(
-                                      Colors.grey.shade200)),
-                              child: Text(
-                                  AppLocalizations.of(context).guestLoginButton,
-                                  style: const TextStyle(color: Colors.black))),
-                        ],
-                      ),
+
                       // SizedBox(height: 100),
                       // Register button
                     ]),
               ),
             ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                ElevatedButton(
+                    onPressed: login,
+                    child: Text(AppLocalizations.of(context).loginButton)),
+                ElevatedButton(
+                    onPressed: guestLogin,
+                    style: ButtonStyle(
+                        backgroundColor:
+                            MaterialStateProperty.all(Colors.grey.shade200)),
+                    child: Text(AppLocalizations.of(context).guestLoginButton,
+                        style: const TextStyle(color: Colors.black))),
+              ],
+            ),
+            ElevatedButton(
+                onPressed: googleLogin,
+                style: ButtonStyle(
+                    backgroundColor:
+                        MaterialStateProperty.all(Colors.grey.shade200)),
+                child: Text("Log in with Google",
+                    style: const TextStyle(color: Colors.black))),
             AppSpacing.horizontalSpaceLg,
 
             // Footer

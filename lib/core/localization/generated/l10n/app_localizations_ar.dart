@@ -26,5 +26,8 @@ class AppLocalizationsAr extends AppLocalizations {
   String get loginPage_guestPopError_invalid => 'اسم الضيف غير معرف';
 
   @override
+  String get registerPageTitle => 'التسجيل';
+
+  @override
   String get groupsFrontPageTitle => 'المجموعات';
 }

@@ -2,6 +2,7 @@
     "helloWorld": "هلا",
     "loginPageTitle": "تسجيل الدخول",
     "loginButton": "تسجيل الدخول",
+    "registerPageTitle": "التسجيل",
     "guestLoginButton": "تسجيل الدخول كضيف",
     "groupsFrontPageTitle": "المجموعات",
     "loginPage_guestPopTitle": "اسم الضيف",

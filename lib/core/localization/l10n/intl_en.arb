@@ -27,6 +27,10 @@
   "@loginPage_guestPopError_invalid": {
     "description": "The guest pop up error when text is invalid"
   },
+  "registerPageTitle": "Register",
+  "@registerPageTitle": {
+    "description": "The register title"
+  },
   "groupsFrontPageTitle": "Groups",
   "@groupsFrontPageTitle": {
     "description": "The title of the groups front page"

@@ -1,18 +1,53 @@
 import 'dart:async';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:syncora_frontend/common/providers/common_providers.dart';
+import 'package:syncora_frontend/core/tests.dart';
+import 'package:syncora_frontend/core/typedef.dart';
 import 'package:syncora_frontend/core/utils/app_error.dart';
 import 'package:syncora_frontend/core/utils/result.dart';
 import 'package:syncora_frontend/features/authentication/models/auth_state.dart';
+import 'package:syncora_frontend/features/authentication/models/google_register_user_info.dart';
 import 'package:syncora_frontend/features/authentication/models/tokens_dto.dart';
 import 'package:syncora_frontend/features/authentication/models/user.dart';
 import 'package:syncora_frontend/features/authentication/repositories/auth_repository.dart';
 import 'package:syncora_frontend/features/authentication/services/auth_service.dart';
 import 'package:syncora_frontend/features/authentication/services/session_storage.dart';
+import 'package:syncora_frontend/features/users/viewmodel/users_providers.dart';
 
+// TODO: Implement guard for connection checking before methods
 class AuthNotifier extends AsyncNotifier<AuthState> {
   Completer? _refreshTokenCompleter;
-  // final AuthService _authService;
+
+  void loginUsingGoogle() async {
+    if (state.isLoading || _isLoggedIn) return;
+
+    state = const AsyncValue.loading();
+    Result<User> result = await ref.read(authServiceProvider).loginWithGoogle();
+    if (result.isSuccess) {
+      state = AsyncValue.data(AuthAuthenticated(result.data!));
+    } else {
+      ref.read(appErrorProvider.notifier).state = result.error!;
+      state = const AsyncValue.data(AuthUnauthenticated());
+    }
+  }
+
+  void registerUsingGoogle(
+      AsyncFunc<String, GoogleRegisterUserInfo?> afterAccountSelect) async {
+    if (state.isLoading || _isLoggedIn) return;
+
+    state = const AsyncValue.loading();
+    Result<User> result = await ref
+        .read(authServiceProvider)
+        .registerWithGoogle(afterAccountSelect);
+
+    if (result.isSuccess) {
+      state = AsyncValue.data(AuthAuthenticated(result.data!));
+    } else {
+      ref.read(appErrorProvider.notifier).state = result.error!;
+      state = const AsyncValue.data(AuthUnauthenticated());
+    }
+  }
 
   void loginWithEmailAndPassword(String email, String password) async {
     if (state.isLoading || _isLoggedIn) return;
@@ -21,7 +56,7 @@ class AuthNotifier extends AsyncNotifier<AuthState> {
     Result<User> result = await ref
         .read(authServiceProvider)
         .loginWithEmailAndPassword(email, password);
-
+    Tests.printDb(await ref.read(localDbProvider).getDatabase());
     if (result.isSuccess) {
       state = AsyncValue.data(AuthAuthenticated(result.data!));
     } else {

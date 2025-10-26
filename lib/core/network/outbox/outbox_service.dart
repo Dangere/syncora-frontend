@@ -27,7 +27,7 @@ class OutboxService {
   Future<Result<void>> enqueue(EnqueueRequest request) async {
     try {
       // TODO: Add some filtering here so if we are trying to add a task to a group that we delete, it should cancel out
-      await _outboxRepository.insertEntry(request.entry);
+      int entryId = await _outboxRepository.insertEntry(request.entry);
 
       if (request.onAfterEnqueue == null) return Result.success(null);
 
@@ -37,7 +37,7 @@ class OutboxService {
       if (result.isSuccess) return Result.success(null);
 
       // If it fails, we roll back the creation of the entry
-      await _outboxRepository.deleteEntry(request.entry.id!);
+      await _outboxRepository.deleteEntry(entryId);
       return result;
     } catch (e, stackTrace) {
       return Result.failure(ErrorMapper.map(e, stackTrace));

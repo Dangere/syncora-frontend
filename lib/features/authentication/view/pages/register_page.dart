@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -6,6 +8,7 @@ import 'package:syncora_frontend/common/widgets/overlay_loader.dart';
 import 'package:syncora_frontend/core/localization/generated/l10n/app_localizations.dart';
 import 'package:syncora_frontend/core/utils/snack_bar_alerts.dart';
 import 'package:syncora_frontend/core/utils/validators.dart';
+import 'package:syncora_frontend/features/authentication/models/google_register_user_info.dart';
 import 'package:syncora_frontend/features/authentication/viewmodel/auth_viewmodel.dart';
 
 class RegisterPage extends ConsumerStatefulWidget {
@@ -49,9 +52,18 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
           passwordController.text.trim());
     }
 
+    Future<GoogleRegisterUserInfo?> getUserInfo(String email) async {}
+
+    void googleRegister() {
+      ref.read(authNotifierProvider.notifier).registerUsingGoogle(
+            (p0) => getUserInfo(p0),
+          );
+    }
+
     return Scaffold(
       appBar: AppBar(
-        title: Center(child: Text(AppLocalizations.of(context).loginPageTitle)),
+        title:
+            Center(child: Text(AppLocalizations.of(context).registerPageTitle)),
       ),
       body: OverlayLoader(
         isLoading: user.isLoading,
@@ -60,7 +72,13 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             // Title
-            Text("Syncora", style: Theme.of(context).textTheme.headlineLarge),
+            Text("Syncora",
+                style: Theme.of(context)
+                    .textTheme
+                    .headlineLarge!
+                    .copyWith(fontSize: 60)
+                    .copyWith(color: Theme.of(context).colorScheme.primary)
+                    .copyWith(fontWeight: FontWeight.bold)),
             // Forms and register button
             Form(
               key: _formKey,
@@ -188,11 +206,21 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                     }),
                     AppSpacing.horizontalSpaceLg,
                     ElevatedButton(
-                        onPressed: register, child: Text("Register")),
+                        onPressed: register,
+                        child: Text(
+                            AppLocalizations.of(context).registerPageTitle)),
                   ],
                 ),
               ),
             ),
+            AppSpacing.horizontalSpaceLg,
+            ElevatedButton(
+                onPressed: googleRegister,
+                style: ButtonStyle(
+                    backgroundColor:
+                        MaterialStateProperty.all(Colors.grey.shade200)),
+                child: Text("Sign up with Google",
+                    style: const TextStyle(color: Colors.black))),
             AppSpacing.horizontalSpaceLg,
 
             // Footer
@@ -215,7 +243,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                               .bodyMedium!
                               .copyWith(
                                   color: Theme.of(context).colorScheme.primary),
-                          "Login"),
+                          AppLocalizations.of(context).loginPageTitle),
                     ],
                   ),
                 )),

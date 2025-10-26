@@ -62,7 +62,7 @@ class LocalUsersRepository {
     return User.fromJson(user);
   }
 
-  // Removes users that dont belong to any group
+  // Removes users that dont belong to any group, except for the actual device user
   Future<void> purgeOrphanedUsers() async {
     final db = await _databaseManager.getDatabase();
     await db.rawQuery(

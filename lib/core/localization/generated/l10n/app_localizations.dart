@@ -135,6 +135,12 @@ abstract class AppLocalizations {
   /// **'invalid username format'**
   String get loginPage_guestPopError_invalid;
 
+  /// The register title
+  ///
+  /// In en, this message translates to:
+  /// **'Register'**
+  String get registerPageTitle;
+
   /// The title of the groups front page
   ///
   /// In en, this message translates to:

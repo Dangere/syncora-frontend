@@ -52,6 +52,8 @@ dependencies:
   signalr_netcore: ^1.4.3
   equatable: ^2.0.7
   color_hash: ^1.0.1
+  google_sign_in: ^6.2.2
+  google_sign_in_web: ^0.12.4+3
 
 dev_dependencies:
   flutter_test:

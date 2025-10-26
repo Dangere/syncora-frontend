@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:syncora_frontend/common/providers/common_providers.dart';
 import 'package:syncora_frontend/common/providers/connection_provider.dart';
 import 'package:syncora_frontend/common/themes/app_sizes.dart';
 import 'package:syncora_frontend/common/widgets/syncing_icon.dart';
@@ -92,14 +93,14 @@ class _HomeScreenState extends ConsumerState<HomePage> {
             icon: const Icon(Icons.signal_wifi_connected_no_internet_4_rounded),
           ),
           IconButton(
-            onPressed: () {
+            onPressed: () async {
               // bool fakeOnline = ref.read(fakeBeingOnlineProvider);
               // ref.read(fakeBeingOnlineProvider.notifier).state = !fakeOnline;
 
               // ref.read(syncBackendNotifierProvider.notifier).test();
               // ref.read(syncBackendNotifierProvider.notifier).toggleSyncing();
               // Tests.printDb(ref);
-              Tests.printDb(ref);
+              Tests.printDb(await ref.read(localDbProvider).getDatabase());
             },
             tooltip: 'TEST',
             icon: const Icon(Icons.text_rotation_angleup_sharp),

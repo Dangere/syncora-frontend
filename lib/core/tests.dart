@@ -23,11 +23,6 @@ import 'package:syncora_frontend/features/tasks/models/task.dart';
 import 'package:syncora_frontend/features/tasks/viewmodel/tasks_providers.dart';
 
 class Tests {
-  // Testing the inserting and retrieving of data from the local database
-  static void test_LocalDb(WidgetRef ref) async {
-    printDb(ref);
-  }
-
   // 2. Turns out it was because of the mapping from the json to the payload, the backend would return the "completed" property as a bool
   // But i was expecting it as an int like how the local db handles bools
   static void test_Json_To_SyncPayload(WidgetRef ref) async {
@@ -102,7 +97,7 @@ class Tests {
     await ref.read(tasksServiceProvider).upsertTasks([task]);
 
     // Printing the database and expecting a completed task
-    await printDb(ref);
+    await printDb(await ref.read(localDbProvider).getDatabase());
 
     // Getting the tasks for the group
     Result<List<Task>> tasks =
@@ -238,9 +233,7 @@ class Tests {
     Logger().f(sortedEntries);
   }
 
-  static Future<void> printDb(WidgetRef ref) async {
-    Database db = await ref.read(localDbProvider).getDatabase();
-
+  static Future<void> printDb(Database db) async {
     var tasksRawQuery =
         await db.rawQuery("SELECT * FROM ${DatabaseTables.tasks}");
     var groupsRawQuery =
@@ -253,12 +246,12 @@ class Tests {
     var outboxRawQuery =
         await db.rawQuery("SELECT * FROM ${DatabaseTables.outbox}");
 
-    Logger().f(groupsRawQuery, stackTrace: StackTrace.fromString("GROUPS"));
+    // Logger().f(groupsRawQuery, stackTrace: StackTrace.fromString("GROUPS"));
     Logger().f(usersRawQuery, stackTrace: StackTrace.fromString("USERS"));
-    Logger().f(groupMembersRawQuery,
-        stackTrace: StackTrace.fromString("GROUP MEMBERS"));
+    // Logger().f(groupMembersRawQuery,
+    //     stackTrace: StackTrace.fromString("GROUP MEMBERS"));
 
-    Logger().f(tasksRawQuery, stackTrace: StackTrace.fromString("TASKS"));
-    Logger().f(outboxRawQuery, stackTrace: StackTrace.fromString("OUTBOX"));
+    // Logger().f(tasksRawQuery, stackTrace: StackTrace.fromString("TASKS"));
+    // Logger().f(outboxRawQuery, stackTrace: StackTrace.fromString("OUTBOX"));
   }
 }
