@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:syncora_frontend/common/providers/common_providers.dart';
 import 'package:syncora_frontend/core/tests.dart';
@@ -13,7 +12,6 @@ import 'package:syncora_frontend/features/authentication/models/user.dart';
 import 'package:syncora_frontend/features/authentication/repositories/auth_repository.dart';
 import 'package:syncora_frontend/features/authentication/services/auth_service.dart';
 import 'package:syncora_frontend/features/authentication/services/session_storage.dart';
-import 'package:syncora_frontend/features/users/viewmodel/users_providers.dart';
 
 // TODO: Implement guard for connection checking before methods
 class AuthNotifier extends AsyncNotifier<AuthState> {

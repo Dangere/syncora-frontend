@@ -2,5 +2,5 @@ class GoogleRegisterUserInfo {
   final String username;
   final String password;
 
-  GoogleRegisterUserInfo(this.username, this.password);
+  GoogleRegisterUserInfo({required this.username, required this.password});
 }

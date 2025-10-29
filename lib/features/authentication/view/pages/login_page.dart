@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:syncora_frontend/common/providers/common_providers.dart';
 import 'package:syncora_frontend/common/themes/app_spacing.dart';
@@ -86,7 +87,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
         isLoading: user.isLoading,
         overlay: const CircularProgressIndicator(),
         body: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          mainAxisAlignment: MainAxisAlignment.start,
           children: [
             // Title
             Text("Syncora",
@@ -96,102 +97,133 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                     .copyWith(fontSize: 60)
                     .copyWith(color: Theme.of(context).colorScheme.primary)
                     .copyWith(fontWeight: FontWeight.bold)),
-            // Forms and login buttons
-            Form(
-              key: _formKey,
-              child: Padding(
-                padding: const EdgeInsets.all(AppSpacing.lg),
-                child: Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      TextFormField(
-                        decoration: const InputDecoration(labelText: 'Email'),
-                        keyboardType: TextInputType.emailAddress,
-                        controller: emailController,
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Email cannot be empty';
-                          }
-
-                          if (Validators.validateEmail(value.trim()) == false) {
-                            return 'Invalid email';
-                          }
-                          return null;
-                        },
-                      ),
-                      // Password field
-                      StatefulBuilder(builder: (context, setState) {
-                        return Row(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Expanded(
-                              child: TextFormField(
-                                decoration: const InputDecoration(
-                                    labelText: 'Password'),
-                                obscureText: !showPassword,
-                                controller: passwordController,
-                                keyboardType: TextInputType.visiblePassword,
-                                validator: (value) {
-                                  if (value == null || value.isEmpty) {
-                                    return 'Password cannot be empty';
-                                  }
-
-                                  if (Validators.validatePassword(
-                                          value.trim()) ==
-                                      false) {
-                                    return 'Password must be between 6 and 16 characters';
-                                  }
-                                  return null;
-                                },
-                              ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.only(top: 15.0),
-                              child: IconButton(
-                                  alignment: Alignment.center,
-                                  onPressed: () {
-                                    setState(() {
-                                      showPassword = !showPassword;
-                                    });
-                                  },
-                                  icon: Icon(!showPassword
-                                      ? Icons.remove_red_eye_outlined
-                                      : Icons.remove_red_eye)),
-                            )
-                          ],
-                        );
-                      }),
-                      AppSpacing.horizontalSpaceLg,
-
-                      // SizedBox(height: 100),
-                      // Register button
-                    ]),
-              ),
+            SizedBox(
+              height: MediaQuery.of(context).size.height * 0.1,
             ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            // Forms and login buttons
+            Column(
               children: [
-                ElevatedButton(
-                    onPressed: login,
-                    child: Text(AppLocalizations.of(context).loginButton)),
-                ElevatedButton(
-                    onPressed: guestLogin,
-                    style: ButtonStyle(
-                        backgroundColor:
-                            MaterialStateProperty.all(Colors.grey.shade200)),
-                    child: Text(AppLocalizations.of(context).guestLoginButton,
-                        style: const TextStyle(color: Colors.black))),
+                Form(
+                  key: _formKey,
+                  child: Padding(
+                    padding: const EdgeInsets.all(AppSpacing.lg),
+                    child: Column(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          TextFormField(
+                            decoration:
+                                const InputDecoration(labelText: 'Email'),
+                            keyboardType: TextInputType.emailAddress,
+                            controller: emailController,
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Email cannot be empty';
+                              }
+
+                              if (Validators.validateEmail(value.trim()) ==
+                                  false) {
+                                return 'Invalid email';
+                              }
+                              return null;
+                            },
+                          ),
+                          // Password field
+                          StatefulBuilder(builder: (context, setState) {
+                            return Row(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Expanded(
+                                  child: TextFormField(
+                                    decoration: const InputDecoration(
+                                        labelText: 'Password'),
+                                    obscureText: !showPassword,
+                                    controller: passwordController,
+                                    keyboardType: TextInputType.visiblePassword,
+                                    validator: (value) {
+                                      if (value == null || value.isEmpty) {
+                                        return 'Password cannot be empty';
+                                      }
+
+                                      if (Validators.validatePassword(
+                                              value.trim()) ==
+                                          false) {
+                                        return 'Password must be between 6 and 16 characters';
+                                      }
+                                      return null;
+                                    },
+                                  ),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.only(top: 15.0),
+                                  child: IconButton(
+                                      alignment: Alignment.center,
+                                      onPressed: () {
+                                        setState(() {
+                                          showPassword = !showPassword;
+                                        });
+                                      },
+                                      icon: Icon(!showPassword
+                                          ? Icons.remove_red_eye_outlined
+                                          : Icons.remove_red_eye)),
+                                )
+                              ],
+                            );
+                          }),
+                          AppSpacing.horizontalSpaceLg,
+
+                          // SizedBox(height: 100),
+                          // Register button
+                        ]),
+                  ),
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    ElevatedButton(
+                        onPressed: login,
+                        child: Text(AppLocalizations.of(context).loginButton)),
+                    ElevatedButton(
+                        onPressed: guestLogin,
+                        style: ButtonStyle(
+                            backgroundColor: MaterialStateProperty.all(
+                                Colors.grey.shade200)),
+                        child: Text(
+                            AppLocalizations.of(context).guestLoginButton,
+                            style: const TextStyle(color: Colors.black))),
+                  ],
+                ),
               ],
             ),
-            ElevatedButton(
-                onPressed: googleLogin,
-                style: ButtonStyle(
-                    backgroundColor:
-                        MaterialStateProperty.all(Colors.grey.shade200)),
-                child: Text("Log in with Google",
-                    style: const TextStyle(color: Colors.black))),
-            AppSpacing.horizontalSpaceLg,
-
+            Expanded(
+              child: Center(
+                child: ElevatedButton(
+                    onPressed: googleLogin,
+                    style: ButtonStyle(
+                        backgroundColor:
+                            MaterialStateProperty.all(Colors.grey.shade200),
+                        padding: MaterialStateProperty.all(
+                            const EdgeInsets.all(10))),
+                    child: Container(
+                      // color: Colors.amber,
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          SizedBox(
+                            height: 25,
+                            width: 25,
+                            child: SvgPicture.asset(
+                                "assets/logos/google-icon.svg",
+                                semanticsLabel: 'Google Logo'),
+                          ),
+                          SizedBox(width: 9),
+                          const Text("Sign in with Google",
+                              style: TextStyle(color: Colors.black)),
+                        ],
+                      ),
+                    )),
+              ),
+            ),
             // Footer
             Column(
               children: [
