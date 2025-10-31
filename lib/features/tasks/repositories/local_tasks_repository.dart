@@ -1,4 +1,3 @@
-import 'package:logger/logger.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:syncora_frontend/core/data/database_manager.dart';
 import 'package:syncora_frontend/core/data/enums/database_tables.dart';
@@ -22,7 +21,7 @@ class LocalTasksRepository {
       GROUP_CONCAT(ts.userId) AS assignedTo
     FROM ${DatabaseTables.tasks} AS t
     LEFT JOIN ${DatabaseTables.tasksAssignees} AS ts ON ts.taskId = t.id
-    WHERE t.groupId = ?
+    WHERE t.groupId = ? AND t.isDeleted = 0
     GROUP BY t.id
     ''', [groupId]);
 
@@ -90,5 +89,29 @@ class LocalTasksRepository {
       where: "id = ?",
       whereArgs: [tempId],
     );
+  }
+
+  // Method used to mark Task as deleted
+  Future<int> markTaskAsDeleted(int taskId) async {
+    final db = await _databaseManager.getDatabase();
+
+    return await db.update(DatabaseTables.tasks, {"isDeleted": 1},
+        where: "id = ?", whereArgs: [taskId]);
+  }
+
+  // Method used to unmark Task as deleted
+  Future<int> unmarkTaskAsDeleted(int taskId) async {
+    final db = await _databaseManager.getDatabase();
+
+    return await db.update(DatabaseTables.tasks, {"isDeleted": 0},
+        where: "id = ?", whereArgs: [taskId]);
+  }
+
+  // Method used to wipe Tasks marked as deleted
+  Future<int> wipeDeletedTask(int taskId) async {
+    final db = await _databaseManager.getDatabase();
+
+    return await db.delete(DatabaseTables.tasks,
+        where: "isDeleted = ? AND id = ?", whereArgs: [1, taskId]);
   }
 }

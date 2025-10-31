@@ -198,26 +198,4 @@ class GroupsService {
       return Result.failure(ErrorMapper.map(e, stackTrace));
     }
   }
-
-  Future<Result<void>> kickFromGroups(List<int> groupsIds) async {
-    try {
-      // TODO: show some kind of snackbar or pop up
-      for (var groupId in groupsIds) {
-        await _localGroupsRepository.markGroupAsDeleted(groupId);
-        await _localGroupsRepository.wipeDeletedGroup(groupId);
-      }
-
-      return Result.success(null);
-    } catch (e, stackTrace) {
-      return Result.failure(ErrorMapper.map(e, stackTrace));
-    }
-  }
-
-  Future<Result<void>> upsertGroups(List<GroupDTO> groups) async {
-    try {
-      return Result.success(await _localGroupsRepository.upsertGroups(groups));
-    } catch (e, stackTrace) {
-      return Result.failure(ErrorMapper.map(e, stackTrace));
-    }
-  }
 }

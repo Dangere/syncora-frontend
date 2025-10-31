@@ -49,11 +49,11 @@ class DatabaseManager {
   Future<void> _onCreate(Database db, int version) async {
     await db.execute('''
       CREATE TABLE ${DatabaseTables.users}  (
-        
         id INTEGER PRIMARY KEY,
         username TEXT UNIQUE NOT NULL,
         email TEXT UNIQUE NOT NULL,
-        profilePictureURL TEXT
+        profilePictureURL TEXT,
+        isMainUser INTEGER NOT NULL DEFAULT 0
       )
     ''');
 
@@ -92,6 +92,7 @@ class DatabaseManager {
         completedById INTEGER,
         creationDate TEXT NOT NULL,
         groupId INTEGER NOT NULL,
+        isDeleted INTEGER NOT NULL DEFAULT 0,
         FOREIGN KEY(groupId) REFERENCES  ${DatabaseTables.groups}(id) ON DELETE CASCADE ON UPDATE CASCADE
         FOREIGN KEY(completedById) REFERENCES  ${DatabaseTables.users}(id) ON DELETE NO ACTION ON UPDATE CASCADE
 

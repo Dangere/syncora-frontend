@@ -12,8 +12,8 @@ class SyncPayload {
   final List<Task> tasks;
   final List<User> users;
 
-  final List<GroupDTO>? deletedGroups;
-  final List<Task>? deletedTasks;
+  final List<int>? deletedGroups;
+  final List<int>? deletedTasks;
   final List<int>? kickedGroupsIds;
 
   SyncPayload(
@@ -33,11 +33,10 @@ class SyncPayload {
       users: List<User>.from(json['users'].map((x) => User.fromJson(x))),
       deletedGroups: json['deletedGroups'] == null
           ? null
-          : List<GroupDTO>.from(
-              json['deletedGroups'].map((x) => GroupDTO.fromJson(x))),
+          : List<int>.from(json['deletedGroups']),
       deletedTasks: json['deletedTasks'] == null
           ? null
-          : List<Task>.from(json['deletedTasks'].map((x) => Task.fromJson(x))),
+          : List<int>.from(json['deletedTasks']),
       kickedGroupsIds: json['kickedGroupsIds'] == null
           ? null
           : List<int>.from(json['kickedGroupsIds']));
@@ -64,8 +63,8 @@ class SyncPayload {
         'groups': groups.map((x) => x.toJson()).toList(),
         'tasks': tasks.map((x) => x.toJson()).toList(),
         'users': users.map((x) => x.toJson()).toList(),
-        'deletedGroups': deletedGroups?.map((x) => x.toJson()).toList(),
-        'deletedTasks': deletedTasks?.map((x) => x.toJson()).toList(),
+        'deletedGroups': deletedGroups?.toList(),
+        'deletedTasks': deletedTasks?.toList(),
         'kickedGroupsIds': kickedGroupsIds?.toList()
       };
 

@@ -66,6 +66,6 @@ class LocalUsersRepository {
   Future<void> purgeOrphanedUsers() async {
     final db = await _databaseManager.getDatabase();
     await db.rawQuery(
-        "DELETE FROM ${DatabaseTables.users} WHERE id NOT IN (SELECT userId FROM ${DatabaseTables.groupsMembers}) AND id NOT IN (SELECT ownerUserId FROM ${DatabaseTables.groups})");
+        "DELETE FROM ${DatabaseTables.users} WHERE isMainUser = 0 AND id NOT IN (SELECT userId FROM ${DatabaseTables.groupsMembers}) AND id NOT IN (SELECT ownerUserId FROM ${DatabaseTables.groups});");
   }
 }

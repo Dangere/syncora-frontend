@@ -40,12 +40,4 @@ class UsersService {
       return Result.failure(ErrorMapper.map(e, stackTrace));
     }
   }
-
-  Future<Result<void>> purgeOrphanedUsers() async {
-    try {
-      return Result.success(await _localUsersRepository.purgeOrphanedUsers());
-    } catch (e, stackTrace) {
-      return Result.failure(ErrorMapper.map(e, stackTrace));
-    }
-  }
 }

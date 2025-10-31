@@ -51,8 +51,7 @@ class SyncBackendNotifier extends AsyncNotifier<int>
 
     // TODO: Instead of waiting for it to finish loading, we should schedule it to run in the future for new data
     if (state.isLoading) return;
-
-    await Future.delayed(Duration(seconds: 5));
+    // await Future.delayed(Duration(seconds: 5));
 
     if (ref.read(isGuestProvider)) {
       ref.read(appErrorProvider.notifier).state =
@@ -299,10 +298,10 @@ final syncBackendNotifierProvider =
 
 final syncServiceProvider = Provider<SyncService>((ref) {
   return SyncService(
-      syncRepository: ref.watch(syncRepositoryProvider),
-      groupsService: ref.watch(groupsServiceProvider),
-      usersService: ref.watch(usersServiceProvider),
-      tasksService: ref.watch(tasksServiceProvider));
+      ref.watch(syncRepositoryProvider),
+      ref.watch(localGroupsRepositoryProvider),
+      ref.watch(localTasksRepositoryProvider),
+      ref.watch(localUsersRepositoryProvider));
 });
 
 final syncRepositoryProvider = Provider<SyncRepository>((ref) {

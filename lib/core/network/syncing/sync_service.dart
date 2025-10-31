@@ -2,25 +2,21 @@ import 'package:syncora_frontend/core/network/syncing/model/sync_payload.dart';
 import 'package:syncora_frontend/core/network/syncing/sync_repository.dart';
 import 'package:syncora_frontend/core/utils/error_mapper.dart';
 import 'package:syncora_frontend/core/utils/result.dart';
+import 'package:syncora_frontend/features/groups/repositories/local_groups_repository.dart';
 import 'package:syncora_frontend/features/groups/services/groups_service.dart';
+import 'package:syncora_frontend/features/tasks/repositories/local_tasks_repository.dart';
 import 'package:syncora_frontend/features/tasks/services/tasks_service.dart';
+import 'package:syncora_frontend/features/users/repositories/local_users_repository.dart';
 import 'package:syncora_frontend/features/users/services/users_service.dart';
 
 class SyncService {
   final SyncRepository _syncRepository;
-  final GroupsService _groupsService;
-  final UsersService _usersService;
-  final TasksService _tasksService;
+  final LocalUsersRepository _localUsersRepository;
+  final LocalGroupsRepository _localGroupsRepository;
+  final LocalTasksRepository _localTasksRepository;
 
-  SyncService(
-      {required SyncRepository syncRepository,
-      required GroupsService groupsService,
-      required UsersService usersService,
-      required TasksService tasksService})
-      : _syncRepository = syncRepository,
-        _groupsService = groupsService,
-        _usersService = usersService,
-        _tasksService = tasksService;
+  SyncService(this._syncRepository, this._localGroupsRepository,
+      this._localTasksRepository, this._localUsersRepository);
 
   Future<Result<SyncPayload>> fetchPayload() async {
     try {
@@ -41,38 +37,62 @@ class SyncService {
       return Result.failure(result.error!);
     }
 
-    // Upserting the same user for some reason makes a group deletes itself
-    Result<void> upsertUsersResult =
-        await _usersService.upsertUsers(result.data!.users);
-
-    if (!upsertUsersResult.isSuccess) {
-      return Result.failure(upsertUsersResult.error!);
+    // Handling added users from payload
+    try {
+      await _localUsersRepository.upsertUsers(result.data!.users);
+    } catch (e, stackTrace) {
+      return Result.failure(ErrorMapper.map(e, stackTrace));
     }
 
-    Result<void> upsertGroupsResult =
-        await _groupsService.upsertGroups(result.data!.groups);
-
-    if (!upsertGroupsResult.isSuccess) {
-      return Result.failure(upsertGroupsResult.error!);
+    // Handling added groups from payload
+    try {
+      await _localGroupsRepository.upsertGroups(result.data!.groups);
+    } catch (e, stackTrace) {
+      return Result.failure(ErrorMapper.map(e, stackTrace));
     }
 
-    Result<void> upsertTasksResult =
-        await _tasksService.upsertTasks(result.data!.tasks);
-
-    if (!upsertTasksResult.isSuccess) {
-      return Result.failure(upsertTasksResult.error!);
+    // Handling added tasks from payload
+    try {
+      await _localTasksRepository.upsertTasks(result.data!.tasks);
+    } catch (e, stackTrace) {
+      return Result.failure(ErrorMapper.map(e, stackTrace));
     }
 
-    if (result.data!.kickedGroupsIds != null) {
-      Result<void> kickFromGroupsResult =
-          await _groupsService.kickFromGroups(result.data!.kickedGroupsIds!);
-
-      if (!kickFromGroupsResult.isSuccess) {
-        return Result.failure(kickFromGroupsResult.error!);
+    // Handling kicked groups in payload
+    try {
+      for (var groupId in result.data!.kickedGroupsIds!) {
+        await _localGroupsRepository.markGroupAsDeleted(groupId);
+        await _localGroupsRepository.wipeDeletedGroup(groupId);
       }
+    } catch (e, stackTrace) {
+      return Result.failure(ErrorMapper.map(e, stackTrace));
     }
 
-    await _usersService.purgeOrphanedUsers();
+    // Handling deleted groups in payload
+    try {
+      for (var groupId in result.data!.deletedGroups!) {
+        await _localGroupsRepository.markGroupAsDeleted(groupId);
+        await _localGroupsRepository.wipeDeletedGroup(groupId);
+      }
+    } catch (e, stackTrace) {
+      return Result.failure(ErrorMapper.map(e, stackTrace));
+    }
+
+    // Handling deleted tasks from payload
+    try {
+      for (var taskId in result.data!.deletedTasks!) {
+        await _localTasksRepository.markTaskAsDeleted(taskId);
+        await _localTasksRepository.wipeDeletedTask(taskId);
+      }
+    } catch (e, stackTrace) {
+      return Result.failure(ErrorMapper.map(e, stackTrace));
+    }
+
+    try {
+      await _localUsersRepository.purgeOrphanedUsers();
+    } catch (e, stackTrace) {
+      return Result.failure(ErrorMapper.map(e, stackTrace));
+    }
 
     return Result.success(result.data!);
   }

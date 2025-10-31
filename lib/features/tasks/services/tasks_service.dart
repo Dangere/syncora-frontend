@@ -23,19 +23,11 @@ class TasksService {
     }
   }
 
-  Future<Result<void>> upsertTasks(List<Task> tasks) async {
-    try {
-      return Result.success(await _localTasksRepository.upsertTasks(tasks));
-    } catch (e, stackTrace) {
-      return Result.failure(ErrorMapper.map(e, stackTrace));
-    }
-  }
-
   Future<Result<void>> deleteTask(
       {required int taskId, required int groupId}) async {
     try {
-      return Result.success(await _remoteTasksRepository.deleteTask(
-          groupId: groupId, taskId: taskId));
+      return Result.success(
+          await _localTasksRepository.markTaskAsDeleted(taskId));
     } catch (e, stackTrace) {
       return Result.failure(ErrorMapper.map(e, stackTrace));
     }

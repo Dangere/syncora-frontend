@@ -91,10 +91,10 @@ class Tests {
     );
 
     // Inserting the group
-    await ref.read(groupsServiceProvider).upsertGroups([group]);
+    await ref.read(localGroupsRepositoryProvider).upsertGroups([group]);
 
     // Inserting the task
-    await ref.read(tasksServiceProvider).upsertTasks([task]);
+    await ref.read(localTasksRepositoryProvider).upsertTasks([task]);
 
     // Printing the database and expecting a completed task
     await printDb(await ref.read(localDbProvider).getDatabase());

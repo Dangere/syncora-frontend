@@ -60,6 +60,8 @@ class RemoteGroupsRepository {
   }
 
   Future<void> deleteGroup(int groupId) async {
-    throw UnimplementedError();
+    await _dio
+        .delete('${Constants.BASE_API_URL}/groups/$groupId')
+        .timeout(const Duration(seconds: 10));
   }
 }

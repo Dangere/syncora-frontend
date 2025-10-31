@@ -193,7 +193,10 @@ class _GroupViewPageState extends ConsumerState<GroupViewPage> {
                     isOwner: isOwner,
                     userColors: getUserColors(tasks[index].assignedTo),
                     task: tasks[index],
-                    onDelete: () {},
+                    onDelete: () {
+                      ref.read(groupsNotifierProvider.notifier).deleteTask(
+                          taskId: tasks[index].id, groupId: group.id);
+                    },
                     onChange: (bool? arg) {
                       ref.read(groupsNotifierProvider.notifier).markTask(
                           taskId: tasks[index].id,

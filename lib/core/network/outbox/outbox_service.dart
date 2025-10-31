@@ -26,7 +26,6 @@ class OutboxService {
   // It also makes sure the entry is inserted first then modify local data to avoid ghost data not syncing
   Future<Result<void>> enqueue(EnqueueRequest request) async {
     try {
-      // TODO: Add some filtering here so if we are trying to add a task to a group that we delete, it should cancel out
       int entryId = await _outboxRepository.insertEntry(request.entry);
 
       if (request.onAfterEnqueue == null) return Result.success(null);
@@ -48,7 +47,7 @@ class OutboxService {
   Future<Result<QueueProcessorResponse>> processQueue() async {
     HashSet<int> modifiedGroupIds = HashSet<int>();
     List<AppError> errors = [];
-
+    // TODO: Add some filtering here so if we are trying to add a task to a group that we delete, it should cancel out
     // dependency-aware sorting, Create group -> modify group -> create task -> modify task
     var entries =
         OutboxSorter.sort(await _outboxRepository.getPendingEntries());

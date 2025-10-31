@@ -54,7 +54,6 @@ class AuthNotifier extends AsyncNotifier<AuthState> {
     Result<User> result = await ref
         .read(authServiceProvider)
         .loginWithEmailAndPassword(email, password);
-    Tests.printDb(await ref.read(localDbProvider).getDatabase());
     if (result.isSuccess) {
       state = AsyncValue.data(AuthAuthenticated(result.data!));
     } else {

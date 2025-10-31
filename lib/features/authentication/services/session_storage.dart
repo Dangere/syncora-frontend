@@ -47,7 +47,10 @@ class SessionStorage {
   Future<void> saveSession({required User user, TokensDTO? tokens}) async {
     var db = await _databaseManager.getDatabase();
 
-    db.insert(DatabaseTables.users, user.toJson());
+    var userJson = user.toJson();
+    userJson.addAll({"isMainUser": 1});
+
+    db.insert(DatabaseTables.users, userJson);
     await _sharedPreferences.setString("user", json.encode(user));
     await updateTokens(
         accessToken: tokens?.accessToken, refreshToken: tokens?.refreshToken);

@@ -101,6 +101,7 @@ class GroupsNotifier extends AsyncNotifier<List<Group>> {
       {required int groupId,
       required String title,
       required String? description}) async {
+    ref.read(loggerProvider).d("Creating task");
     Result<void> createResult = await ref
         .read(tasksServiceProvider)
         .createTask(title: title, description: description, groupId: groupId);
