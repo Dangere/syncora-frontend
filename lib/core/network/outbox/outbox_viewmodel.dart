@@ -13,11 +13,15 @@ import 'package:syncora_frontend/core/network/outbox/processors/groups_processor
 import 'package:syncora_frontend/core/network/outbox/processors/tasks_processor.dart';
 import 'package:syncora_frontend/core/network/outbox/repository/outbox_repository.dart';
 import 'package:syncora_frontend/core/utils/app_error.dart';
+import 'package:syncora_frontend/core/utils/error_mapper.dart';
 import 'package:syncora_frontend/core/utils/result.dart';
 import 'package:syncora_frontend/features/groups/viewmodel/groups_viewmodel.dart';
 import 'package:syncora_frontend/features/tasks/viewmodel/tasks_providers.dart';
 
 class OutboxNotifier extends AsyncNotifier<OutboxStatus> {
+  bool _isProcessing = false;
+  bool _isAwaiting = false;
+
   // Calls the enqueue method and processes the queue list and updates UI accordingly
   Future<Result<void>> enqueue(EnqueueRequest request) async {
     state = const AsyncValue.loading();
@@ -40,6 +44,15 @@ class OutboxNotifier extends AsyncNotifier<OutboxStatus> {
       return Result.failureMessage("Cant process outbox queue when offline");
     }
 
+    // If we are trying to process the queue while we are already processing it, we mark it as awaiting
+    if (_isProcessing) {
+      if (!_isAwaiting) {
+        _isAwaiting = true;
+      }
+
+      return Result.success(null);
+    }
+    _isProcessing = true;
     // await Future.delayed(Duration(seconds: 5));
 
     ref.read(loggerProvider).i("Processing Outbox Queue!");
@@ -63,17 +76,25 @@ class OutboxNotifier extends AsyncNotifier<OutboxStatus> {
     displayErrors(response.data!.errors);
 
     ref.read(loggerProvider).i("Done processing Outbox Queue!");
-
+    _isProcessing = false;
+    // If we have entires waiting to be processed after this, process them
+    if (_isAwaiting) {
+      _isAwaiting = false;
+      processQueue();
+    }
     return response;
   }
 
-  void displayErrors(List<AppError<Exception>> errors) async {
+  void displayErrors(List<Exception> errors) async {
     for (var i = 0; i < errors.length; i++) {
       ref.read(loggerProvider).e("Displaying error!");
-      ref.read(appErrorProvider.notifier).state = errors[i];
+      ref.read(appErrorProvider.notifier).state = ErrorMapper.map(errors[i]);
       await Future.delayed(Duration(seconds: 2));
     }
   }
+
+  void
+      handelInProcess() {} // TODO: Handle inProcess entires that are in the queue
 
   @override
   FutureOr<OutboxStatus> build() async {

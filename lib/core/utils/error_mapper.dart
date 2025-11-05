@@ -6,7 +6,7 @@ import 'package:stack_trace/stack_trace.dart';
 import 'package:syncora_frontend/core/utils/app_error.dart';
 
 class ErrorMapper {
-  static AppError map(Object e, StackTrace stackTrace) {
+  static AppError map(Object e, [StackTrace? stackTrace]) {
     if (e is DioException) {
       return AppError(message: _mapDioErrorToMessage(e), errorObject: e);
     }
@@ -29,7 +29,7 @@ class ErrorMapper {
 
     return AppError(
         message: "Undefined error: ${e.toString()}",
-        stackTrace: _parseStackTrace(stackTrace));
+        stackTrace: stackTrace != null ? _parseStackTrace(stackTrace) : null);
   }
 
   static StackTrace _parseStackTrace(StackTrace stackTrace) {

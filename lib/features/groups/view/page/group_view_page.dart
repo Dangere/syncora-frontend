@@ -48,7 +48,7 @@ class _GroupViewPageState extends ConsumerState<GroupViewPage> {
 
     Future.microtask(() {
       if (groupAsync.hasError && context.canPop()) {
-        Logger().e("POPPINGG!!");
+        Logger().f("Popping!!");
         context.pop();
       }
     });

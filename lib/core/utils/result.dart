@@ -27,5 +27,14 @@ class Result<T> {
     }
   }
 
+  static Future<Result<T>> wrapAsync<T>(Future<T> Function() callback) async {
+    try {
+      T result = await callback();
+      return Result.success(result);
+    } catch (e, stackTrace) {
+      return Result.failure(ErrorMapper.map(e, stackTrace));
+    }
+  }
+
   E? errorObject<E>() => error?.errorObject as E;
 }

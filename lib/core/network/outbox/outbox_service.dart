@@ -1,6 +1,7 @@
 import 'dart:collection';
 
 import 'package:dio/dio.dart';
+import 'package:syncora_frontend/core/network/outbox/exception/outbox_exception.dart';
 import 'package:syncora_frontend/core/network/outbox/model/enqueue_request.dart';
 import 'package:syncora_frontend/core/network/outbox/interface/outbox_processor_interface.dart';
 import 'package:syncora_frontend/core/network/outbox/model/outbox_entry.dart';
@@ -43,10 +44,14 @@ class OutboxService {
     }
   }
 
+  // The processQueue function runs sequentially, one batch of entries at a time
+  // this makes sure entires are properly sorted and coalesced for processing
   // Processes the outbox queue and returns a list of all modified groups for UI updates
+  // TODO: One thing to consider is if the refresh token runs out and the user get a 401 response which kicks them, however in the process it will revert the changes made offline and stored in outbox.
+
   Future<Result<QueueProcessorResponse>> processQueue() async {
     HashSet<int> modifiedGroupIds = HashSet<int>();
-    List<AppError> errors = [];
+    List<Exception> errors = [];
     // TODO: Add some filtering here so if we are trying to add a task to a group that we delete, it should cancel out
     // dependency-aware sorting, Create group -> modify group -> create task -> modify task
     var entries =
@@ -59,40 +64,59 @@ class OutboxService {
             stackTrace: StackTrace.current));
       }
 
-      // TODO: One thing to consider is if the refresh token runs out and the user get a 401 response which kicks them, however in the process it will revert the changes made offline and stored in outbox.
+      // Before we process an entity, we see if the dependencies for it are available
+      // There are two types of dependencies, group dependencies and task dependencies.
+      // when we are processing a group update/delete, we need a server synced group id
+      // when we are processing a tasks update/delete/create, we need a server synced group id, and in the case of a update/delete, we need a server synced task id
+      // Failure to get a dependency means we should skip processing the entity in need of that dependency (no reverting, just skipping entirely as the dependency itself will be unaccessible along with its children, for example failure to get a sync group id, means that group was failed to create and was already reverted (marked deleted), so anything depending on it will be unaccessible inside it for the user)
 
       // We process the entry, it runs a while loop until it succeeds and returns the group that was modified or returns an 403 error or generic error
-      Result<int> processResult =
-          await _processors[entry.entityType]!.processOutbox(entry);
+      while (true) {
+        try {
+          int processResult =
+              await _processors[entry.entityType]!.processOutbox(entry);
 
-      if (processResult.isSuccess) {
-        _outboxRepository.completeEntry(entry.id!);
+          _outboxRepository.completeEntry(entry.id!);
 
-        // We store the group id
-        modifiedGroupIds.add(processResult.data!);
+          // We store the group id
+          modifiedGroupIds.add(processResult);
 
-        // And if its a group creation, we we store the old temp group id as a modified group for UI updates
-        if (entry.actionType == OutboxActionType.create &&
-            entry.entityType == OutboxEntityType.group) {
-          modifiedGroupIds.add(entry.entityId);
+          // And if its a group creation, we we store the old temp group id as a modified group for UI updates
+          if (entry.actionType == OutboxActionType.create &&
+              entry.entityType == OutboxEntityType.group) {
+            modifiedGroupIds.add(entry.entityId);
+          }
+        } on OutboxDependencyFailureException catch (e) {
+          _outboxRepository.failEntry(entry.id!);
+          errors.add(e);
+          break;
+        } on DioException catch (e) {
+          if (e.response != null && e.response!.statusCode == 403) {
+            Result<int> revertResult = await Result.wrapAsync(() async =>
+                await _processors[entry.entityType]!.revertProcess(entry));
+
+            if (!revertResult.isSuccess)
+              return Result.failure(revertResult.error!);
+
+            modifiedGroupIds.add(revertResult.data!);
+            _outboxRepository.failEntry(entry.id!);
+            errors.add(e);
+          } else {
+            // TODO: An edge case that might happen is the error not being 403 and the loop will never end, we should handle this
+            continue;
+          }
+        } on Exception catch (e) {
+          Result<int> revertResult = await Result.wrapAsync(() async =>
+              await _processors[entry.entityType]!.revertProcess(entry));
+
+          if (!revertResult.isSuccess) {
+            return Result.failure(revertResult.error!);
+          }
+          modifiedGroupIds.add(revertResult.data!);
+          _outboxRepository.failEntry(entry.id!);
+          errors.add(e);
         }
-      } else {
-        // If the processes fails because of a 403 error or generic error we revert the local changes
-        Result<int> revertResult =
-            await _processors[entry.entityType]!.revertProcess(entry);
-
-        // If we failed to revert the changes, we dont mark the entry as failed yet so its processed in the future
-        if (!revertResult.isSuccess) {
-          errors.add(revertResult.error!);
-
-          return Result.failure(revertResult.error!);
-        }
-
-        modifiedGroupIds.add(revertResult.data!);
-        _outboxRepository.failEntry(entry.id!);
-
-        // We store the fail response error
-        errors.add(processResult.error!);
+        break;
       }
     }
     return Result.success(QueueProcessorResponse(modifiedGroupIds, errors));

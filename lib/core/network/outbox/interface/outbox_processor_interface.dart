@@ -14,8 +14,9 @@ abstract class OutboxProcessor {
       required this.delayBeforeSyncReattempt});
 
   // Processes the outbox entry and returns the modified group server id
-  Future<Result<int>> processOutbox(OutboxEntry entry);
+  // Creation process should ALWAYS cache the server id when successful for future processing
+  Future<int> processOutbox(OutboxEntry entry);
 
   // Reverts the outbox local changes and returns the modified group server id
-  Future<Result<int>> revertProcess(OutboxEntry entry);
+  Future<int> revertProcess(OutboxEntry entry);
 }
