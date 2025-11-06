@@ -122,7 +122,7 @@ class DatabaseManager {
         entityId INTEGER NOT NULL,
         entityType INTEGER NOT NULL,
         actionType INTEGER NOT NULL,
-        payload TEXT NOT NULL, 
+        payload TEXT, 
         status INTEGER NOT NULL,
         creationDate TEXT NOT NULL
       )

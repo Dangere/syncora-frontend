@@ -1,7 +1,9 @@
 import 'package:dio/dio.dart';
+import 'package:logger/logger.dart';
 import 'package:syncora_frontend/core/network/outbox/exception/outbox_exception.dart';
 import 'package:syncora_frontend/core/network/outbox/interface/outbox_processor_interface.dart';
 import 'package:syncora_frontend/core/network/outbox/model/outbox_entry.dart';
+import 'package:syncora_frontend/core/network/outbox/model/outbox_payload.dart';
 import 'package:syncora_frontend/core/utils/error_mapper.dart';
 import 'package:syncora_frontend/core/utils/result.dart';
 import 'package:syncora_frontend/features/groups/models/group_dto.dart';
@@ -53,7 +55,8 @@ class GroupsProcessor extends OutboxProcessor {
       case OutboxActionType.create:
         {
           GroupDTO newGroup = await _remoteGroupsRepository.createGroup(
-              entry.payload['title'], entry.payload['description']);
+              entry.payload!.asCreateGroupPayload!.title,
+              entry.payload!.asCreateGroupPayload!.description);
 
           await _localGroupsRepository.updateGroupId(
               entry.entityId, newGroup.id);
@@ -63,8 +66,11 @@ class GroupsProcessor extends OutboxProcessor {
       // The update event
       case OutboxActionType.update:
         {
+          Logger().d(entry.payload!.asUpdateGroupPayload!.toJson());
           await _remoteGroupsRepository.updateGroupDetails(
-              entry.payload['title'], entry.payload['description'], groupId!);
+              entry.payload!.asUpdateGroupPayload!.title,
+              entry.payload!.asUpdateGroupPayload!.description,
+              groupId!);
           return groupId;
         }
       // The delete event
@@ -113,8 +119,8 @@ class GroupsProcessor extends OutboxProcessor {
       case OutboxActionType.update:
         {
           await _localGroupsRepository.updateGroupDetails(
-              entry.payload["oldTitle"],
-              entry.payload["oldDescription"],
+              entry.payload!.asUpdateGroupPayload!.oldTitle,
+              entry.payload!.asUpdateGroupPayload!.oldDescription,
               groupId!);
           return groupId;
         }

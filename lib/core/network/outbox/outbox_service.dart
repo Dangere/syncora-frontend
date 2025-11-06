@@ -71,6 +71,7 @@ class OutboxService {
       // Failure to get a dependency means we should skip processing the entity in need of that dependency (no reverting, just skipping entirely as the dependency itself will be unaccessible along with its children, for example failure to get a sync group id, means that group was failed to create and was already reverted (marked deleted), so anything depending on it will be unaccessible inside it for the user)
 
       // We process the entry, it runs a while loop until it succeeds and returns the group that was modified or returns an 403 error or generic error
+      _outboxRepository.markEntryInProcess(entry.id!);
       while (true) {
         try {
           int processResult =

@@ -133,7 +133,6 @@ class Tests {
         actionType: OutboxActionType.delete,
         entityId: -2332,
         status: OutboxStatus.pending,
-        payload: {},
         creationDate: DateTime.now(),
       ),
       OutboxEntry(
@@ -142,7 +141,6 @@ class Tests {
         actionType: OutboxActionType.update,
         entityId: -2442,
         status: OutboxStatus.pending,
-        payload: {},
         creationDate: DateTime.now(),
       ),
       OutboxEntry(
@@ -151,7 +149,6 @@ class Tests {
         actionType: OutboxActionType.update,
         entityId: -22232,
         status: OutboxStatus.pending,
-        payload: {},
         creationDate: DateTime.now(),
       ),
       OutboxEntry(
@@ -160,7 +157,6 @@ class Tests {
         actionType: OutboxActionType.update,
         entityId: -2442,
         status: OutboxStatus.pending,
-        payload: {},
         creationDate: DateTime.now(),
       ),
       OutboxEntry(
@@ -169,7 +165,6 @@ class Tests {
         actionType: OutboxActionType.update,
         entityId: -22232,
         status: OutboxStatus.pending,
-        payload: {},
         creationDate: DateTime.now(),
       ),
       OutboxEntry(
@@ -178,7 +173,6 @@ class Tests {
         actionType: OutboxActionType.mark,
         entityId: -22232,
         status: OutboxStatus.pending,
-        payload: {},
         creationDate: DateTime.now(),
       ),
       OutboxEntry(
@@ -187,7 +181,6 @@ class Tests {
         actionType: OutboxActionType.create,
         entityId: -232,
         status: OutboxStatus.pending,
-        payload: {},
         creationDate: DateTime.now(),
       ),
       OutboxEntry(
@@ -196,7 +189,6 @@ class Tests {
         actionType: OutboxActionType.create,
         entityId: -2222,
         status: OutboxStatus.pending,
-        payload: {},
         creationDate: DateTime.now(),
       ),
       OutboxEntry(
@@ -205,7 +197,6 @@ class Tests {
         actionType: OutboxActionType.mark,
         entityId: -22232,
         status: OutboxStatus.pending,
-        payload: {},
         creationDate: DateTime.now(),
       ),
       OutboxEntry(
@@ -214,7 +205,6 @@ class Tests {
         actionType: OutboxActionType.create,
         entityId: -2222,
         status: OutboxStatus.pending,
-        payload: {},
         creationDate: DateTime.now(),
       ),
       OutboxEntry(
@@ -223,7 +213,6 @@ class Tests {
         actionType: OutboxActionType.create,
         entityId: -232,
         status: OutboxStatus.pending,
-        payload: {},
         creationDate: DateTime.now(),
       ),
     ];

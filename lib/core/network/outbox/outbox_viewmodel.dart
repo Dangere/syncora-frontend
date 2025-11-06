@@ -94,7 +94,7 @@ class OutboxNotifier extends AsyncNotifier<OutboxStatus> {
   }
 
   void
-      handelInProcess() {} // TODO: Handle inProcess entires that are in the queue
+      handelInProcess() {} // TODO: Handle inProcess entires that were interrupted by a forceful disconnect
 
   @override
   FutureOr<OutboxStatus> build() async {

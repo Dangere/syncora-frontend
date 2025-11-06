@@ -3,6 +3,7 @@ import 'package:path/path.dart';
 import 'package:syncora_frontend/core/network/outbox/exception/outbox_exception.dart';
 import 'package:syncora_frontend/core/network/outbox/interface/outbox_processor_interface.dart';
 import 'package:syncora_frontend/core/network/outbox/model/outbox_entry.dart';
+import 'package:syncora_frontend/core/network/outbox/model/outbox_payload.dart';
 import 'package:syncora_frontend/core/utils/app_error.dart';
 import 'package:syncora_frontend/core/utils/error_mapper.dart';
 import 'package:syncora_frontend/core/utils/result.dart';
@@ -31,8 +32,15 @@ class TasksProcessor extends OutboxProcessor {
   @override
   Future<int> processOutbox(OutboxEntry entry) async {
     // Getting our mandatory group id dependency
+
+    switch (entry.payload!) {
+      case OutboxTaskPayload():
+        break;
+      default:
+    }
+
     Result groupIdResult =
-        await idMapper.getServerId(entry.payload['groupId']!);
+        await idMapper.getServerId(entry.payload!.asOutboxTaskPayload!.groupId);
     if (!groupIdResult.isSuccess) {
       throw OutboxDependencyFailureException(
           "Group dependency failed to get, entry: ${entry.toTable()}");
@@ -56,8 +64,8 @@ class TasksProcessor extends OutboxProcessor {
       case OutboxActionType.create:
         {
           Task newTask = await _remoteTasksRepository.createTask(
-              title: entry.payload['title'],
-              description: entry.payload['description'],
+              title: entry.payload!.asCreateTaskPayload!.title,
+              description: entry.payload!.asCreateTaskPayload!.description,
               groupId: groupId);
 
           await _localTasksRepository.updateTaskId(entry.entityId, newTask.id);
@@ -68,8 +76,8 @@ class TasksProcessor extends OutboxProcessor {
       case OutboxActionType.update:
         {
           await _remoteTasksRepository.updateTask(
-              title: entry.payload['title'],
-              description: entry.payload['description'],
+              title: entry.payload!.asUpdateTaskPayload!.title,
+              description: entry.payload!.asUpdateTaskPayload!.description,
               taskId: taskId!,
               groupId: groupId);
           return groupId;
@@ -98,6 +106,14 @@ class TasksProcessor extends OutboxProcessor {
 
         break;
       case OutboxActionType.delete:
+        // TODO: Handle this case.
+        break;
+
+      case OutboxActionType.mark:
+        // TODO: Handle this case.
+        break;
+
+      case OutboxActionType.leave:
         // TODO: Handle this case.
         break;
       default:

@@ -1,5 +1,6 @@
 import 'package:syncora_frontend/core/network/outbox/model/enqueue_request.dart';
 import 'package:syncora_frontend/core/network/outbox/model/outbox_entry.dart';
+import 'package:syncora_frontend/core/network/outbox/model/outbox_payload.dart';
 import 'package:syncora_frontend/core/network/outbox/outbox_service.dart';
 import 'package:syncora_frontend/core/typedef.dart';
 import 'package:syncora_frontend/core/utils/error_mapper.dart';
@@ -67,7 +68,7 @@ class GroupsService {
         entityId: newGroup.id,
         entityType: OutboxEntityType.group,
         actionType: OutboxActionType.create,
-        payload: newGroup.toTable(),
+        payload: CreateGroupPayload(title: title, description: description),
       ),
       onAfterEnqueue: () async {
         try {
@@ -93,12 +94,11 @@ class GroupsService {
           entityId: groupId,
           entityType: OutboxEntityType.group,
           actionType: OutboxActionType.update,
-          payload: {
-            "title": title,
-            "description": description,
-            "oldTitle": group.title,
-            "oldDescription": group.description
-          },
+          payload: UpdateGroupPayload(
+              title: title,
+              description: description,
+              oldTitle: group.title,
+              oldDescription: group.description),
         ),
         onAfterEnqueue: () async {
           try {
@@ -152,7 +152,6 @@ class GroupsService {
           entityId: groupId,
           entityType: OutboxEntityType.group,
           actionType: OutboxActionType.leave,
-          payload: {},
         ),
         onAfterEnqueue: () async {
           try {
@@ -180,7 +179,6 @@ class GroupsService {
           entityId: groupId,
           entityType: OutboxEntityType.group,
           actionType: OutboxActionType.delete,
-          payload: {},
         ),
         onAfterEnqueue: () async {
           try {
