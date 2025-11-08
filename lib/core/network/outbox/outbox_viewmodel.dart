@@ -39,6 +39,7 @@ class OutboxNotifier extends AsyncNotifier<OutboxStatus> {
   }
 
   // Processes the outbox queue and updates the UI with new data
+  // This gets called whenever the connection status changes or when the outbox queue is updated
   Future<Result<void>> processQueue() async {
     if (ref.read(connectionProvider) == ConnectionStatus.disconnected) {
       return Result.failureMessage("Cant process outbox queue when offline");
@@ -80,6 +81,9 @@ class OutboxNotifier extends AsyncNotifier<OutboxStatus> {
     // If we have entires waiting to be processed after this, process them
     if (_isAwaiting) {
       _isAwaiting = false;
+      ref
+          .read(loggerProvider)
+          .i("Outbox Queue was waiting to be processed, processing them!");
       processQueue();
     }
     return response;
@@ -98,6 +102,28 @@ class OutboxNotifier extends AsyncNotifier<OutboxStatus> {
 
   @override
   FutureOr<OutboxStatus> build() async {
+    ref.listen(connectionProvider, (previous, next) async {
+      if (next == ConnectionStatus.connected || next == ConnectionStatus.slow) {
+        ref
+            .read(loggerProvider)
+            .i("Processing Outbox Queue on connection change!");
+        await processQueue();
+      }
+    });
+
+    // ConnectionStatus connectionStatus = ref.watch(connectionProvider);
+    // switch (connectionStatus) {
+    //   case ConnectionStatus.disconnected:
+    //     return OutboxStatus.complete;
+
+    //   case ConnectionStatus.slow:
+    //     return OutboxStatus.pending;
+
+    //   case ConnectionStatus.checking:
+    //     return OutboxStatus.pending;
+    //   default:
+    // }
+
     Result result = await processQueue();
 
     if (result.isSuccess) {
