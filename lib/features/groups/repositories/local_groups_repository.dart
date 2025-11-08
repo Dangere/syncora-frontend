@@ -27,7 +27,7 @@ class LocalGroupsRepository {
     final db = await _databaseManager.getDatabase();
 
     List<Map<String, dynamic>> groups = await db.rawQuery(
-        ''' SELECT * FROM ${DatabaseTables.groups} WHERE isDeleted = 0 ORDER BY date(creationDate) ASC''');
+        ''' SELECT * FROM ${DatabaseTables.groups} WHERE isDeleted = 0 ORDER BY creationDate ASC''');
 
     List<Map<String, dynamic>> members =
         await db.rawQuery(''' SELECT * FROM ${DatabaseTables.groupsMembers}

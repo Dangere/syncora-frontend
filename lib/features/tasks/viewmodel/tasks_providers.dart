@@ -1,5 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:syncora_frontend/common/providers/common_providers.dart';
+import 'package:syncora_frontend/core/network/outbox/outbox_viewmodel.dart';
+import 'package:syncora_frontend/features/authentication/viewmodel/auth_viewmodel.dart';
 import 'package:syncora_frontend/features/tasks/repositories/local_tasks_repository.dart';
 import 'package:syncora_frontend/features/tasks/repositories/remote_tasks_repository.dart';
 import 'package:syncora_frontend/features/tasks/services/tasks_service.dart';
@@ -14,6 +16,10 @@ final remoteTasksRepositoryProvider = Provider<RemoteTasksRepository>((ref) {
 
 final tasksServiceProvider = Provider<TasksService>((ref) {
   return TasksService(
-      localTasksRepository: ref.watch(localTasksRepositoryProvider),
-      remoteTasksRepository: ref.watch(remoteTasksRepositoryProvider));
+    authState: ref.watch(authNotifierProvider).asData!.value,
+    localTasksRepository: ref.watch(localTasksRepositoryProvider),
+    remoteTasksRepository: ref.watch(remoteTasksRepositoryProvider),
+    enqueueEntry: (enqueueRequest) =>
+        ref.read(outboxProvider.notifier).enqueue(enqueueRequest),
+  );
 });

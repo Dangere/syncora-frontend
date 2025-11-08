@@ -125,6 +125,7 @@ class AuthService {
 
       return Result.success(loginResponse.user);
     } catch (e, stackTrace) {
+      googleSignIn.signOut();
       return Result.failure(ErrorMapper.map(e, stackTrace));
     }
   }
@@ -168,6 +169,8 @@ class AuthService {
 
       return Result.success(registerResponse.user);
     } catch (e, stackTrace) {
+      googleSignIn.signOut();
+
       return Result.failure(ErrorMapper.map(e, stackTrace));
     }
   }

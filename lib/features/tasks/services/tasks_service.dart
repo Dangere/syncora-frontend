@@ -1,5 +1,10 @@
+import 'package:syncora_frontend/core/network/outbox/model/enqueue_request.dart';
+import 'package:syncora_frontend/core/network/outbox/model/outbox_entry.dart';
+import 'package:syncora_frontend/core/network/outbox/model/outbox_payload.dart';
+import 'package:syncora_frontend/core/typedef.dart';
 import 'package:syncora_frontend/core/utils/error_mapper.dart';
 import 'package:syncora_frontend/core/utils/result.dart';
+import 'package:syncora_frontend/features/authentication/models/auth_state.dart';
 import 'package:syncora_frontend/features/tasks/models/task.dart';
 import 'package:syncora_frontend/features/tasks/repositories/local_tasks_repository.dart';
 import 'package:syncora_frontend/features/tasks/repositories/remote_tasks_repository.dart';
@@ -7,11 +12,17 @@ import 'package:syncora_frontend/features/tasks/repositories/remote_tasks_reposi
 class TasksService {
   final LocalTasksRepository _localTasksRepository;
   final RemoteTasksRepository _remoteTasksRepository;
+  final AsyncFunc<EnqueueRequest, Result<void>> _enqueueEntry;
 
+  final AuthState _authState;
   TasksService(
-      {required LocalTasksRepository localTasksRepository,
-      required RemoteTasksRepository remoteTasksRepository})
-      : _remoteTasksRepository = remoteTasksRepository,
+      {required AuthState authState,
+      required LocalTasksRepository localTasksRepository,
+      required RemoteTasksRepository remoteTasksRepository,
+      required AsyncFunc<EnqueueRequest, Result<void>> enqueueEntry})
+      : _authState = authState,
+        _enqueueEntry = enqueueEntry,
+        _remoteTasksRepository = remoteTasksRepository,
         _localTasksRepository = localTasksRepository;
 
   Future<Result<List<Task>>> getTasksForGroup(int groupId) async {
@@ -25,12 +36,26 @@ class TasksService {
 
   Future<Result<void>> deleteTask(
       {required int taskId, required int groupId}) async {
-    try {
-      return Result.success(
-          await _localTasksRepository.markTaskAsDeleted(taskId));
-    } catch (e, stackTrace) {
-      return Result.failure(ErrorMapper.map(e, stackTrace));
-    }
+    Result enqueueResult = await _enqueueEntry(EnqueueRequest(
+      entry: OutboxEntry.entry(
+        entityId: taskId,
+        entityType: OutboxEntityType.task,
+        actionType: OutboxActionType.delete,
+        payload: OutboxTaskPayload(groupId: groupId),
+      ),
+      onAfterEnqueue: () async {
+        try {
+          await _localTasksRepository.markTaskAsDeleted(taskId);
+          return Result.success(null);
+        } catch (e, stackTrace) {
+          return Result.failure(ErrorMapper.map(e, stackTrace));
+        }
+      },
+    ));
+
+    if (!enqueueResult.isSuccess) return Result.failure(enqueueResult.error!);
+
+    return Result.success(null);
   }
 
   Future<Result<void>> updateTask(
@@ -38,33 +63,81 @@ class TasksService {
       required int groupId,
       String? title,
       String? description}) async {
-    try {
-      return Result.success(await _remoteTasksRepository.updateTask(
-          groupId: groupId,
-          taskId: taskId,
-          title: title,
-          description: description));
-    } catch (e, stackTrace) {
-      return Result.failure(ErrorMapper.map(e, stackTrace));
-    }
+    Task task = await _localTasksRepository.getTask(taskId);
+
+    Result enqueueResult = await _enqueueEntry(EnqueueRequest(
+      entry: OutboxEntry.entry(
+        entityId: groupId,
+        entityType: OutboxEntityType.group,
+        actionType: OutboxActionType.update,
+        payload: UpdateTaskPayload(
+            groupId: groupId,
+            title: title,
+            description: description,
+            oldTitle: task.title,
+            oldDescription: task.description),
+      ),
+      onAfterEnqueue: () async {
+        try {
+          await _localTasksRepository.updateTaskDetails(
+              taskId: taskId, title: title, description: description);
+          return Result.success(null);
+        } catch (e, stackTrace) {
+          return Result.failure(ErrorMapper.map(e, stackTrace));
+        }
+      },
+    ));
+    if (!enqueueResult.isSuccess) return Result.failure(enqueueResult.error!);
+
+    return Result.success(null);
   }
 
   Future<Result<void>> createTask(
       {required String title,
       String? description,
       required int groupId}) async {
-    try {
-      return Result.success(await _remoteTasksRepository.createTask(
-          groupId: groupId, title: title, description: description));
-    } catch (e, stackTrace) {
-      return Result.failure(ErrorMapper.map(e, stackTrace));
-    }
+    final now = DateTime.now().toUtc();
+
+    Task task = Task(
+        id: -now.millisecondsSinceEpoch,
+        title: title,
+        description: description,
+        groupId: groupId,
+        creationDate: now,
+        completedById: null,
+        assignedTo: []);
+
+    Result enqueueResult = await _enqueueEntry(EnqueueRequest(
+      entry: OutboxEntry.entry(
+        entityId: task.id,
+        entityType: OutboxEntityType.task,
+        actionType: OutboxActionType.create,
+        payload: CreateTaskPayload(
+            title: title, description: description, groupId: groupId),
+      ),
+      onAfterEnqueue: () async {
+        try {
+          await _localTasksRepository.upsertTasks([task]);
+          return Result.success(null);
+        } catch (e, stackTrace) {
+          return Result.failure(ErrorMapper.map(e, stackTrace));
+        }
+      },
+    ));
+
+    if (!enqueueResult.isSuccess) return Result.failure(enqueueResult.error!);
+
+    return Result.success(null);
   }
 
   Future<Result<void>> assignTaskToUsers(
       {required int taskId,
       required int groupId,
       required List<int> ids}) async {
+    if (_authState.isGuest || _authState.isUnauthenticated) {
+      return Result.failureMessage(
+          "Can't assign task to users when not logged in");
+    }
     try {
       return Result.success(await _remoteTasksRepository.assignTask(
           taskId: taskId, groupId: groupId, ids: ids));
@@ -77,6 +150,10 @@ class TasksService {
       {required int taskId,
       required int groupId,
       required List<int> ids}) async {
+    if (_authState.isGuest || _authState.isUnauthenticated) {
+      return Result.failureMessage(
+          "Can't assign task to users when not logged in");
+    }
     try {
       return Result.success(await _remoteTasksRepository.setAssignTask(
           taskId: taskId, groupId: groupId, ids: ids));
@@ -87,14 +164,29 @@ class TasksService {
 
   Future<Result<void>> markTask(
       {required int taskId, required int groupId, required bool isDone}) async {
-    try {
-      return Result.success(await _remoteTasksRepository.markTask(
-        taskId: taskId,
-        groupId: groupId,
-        isDone: isDone,
-      ));
-    } catch (e, stackTrace) {
-      return Result.failure(ErrorMapper.map(e, stackTrace));
-    }
+    Result enqueueResult = await _enqueueEntry(EnqueueRequest(
+      entry: OutboxEntry.entry(
+        entityId: taskId,
+        entityType: OutboxEntityType.task,
+        actionType: OutboxActionType.mark,
+        payload: MarkTaskPayload(
+            completedById: _authState.user!.id,
+            isCompleted: isDone,
+            groupId: groupId),
+      ),
+      onAfterEnqueue: () async {
+        try {
+          await _localTasksRepository.markTaskCompletion(
+              taskId: taskId, userId: _authState.user!.id, isDone: isDone);
+          return Result.success(null);
+        } catch (e, stackTrace) {
+          return Result.failure(ErrorMapper.map(e, stackTrace));
+        }
+      },
+    ));
+
+    if (!enqueueResult.isSuccess) return Result.failure(enqueueResult.error!);
+
+    return Result.success(null);
   }
 }

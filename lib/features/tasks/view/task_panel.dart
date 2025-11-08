@@ -68,7 +68,7 @@ class TaskPanel extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(task.title),
+                        Text(task.title + ("(${task.id.toString()})")),
                         MarqueeWidget(
                           child: Row(
                             children: userDots(),

@@ -89,9 +89,11 @@ class OutboxEntry {
             return UpdateTaskPayload.fromJson(payloadMap);
           case OutboxActionType.create:
             return CreateTaskPayload.fromJson(payloadMap);
+          case OutboxActionType.mark:
+            return MarkTaskPayload.fromJson(payloadMap);
           // ... handle other actions for 'task'
           default:
-            return null;
+            return OutboxTaskPayload.fromJson(payloadMap);
         }
       default:
         return null;

@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:logger/logger.dart';
 import 'package:path/path.dart';
 import 'package:syncora_frontend/core/network/outbox/exception/outbox_exception.dart';
 import 'package:syncora_frontend/core/network/outbox/interface/outbox_processor_interface.dart';
@@ -32,13 +33,6 @@ class TasksProcessor extends OutboxProcessor {
   @override
   Future<int> processOutbox(OutboxEntry entry) async {
     // Getting our mandatory group id dependency
-
-    switch (entry.payload!) {
-      case OutboxTaskPayload():
-        break;
-      default:
-    }
-
     Result groupIdResult =
         await idMapper.getServerId(entry.payload!.asOutboxTaskPayload!.groupId);
     if (!groupIdResult.isSuccess) {
@@ -70,7 +64,6 @@ class TasksProcessor extends OutboxProcessor {
 
           await _localTasksRepository.updateTaskId(entry.entityId, newTask.id);
           idMapper.cacheId(tempId: entry.entityId, serverId: newTask.id);
-          return groupId;
         }
       // The update event
       case OutboxActionType.update:
@@ -80,36 +73,76 @@ class TasksProcessor extends OutboxProcessor {
               description: entry.payload!.asUpdateTaskPayload!.description,
               taskId: taskId!,
               groupId: groupId);
-          return groupId;
         }
       // The delete event
       case OutboxActionType.delete:
         {
           await _remoteTasksRepository.deleteTask(
               taskId: taskId!, groupId: groupId);
-          return groupId;
+          await _localTasksRepository.wipeDeletedTask(taskId);
         }
+
+      // The mark event
+      case OutboxActionType.mark:
+        {
+          await _remoteTasksRepository.markTask(
+              taskId: taskId!,
+              groupId: groupId,
+              isDone: entry.payload!.asMarkTaskPayload!.isCompleted);
+        }
+
       default:
         return groupId;
     }
+    return groupId;
   }
 
   // This wont be called if dependencies are not met
   @override
   Future<int> revertProcess(OutboxEntry entry) async {
+    Result groupIdResult =
+        await idMapper.getServerId(entry.payload!.asOutboxTaskPayload!.groupId);
+    if (!groupIdResult.isSuccess) {
+      throw OutboxDependencyFailureException(
+          "Group dependency failed to get, entry: ${entry.toTable()}");
+    }
+
+    int groupId = groupIdResult.data!;
+
+    // To process a task deletion/updating/marking we get our mandatory task id dependency
+    int? taskId;
+    if (entry.actionType != OutboxActionType.create) {
+      Result taskIdResult = await idMapper.getServerId(entry.entityId);
+      if (!groupIdResult.isSuccess) {
+        throw OutboxDependencyFailureException(
+            "Task dependency failed to get, entry: ${entry.toTable()}");
+      }
+      // If we have no server id, we are processing a create event
+      taskId = taskIdResult.isSuccess ? taskIdResult.data : null;
+    }
+
     switch (entry.actionType) {
       // case OutboxActionType.create:
       //   await _localTasksRepository.markTaskAsDeleted(entry.entityId);
       //   return Result.success(groupId);
-      case OutboxActionType.update:
-        // TODO: Handle this case.
+      case OutboxActionType.create:
+        await _localTasksRepository.markTaskAsDeleted(entry.entityId);
 
+      case OutboxActionType.update:
+        await _localTasksRepository.updateTaskDetails(
+            taskId: entry.entityId,
+            title: entry.payload!.asUpdateTaskPayload!.title,
+            description: entry.payload!.asUpdateTaskPayload!.description);
         break;
       case OutboxActionType.delete:
-        // TODO: Handle this case.
+        await _localTasksRepository.unmarkTaskAsDeleted(taskId!);
         break;
 
       case OutboxActionType.mark:
+        await _localTasksRepository.markTaskCompletion(
+            taskId: taskId!,
+            userId: entry.payload!.asMarkTaskPayload!.completedById,
+            isDone: !entry.payload!.asMarkTaskPayload!.isCompleted);
         // TODO: Handle this case.
         break;
 
@@ -117,8 +150,9 @@ class TasksProcessor extends OutboxProcessor {
         // TODO: Handle this case.
         break;
       default:
+        return groupId;
     }
 
-    return 0;
+    return groupId;
   }
 }

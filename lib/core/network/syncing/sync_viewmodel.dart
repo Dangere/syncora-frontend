@@ -28,10 +28,10 @@ class SyncBackendNotifier extends AsyncNotifier<int>
   final int _retryingServerConnectTries = 200;
   bool _isDisposed = false;
 
-  bool disableSyncing = false;
+  bool _disableSyncing = false;
 
   void toggleSyncing() {
-    disableSyncing = !disableSyncing;
+    _disableSyncing = !_disableSyncing;
   }
 
   // @override
@@ -47,7 +47,7 @@ class SyncBackendNotifier extends AsyncNotifier<int>
   // }
 
   Future<void> syncData() async {
-    if (disableSyncing) return;
+    if (_disableSyncing) return;
 
     // TODO: Instead of waiting for it to finish loading, we should schedule it to run in the future for new data
     if (state.isLoading) return;

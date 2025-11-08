@@ -236,11 +236,11 @@ class Tests {
         await db.rawQuery("SELECT * FROM ${DatabaseTables.outbox}");
 
     // Logger().f(groupsRawQuery, stackTrace: StackTrace.fromString("GROUPS"));
-    Logger().f(usersRawQuery, stackTrace: StackTrace.fromString("USERS"));
+    // Logger().f(usersRawQuery, stackTrace: StackTrace.fromString("USERS"));
     // Logger().f(groupMembersRawQuery,
     //     stackTrace: StackTrace.fromString("GROUP MEMBERS"));
 
-    // Logger().f(tasksRawQuery, stackTrace: StackTrace.fromString("TASKS"));
+    Logger().f(tasksRawQuery, stackTrace: StackTrace.fromString("TASKS"));
     // Logger().f(outboxRawQuery, stackTrace: StackTrace.fromString("OUTBOX"));
   }
 }

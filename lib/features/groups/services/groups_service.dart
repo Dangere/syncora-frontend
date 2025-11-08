@@ -36,14 +36,6 @@ class GroupsService {
   Future<Result<List<Group>>> getAllGroups() async {
     try {
       List<Group> groups = await _localGroupsRepository.getAllGroups();
-
-      // groups.forEach((element) {
-      //   Logger().d(element.toTable());
-      // });
-      // for (var i = 0; i < groups.length; i++) {
-      //   _localGroupRepository.insertGroup(groups[i].toJson());
-      // }
-
       return Result.success(groups);
     } catch (e, stackTrace) {
       return Result.failure(ErrorMapper.map(e, stackTrace));
@@ -86,36 +78,32 @@ class GroupsService {
 
   Future<Result<void>> updateGroupDetails(
       String? title, String? description, int groupId) async {
-    try {
-      Group group = await _localGroupsRepository.getGroup(groupId);
+    Group group = await _localGroupsRepository.getGroup(groupId);
 
-      Result enqueueResult = await _enqueueEntry(EnqueueRequest(
-        entry: OutboxEntry.entry(
-          entityId: groupId,
-          entityType: OutboxEntityType.group,
-          actionType: OutboxActionType.update,
-          payload: UpdateGroupPayload(
-              title: title,
-              description: description,
-              oldTitle: group.title,
-              oldDescription: group.description),
-        ),
-        onAfterEnqueue: () async {
-          try {
-            await _localGroupsRepository.updateGroupDetails(
-                title, description, groupId);
-            return Result.success(null);
-          } catch (e, stackTrace) {
-            return Result.failure(ErrorMapper.map(e, stackTrace));
-          }
-        },
-      ));
-      if (!enqueueResult.isSuccess) return Result.failure(enqueueResult.error!);
+    Result enqueueResult = await _enqueueEntry(EnqueueRequest(
+      entry: OutboxEntry.entry(
+        entityId: groupId,
+        entityType: OutboxEntityType.group,
+        actionType: OutboxActionType.update,
+        payload: UpdateGroupPayload(
+            title: title,
+            description: description,
+            oldTitle: group.title,
+            oldDescription: group.description),
+      ),
+      onAfterEnqueue: () async {
+        try {
+          await _localGroupsRepository.updateGroupDetails(
+              title, description, groupId);
+          return Result.success(null);
+        } catch (e, stackTrace) {
+          return Result.failure(ErrorMapper.map(e, stackTrace));
+        }
+      },
+    ));
+    if (!enqueueResult.isSuccess) return Result.failure(enqueueResult.error!);
 
-      return Result.success(null);
-    } catch (e, stackTrace) {
-      return Result.failure(ErrorMapper.map(e, stackTrace));
-    }
+    return Result.success(null);
   }
 
   Future<Result<void>> grantAccessToGroup(
@@ -146,54 +134,46 @@ class GroupsService {
     if (!_isOnline) {
       return Result.failureMessage("Can't leave group when offline");
     }
-    try {
-      Result enqueueResult = await _enqueueEntry(EnqueueRequest(
-        entry: OutboxEntry.entry(
-          entityId: groupId,
-          entityType: OutboxEntityType.group,
-          actionType: OutboxActionType.leave,
-        ),
-        onAfterEnqueue: () async {
-          try {
-            await _localGroupsRepository.markGroupAsDeleted(groupId);
-            return Result.success(null);
-          } catch (e, stackTrace) {
-            return Result.failure(ErrorMapper.map(e, stackTrace));
-          }
-        },
-      ));
-      if (!enqueueResult.isSuccess) return Result.failure(enqueueResult.error!);
+    Result enqueueResult = await _enqueueEntry(EnqueueRequest(
+      entry: OutboxEntry.entry(
+        entityId: groupId,
+        entityType: OutboxEntityType.group,
+        actionType: OutboxActionType.leave,
+      ),
+      onAfterEnqueue: () async {
+        try {
+          await _localGroupsRepository.markGroupAsDeleted(groupId);
+          return Result.success(null);
+        } catch (e, stackTrace) {
+          return Result.failure(ErrorMapper.map(e, stackTrace));
+        }
+      },
+    ));
+    if (!enqueueResult.isSuccess) return Result.failure(enqueueResult.error!);
 
-      return Result.success(null);
-    } catch (e, stackTrace) {
-      return Result.failure(ErrorMapper.map(e, stackTrace));
-    }
+    return Result.success(null);
   }
 
   // Deletes group by marking it as deleted which will be synced to server then fully deleted later
   // TODO: Handle this when the user is in guest mode and have no server data
   Future<Result<void>> deleteGroup(int groupId) async {
-    try {
-      Result enqueueResult = await _enqueueEntry(EnqueueRequest(
-        entry: OutboxEntry.entry(
-          entityId: groupId,
-          entityType: OutboxEntityType.group,
-          actionType: OutboxActionType.delete,
-        ),
-        onAfterEnqueue: () async {
-          try {
-            await _localGroupsRepository.markGroupAsDeleted(groupId);
-            return Result.success(null);
-          } catch (e, stackTrace) {
-            return Result.failure(ErrorMapper.map(e, stackTrace));
-          }
-        },
-      ));
-      if (!enqueueResult.isSuccess) return Result.failure(enqueueResult.error!);
+    Result enqueueResult = await _enqueueEntry(EnqueueRequest(
+      entry: OutboxEntry.entry(
+        entityId: groupId,
+        entityType: OutboxEntityType.group,
+        actionType: OutboxActionType.delete,
+      ),
+      onAfterEnqueue: () async {
+        try {
+          await _localGroupsRepository.markGroupAsDeleted(groupId);
+          return Result.success(null);
+        } catch (e, stackTrace) {
+          return Result.failure(ErrorMapper.map(e, stackTrace));
+        }
+      },
+    ));
+    if (!enqueueResult.isSuccess) return Result.failure(enqueueResult.error!);
 
-      return Result.success(null);
-    } catch (e, stackTrace) {
-      return Result.failure(ErrorMapper.map(e, stackTrace));
-    }
+    return Result.success(null);
   }
 }

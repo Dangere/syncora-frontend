@@ -17,6 +17,9 @@ extension OutboxPayloadX on OutboxPayload {
 
   CreateTaskPayload? get asCreateTaskPayload =>
       this is CreateTaskPayload ? this as CreateTaskPayload : null;
+
+  MarkTaskPayload? get asMarkTaskPayload =>
+      this is MarkTaskPayload ? this as MarkTaskPayload : null;
 }
 
 class UpdateGroupPayload extends OutboxPayload {
@@ -81,6 +84,9 @@ class OutboxTaskPayload extends OutboxPayload {
       "groupId": groupId,
     };
   }
+
+  factory OutboxTaskPayload.fromJson(Map<String, dynamic> json) =>
+      OutboxTaskPayload(groupId: json["groupId"]);
 }
 
 class UpdateTaskPayload extends OutboxTaskPayload {
@@ -118,14 +124,15 @@ class UpdateTaskPayload extends OutboxTaskPayload {
 
 class CreateTaskPayload extends OutboxTaskPayload {
   final String title;
-  final String description;
+  final String? description;
 
   CreateTaskPayload(
       {required super.groupId, required this.title, required this.description});
   @override
   Map<String, dynamic> toJson() {
     var map = super.toJson();
-    map.addAll({"title": title, "description": description});
+    map.addAll(
+        {"title": title, if (description != null) "description": description});
     return map;
   }
 
@@ -133,5 +140,27 @@ class CreateTaskPayload extends OutboxTaskPayload {
       CreateTaskPayload(
           title: json["title"],
           description: json["description"],
+          groupId: json["groupId"] as int);
+}
+
+class MarkTaskPayload extends OutboxTaskPayload {
+  final int completedById;
+  final bool isCompleted;
+
+  MarkTaskPayload(
+      {required super.groupId,
+      required this.completedById,
+      required this.isCompleted});
+  @override
+  Map<String, dynamic> toJson() {
+    var map = super.toJson();
+    map.addAll({"completedById": completedById, "isCompleted": isCompleted});
+    return map;
+  }
+
+  factory MarkTaskPayload.fromJson(Map<String, dynamic> json) =>
+      MarkTaskPayload(
+          completedById: json["completedById"],
+          isCompleted: json["isCompleted"],
           groupId: json["groupId"] as int);
 }

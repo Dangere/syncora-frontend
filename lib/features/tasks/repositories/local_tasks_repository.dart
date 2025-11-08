@@ -1,3 +1,4 @@
+import 'package:logger/logger.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:syncora_frontend/core/data/database_manager.dart';
 import 'package:syncora_frontend/core/data/enums/database_tables.dart';
@@ -22,7 +23,7 @@ class LocalTasksRepository {
     FROM ${DatabaseTables.tasks} AS t
     LEFT JOIN ${DatabaseTables.tasksAssignees} AS ts ON ts.taskId = t.id
     WHERE t.groupId = ? AND t.isDeleted = 0
-    GROUP BY t.id
+    GROUP BY t.id ORDER BY t.creationDate DESC
     ''', [groupId]);
 
     List<Task> taskList = tasks.map((task) {
@@ -36,6 +37,33 @@ class LocalTasksRepository {
 
     for (var i = 0; i < tasks.length; i++) {}
     return taskList;
+  }
+
+  Future<Task> getTask(int taskId) async {
+    final db = await _databaseManager.getDatabase();
+    Map<String, dynamic> task = (await db.rawQuery('''
+    SELECT 
+      t.id, 
+      t.groupId, 
+      t.title, 
+      t.description, 
+      t.completedById, 
+      t.creationDate,
+      GROUP_CONCAT(ts.userId) AS assignedTo
+    FROM ${DatabaseTables.tasks} AS t
+    LEFT JOIN ${DatabaseTables.tasksAssignees} AS ts ON ts.taskId = t.id
+    WHERE t.id = ? AND t.isDeleted = 0
+    ''', [taskId])).first;
+
+    Map<String, dynamic> mutatedTask = Map.from(task);
+    final assignedToRaw = mutatedTask["assignedTo"] as String?;
+    mutatedTask["assignedTo"] = assignedToRaw != null
+        ? assignedToRaw.split(",").map(int.parse).toList()
+        : <int>[];
+
+    Task taskObject = Task.fromJson(mutatedTask);
+
+    return taskObject;
   }
 
   Future<void> upsertTasks(List<Task> tasks) async {
@@ -83,12 +111,46 @@ class LocalTasksRepository {
   Future<int> updateTaskId(int tempId, int newId) async {
     final db = await _databaseManager.getDatabase();
 
+    Logger().w(tempId);
+
     return await db.update(
       DatabaseTables.tasks,
       {"id": newId, "clientGeneratedId": tempId},
       where: "id = ?",
       whereArgs: [tempId],
     );
+  }
+
+  Future<int> updateTaskDetails(
+      {String? title, String? description, required int taskId}) async {
+    final db = await _databaseManager.getDatabase();
+
+    if (title == null && description == null) return 0;
+
+    Map<String, Object?> values = {};
+    if (title != null) {
+      values["title"] = title;
+    }
+
+    if (description != null) {
+      values["description"] = description;
+    }
+
+    return await db.update(
+      DatabaseTables.tasks,
+      values,
+      where: "id = ?",
+      whereArgs: [taskId],
+    );
+  }
+
+  Future<void> markTaskCompletion(
+      {required int taskId, required int userId, required bool isDone}) async {
+    final db = await _databaseManager.getDatabase();
+
+    await db.update(
+        DatabaseTables.tasks, {"completedById": isDone ? userId : null},
+        where: "id = ?", whereArgs: [taskId]);
   }
 
   // Method used to mark Task as deleted
