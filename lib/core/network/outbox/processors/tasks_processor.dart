@@ -1,12 +1,7 @@
-import 'package:dio/dio.dart';
-import 'package:logger/logger.dart';
-import 'package:path/path.dart';
 import 'package:syncora_frontend/core/network/outbox/exception/outbox_exception.dart';
 import 'package:syncora_frontend/core/network/outbox/interface/outbox_processor_interface.dart';
 import 'package:syncora_frontend/core/network/outbox/model/outbox_entry.dart';
 import 'package:syncora_frontend/core/network/outbox/model/outbox_payload.dart';
-import 'package:syncora_frontend/core/utils/app_error.dart';
-import 'package:syncora_frontend/core/utils/error_mapper.dart';
 import 'package:syncora_frontend/core/utils/result.dart';
 import 'package:syncora_frontend/features/tasks/models/task.dart';
 import 'package:syncora_frontend/features/tasks/repositories/local_tasks_repository.dart';
@@ -20,7 +15,6 @@ class TasksProcessor extends OutboxProcessor {
       {required localTasksRepository,
       required remoteTasksRepository,
       required super.idMapper,
-      required super.delayBeforeSyncReattempt,
       required super.logger})
       : _localTasksRepository = localTasksRepository,
         _remoteTasksRepository = remoteTasksRepository;

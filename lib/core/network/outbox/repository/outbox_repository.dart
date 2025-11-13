@@ -92,6 +92,14 @@ class OutboxRepository {
         where: "id = ?", whereArgs: [id]);
   }
 
+  Future<void> markEntryPending(int id) async {
+    Database db = await _databaseManager.getDatabase();
+
+    await db.update(
+        DatabaseTables.outbox, {"status": OutboxStatus.pending.index},
+        where: "id = ?", whereArgs: [id]);
+  }
+
   // Returns the server id of a row in tasks or group tables using temp ids
   Future<int> getServerId(int tempId) async {
     Database db = await _databaseManager.getDatabase();

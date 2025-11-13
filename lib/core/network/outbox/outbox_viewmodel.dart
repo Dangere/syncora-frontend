@@ -1,6 +1,4 @@
 import 'dart:async';
-import 'dart:collection';
-
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:syncora_frontend/common/providers/common_providers.dart';
 import 'package:syncora_frontend/common/providers/connection_provider.dart';
@@ -12,7 +10,6 @@ import 'package:syncora_frontend/core/network/outbox/outbox_service.dart';
 import 'package:syncora_frontend/core/network/outbox/processors/groups_processor.dart';
 import 'package:syncora_frontend/core/network/outbox/processors/tasks_processor.dart';
 import 'package:syncora_frontend/core/network/outbox/repository/outbox_repository.dart';
-import 'package:syncora_frontend/core/utils/app_error.dart';
 import 'package:syncora_frontend/core/utils/error_mapper.dart';
 import 'package:syncora_frontend/core/utils/result.dart';
 import 'package:syncora_frontend/features/groups/viewmodel/groups_viewmodel.dart';
@@ -40,6 +37,7 @@ class OutboxNotifier extends AsyncNotifier<OutboxStatus> {
 
   // Processes the outbox queue and updates the UI with new data
   // This gets called whenever the connection status changes or when the outbox queue is updated
+  // TODO: Show an indication to the user that shows if the queue is being processed or paused or faced an error
   Future<Result<void>> processQueue() async {
     if (ref.read(connectionProvider) == ConnectionStatus.disconnected) {
       return Result.failureMessage("Cant process outbox queue when offline");
@@ -56,12 +54,16 @@ class OutboxNotifier extends AsyncNotifier<OutboxStatus> {
     _isProcessing = true;
     // await Future.delayed(Duration(seconds: 5));
 
+    state = const AsyncValue.loading();
+
     ref.read(loggerProvider).i("Processing Outbox Queue!");
     Result<QueueProcessorResponse> response =
         await ref.read(outboxServiceProvider).processQueue();
 
     if (!response.isSuccess) {
       ref.read(appErrorProvider.notifier).state = response.error;
+      state = AsyncValue.error(response.error!.message,
+          response.error!.stackTrace ?? StackTrace.current);
     }
 
     // Updating the UI for groups list
@@ -77,6 +79,11 @@ class OutboxNotifier extends AsyncNotifier<OutboxStatus> {
     displayErrors(response.data!.errors);
 
     ref.read(loggerProvider).i("Done processing Outbox Queue!");
+
+    if (response.isSuccess) {
+      state = const AsyncValue.data(OutboxStatus.complete);
+    }
+
     _isProcessing = false;
     // If we have entires waiting to be processed after this, process them
     if (_isAwaiting) {
@@ -139,6 +146,8 @@ final outboxProvider =
 
 final outboxServiceProvider = Provider<OutboxService>((ref) {
   return OutboxService(
+      rateLimitDelay: Duration(seconds: 10),
+      logger: ref.read(loggerProvider),
       outboxRepository: ref.watch(outboxRepositoryProvider),
       processors: {
         OutboxEntityType.task: ref.watch(tasksProcessorProvider),
@@ -157,7 +166,6 @@ final outboxIdMapperProvider = Provider<OutboxIdMapper>((ref) {
 
 final tasksProcessorProvider = Provider<TasksProcessor>((ref) {
   return TasksProcessor(
-      delayBeforeSyncReattempt: const Duration(milliseconds: 1000),
       localTasksRepository: ref.watch(localTasksRepositoryProvider),
       remoteTasksRepository: ref.watch(remoteTasksRepositoryProvider),
       logger: ref.read(loggerProvider),
@@ -166,7 +174,6 @@ final tasksProcessorProvider = Provider<TasksProcessor>((ref) {
 
 final groupProcessorProvider = Provider<GroupsProcessor>((ref) {
   return GroupsProcessor(
-      delayBeforeSyncReattempt: const Duration(milliseconds: 1000),
       localGroupsRepository: ref.watch(localGroupsRepositoryProvider),
       remoteGroupsRepository: ref.watch(remoteGroupsRepositoryProvider),
       logger: ref.read(loggerProvider),

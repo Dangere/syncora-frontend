@@ -26,6 +26,9 @@ class AuthInterceptor extends Interceptor {
       options.headers['Authorization'] =
           'Bearer ${_sessionStorage.accessToken}';
     }
+
+    ref.read(loggerProvider).i("Dio request: ${options.data}");
+
     super.onRequest(options, handler);
   }
 

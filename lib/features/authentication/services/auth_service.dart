@@ -19,8 +19,9 @@ class AuthService {
 
   final SessionStorage _sessionStorage;
   final GoogleSignIn googleSignIn = GoogleSignIn(
-    serverClientId:
-        "740026130263-r929iqqghkj757fu2agvqipo3577b9aj.apps.googleusercontent.com",
+    serverClientId: kIsWeb
+        ? null
+        : "740026130263-r929iqqghkj757fu2agvqipo3577b9aj.apps.googleusercontent.com",
     scopes: [
       'email',
     ],

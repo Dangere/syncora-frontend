@@ -1,17 +1,12 @@
 import 'package:logger/logger.dart';
 import 'package:syncora_frontend/core/network/outbox/model/outbox_entry.dart';
 import 'package:syncora_frontend/core/network/outbox/outbox_id_mapper.dart';
-import 'package:syncora_frontend/core/utils/result.dart';
 
 abstract class OutboxProcessor {
   final OutboxIdMapper idMapper;
   final Logger logger;
-  final Duration delayBeforeSyncReattempt;
 
-  OutboxProcessor(
-      {required this.idMapper,
-      required this.logger,
-      required this.delayBeforeSyncReattempt});
+  OutboxProcessor({required this.idMapper, required this.logger});
 
   // Processes the outbox entry and returns the modified group server id
   // Creation process should ALWAYS cache the server id when successful for future processing

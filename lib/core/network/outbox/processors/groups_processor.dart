@@ -1,10 +1,8 @@
-import 'package:dio/dio.dart';
 import 'package:logger/logger.dart';
 import 'package:syncora_frontend/core/network/outbox/exception/outbox_exception.dart';
 import 'package:syncora_frontend/core/network/outbox/interface/outbox_processor_interface.dart';
 import 'package:syncora_frontend/core/network/outbox/model/outbox_entry.dart';
 import 'package:syncora_frontend/core/network/outbox/model/outbox_payload.dart';
-import 'package:syncora_frontend/core/utils/error_mapper.dart';
 import 'package:syncora_frontend/core/utils/result.dart';
 import 'package:syncora_frontend/features/groups/models/group_dto.dart';
 import 'package:syncora_frontend/features/groups/repositories/local_groups_repository.dart';
@@ -18,7 +16,6 @@ class GroupsProcessor extends OutboxProcessor {
       {required LocalGroupsRepository localGroupsRepository,
       required RemoteGroupsRepository remoteGroupsRepository,
       required super.logger,
-      required super.delayBeforeSyncReattempt,
       required super.idMapper})
       : _localGroupsRepository = localGroupsRepository,
         _remoteGroupsRepository = remoteGroupsRepository;

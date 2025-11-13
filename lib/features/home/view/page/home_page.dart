@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:syncora_frontend/common/providers/common_providers.dart';
 import 'package:syncora_frontend/common/providers/connection_provider.dart';
 import 'package:syncora_frontend/common/themes/app_sizes.dart';
+import 'package:syncora_frontend/common/widgets/outbox_icon.dart';
 import 'package:syncora_frontend/common/widgets/syncing_icon.dart';
 import 'package:syncora_frontend/core/network/syncing/sync_viewmodel.dart';
 import 'package:syncora_frontend/core/tests.dart';
@@ -48,6 +49,10 @@ class _HomeScreenState extends ConsumerState<HomePage> {
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
             child: SyncingIcon(),
+          ),
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+            child: OutboxIcon(),
           ),
         ],
       ),
