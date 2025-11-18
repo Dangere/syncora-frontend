@@ -27,7 +27,7 @@ class GroupsProcessor extends OutboxProcessor {
 
   // Creation process should ALWAYS cache the server id when successful for future processing
   @override
-  Future<int> processOutbox(OutboxEntry entry) async {
+  Future<int> processToBackend(OutboxEntry entry) async {
     // To process a group deletion/updating we get our mandatory group id dependency
     int? groupId;
     if (entry.actionType != OutboxActionType.create) {
@@ -94,7 +94,7 @@ class GroupsProcessor extends OutboxProcessor {
   // Reverting local changes if we get a 403 status code from the outbox service
   // This wont be called if dependencies are not met
   @override
-  Future<int> revertProcess(OutboxEntry entry) async {
+  Future<int> revertLocalChange(OutboxEntry entry) async {
     int? groupId;
     if (entry.actionType != OutboxActionType.create) {
       // Every time we call getServerId, we are SURE that temp id is already synced to server

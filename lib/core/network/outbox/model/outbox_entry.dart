@@ -7,6 +7,9 @@ class OutboxEntry {
   final OutboxEntityType entityType;
   final OutboxActionType actionType;
   final OutboxPayload? payload;
+  // Entires that depend on a dependency will have a dependencyId, such as tasks that depend on a groupId
+  final int? dependencyId;
+
   final OutboxStatus status;
 
   final DateTime creationDate;
@@ -18,15 +21,17 @@ class OutboxEntry {
       required this.actionType,
       this.payload,
       required this.status,
-      required this.creationDate});
+      required this.creationDate,
+      this.dependencyId});
 
   Map<String, dynamic> toTable() => {
         "entityId": entityId,
         "entityType": entityType.index,
         "actionType": actionType.index,
-        if (payload != null) "payload": jsonEncode(payload!.toJson()),
         "status": status.index,
         "creationDate": creationDate.toIso8601String(),
+        if (payload != null) "payload": jsonEncode(payload!.toJson()),
+        if (dependencyId != null) "dependencyId": dependencyId,
       };
 
   factory OutboxEntry.fromTable(Map<String, dynamic> data) {
@@ -49,6 +54,7 @@ class OutboxEntry {
         entityType: entity,
         actionType: action,
         payload: payload,
+        dependencyId: data["dependencyId"],
         status: OutboxStatus.values[data["status"] as int],
         creationDate: DateTime.parse(data["creationDate"]));
   }
@@ -57,13 +63,19 @@ class OutboxEntry {
       {required int entityId,
       required OutboxEntityType entityType,
       required OutboxActionType actionType,
-      OutboxPayload? payload}) {
+      OutboxPayload? payload,
+      int? dependencyId}) {
+    // Making sure we have a dependencyId that references a group for tasks
+    if (entityType == OutboxEntityType.task) {
+      assert(dependencyId != null);
+    }
     return OutboxEntry(
         entityId: entityId,
         entityType: entityType,
         actionType: actionType,
         payload: payload,
         status: OutboxStatus.pending,
+        dependencyId: dependencyId,
         creationDate: DateTime.now().toUtc());
   }
 
@@ -93,7 +105,7 @@ class OutboxEntry {
             return MarkTaskPayload.fromJson(payloadMap);
           // ... handle other actions for 'task'
           default:
-            return OutboxTaskPayload.fromJson(payloadMap);
+            return null;
         }
       default:
         return null;
@@ -105,7 +117,7 @@ class OutboxEntry {
       'OutboxEntry(id: $id, entityId: $entityId, entityType: $entityType, actionType: $actionType, payload: $payload, status: $status, creationDate: $creationDate)';
 }
 
-enum OutboxStatus { pending, complete, inProcess, failed }
+enum OutboxStatus { pending, complete, inProcess, failed, ignored }
 
 enum OutboxEntityType { group, task }
 

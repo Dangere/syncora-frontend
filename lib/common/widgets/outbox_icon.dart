@@ -15,6 +15,7 @@ class OutboxIcon extends ConsumerWidget {
               OutboxStatus.pending => const Icon(Icons.cloud_sync_sharp),
               OutboxStatus.inProcess => const Icon(Icons.cloud_sync_sharp),
               OutboxStatus.failed => const Icon(Icons.error),
+              OutboxStatus.ignored => const Icon(Icons.wind_power),
             },
         error: (error, trace) {
           return const Icon(Icons.error);

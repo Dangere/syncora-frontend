@@ -12,9 +12,6 @@ extension OutboxPayloadX on OutboxPayload {
   UpdateTaskPayload? get asUpdateTaskPayload =>
       this is UpdateTaskPayload ? this as UpdateTaskPayload : null;
 
-  OutboxTaskPayload? get asOutboxTaskPayload =>
-      this is OutboxTaskPayload ? this as OutboxTaskPayload : null;
-
   CreateTaskPayload? get asCreateTaskPayload =>
       this is CreateTaskPayload ? this as CreateTaskPayload : null;
 
@@ -73,29 +70,12 @@ class CreateGroupPayload extends OutboxPayload {
       );
 }
 
-class OutboxTaskPayload extends OutboxPayload {
-  final int groupId;
-
-  OutboxTaskPayload({required this.groupId});
-
-  @override
-  Map<String, dynamic> toJson() {
-    return {
-      "groupId": groupId,
-    };
-  }
-
-  factory OutboxTaskPayload.fromJson(Map<String, dynamic> json) =>
-      OutboxTaskPayload(groupId: json["groupId"]);
-}
-
-class UpdateTaskPayload extends OutboxTaskPayload {
+class UpdateTaskPayload extends OutboxPayload {
   final String? title;
   final String? description;
   final String oldTitle;
   final String? oldDescription;
   UpdateTaskPayload({
-    required super.groupId,
     this.title,
     this.description,
     required this.oldTitle,
@@ -103,64 +83,51 @@ class UpdateTaskPayload extends OutboxTaskPayload {
   }) : assert(title != null || description != null);
   @override
   Map<String, dynamic> toJson() {
-    var map = super.toJson();
-    map.addAll({
+    return {
       if (title != null) "title": title,
       if (description != null) "description": description,
       "oldTitle": oldTitle,
       if (oldDescription != null) "oldDescription": oldDescription
-    });
-    return map;
+    };
   }
 
   factory UpdateTaskPayload.fromJson(Map<String, dynamic> json) =>
       UpdateTaskPayload(
-          groupId: json["groupId"],
           title: json["title"],
           description: json["description"],
           oldTitle: json["oldTitle"],
           oldDescription: json["oldDescription"]);
 }
 
-class CreateTaskPayload extends OutboxTaskPayload {
+class CreateTaskPayload extends OutboxPayload {
   final String title;
   final String? description;
 
-  CreateTaskPayload(
-      {required super.groupId, required this.title, required this.description});
+  CreateTaskPayload({required this.title, required this.description});
   @override
   Map<String, dynamic> toJson() {
-    var map = super.toJson();
-    map.addAll(
-        {"title": title, if (description != null) "description": description});
-    return map;
+    return {
+      "title": title,
+      if (description != null) "description": description
+    };
   }
 
   factory CreateTaskPayload.fromJson(Map<String, dynamic> json) =>
-      CreateTaskPayload(
-          title: json["title"],
-          description: json["description"],
-          groupId: json["groupId"] as int);
+      CreateTaskPayload(title: json["title"], description: json["description"]);
 }
 
-class MarkTaskPayload extends OutboxTaskPayload {
+class MarkTaskPayload extends OutboxPayload {
   final int completedById;
   final bool isCompleted;
 
-  MarkTaskPayload(
-      {required super.groupId,
-      required this.completedById,
-      required this.isCompleted});
+  MarkTaskPayload({required this.completedById, required this.isCompleted});
   @override
   Map<String, dynamic> toJson() {
-    var map = super.toJson();
-    map.addAll({"completedById": completedById, "isCompleted": isCompleted});
-    return map;
+    return {"completedById": completedById, "isCompleted": isCompleted};
   }
 
   factory MarkTaskPayload.fromJson(Map<String, dynamic> json) =>
       MarkTaskPayload(
           completedById: json["completedById"],
-          isCompleted: json["isCompleted"],
-          groupId: json["groupId"] as int);
+          isCompleted: json["isCompleted"]);
 }

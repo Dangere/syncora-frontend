@@ -107,30 +107,26 @@ class OutboxNotifier extends AsyncNotifier<OutboxStatus> {
   void
       handelInProcess() {} // TODO: Handle inProcess entires that were interrupted by a forceful disconnect
 
+  void onDispose() {
+    _isProcessing = false;
+    _isAwaiting = false;
+  }
+
   @override
   FutureOr<OutboxStatus> build() async {
+    ref.onDispose(onDispose);
     ref.listen(connectionProvider, (previous, next) async {
       if (next == ConnectionStatus.connected || next == ConnectionStatus.slow) {
+        _isProcessing = false;
+        _isAwaiting = false;
         ref
             .read(loggerProvider)
             .i("Processing Outbox Queue on connection change!");
         await processQueue();
       }
     });
-
-    // ConnectionStatus connectionStatus = ref.watch(connectionProvider);
-    // switch (connectionStatus) {
-    //   case ConnectionStatus.disconnected:
-    //     return OutboxStatus.complete;
-
-    //   case ConnectionStatus.slow:
-    //     return OutboxStatus.pending;
-
-    //   case ConnectionStatus.checking:
-    //     return OutboxStatus.pending;
-    //   default:
-    // }
-
+    _isProcessing = false;
+    _isAwaiting = false;
     Result result = await processQueue();
 
     if (result.isSuccess) {

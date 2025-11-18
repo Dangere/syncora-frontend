@@ -39,9 +39,9 @@ class TasksService {
     Result enqueueResult = await _enqueueEntry(EnqueueRequest(
       entry: OutboxEntry.entry(
         entityId: taskId,
+        dependencyId: groupId,
         entityType: OutboxEntityType.task,
         actionType: OutboxActionType.delete,
-        payload: OutboxTaskPayload(groupId: groupId),
       ),
       onAfterEnqueue: () async {
         try {
@@ -67,11 +67,11 @@ class TasksService {
 
     Result enqueueResult = await _enqueueEntry(EnqueueRequest(
       entry: OutboxEntry.entry(
-        entityId: groupId,
+        entityId: taskId,
+        dependencyId: groupId,
         entityType: OutboxEntityType.group,
         actionType: OutboxActionType.update,
         payload: UpdateTaskPayload(
-            groupId: groupId,
             title: title,
             description: description,
             oldTitle: task.title,
@@ -110,10 +110,10 @@ class TasksService {
     Result enqueueResult = await _enqueueEntry(EnqueueRequest(
       entry: OutboxEntry.entry(
         entityId: task.id,
+        dependencyId: groupId,
         entityType: OutboxEntityType.task,
         actionType: OutboxActionType.create,
-        payload: CreateTaskPayload(
-            title: title, description: description, groupId: groupId),
+        payload: CreateTaskPayload(title: title, description: description),
       ),
       onAfterEnqueue: () async {
         try {
@@ -167,12 +167,11 @@ class TasksService {
     Result enqueueResult = await _enqueueEntry(EnqueueRequest(
       entry: OutboxEntry.entry(
         entityId: taskId,
+        dependencyId: groupId,
         entityType: OutboxEntityType.task,
         actionType: OutboxActionType.mark,
         payload: MarkTaskPayload(
-            completedById: _authState.user!.id,
-            isCompleted: isDone,
-            groupId: groupId),
+            completedById: _authState.user!.id, isCompleted: isDone),
       ),
       onAfterEnqueue: () async {
         try {

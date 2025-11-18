@@ -235,12 +235,17 @@ class Tests {
     var outboxRawQuery =
         await db.rawQuery("SELECT * FROM ${DatabaseTables.outbox}");
 
+    var pendingOutboxQuery = await db.rawQuery(
+        "SELECT * FROM ${DatabaseTables.outbox} WHERE status = '${OutboxStatus.pending.index}'");
+
     // Logger().f(groupsRawQuery, stackTrace: StackTrace.fromString("GROUPS"));
     // Logger().f(usersRawQuery, stackTrace: StackTrace.fromString("USERS"));
     // Logger().f(groupMembersRawQuery,
     //     stackTrace: StackTrace.fromString("GROUP MEMBERS"));
 
-    Logger().f(tasksRawQuery, stackTrace: StackTrace.fromString("TASKS"));
+    // Logger().f(tasksRawQuery, stackTrace: StackTrace.fromString("TASKS"));
     // Logger().f(outboxRawQuery, stackTrace: StackTrace.fromString("OUTBOX"));
+    Logger().f(pendingOutboxQuery,
+        stackTrace: StackTrace.fromString("PENDING OUTBOX"));
   }
 }

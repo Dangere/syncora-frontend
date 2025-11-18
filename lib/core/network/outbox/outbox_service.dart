@@ -82,7 +82,7 @@ class OutboxService {
         try {
           _outboxRepository.markEntryInProcess(entry.id!);
           int processResult =
-              await _processors[entry.entityType]!.processOutbox(entry);
+              await _processors[entry.entityType]!.processToBackend(entry);
 
           _outboxRepository.completeEntry(entry.id!);
 
@@ -103,7 +103,7 @@ class OutboxService {
           if (e.response?.statusCode == 403) {
             _outboxRepository.failEntry(entry.id!);
             Result<int> revertResult = await Result.wrapAsync(() async =>
-                await _processors[entry.entityType]!.revertProcess(entry));
+                await _processors[entry.entityType]!.revertLocalChange(entry));
 
             // If ANY revert fails, we break out of the process loop and return the error
             if (!revertResult.isSuccess) {
@@ -136,7 +136,7 @@ class OutboxService {
           }
         } on Exception catch (e) {
           Result<int> revertResult = await Result.wrapAsync(() async =>
-              await _processors[entry.entityType]!.revertProcess(entry));
+              await _processors[entry.entityType]!.revertLocalChange(entry));
 
           if (!revertResult.isSuccess) {
             return Result.failure(revertResult.error!);

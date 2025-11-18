@@ -120,6 +120,7 @@ class DatabaseManager {
       CREATE TABLE ${DatabaseTables.outbox} (
         id INTEGER PRIMARY KEY,
         entityId INTEGER NOT NULL,
+        dependencyId INTEGER,
         entityType INTEGER NOT NULL,
         actionType INTEGER NOT NULL,
         payload TEXT, 
