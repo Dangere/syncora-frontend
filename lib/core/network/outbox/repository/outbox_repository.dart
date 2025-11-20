@@ -1,3 +1,4 @@
+import 'package:logger/logger.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:syncora_frontend/core/data/database_manager.dart';
 import 'package:syncora_frontend/core/data/enums/database_tables.dart';
@@ -12,6 +13,10 @@ class OutboxRepository {
 
   Future<int> insertEntry(OutboxEntry entry) async {
     Database db = await _databaseManager.getDatabase();
+
+    // TODO: One bug i noticed is when queuing a bunch of task deletion then group deletion (the logic below will mark the tasks deletions as ignored) leaves us with a group deletion entry only, which is fine but if that task deletion fails for whatever reason and reverted to user, the task deletions wont be reverted because they were makred as ignored
+
+    // TODO: Another related bug, if a queue has a mark task entry and a delete task entry, only the delete will be processed and reverted in failure, but it will be marked (the mark action failed too but didnt revert because the entry for it was ignored all together)
 
     // Handing when we trying to insert a delete a group entry, we mark the entries that either correspond to the group or reference it as ignored
     // And not insert the delete entry if we ignored its creation entry
@@ -51,9 +56,9 @@ class OutboxRepository {
               "entityId = ? AND actionType = ? AND status = ? And entityType = ?",
           whereArgs: [
             entry.entityId,
-            OutboxActionType.create,
+            OutboxActionType.create.index,
             OutboxStatus.pending.index,
-            OutboxEntityType.task
+            OutboxEntityType.task.index
           ]).then((value) => value.isNotEmpty);
 
       await db.update(
@@ -159,14 +164,29 @@ class OutboxRepository {
     OutboxEntry? inProgressEntry = await _getInProgressEntry(
         entry.entityId, entry.actionType, entry.entityType);
 
+    Logger().w("Found in progress entry: $inProgressEntry");
     if (inProgressEntry != null) {
+      // If its an update group entry we need to update its old data to be the data from the in progress entry
       if (entry.actionType == OutboxActionType.update &&
-          entry.entityType == OutboxEntityType.group) {}
+          entry.entityType == OutboxEntityType.group) {
+        // Getting the in progress payload that contain the proper return point data
+        UpdateGroupPayload inProgressPayload =
+            inProgressEntry.payload!.asUpdateGroupPayload!;
 
-      // entry.payload!.asUpdateGroupPayload.oldTitle =
-      //     inProgressEntry.payload!.asUpdateGroupPayload.title;
-      // entry.payload!.asUpdateGroupPayload.oldDescription =
-      //     inProgressEntry.payload!.asUpdateGroupPayload.description;
+        // Setting the return point data to the in progress entry
+        entry.payload!.asUpdateGroupPayload!.refreshOldData(inProgressPayload);
+      }
+
+      // If its an update task entry we need to update its old data to be the data from the in progress entry
+      if (entry.actionType == OutboxActionType.update &&
+          entry.entityType == OutboxEntityType.task) {
+        // Getting the in progress payload that contain the proper return point data
+        UpdateTaskPayload inProgressPayload =
+            inProgressEntry.payload!.asUpdateTaskPayload!;
+
+        // Setting the return point data to the in progress entry
+        entry.payload!.asUpdateTaskPayload!.refreshOldData(inProgressPayload);
+      }
     }
 
     return await db.insert(DatabaseTables.outbox, entry.toTable());
@@ -178,7 +198,8 @@ class OutboxRepository {
     Database db = await _databaseManager.getDatabase();
 
     var query = await db.query(DatabaseTables.outbox,
-        where: "id = ? AND status = ? AND actionType = ? AND entityType = ?",
+        where:
+            "entityId = ? AND status = ? AND actionType = ? AND entityType = ?",
         whereArgs: [
           entityId,
           OutboxStatus.inProcess.index,
@@ -204,7 +225,7 @@ class OutboxRepository {
     List<Map<String, Object?>> query = await db.query(DatabaseTables.outbox,
         where: "status = ?",
         whereArgs: [OutboxStatus.pending.index],
-        orderBy: "creationDate DESC");
+        orderBy: "creationDate ASC");
     List<OutboxEntry> entries =
         query.map((e) => OutboxEntry.fromTable(e)).toList();
 

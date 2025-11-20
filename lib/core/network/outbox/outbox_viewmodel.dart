@@ -38,6 +38,8 @@ class OutboxNotifier extends AsyncNotifier<OutboxStatus> {
   // Processes the outbox queue and updates the UI with new data
   // This gets called whenever the connection status changes or when the outbox queue is updated
   // TODO: Show an indication to the user that shows if the queue is being processed or paused or faced an error
+
+  // TODO: A behavior i noticed is that when processing a list of entries at once, the actions will revert on failing but it wont update the UI or show errors until the entire list is processed, which is a bit confusing for the user,
   Future<Result<void>> processQueue() async {
     if (ref.read(connectionProvider) == ConnectionStatus.disconnected) {
       return Result.failureMessage("Cant process outbox queue when offline");
@@ -57,26 +59,21 @@ class OutboxNotifier extends AsyncNotifier<OutboxStatus> {
     state = const AsyncValue.loading();
 
     ref.read(loggerProvider).i("Processing Outbox Queue!");
-    Result<QueueProcessorResponse> response =
-        await ref.read(outboxServiceProvider).processQueue();
+    Result<void> response = await ref.read(outboxServiceProvider).processQueue(
+      onProcessError: (error) {
+        ref.read(appErrorProvider.notifier).state = ErrorMapper.map(error);
+      },
+      onGroupModified: (groupId) {
+        ref.read(groupsNotifierProvider.notifier).reloadGroups();
+        ref.read(groupsNotifierProvider.notifier).reloadViewedGroup(groupId);
+      },
+    );
 
     if (!response.isSuccess) {
       ref.read(appErrorProvider.notifier).state = response.error;
       state = AsyncValue.error(response.error!.message,
           response.error!.stackTrace ?? StackTrace.current);
     }
-
-    // Updating the UI for groups list
-    if (ref.exists(groupsNotifierProvider)) {
-      ref.read(groupsNotifierProvider.notifier).reloadGroups();
-      // Updating the UI for current displayed groups, including with real ids and temp ones
-      ref
-          .read(groupsNotifierProvider.notifier)
-          .reloadViewedGroups(response.data!.modifiedGroupIds.toList());
-    }
-
-    // Displaying errors
-    displayErrors(response.data!.errors);
 
     ref.read(loggerProvider).i("Done processing Outbox Queue!");
 
@@ -94,14 +91,6 @@ class OutboxNotifier extends AsyncNotifier<OutboxStatus> {
       processQueue();
     }
     return response;
-  }
-
-  void displayErrors(List<Exception> errors) async {
-    for (var i = 0; i < errors.length; i++) {
-      ref.read(loggerProvider).e("Displaying error!");
-      ref.read(appErrorProvider.notifier).state = ErrorMapper.map(errors[i]);
-      await Future.delayed(Duration(seconds: 2));
-    }
   }
 
   void

@@ -10,6 +10,7 @@ import 'package:syncora_frontend/core/network/outbox/model/queue_processor_respo
 import 'package:syncora_frontend/core/network/outbox/outbox_id_mapper.dart';
 import 'package:syncora_frontend/core/network/outbox/outbox_sorter.dart';
 import 'package:syncora_frontend/core/network/outbox/repository/outbox_repository.dart';
+import 'package:syncora_frontend/core/typedef.dart';
 import 'package:syncora_frontend/core/utils/app_error.dart';
 import 'package:syncora_frontend/core/utils/error_mapper.dart';
 import 'package:syncora_frontend/core/utils/result.dart';
@@ -56,10 +57,10 @@ class OutboxService {
   // this makes sure entires are properly sorted and coalesced for processing
   // Processes the outbox queue and returns a list of all modified groups for UI updates
   // TODO: One thing to consider is if the refresh token runs out and the user get a 401 response which kicks them, however in the process it will revert the changes made offline and stored in outbox.
-  Future<Result<QueueProcessorResponse>> processQueue() async {
-    HashSet<int> modifiedGroupIds = HashSet<int>();
-    List<Exception> errors = [];
-    // TODO: Add some filtering here so if we are trying to add a task to a group that we delete, it should cancel out
+  Future<Result<void>> processQueue(
+      {required Func<int, void> onGroupModified,
+      required Func<Exception, void> onProcessError}) async {
+    // TODO (DONE): Add some filtering here so if we are trying to add a task to a group that we delete, it should cancel out
     // dependency-aware sorting, Create group -> modify group -> create task -> modify task
     var entries =
         OutboxSorter.sort(await _outboxRepository.getPendingEntries());
@@ -86,17 +87,17 @@ class OutboxService {
 
           _outboxRepository.completeEntry(entry.id!);
 
-          // We store the group id
-          modifiedGroupIds.add(processResult);
-
-          // And if its a group creation, we we store the old temp group id as a modified group for UI updates
+          // We call the onGroupModified callback To update the UI
+          onGroupModified(processResult);
+          // And if its a group creation, we use the old temp group id for UI updates
           if (entry.actionType == OutboxActionType.create &&
               entry.entityType == OutboxEntityType.group) {
-            modifiedGroupIds.add(entry.entityId);
+            // We call the onGroupModified callback To update the UI
+            onGroupModified(entry.entityId);
           }
         } on OutboxDependencyFailureException catch (e) {
           _outboxRepository.failEntry(entry.id!);
-          errors.add(e);
+          onProcessError(e);
           break;
         } on DioException catch (e) {
           // If we get a 403 error (forbidden), we try to revert the changes and fail the action
@@ -110,8 +111,9 @@ class OutboxService {
               return Result.failure(revertResult.error!);
             }
 
-            errors.add(e);
-            modifiedGroupIds.add(revertResult.data!);
+            onProcessError(e);
+            // We call the onGroupModified callback To update the UI
+            onGroupModified(revertResult.data!);
           }
           // If we get a 429 error (too many requests), we delay and try again
           // We extract the retry-after header and wait for that many seconds
@@ -141,13 +143,14 @@ class OutboxService {
           if (!revertResult.isSuccess) {
             return Result.failure(revertResult.error!);
           }
-          modifiedGroupIds.add(revertResult.data!);
           _outboxRepository.failEntry(entry.id!);
-          errors.add(e);
+          onProcessError(e);
+          // We call the onGroupModified callback To update the UI
+          onGroupModified(revertResult.data!);
         }
         break;
       }
     }
-    return Result.success(QueueProcessorResponse(modifiedGroupIds, errors));
+    return Result.success(null);
   }
 }

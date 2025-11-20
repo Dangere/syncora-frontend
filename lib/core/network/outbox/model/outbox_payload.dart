@@ -22,14 +22,15 @@ extension OutboxPayloadX on OutboxPayload {
 class UpdateGroupPayload extends OutboxPayload {
   final String? title;
   final String? description;
-  final String oldTitle;
-  final String? oldDescription;
+  String oldTitle;
+  String? oldDescription;
   UpdateGroupPayload(
       {this.title,
       this.description,
       required this.oldTitle,
       required this.oldDescription})
       : assert(title != null || description != null);
+
   @override
   Map<String, dynamic> toJson() {
     return {
@@ -47,7 +48,10 @@ class UpdateGroupPayload extends OutboxPayload {
           oldTitle: json["oldTitle"],
           oldDescription: json["oldDescription"]);
 
-  void refreshOldData() {}
+  void refreshOldData(UpdateGroupPayload payload) {
+    oldTitle = payload.oldTitle;
+    oldDescription = payload.oldDescription;
+  }
 }
 
 class CreateGroupPayload extends OutboxPayload {
@@ -73,8 +77,8 @@ class CreateGroupPayload extends OutboxPayload {
 class UpdateTaskPayload extends OutboxPayload {
   final String? title;
   final String? description;
-  final String oldTitle;
-  final String? oldDescription;
+  String oldTitle;
+  String? oldDescription;
   UpdateTaskPayload({
     this.title,
     this.description,
@@ -97,6 +101,11 @@ class UpdateTaskPayload extends OutboxPayload {
           description: json["description"],
           oldTitle: json["oldTitle"],
           oldDescription: json["oldDescription"]);
+
+  void refreshOldData(UpdateTaskPayload payload) {
+    oldTitle = payload.oldTitle;
+    oldDescription = payload.oldDescription;
+  }
 }
 
 class CreateTaskPayload extends OutboxPayload {
