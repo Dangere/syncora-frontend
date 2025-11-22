@@ -19,6 +19,7 @@ import 'package:syncora_frontend/features/groups/viewmodel/groups_viewmodel.dart
 import 'package:syncora_frontend/features/tasks/viewmodel/tasks_providers.dart';
 import 'package:syncora_frontend/features/users/viewmodel/users_providers.dart';
 
+// TODO: this needs needs serious refactoring with heavy focus on separation of concerns
 class SyncBackendNotifier extends AsyncNotifier<int>
     with WidgetsBindingObserver {
   SignalRClient? _syncSignalRClient;
@@ -136,20 +137,28 @@ class SyncBackendNotifier extends AsyncNotifier<int>
   Future<Result> _startHubConnection() async {
     state = const AsyncValue.loading();
 
-    if (_syncSignalRClient == null) {
-      return Result.failure(AppError(
-          message: "SignalR connection isn't initialized",
-          stackTrace: StackTrace.current));
-    }
-
     ref.read(loggerProvider).i("Starting hub connection");
     late Result result;
 
     // We try to connect to the hub a specified number of times (_retryingServerConnectTries)
+    // TODO: This loop is an actual mess, remove it when possible and refactor the logic
+    // TODO: This loop keeps running even if the provider is disposed ending up with multiple loops running at the same time
     for (var i = 0; i < _retryingServerConnectTries; i++) {
       if (_isDisposed) {
         return Result.failure(AppError(
             message: "Sync notifier is disposed",
+            stackTrace: StackTrace.current));
+      }
+
+      if (_syncSignalRClient == null) {
+        return Result.failure(AppError(
+            message: "SignalR connection isn't initialized",
+            stackTrace: StackTrace.current));
+      }
+
+      if (ref.read(connectionProvider) == ConnectionStatus.disconnected) {
+        return Result.failure(AppError(
+            message: "Not connected to the internet",
             stackTrace: StackTrace.current));
       }
 
@@ -164,7 +173,8 @@ class SyncBackendNotifier extends AsyncNotifier<int>
         }
 
         // If its not 401, then we keep retrying a specified number of times (_retryingServerConnectTries)
-        ref.read(loggerProvider).e(result.error!.message);
+        ref.read(loggerProvider).i(
+            "Failure to connect to the hub: ${result.error?.message}, trying again in $_retryingServerConnectDurationInSeconds seconds");
         // We wait a duration
         await Future.delayed(
             Duration(seconds: _retryingServerConnectDurationInSeconds));
@@ -223,14 +233,13 @@ class SyncBackendNotifier extends AsyncNotifier<int>
   }
 
   void onDispose() {
+    _isDisposed = true;
     _stopHubConnection();
     _syncSignalRClient = null;
     WidgetsBinding.instance.removeObserver(this);
     Logger().d("Sync notifier disposed");
-    _isDisposed = true;
   }
 
-  // TODO: Fix the loading state of the notifier
   @override
   FutureOr<int> build() async {
     // ConnectionStatus connectionStatus =

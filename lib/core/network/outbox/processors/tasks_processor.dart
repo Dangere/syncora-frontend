@@ -1,4 +1,3 @@
-import 'package:logger/logger.dart';
 import 'package:syncora_frontend/core/network/outbox/exception/outbox_exception.dart';
 import 'package:syncora_frontend/core/network/outbox/interface/outbox_processor_interface.dart';
 import 'package:syncora_frontend/core/network/outbox/model/outbox_entry.dart';
@@ -27,7 +26,6 @@ class TasksProcessor extends OutboxProcessor {
   // Creation process should ALWAYS cache the server id when successful for future processing
   @override
   Future<int> processToBackend(OutboxEntry entry) async {
-    Logger().d("Processing task entry: ${entry.toTable()}");
     // Getting our mandatory group id dependency
     Result groupIdResult = await idMapper.getServerId(entry.dependencyId!);
     if (!groupIdResult.isSuccess) {

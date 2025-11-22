@@ -237,6 +237,8 @@ class Tests {
 
     var pendingOutboxQuery = await db.rawQuery(
         "SELECT * FROM ${DatabaseTables.outbox} WHERE status = '${OutboxStatus.pending.index}'");
+    List<OutboxEntry> pendingOutboxEntires =
+        pendingOutboxQuery.map((e) => OutboxEntry.fromTable(e)).toList();
 
     // Logger().f(groupsRawQuery, stackTrace: StackTrace.fromString("GROUPS"));
     // Logger().f(usersRawQuery, stackTrace: StackTrace.fromString("USERS"));
@@ -245,7 +247,8 @@ class Tests {
 
     // Logger().f(tasksRawQuery, stackTrace: StackTrace.fromString("TASKS"));
     // Logger().f(outboxRawQuery, stackTrace: StackTrace.fromString("OUTBOX"));
-    Logger().f(pendingOutboxQuery,
+
+    Logger().f(pendingOutboxEntires.map((e) => e.toString()).toList(),
         stackTrace: StackTrace.fromString("PENDING OUTBOX"));
   }
 }

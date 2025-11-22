@@ -27,14 +27,14 @@ class AuthInterceptor extends Interceptor {
           'Bearer ${_sessionStorage.accessToken}';
     }
 
-    ref.read(loggerProvider).i("Dio request: ${options.data}");
+    // ref.read(loggerProvider).i("Dio request: ${options.data}");
 
     super.onRequest(options, handler);
   }
 
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) async {
-    ref.read(loggerProvider).i("Dio Error: ${err.response?.statusCode}");
+    // ref.read(loggerProvider).i("Dio Error: ${err.response?.statusCode}");
 
     int? status = err.response?.statusCode;
     bool haveAccessToken = _sessionStorage.accessToken != null;

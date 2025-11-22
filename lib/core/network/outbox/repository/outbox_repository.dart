@@ -32,14 +32,7 @@ class OutboxRepository {
             OutboxEntityType.group.index
           ]).then((value) => value.isNotEmpty);
 
-      await db.update(
-          DatabaseTables.outbox, {"status": OutboxStatus.ignored.index},
-          where: "entityId = ? or dependencyId = ? AND status = ?",
-          whereArgs: [
-            entry.entityId,
-            entry.entityId,
-            OutboxStatus.pending.index
-          ]);
+      await ignoreDependingEntries(entry.entityId);
 
       // we dont continue to inserting the delete entry because we already ignored its creation
       if (groupCreationStillPending) {
@@ -61,10 +54,7 @@ class OutboxRepository {
             OutboxEntityType.task.index
           ]).then((value) => value.isNotEmpty);
 
-      await db.update(
-          DatabaseTables.outbox, {"status": OutboxStatus.ignored.index},
-          where: "entityId = ? AND status = ?",
-          whereArgs: [entry.entityId, OutboxStatus.pending.index]);
+      await ignoreDependingEntries(entry.entityId);
 
       // we dont continue to inserting the delete entry because we already ignored its creation
       if (taskCreationStillPending) {
@@ -210,6 +200,24 @@ class OutboxRepository {
     if (query.isEmpty) return null;
 
     return OutboxEntry.fromTable(query.first);
+  }
+
+  Future<void> ignoreDependingEntries(int entityId) async {
+    Database db = await _databaseManager.getDatabase();
+
+    await db.update(
+        DatabaseTables.outbox, {"status": OutboxStatus.ignored.index},
+        where: "(entityId = ? or dependencyId = ?) AND status = ?",
+        whereArgs: [entityId, entityId, OutboxStatus.pending.index]);
+  }
+
+  Future<void> unignoreDependingEntries(int entityId) async {
+    Database db = await _databaseManager.getDatabase();
+
+    await db.update(
+        DatabaseTables.outbox, {"status": OutboxStatus.pending.index},
+        where: "(entityId = ? or dependencyId = ?) AND status = ?",
+        whereArgs: [entityId, entityId, OutboxStatus.ignored.index]);
   }
 
   Future<void> deleteEntry(int entryId) async {

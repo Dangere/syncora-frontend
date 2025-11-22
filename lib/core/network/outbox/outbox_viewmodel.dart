@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:logger/logger.dart';
 import 'package:syncora_frontend/common/providers/common_providers.dart';
 import 'package:syncora_frontend/common/providers/connection_provider.dart';
 import 'package:syncora_frontend/core/network/outbox/model/enqueue_request.dart';
@@ -60,12 +61,16 @@ class OutboxNotifier extends AsyncNotifier<OutboxStatus> {
 
     ref.read(loggerProvider).i("Processing Outbox Queue!");
     Result<void> response = await ref.read(outboxServiceProvider).processQueue(
-      onProcessError: (error) {
+      onFail: (error) {
         ref.read(appErrorProvider.notifier).state = ErrorMapper.map(error);
       },
       onGroupModified: (groupId) {
         ref.read(groupsNotifierProvider.notifier).reloadGroups();
         ref.read(groupsNotifierProvider.notifier).reloadViewedGroup(groupId);
+      },
+      requireSecondPass: () {
+        Logger().w("We are calling for a second pass!");
+        _isAwaiting = true;
       },
     );
 
