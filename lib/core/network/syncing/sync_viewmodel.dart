@@ -82,6 +82,10 @@ class SyncBackendNotifier extends AsyncNotifier<int>
 
     // ref.read(loggerProvider).i("Formatted data: ${result.data?.toString()}");
 
+    ref
+        .read(loggerProvider)
+        .i("Sync notifier: Syncing data finished, Updating UI...");
+
     // Updating the groups notifier with the new data if it exists and there are groups
     if (ref.exists(groupsNotifierProvider)) {
       // Updating the UI for groups list
@@ -111,7 +115,8 @@ class SyncBackendNotifier extends AsyncNotifier<int>
   }
 
   Future<Result> _initializeConnection() async {
-    String? accessToken = ref.read(sessionStorageProvider).accessToken;
+    String? accessToken =
+        ref.read(sessionStorageProvider).session?.tokens?.accessToken;
 
     if (accessToken == null) {
       return Result.failure(
@@ -121,8 +126,8 @@ class SyncBackendNotifier extends AsyncNotifier<int>
     _syncSignalRClient = SignalRClient(
         serverUrl: Constants.BASE_HUB_URL,
         hub: "sync",
-        accessTokenFactory: () async =>
-            Future.value(ref.read(sessionStorageProvider).accessToken!));
+        accessTokenFactory: () async => Future.value(
+            ref.read(sessionStorageProvider).session?.tokens?.accessToken));
 
     _syncSignalRClient!.connection.on("ReceiveSync", _receiveSyncData);
     _syncSignalRClient!.connection.onclose(_onClosedConnection);
@@ -266,6 +271,7 @@ class SyncBackendNotifier extends AsyncNotifier<int>
     authState.when(
         data: (data) {
           if (data.isUnauthenticated) {
+            ref.read(loggerProvider).d("Sync notifier: User is not logged in");
             throw AppError(
                 message: "User is not logged in",
                 stackTrace: StackTrace.current);
@@ -285,6 +291,9 @@ class SyncBackendNotifier extends AsyncNotifier<int>
     if (authState.isLoading) {
       return Completer<int>().future;
     }
+
+    ref.read(loggerProvider).d(
+        "Sync notifier: User is supposedly logged in and we are initializing, current auth state: $authState");
 
     WidgetsBinding.instance.addObserver(this);
 

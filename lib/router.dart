@@ -13,7 +13,7 @@ final routeProvider = Provider<GoRouter>((ref) {
   bool isLogged = ref.watch(isLoggedProvider);
 
   Logger logger = ref.read(loggerProvider);
-  logger.w('Refreshing routes');
+  logger.w('Refreshing routes, isLogged: $isLogged');
 
   return GoRouter(
       initialLocation: '/',

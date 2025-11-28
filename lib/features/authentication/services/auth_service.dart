@@ -10,14 +10,10 @@ import 'package:syncora_frontend/core/utils/result.dart';
 import 'package:syncora_frontend/features/authentication/models/auth_response_dto.dart';
 import 'package:syncora_frontend/features/authentication/models/google_register_user_info.dart';
 import 'package:syncora_frontend/features/authentication/models/tokens_dto.dart';
-import 'package:syncora_frontend/features/authentication/models/user.dart';
 import 'package:syncora_frontend/features/authentication/repositories/auth_repository.dart';
-import 'package:syncora_frontend/features/authentication/services/session_storage.dart';
 
 class AuthService {
   final AuthRepository _authRepository;
-
-  final SessionStorage _sessionStorage;
   final GoogleSignIn googleSignIn = GoogleSignIn(
     serverClientId: kIsWeb
         ? null
@@ -27,52 +23,30 @@ class AuthService {
     ],
   );
 
-  AuthService(
-      {required AuthRepository authRepository,
-      required SessionStorage sessionStorage})
-      : _authRepository = authRepository,
-        _sessionStorage = sessionStorage;
+  AuthService({required AuthRepository authRepository})
+      : _authRepository = authRepository;
 
-  Future<Result<User>> loginWithEmailAndPassword(
+  Future<Result<AuthResponseDTO>> loginWithEmailAndPassword(
       String email, String password) async {
     try {
       AuthResponseDTO loginResponse =
           await _authRepository.loginWithEmailAndPassword(email, password);
-
-      // Storing the session
-      await _sessionStorage.saveSession(
-          user: loginResponse.user, tokens: loginResponse.tokens);
-
-      // Logger().w(loginResponse.tokens.accessToken);
-      // Logger().w(loginResponse.tokens.refreshToken);
-
-      return Result.success(loginResponse.user);
+      return Result.success(loginResponse);
     } catch (e, stackTrace) {
       return Result.failure(ErrorMapper.map(e, stackTrace));
     }
   }
 
-  Future<Result<User>> registerWithEmailAndPassword(
+  Future<Result<AuthResponseDTO>> registerWithEmailAndPassword(
       String email, String username, String password) async {
     try {
       AuthResponseDTO registerResponse = await _authRepository
           .registerWithEmailAndPassword(email, username, password);
 
-      // Storing the session
-      await _sessionStorage.saveSession(
-          user: registerResponse.user, tokens: registerResponse.tokens);
-
-      return Result.success(registerResponse.user);
+      return Result.success(registerResponse);
     } catch (e, stackTrace) {
       return Result.failure(ErrorMapper.map(e, stackTrace));
     }
-  }
-
-  Future<Result<User>> loginAsGuest(String username) async {
-    User guest = User.guest(username);
-    // Storing the user in session without token
-    await _sessionStorage.saveSession(user: guest);
-    return Result.success(guest);
   }
 
   Future<Result<TokensDTO>> refreshAccessToken(
@@ -91,11 +65,7 @@ class AuthService {
     }
   }
 
-  Future<void> logout() async {
-    await _sessionStorage.clearSession();
-  }
-
-  Future<Result<User>> loginWithGoogle() async {
+  Future<Result<AuthResponseDTO>> loginWithGoogle() async {
     if (!(kIsWeb || Platform.isAndroid)) {
       return Result.failureMessage(
           "Google login is only available on Android and Web");
@@ -118,20 +88,14 @@ class AuthService {
       AuthResponseDTO loginResponse =
           await _authRepository.loginWithGoogle(idToken);
 
-      Logger().w(loginResponse.user.toJson());
-
-      // Storing the session
-      await _sessionStorage.saveSession(
-          user: loginResponse.user, tokens: loginResponse.tokens);
-
-      return Result.success(loginResponse.user);
+      return Result.success(loginResponse);
     } catch (e, stackTrace) {
       googleSignIn.signOut();
       return Result.failure(ErrorMapper.map(e, stackTrace));
     }
   }
 
-  Future<Result<User>> registerWithGoogle(
+  Future<Result<AuthResponseDTO>> registerWithGoogle(
       AsyncFunc<String, GoogleRegisterUserInfo?> afterAccountSelect) async {
     if (!(kIsWeb || Platform.isAndroid)) {
       return Result.failureMessage(
@@ -164,11 +128,7 @@ class AuthService {
           await _authRepository.registerWithGoogle(idToken,
               username: userInfo.username, password: userInfo.password);
 
-      // Storing the session
-      await _sessionStorage.saveSession(
-          user: registerResponse.user, tokens: registerResponse.tokens);
-
-      return Result.success(registerResponse.user);
+      return Result.success(registerResponse);
     } catch (e, stackTrace) {
       googleSignIn.signOut();
 

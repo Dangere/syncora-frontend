@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
 class OverlayLoader extends StatefulWidget {
@@ -27,7 +28,7 @@ class _OverlayLoaderState extends State<OverlayLoader> {
 
   @override
   Widget build(BuildContext context) {
-    return Stack(children: [
+    return Stack(fit: StackFit.expand, alignment: Alignment.topLeft, children: [
       widget.body,
       if (widget.isLoading) overlay(),
     ]);

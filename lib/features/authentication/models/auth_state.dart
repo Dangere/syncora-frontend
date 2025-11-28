@@ -8,7 +8,8 @@ abstract class AuthState {
 
 class AuthAuthenticated extends AuthState {
   final User user;
-  const AuthAuthenticated(this.user);
+  final bool isVerified;
+  const AuthAuthenticated(this.user, this.isVerified);
 }
 
 class AuthGuest extends AuthState {

@@ -22,7 +22,7 @@ class SyncRepository {
           '${Constants.BASE_API_URL}/sync/$since?includeDeleted=$includeDeleted',
         )
         .timeout(const Duration(seconds: 10));
-    Logger().d(response.data);
+    // Logger().d(response.data);
 
     return SyncPayload.fromJson(response.data);
   }

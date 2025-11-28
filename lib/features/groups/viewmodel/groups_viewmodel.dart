@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:logger/logger.dart';
 import 'package:syncora_frontend/common/providers/common_providers.dart';
 import 'package:syncora_frontend/common/providers/connection_provider.dart';
 import 'package:syncora_frontend/core/network/outbox/outbox_viewmodel.dart';
@@ -187,6 +188,17 @@ class GroupsNotifier extends AsyncNotifier<List<Group>> {
   }
 
   Future<void> reloadGroups() async {
+    if (state.isLoading) {
+      await Future.doWhile(() async {
+        await Future.delayed(const Duration(seconds: 3));
+        ref
+            .read(loggerProvider)
+            .d("Groups viewmodel: we are waiting for loading to finish");
+        return state.isLoading;
+      });
+    }
+    state = const AsyncValue.loading();
+
     Result<List<Group>> fetchResult =
         await ref.read(groupsServiceProvider).getAllGroups();
 
@@ -213,36 +225,84 @@ class GroupsNotifier extends AsyncNotifier<List<Group>> {
     }
   }
 
-  // TODO: A bug that happens is when the build method is being rebuilt when a notifier such as groupsServiceProvider rebuilds, it cases an error "_groupsService has already been initialized"
   @override
   FutureOr<List<Group>> build() async {
-    ref.watch(loggerProvider).w("Building groups notifier");
     var authState = ref.watch(authNotifierProvider);
-    authState.when(
-        data: (data) {
-          if (data.isUnauthenticated) {
-            throw AppError(
-                message: "User is not logged in",
-                stackTrace: StackTrace.current);
+
+    ref
+        .watch(loggerProvider)
+        .w("Building groups notifier, authState: $authState");
+
+    // There was some weird bug, both the if (data.isAuthenticated) and if(data.isUnauthenticated) would get triggered in the same time? even if isUnauthenticated is false....
+
+    // Okay i think i found the issue, when the user logs out and isUnauthenticated is actually set to true, it doesn't throw the error, but the moment the notifier is built again when isUnauthenticated is false, it throws the old exception from during the logout when it was true
+    return authState.when(
+      data: (AuthState data) async {
+        if (data.isAuthenticated) {
+          // await Future.delayed(const Duration(seconds: 1));
+          Result<List<Group>> fetchResult =
+              await ref.read(groupsServiceProvider).getAllGroups();
+
+          if (!fetchResult.isSuccess) {
+            ref.read(appErrorProvider.notifier).state = fetchResult.error;
+            return [];
           }
-        },
-        error: (error, stackTrace) {
-          throw error;
-        },
-        loading: () => Completer<int>().future);
 
-    if (authState.isLoading) {
-      return Completer<List<Group>>().future;
-    }
-    Result<List<Group>> fetchResult =
-        await ref.read(groupsServiceProvider).getAllGroups();
+          return fetchResult.data!;
+        } else if (data.isUnauthenticated) {
+          return [];
+        }
 
-    if (!fetchResult.isSuccess) {
-      ref.read(appErrorProvider.notifier).state = fetchResult.error;
-      return [];
-    }
+        return Completer<List<Group>>().future;
+      },
+      error: (error, stackTrace) {
+        throw error;
+      },
+      loading: () {
+        return Completer<List<Group>>().future;
+      },
+    );
 
-    return fetchResult.data!;
+    //
+
+    // return authState.when(
+    //     data: (AuthState data) async {
+    //       if (data.isAuthenticated) {
+    //         ref.watch(loggerProvider).f("We are logged in my boy");
+    //         Result<List<Group>> fetchResult =
+    //             await ref.read(groupsServiceProvider).getAllGroups();
+
+    //         if (!fetchResult.isSuccess) {
+    //           ref.read(appErrorProvider.notifier).state = fetchResult.error;
+    //           return [];
+    //         }
+
+    //         return fetchResult.data!;
+    //       }
+    //       if (data is AuthUnauthenticated) {
+    //         ref.read(loggerProvider).f(data is AuthUnauthenticated);
+    //         throw Exception("User is not logged in");
+    //       }
+
+    //       return [];
+    //     },
+    //     error: (error, stackTrace) {
+    //       throw error;
+    //     },
+    //     loading: () => Completer<List<Group>>().future);
+
+    // if (authState.isLoading) {
+    //   return Completer<List<Group>>().future;
+    // }
+    // Result<List<Group>> fetchResult =
+    //     await ref.read(groupsServiceProvider).getAllGroups();
+
+    // if (!fetchResult.isSuccess) {
+    //   ref.read(appErrorProvider.notifier).state = fetchResult.error;
+    //   return [];
+    // }
+
+    // return fetchResult.data!;
   }
 }
 

@@ -5,8 +5,10 @@ import 'package:syncora_frontend/core/tests.dart';
 import 'package:syncora_frontend/core/typedef.dart';
 import 'package:syncora_frontend/core/utils/app_error.dart';
 import 'package:syncora_frontend/core/utils/result.dart';
+import 'package:syncora_frontend/features/authentication/models/auth_response_dto.dart';
 import 'package:syncora_frontend/features/authentication/models/auth_state.dart';
 import 'package:syncora_frontend/features/authentication/models/google_register_user_info.dart';
+import 'package:syncora_frontend/features/authentication/models/session.dart';
 import 'package:syncora_frontend/features/authentication/models/tokens_dto.dart';
 import 'package:syncora_frontend/features/authentication/models/user.dart';
 import 'package:syncora_frontend/features/authentication/repositories/auth_repository.dart';
@@ -21,9 +23,19 @@ class AuthNotifier extends AsyncNotifier<AuthState> {
     if (state.isLoading || _isLoggedIn) return;
 
     state = const AsyncValue.loading();
-    Result<User> result = await ref.read(authServiceProvider).loginWithGoogle();
+
+    Result<AuthResponseDTO> result =
+        await ref.read(authServiceProvider).loginWithGoogle();
+
     if (result.isSuccess) {
-      state = AsyncValue.data(AuthAuthenticated(result.data!));
+      // Save session
+      await ref.read(sessionStorageProvider).saveSession(
+          user: result.data!.user,
+          tokens: result.data!.tokens,
+          isVerified: result.data!.isVerified);
+      // Update state
+      state = AsyncValue.data(
+          AuthAuthenticated(result.data!.user, result.data!.isVerified));
     } else {
       ref.read(appErrorProvider.notifier).state = result.error!;
       state = const AsyncValue.data(AuthUnauthenticated());
@@ -35,12 +47,20 @@ class AuthNotifier extends AsyncNotifier<AuthState> {
     if (state.isLoading || _isLoggedIn) return;
 
     state = const AsyncValue.loading();
-    Result<User> result = await ref
+
+    Result<AuthResponseDTO> result = await ref
         .read(authServiceProvider)
         .registerWithGoogle(afterAccountSelect);
 
     if (result.isSuccess) {
-      state = AsyncValue.data(AuthAuthenticated(result.data!));
+      // Save session
+      await ref.read(sessionStorageProvider).saveSession(
+          user: result.data!.user,
+          tokens: result.data!.tokens,
+          isVerified: result.data!.isVerified);
+      // Update state
+      state = AsyncValue.data(
+          AuthAuthenticated(result.data!.user, result.data!.isVerified));
     } else {
       ref.read(appErrorProvider.notifier).state = result.error!;
       state = const AsyncValue.data(AuthUnauthenticated());
@@ -51,11 +71,21 @@ class AuthNotifier extends AsyncNotifier<AuthState> {
     if (state.isLoading || _isLoggedIn) return;
 
     state = const AsyncValue.loading();
-    Result<User> result = await ref
+
+    Result<AuthResponseDTO> result = await ref
         .read(authServiceProvider)
         .loginWithEmailAndPassword(email, password);
+
     if (result.isSuccess) {
-      state = AsyncValue.data(AuthAuthenticated(result.data!));
+      // Save session
+      await ref.read(sessionStorageProvider).saveSession(
+          user: result.data!.user,
+          tokens: result.data!.tokens,
+          isVerified: result.data!.isVerified);
+
+      // Update state
+      state = AsyncValue.data(
+          AuthAuthenticated(result.data!.user, result.data!.isVerified));
     } else {
       ref.read(appErrorProvider.notifier).state = result.error!;
       state = const AsyncValue.data(AuthUnauthenticated());
@@ -67,12 +97,20 @@ class AuthNotifier extends AsyncNotifier<AuthState> {
     if (state.isLoading || _isLoggedIn) return;
 
     state = const AsyncValue.loading();
-    Result<User> result = await ref
+
+    Result<AuthResponseDTO> result = await ref
         .read(authServiceProvider)
         .registerWithEmailAndPassword(email, username, password);
 
     if (result.isSuccess) {
-      state = AsyncValue.data(AuthAuthenticated(result.data!));
+      // Save session
+      await ref.read(sessionStorageProvider).saveSession(
+          user: result.data!.user,
+          tokens: result.data!.tokens,
+          isVerified: result.data!.isVerified);
+      // Update state
+      state = AsyncValue.data(
+          AuthAuthenticated(result.data!.user, result.data!.isVerified));
     } else {
       ref.read(appErrorProvider.notifier).state = result.error;
       state = const AsyncValue.data(AuthUnauthenticated());
@@ -82,20 +120,15 @@ class AuthNotifier extends AsyncNotifier<AuthState> {
   void loginAsGuest(String username) async {
     if (state.isLoading || _isLoggedIn) return;
 
-    state = const AsyncValue.loading();
-    Result<User> result =
-        await ref.read(authServiceProvider).loginAsGuest(username);
+    await ref
+        .read(sessionStorageProvider)
+        .saveSession(user: User.guest(username), isVerified: false);
 
-    if (result.isSuccess) {
-      state = AsyncValue.data(AuthGuest(result.data!));
-    } else {
-      ref.read(appErrorProvider.notifier).state = result.error;
-      state = const AsyncValue.data(AuthUnauthenticated());
-    }
+    state = AsyncValue.data(AuthGuest(User.guest(username)));
   }
 
   void logout() async {
-    await ref.read(authServiceProvider).logout();
+    await ref.read(sessionStorageProvider).clearSession();
     state = const AsyncValue.data(AuthUnauthenticated());
   }
 
@@ -115,9 +148,9 @@ class AuthNotifier extends AsyncNotifier<AuthState> {
           AppError(message: "Cannot refresh tokens when no user is logged in"));
     }
 
-    String? accessToken = ref.read(sessionStorageProvider).accessToken;
-    String? refreshToken = ref.read(sessionStorageProvider).refreshToken;
-    if (accessToken == null || refreshToken == null) {
+    TokensDTO? tokens = ref.read(sessionStorageProvider).session?.tokens;
+
+    if (tokens == null) {
       return Result.failure(
           AppError(message: "Tokens are empty, cannot refresh them"));
     }
@@ -135,10 +168,7 @@ class AuthNotifier extends AsyncNotifier<AuthState> {
     ref.read(loggerProvider).d("Refreshing tokens");
     Result<TokensDTO> result = await ref
         .read(authServiceProvider)
-        .refreshAccessToken(
-            tokens:
-                TokensDTO(accessToken: accessToken, refreshToken: refreshToken),
-            onExpire: kickUser);
+        .refreshAccessToken(tokens: tokens, onExpire: kickUser);
 
     if (!result.isSuccess) {
       if (!_refreshTokenCompleter!.isCompleted) {
@@ -165,10 +195,7 @@ class AuthNotifier extends AsyncNotifier<AuthState> {
     return value?.isAuthenticated == true || value?.isGuest == true;
   }
 
-  Future<User?> loadSession() async {
-    ref.read(loggerProvider).w("Making up a user");
-
-    // return new User(id: -1, username: "username", email: "email");
+  Future<Session?> loadSession() async {
     return await ref.read(sessionStorageProvider).loadSession();
   }
 
@@ -176,12 +203,13 @@ class AuthNotifier extends AsyncNotifier<AuthState> {
   Future<AuthState> build() async {
     ref.read(loggerProvider).w("building auth notifier");
 
-    User? user = await loadSession();
-    if (user == null) return const AuthUnauthenticated();
+    Session? session = await loadSession();
 
-    if (user.id == -1) return AuthGuest(user);
+    if (session == null) return const AuthUnauthenticated();
 
-    return AuthAuthenticated(user);
+    if (session.user.id == -1) return AuthGuest(session.user);
+
+    return AuthAuthenticated(session.user, session.isVerified);
   }
 }
 
@@ -192,9 +220,7 @@ final authRepositoryProvider = Provider<AuthRepository>(
     (ref) => AuthRepository(dio: ref.watch(dioProvider)));
 
 final authServiceProvider = Provider<AuthService>((ref) {
-  return AuthService(
-      authRepository: ref.watch(authRepositoryProvider),
-      sessionStorage: ref.watch(sessionStorageProvider));
+  return AuthService(authRepository: ref.watch(authRepositoryProvider));
 });
 
 final isLoggedProvider = Provider<bool>((ref) {
