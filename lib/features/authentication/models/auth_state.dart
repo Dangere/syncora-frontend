@@ -24,6 +24,9 @@ class AuthUnauthenticated extends AuthState {
 
 extension AuthStateX on AuthState {
   bool get isAuthenticated => this is AuthAuthenticated;
+  AuthAuthenticated? get asAuthenticated =>
+      this is AuthAuthenticated ? this as AuthAuthenticated : null;
+
   bool get isUnauthenticated => this is AuthUnauthenticated;
 
   bool get isGuest => this is AuthGuest;

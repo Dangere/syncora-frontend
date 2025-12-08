@@ -22,9 +22,9 @@ class AuthInterceptor extends Interceptor {
 
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
-    if (_sessionStorage.session?.tokens?.accessToken != null) {
+    if (_sessionStorage.tokens?.accessToken != null) {
       options.headers['Authorization'] =
-          'Bearer ${_sessionStorage.session!.tokens!.accessToken}';
+          'Bearer ${_sessionStorage.tokens!.accessToken}';
     }
 
     // ref.read(loggerProvider).i("Dio request: ${options.data}");
@@ -37,7 +37,7 @@ class AuthInterceptor extends Interceptor {
     // ref.read(loggerProvider).i("Dio Error: ${err.response?.statusCode}");
 
     int? status = err.response?.statusCode;
-    bool haveAccessToken = _sessionStorage.session?.tokens != null;
+    bool haveAccessToken = _sessionStorage.tokens != null;
 
     // If we have an access token and the error is 401 unauthorized
     if (haveAccessToken && status == 401) {
@@ -47,7 +47,7 @@ class AuthInterceptor extends Interceptor {
           await _refreshTokenCompleter!.future;
 
           // If we dont have a refresh token after waiting, it means user was logged out and tokens were cleared so we end all pending requests
-          if (_sessionStorage.session?.tokens?.refreshToken == null) {
+          if (_sessionStorage.tokens?.refreshToken == null) {
             return super.onError(err, handler);
           }
 
@@ -83,7 +83,7 @@ class AuthInterceptor extends Interceptor {
     final options = err.requestOptions;
     // Making sure we are updating the authorization header with the current access token
     options.headers['Authorization'] =
-        'Bearer ${_sessionStorage.session!.tokens!.accessToken}';
+        'Bearer ${_sessionStorage.tokens!.accessToken}';
 
     // Retrying the request
     final response = await _dio.fetch(options);

@@ -1,6 +1,8 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:logger/logger.dart';
 import 'package:syncora_frontend/common/providers/common_providers.dart';
 import 'package:syncora_frontend/common/providers/connection_provider.dart';
 import 'package:syncora_frontend/common/themes/app_sizes.dart';
@@ -12,6 +14,7 @@ import 'package:syncora_frontend/core/utils/snack_bar_alerts.dart';
 import 'package:syncora_frontend/features/authentication/models/auth_state.dart';
 import 'package:syncora_frontend/features/authentication/viewmodel/auth_viewmodel.dart';
 import 'package:syncora_frontend/features/groups/view/widgets/groups_list.dart';
+import 'package:syncora_frontend/features/home/view/widgets/verify_email_panel.dart';
 
 class HomePage extends ConsumerStatefulWidget {
   const HomePage({super.key, required this.title});
@@ -78,6 +81,12 @@ class _HomeScreenState extends ConsumerState<HomePage> {
               ),
             ),
 
+            if (ref.read(isVerifiedProvider) == false)
+              VerifyEmailPanel(
+                authState: authState.value!,
+                ref: ref,
+              ),
+
             const Expanded(child: GroupsList())
             // ElevatedButton(onPressed: openGroupsPage, child: Text("Groups page"))
           ],
@@ -106,6 +115,12 @@ class _HomeScreenState extends ConsumerState<HomePage> {
               // ref.read(syncBackendNotifierProvider.notifier).toggleSyncing();
               // Tests.printDb(ref);
               Tests.printDb(await ref.read(localDbProvider).getDatabase());
+
+              Logger().d(ref
+                  .read(authNotifierProvider)
+                  .value
+                  ?.asAuthenticated!
+                  .isVerified);
             },
             tooltip: 'TEST',
             icon: const Icon(Icons.text_rotation_angleup_sharp),

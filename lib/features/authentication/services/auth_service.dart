@@ -135,4 +135,22 @@ class AuthService {
       return Result.failure(ErrorMapper.map(e, stackTrace));
     }
   }
+
+  Future<Result<void>> sendVerificationEmail() async {
+    try {
+      await _authRepository.sendVerificationEmail();
+
+      return Result.success(null);
+    } catch (e, stackTrace) {
+      return Result.failure(ErrorMapper.map(e, stackTrace));
+    }
+  }
+
+  Future<Result<bool>> checkVerificationStatus() async {
+    try {
+      return Result.success(await _authRepository.checkVerificationStatus());
+    } catch (e, stackTrace) {
+      return Result.failure(ErrorMapper.map(e, stackTrace));
+    }
+  }
 }

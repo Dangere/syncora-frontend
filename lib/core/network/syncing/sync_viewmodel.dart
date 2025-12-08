@@ -115,8 +115,7 @@ class SyncBackendNotifier extends AsyncNotifier<int>
   }
 
   Future<Result> _initializeConnection() async {
-    String? accessToken =
-        ref.read(sessionStorageProvider).session?.tokens?.accessToken;
+    String? accessToken = ref.read(sessionStorageProvider).tokens?.accessToken;
 
     if (accessToken == null) {
       return Result.failure(
@@ -126,10 +125,12 @@ class SyncBackendNotifier extends AsyncNotifier<int>
     _syncSignalRClient = SignalRClient(
         serverUrl: Constants.BASE_HUB_URL,
         hub: "sync",
-        accessTokenFactory: () async => Future.value(
-            ref.read(sessionStorageProvider).session?.tokens?.accessToken));
+        accessTokenFactory: () async =>
+            Future.value(ref.read(sessionStorageProvider).tokens?.accessToken));
 
     _syncSignalRClient!.connection.on("ReceiveSync", _receiveSyncData);
+    _syncSignalRClient!.connection
+        .on("ReceiveVerification", _receiveVerification);
     _syncSignalRClient!.connection.onclose(_onClosedConnection);
     _syncSignalRClient!.connection.onreconnecting(_onHubReconnecting);
     _syncSignalRClient!.connection.onreconnected(_onHubReconnect);
@@ -209,6 +210,19 @@ class SyncBackendNotifier extends AsyncNotifier<int>
 
   void _receiveSyncData(List<Object?>? parameters) {
     syncData();
+  }
+
+  void _receiveVerification(List<Object?>? parameters) {
+    bool isVerified = parameters?[0] as bool;
+
+    ref
+        .read(loggerProvider)
+        .d("Receiving verification status, as verified: $isVerified");
+    if (!isVerified) return;
+
+    ref
+        .read(authNotifierProvider.notifier)
+        .updateVerificationStatus(isVerified);
   }
 
   void _onClosedConnection({Exception? error}) {

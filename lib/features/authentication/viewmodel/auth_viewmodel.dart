@@ -5,6 +5,7 @@ import 'package:syncora_frontend/core/tests.dart';
 import 'package:syncora_frontend/core/typedef.dart';
 import 'package:syncora_frontend/core/utils/app_error.dart';
 import 'package:syncora_frontend/core/utils/result.dart';
+import 'package:syncora_frontend/core/utils/snack_bar_alerts.dart';
 import 'package:syncora_frontend/features/authentication/models/auth_response_dto.dart';
 import 'package:syncora_frontend/features/authentication/models/auth_state.dart';
 import 'package:syncora_frontend/features/authentication/models/google_register_user_info.dart';
@@ -16,6 +17,7 @@ import 'package:syncora_frontend/features/authentication/services/auth_service.d
 import 'package:syncora_frontend/features/authentication/services/session_storage.dart';
 
 // TODO: Implement guard for connection checking before methods
+
 class AuthNotifier extends AsyncNotifier<AuthState> {
   Completer? _refreshTokenCompleter;
 
@@ -148,7 +150,7 @@ class AuthNotifier extends AsyncNotifier<AuthState> {
           AppError(message: "Cannot refresh tokens when no user is logged in"));
     }
 
-    TokensDTO? tokens = ref.read(sessionStorageProvider).session?.tokens;
+    TokensDTO? tokens = ref.read(sessionStorageProvider).tokens;
 
     if (tokens == null) {
       return Result.failure(
@@ -193,6 +195,52 @@ class AuthNotifier extends AsyncNotifier<AuthState> {
   bool get _isLoggedIn {
     final value = state.valueOrNull;
     return value?.isAuthenticated == true || value?.isGuest == true;
+  }
+
+  Future<Result> sendVerificationEmail() async {
+    Result result = await ref.read(authServiceProvider).sendVerificationEmail();
+
+    if (!result.isSuccess) {
+      ref.read(appErrorProvider.notifier).state = result.error!;
+    }
+
+    return result;
+  }
+
+// TODO: When the user verifies, `updateVerificationStatus` gets called from server to update the UI immediately, however if the app is closed, it wont update so we need to check the status from the server on startup or unpausing the app
+  void refetchVerificationStatus() async {
+    // Only check if we are authenticated
+    if (!state.hasValue || !state.value!.isAuthenticated) {
+      return;
+    }
+
+    // If we aren't verified
+    if (!state.value!.asAuthenticated!.isVerified) {
+      // We check our verification status from the server
+      Result<bool> result =
+          await ref.read(authServiceProvider).checkVerificationStatus();
+
+      // If theres an error, we display and return the error
+      if (!result.isSuccess) {
+        ref.read(appErrorProvider.notifier).state = result.error!;
+        return;
+      }
+      // If the result is true
+      if (result.data!) {
+        // we update the verification status on our state
+        state = AsyncValue.data(
+            AuthAuthenticated(state.value!.asAuthenticated!.user, true));
+      }
+    }
+  }
+
+  void updateVerificationStatus(bool isVerified) async {
+    // Only continue if we are authenticated
+    if (!state.hasValue || !state.value!.isAuthenticated) {
+      return;
+    }
+    state = AsyncValue.data(
+        AuthAuthenticated(state.value!.asAuthenticated!.user, isVerified));
   }
 
   Future<Session?> loadSession() async {
@@ -247,15 +295,19 @@ final isGuestProvider = Provider<bool>((ref) {
   }));
 });
 
-// final guestFlagProvider = Provider<bool>((ref) {
-//   return ref.watch(
-//       authNotifierProvider.select((state) => state.value?.isGuest ?? false));
-// });
-
 final sessionStorageProvider = Provider<SessionStorage>((ref) {
   ref.read(loggerProvider).d("Constructing session storage");
   return SessionStorage(
       secureStorage: ref.watch(secureStorageProvider),
       sharedPreferences: ref.watch(sharedPreferencesProvider),
       databaseManager: ref.watch(localDbProvider));
+});
+
+final isVerifiedProvider = Provider.autoDispose<bool>((ref) {
+  AsyncValue<AuthState> authState = ref.watch(authNotifierProvider);
+
+  if (authState.value == null || !authState.value!.isAuthenticated) {
+    return false;
+  }
+  return authState.value!.asAuthenticated!.isVerified;
 });

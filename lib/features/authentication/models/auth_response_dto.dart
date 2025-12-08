@@ -11,7 +11,7 @@ class AuthResponseDTO {
 
   factory AuthResponseDTO.fromJson(Map<String, dynamic> json) {
     return AuthResponseDTO(
-        isVerified: bool.parse(json['isVerified'] ?? 'false'),
+        isVerified: json['isVerified'],
         tokens: TokensDTO(
             accessToken: json['tokens']['accessToken'],
             refreshToken: json['tokens']['refreshToken']),

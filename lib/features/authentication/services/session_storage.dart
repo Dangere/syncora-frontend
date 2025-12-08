@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:logger/logger.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:syncora_frontend/core/data/database_manager.dart';
 import 'package:syncora_frontend/core/data/enums/database_tables.dart';
@@ -8,6 +9,7 @@ import 'package:syncora_frontend/features/authentication/models/session.dart';
 import 'package:syncora_frontend/features/authentication/models/tokens_dto.dart';
 import 'package:syncora_frontend/features/authentication/models/user.dart';
 
+// This class loads user data on startup and stores tokens in memory when fetched to be used for subsequent requests
 class SessionStorage {
   final FlutterSecureStorage _secureStorage;
   final SharedPreferences _sharedPreferences;
@@ -18,9 +20,9 @@ class SessionStorage {
   static const _userKey = 'user';
   static const _isVerifiedKey = 'isVerified';
 
-  Session? _cachedSession;
+  TokensDTO? _cachedTokens;
 
-  Session? get session => _cachedSession;
+  TokensDTO? get tokens => _cachedTokens;
 
   SessionStorage(
       {required secureStorage,
@@ -57,11 +59,11 @@ class SessionStorage {
           isVerified: isVerified,
           tokens: tokens);
 
-      _cachedSession = session;
+      _cachedTokens = tokens;
       return session;
     }
 
-    _cachedSession = null;
+    _cachedTokens = null;
     return null;
   }
 
@@ -78,19 +80,18 @@ class SessionStorage {
     await updateTokens(
         accessToken: tokens?.accessToken, refreshToken: tokens?.refreshToken);
 
-    _cachedSession =
-        Session(user: user, isVerified: isVerified, tokens: tokens);
+    _cachedTokens = tokens;
   }
 
   Future<void> updateTokens({String? accessToken, String? refreshToken}) async {
     await _secureStorage.write(key: _accessTokenKey, value: accessToken);
     await _secureStorage.write(key: _refreshTokenKey, value: refreshToken);
 
-    _cachedSession?.tokens = await loadTokens();
+    _cachedTokens = await loadTokens();
   }
 
   Future<void> clearSession() async {
-    _cachedSession = null;
+    _cachedTokens = null;
     await _databaseManager.ensureDeleted();
 
     await Future.wait([

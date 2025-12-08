@@ -87,4 +87,22 @@ class AuthRepository {
     // Returning the authentication response
     return authResponse;
   }
+
+  Future<void> sendVerificationEmail() async {
+    await _dio
+        .post(
+          "${Constants.BASE_API_URL}/authentication/verify/send",
+        )
+        .timeout(const Duration(seconds: 10));
+  }
+
+  Future<bool> checkVerificationStatus() async {
+    final response = await _dio
+        .post(
+          "${Constants.BASE_API_URL}/authentication/verify/status",
+        )
+        .timeout(const Duration(seconds: 10));
+
+    return response.data as bool;
+  }
 }
