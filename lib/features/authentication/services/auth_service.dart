@@ -1,11 +1,10 @@
 import 'dart:async';
 import 'dart:io';
+import 'package:cancellation_token/cancellation_token.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:logger/logger.dart';
 import 'package:syncora_frontend/core/typedef.dart';
-import 'package:syncora_frontend/core/utils/error_mapper.dart';
 import 'package:syncora_frontend/core/utils/result.dart';
 import 'package:syncora_frontend/features/authentication/models/auth_response_dto.dart';
 import 'package:syncora_frontend/features/authentication/models/google_register_user_info.dart';
@@ -33,7 +32,7 @@ class AuthService {
           await _authRepository.loginWithEmailAndPassword(email, password);
       return Result.success(loginResponse);
     } catch (e, stackTrace) {
-      return Result.failure(ErrorMapper.map(e, stackTrace));
+      return Result.failure(e, stackTrace);
     }
   }
 
@@ -45,23 +44,26 @@ class AuthService {
 
       return Result.success(registerResponse);
     } catch (e, stackTrace) {
-      return Result.failure(ErrorMapper.map(e, stackTrace));
+      return Result.failure(e, stackTrace);
     }
   }
 
   Future<Result<TokensDTO>> refreshAccessToken(
-      {required TokensDTO tokens, required VoidCallback onExpire}) async {
+      {required TokensDTO tokens,
+      required VoidCallback onExpire,
+      CancellationToken? cancellationToken}) async {
     try {
-      TokensDTO refreshedTokens =
-          await _authRepository.refreshAccessToken(tokens: tokens);
+      TokensDTO refreshedTokens = await _authRepository
+          .refreshAccessToken(tokens: tokens)
+          .asCancellable(cancellationToken);
       return Result.success(refreshedTokens);
     } on DioException catch (e, stackTrace) {
       if (e.response?.statusCode == 401) {
         onExpire();
       }
-      return Result.failure(ErrorMapper.map(e, stackTrace));
+      return Result.failure(e, stackTrace);
     } catch (e, stackTrace) {
-      return Result.failure(ErrorMapper.map(e, stackTrace));
+      return Result.failure(e, stackTrace);
     }
   }
 
@@ -91,7 +93,7 @@ class AuthService {
       return Result.success(loginResponse);
     } catch (e, stackTrace) {
       googleSignIn.signOut();
-      return Result.failure(ErrorMapper.map(e, stackTrace));
+      return Result.failure(e, stackTrace);
     }
   }
 
@@ -132,7 +134,7 @@ class AuthService {
     } catch (e, stackTrace) {
       googleSignIn.signOut();
 
-      return Result.failure(ErrorMapper.map(e, stackTrace));
+      return Result.failure(e, stackTrace);
     }
   }
 
@@ -142,7 +144,7 @@ class AuthService {
 
       return Result.success(null);
     } catch (e, stackTrace) {
-      return Result.failure(ErrorMapper.map(e, stackTrace));
+      return Result.failure(e, stackTrace);
     }
   }
 
@@ -150,7 +152,16 @@ class AuthService {
     try {
       return Result.success(await _authRepository.checkVerificationStatus());
     } catch (e, stackTrace) {
-      return Result.failure(ErrorMapper.map(e, stackTrace));
+      return Result.failure(e, stackTrace);
+    }
+  }
+
+  Future<Result<void>> requestPasswordReset(String email) async {
+    try {
+      await _authRepository.requestPasswordReset(email);
+      return Result.success(null);
+    } catch (e, stackTrace) {
+      return Result.failure(e, stackTrace);
     }
   }
 }

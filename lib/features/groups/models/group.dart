@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:syncora_frontend/features/groups/models/group_dto.dart';
 import 'package:equatable/equatable.dart';
 

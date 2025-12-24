@@ -96,7 +96,7 @@ class _GroupsListState extends ConsumerState<GroupsList> {
 
     return OverlayLoader(
       isLoading: groups.isLoading,
-      overlay: const Center(child: CircularProgressIndicator()),
+      overlay: const CircularProgressIndicator(),
       body: SingleChildScrollView(
         child: Wrap(
           alignment: WrapAlignment.center,

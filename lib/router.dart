@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:logger/logger.dart';
 import 'package:syncora_frontend/common/providers/common_providers.dart';
 import 'package:syncora_frontend/features/authentication/view/pages/login_page.dart';
+import 'package:syncora_frontend/features/authentication/view/pages/password_reset_page.dart';
 import 'package:syncora_frontend/features/authentication/view/pages/register_page.dart';
 import 'package:syncora_frontend/features/authentication/viewmodel/auth_viewmodel.dart';
 import 'package:syncora_frontend/features/groups/view/page/group_view_page.dart';
@@ -14,6 +15,12 @@ final routeProvider = Provider<GoRouter>((ref) {
 
   Logger logger = ref.read(loggerProvider);
   logger.w('Refreshing routes, isLogged: $isLogged');
+
+  const publicRoutes = {
+    'login',
+    'register',
+    'reset-password',
+  };
 
   return GoRouter(
       initialLocation: '/',
@@ -30,12 +37,20 @@ final routeProvider = Provider<GoRouter>((ref) {
           },
         ),
         GoRoute(
-          name: 'login',
-          path: '/login',
-          builder: (context, state) {
-            return const LoginPage();
-          },
-        ),
+            name: 'login',
+            path: '/login',
+            builder: (context, state) {
+              return const LoginPage();
+            },
+            routes: [
+              GoRoute(
+                name: 'reset-password',
+                path: 'reset-password',
+                builder: (context, state) {
+                  return const PasswordResetPage();
+                },
+              ),
+            ]),
         GoRoute(
           name: 'register',
           path: '/register',
@@ -55,10 +70,12 @@ final routeProvider = Provider<GoRouter>((ref) {
           },
         ),
       ],
+      // TODO: Check the public routes and implement them in the redirection
       redirect: (context, state) {
         if (!isLogged &&
             state.fullPath != "/login" &&
-            state.fullPath != "/register") {
+            state.fullPath != "/register" &&
+            state.fullPath != "/login/reset-password") {
           logger.d(
               "You were on ${state.fullPath} and getting redirected to login page");
           return '/login';

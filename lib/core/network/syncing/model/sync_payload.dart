@@ -68,6 +68,13 @@ class SyncPayload {
         'kickedGroupsIds': kickedGroupsIds?.toList()
       };
 
+  bool isEmpty() =>
+      groups.isEmpty &&
+      tasks.isEmpty &&
+      users.isEmpty &&
+      deletedGroups!.isEmpty &&
+      deletedTasks!.isEmpty &&
+      kickedGroupsIds!.isEmpty;
   @override
   String toString() {
     JsonEncoder encoder =

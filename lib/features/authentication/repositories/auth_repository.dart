@@ -105,4 +105,11 @@ class AuthRepository {
 
     return response.data as bool;
   }
+
+  Future<void> requestPasswordReset(String email) async {
+    await _dio
+        .post(
+            "${Constants.BASE_API_URL}/authentication/password-reset/send/$email")
+        .timeout(const Duration(seconds: 20));
+  }
 }

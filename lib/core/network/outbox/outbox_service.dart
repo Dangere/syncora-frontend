@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:collection';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/services.dart';
@@ -8,13 +7,10 @@ import 'package:syncora_frontend/core/network/outbox/exception/outbox_exception.
 import 'package:syncora_frontend/core/network/outbox/model/enqueue_request.dart';
 import 'package:syncora_frontend/core/network/outbox/interface/outbox_processor_interface.dart';
 import 'package:syncora_frontend/core/network/outbox/model/outbox_entry.dart';
-import 'package:syncora_frontend/core/network/outbox/model/queue_processor_response.dart';
 import 'package:syncora_frontend/core/network/outbox/outbox_id_mapper.dart';
 import 'package:syncora_frontend/core/network/outbox/outbox_sorter.dart';
 import 'package:syncora_frontend/core/network/outbox/repository/outbox_repository.dart';
 import 'package:syncora_frontend/core/typedef.dart';
-import 'package:syncora_frontend/core/utils/app_error.dart';
-import 'package:syncora_frontend/core/utils/error_mapper.dart';
 import 'package:syncora_frontend/core/utils/result.dart';
 
 class OutboxService {
@@ -22,17 +18,19 @@ class OutboxService {
   final Map<OutboxEntityType, OutboxProcessor> _processors;
   final Logger _logger;
   final Duration _rateLimitDelay;
-
+  final Duration _timeoutDelay;
   OutboxService(
       {required OutboxRepository outboxRepository,
       required Map<OutboxEntityType, OutboxProcessor> processors,
       required OutboxIdMapper idMapper,
       required Logger logger,
-      required Duration rateLimitDelay})
+      required Duration rateLimitDelay,
+      required Duration timeoutDelay})
       : _logger = logger,
         _rateLimitDelay = rateLimitDelay,
         _outboxRepository = outboxRepository,
-        _processors = processors;
+        _processors = processors,
+        _timeoutDelay = timeoutDelay;
 
   // Enqueue an entry to sync local data creation/update/delete with the cloud
   // It also makes sure the entry is inserted first then modify local data to avoid ghost data not syncing
@@ -51,7 +49,7 @@ class OutboxService {
       await _outboxRepository.deleteEntry(entryId);
       return result;
     } catch (e, stackTrace) {
-      return Result.failure(ErrorMapper.map(e, stackTrace));
+      return Result.failure(e, stackTrace);
     }
   }
 
@@ -73,14 +71,13 @@ class OutboxService {
     var entries =
         OutboxSorter.sort(await _outboxRepository.getPendingEntries());
 
-    _logger.d(
-        "Processing ${entries.map((e) => "\n${e.toString()}\n").toList().toString()} entries");
+    // _logger.d(
+    //     "Processing ${entries.map((e) => "\n${e.toString()}\n").toList().toString()} entries");
 
     for (final entry in entries) {
       if (_processors[entry.entityType] == null) {
-        return Result.failure(AppError(
-            message: 'No processor found for ${entry.entityType}',
-            stackTrace: StackTrace.current));
+        return Result.failureMessage(
+            'No processor found for ${entry.entityType}');
       }
 
       // Before we process an entity, we see if the dependencies for it are available
@@ -113,14 +110,16 @@ class OutboxService {
         } on OutboxDependencyFailureException catch (e) {
           await _outboxRepository.failEntry(entry.id!);
           onFail(e);
-        }
-        // on TimeoutException {
-        //   // The entry stays pending and processed in the next time the loop is called
-        //   await _outboxRepository.markEntryPending(entry.id!);
-        //   _logger.d(
-        //       'Outbox debug: Timeout error, putting the entry as pending again');
-        // }
-        on DioException catch (e) {
+        } on TimeoutException {
+          // The entry stays pending and processed in the next time the loop is called
+          await _outboxRepository.markEntryPending(entry.id!);
+          _logger.d(
+              'Outbox debug: Timeout error, putting the entry as pending again');
+
+          await Future.delayed(Duration(seconds: _timeoutDelay.inSeconds));
+
+          continue;
+        } on DioException catch (e) {
           // If we get a 403 error (forbidden), we revert the local changes and fail the entry
           if (e.response?.statusCode == 403) {
             failedError = e;
@@ -162,7 +161,7 @@ class OutboxService {
               await _processors[entry.entityType]!.revertLocalChange(entry));
 
           if (!revertResult.isSuccess) {
-            return Result.failure(revertResult.error!);
+            return revertResult;
           }
 
           await _outboxRepository.failEntry(entry.id!);

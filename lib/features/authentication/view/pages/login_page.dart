@@ -108,6 +108,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                   child: Padding(
                     padding: const EdgeInsets.all(AppSpacing.lg),
                     child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisAlignment: MainAxisAlignment.spaceAround,
                         children: [
                           TextFormField(
@@ -169,7 +170,21 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                               ],
                             );
                           }),
-                          AppSpacing.horizontalSpaceLg,
+                          AppSpacing.verticalSpaceSm,
+                          TextButton(
+                              style: ButtonStyle(
+                                  shape: MaterialStateProperty.all<
+                                      RoundedRectangleBorder>(
+                                    RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(0.0),
+                                    ),
+                                  ),
+                                  padding: MaterialStateProperty.all(
+                                      const EdgeInsets.all(0))),
+                              onPressed: () {
+                                context.pushNamed('reset-password');
+                              },
+                              child: Text("Forgot Password?")),
 
                           // SizedBox(height: 100),
                           // Register button

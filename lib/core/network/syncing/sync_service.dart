@@ -1,13 +1,9 @@
 import 'package:syncora_frontend/core/network/syncing/model/sync_payload.dart';
 import 'package:syncora_frontend/core/network/syncing/sync_repository.dart';
-import 'package:syncora_frontend/core/utils/error_mapper.dart';
 import 'package:syncora_frontend/core/utils/result.dart';
 import 'package:syncora_frontend/features/groups/repositories/local_groups_repository.dart';
-import 'package:syncora_frontend/features/groups/services/groups_service.dart';
 import 'package:syncora_frontend/features/tasks/repositories/local_tasks_repository.dart';
-import 'package:syncora_frontend/features/tasks/services/tasks_service.dart';
 import 'package:syncora_frontend/features/users/repositories/local_users_repository.dart';
-import 'package:syncora_frontend/features/users/services/users_service.dart';
 
 class SyncService {
   final SyncRepository _syncRepository;
@@ -26,7 +22,7 @@ class SyncService {
       await _syncRepository.storeSyncTimestamp(payload.timestamp);
       return Result.success(payload);
     } catch (e, stackTrace) {
-      return Result.failure(ErrorMapper.map(e, stackTrace));
+      return Result.failure(e, stackTrace);
     }
   }
 
@@ -34,28 +30,28 @@ class SyncService {
     Result<SyncPayload> result = await fetchPayload();
 
     if (!result.isSuccess) {
-      return Result.failure(result.error!);
+      return result;
     }
 
     // Handling added users from payload
     try {
       await _localUsersRepository.upsertUsers(result.data!.users);
     } catch (e, stackTrace) {
-      return Result.failure(ErrorMapper.map(e, stackTrace));
+      return Result.failure(e, stackTrace);
     }
 
     // Handling added groups from payload
     try {
       await _localGroupsRepository.upsertGroups(result.data!.groups);
     } catch (e, stackTrace) {
-      return Result.failure(ErrorMapper.map(e, stackTrace));
+      return Result.failure(e, stackTrace);
     }
 
     // Handling added tasks from payload
     try {
       await _localTasksRepository.upsertTasks(result.data!.tasks);
     } catch (e, stackTrace) {
-      return Result.failure(ErrorMapper.map(e, stackTrace));
+      return Result.failure(e, stackTrace);
     }
 
     // Handling kicked groups in payload
@@ -65,7 +61,7 @@ class SyncService {
         await _localGroupsRepository.wipeDeletedGroup(groupId);
       }
     } catch (e, stackTrace) {
-      return Result.failure(ErrorMapper.map(e, stackTrace));
+      return Result.failure(e, stackTrace);
     }
 
     // Handling deleted groups in payload
@@ -75,7 +71,7 @@ class SyncService {
         await _localGroupsRepository.wipeDeletedGroup(groupId);
       }
     } catch (e, stackTrace) {
-      return Result.failure(ErrorMapper.map(e, stackTrace));
+      return Result.failure(e, stackTrace);
     }
 
     // Handling deleted tasks from payload
@@ -85,13 +81,13 @@ class SyncService {
         await _localTasksRepository.wipeDeletedTask(taskId);
       }
     } catch (e, stackTrace) {
-      return Result.failure(ErrorMapper.map(e, stackTrace));
+      return Result.failure(e, stackTrace);
     }
 
     try {
       await _localUsersRepository.purgeOrphanedUsers();
     } catch (e, stackTrace) {
-      return Result.failure(ErrorMapper.map(e, stackTrace));
+      return Result.failure(e, stackTrace);
     }
 
     return Result.success(result.data!);

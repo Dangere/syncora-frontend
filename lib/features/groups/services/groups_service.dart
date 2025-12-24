@@ -1,13 +1,10 @@
 import 'package:syncora_frontend/core/network/outbox/model/enqueue_request.dart';
 import 'package:syncora_frontend/core/network/outbox/model/outbox_entry.dart';
 import 'package:syncora_frontend/core/network/outbox/model/outbox_payload.dart';
-import 'package:syncora_frontend/core/network/outbox/outbox_service.dart';
 import 'package:syncora_frontend/core/typedef.dart';
-import 'package:syncora_frontend/core/utils/error_mapper.dart';
 import 'package:syncora_frontend/core/utils/result.dart';
 import 'package:syncora_frontend/features/authentication/models/auth_state.dart';
 import 'package:syncora_frontend/features/groups/models/group.dart';
-import 'package:syncora_frontend/features/groups/models/group_dto.dart';
 import 'package:syncora_frontend/features/groups/repositories/local_groups_repository.dart';
 import 'package:syncora_frontend/features/groups/repositories/remote_groups_repository.dart';
 
@@ -38,7 +35,7 @@ class GroupsService {
       List<Group> groups = await _localGroupsRepository.getAllGroups();
       return Result.success(groups);
     } catch (e, stackTrace) {
-      return Result.failure(ErrorMapper.map(e, stackTrace));
+      return Result.failure(e, stackTrace);
     }
   }
 
@@ -67,11 +64,14 @@ class GroupsService {
           await _localGroupsRepository.createGroup(newGroup);
           return Result.success(null);
         } catch (e, stackTrace) {
-          return Result.failure(ErrorMapper.map(e, stackTrace));
+          return Result.failure(e, stackTrace);
         }
       },
     ));
-    if (!enqueueResult.isSuccess) return Result.failure(enqueueResult.error!);
+    if (!enqueueResult.isSuccess) {
+      return Result.failure(enqueueResult.error!,
+          enqueueResult.error!.stackTrace ?? StackTrace.current);
+    }
 
     return Result.success(newGroup);
   }
@@ -97,11 +97,11 @@ class GroupsService {
               title, description, groupId);
           return Result.success(null);
         } catch (e, stackTrace) {
-          return Result.failure(ErrorMapper.map(e, stackTrace));
+          return Result.failure(e, stackTrace);
         }
       },
     ));
-    if (!enqueueResult.isSuccess) return Result.failure(enqueueResult.error!);
+    if (!enqueueResult.isSuccess) return enqueueResult;
 
     return Result.success(null);
   }
@@ -126,7 +126,7 @@ class GroupsService {
 
       return Result.success(null);
     } catch (e, stackTrace) {
-      return Result.failure(ErrorMapper.map(e, stackTrace));
+      return Result.failure(e, stackTrace);
     }
   }
 
@@ -145,11 +145,11 @@ class GroupsService {
           await _localGroupsRepository.markGroupAsDeleted(groupId);
           return Result.success(null);
         } catch (e, stackTrace) {
-          return Result.failure(ErrorMapper.map(e, stackTrace));
+          return Result.failure(e, stackTrace);
         }
       },
     ));
-    if (!enqueueResult.isSuccess) return Result.failure(enqueueResult.error!);
+    if (!enqueueResult.isSuccess) return enqueueResult;
 
     return Result.success(null);
   }
@@ -168,11 +168,11 @@ class GroupsService {
           await _localGroupsRepository.markGroupAsDeleted(groupId);
           return Result.success(null);
         } catch (e, stackTrace) {
-          return Result.failure(ErrorMapper.map(e, stackTrace));
+          return Result.failure(e, stackTrace);
         }
       },
     ));
-    if (!enqueueResult.isSuccess) return Result.failure(enqueueResult.error!);
+    if (!enqueueResult.isSuccess) return enqueueResult;
 
     return Result.success(null);
   }

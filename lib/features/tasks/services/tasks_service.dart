@@ -2,7 +2,6 @@ import 'package:syncora_frontend/core/network/outbox/model/enqueue_request.dart'
 import 'package:syncora_frontend/core/network/outbox/model/outbox_entry.dart';
 import 'package:syncora_frontend/core/network/outbox/model/outbox_payload.dart';
 import 'package:syncora_frontend/core/typedef.dart';
-import 'package:syncora_frontend/core/utils/error_mapper.dart';
 import 'package:syncora_frontend/core/utils/result.dart';
 import 'package:syncora_frontend/features/authentication/models/auth_state.dart';
 import 'package:syncora_frontend/features/tasks/models/task.dart';
@@ -30,7 +29,7 @@ class TasksService {
       List<Task> tasks = await _localTasksRepository.getTasksForGroup(groupId);
       return Result.success(tasks);
     } catch (e, stackTrace) {
-      return Result.failure(ErrorMapper.map(e, stackTrace));
+      return Result.failure(e, stackTrace);
     }
   }
 
@@ -48,12 +47,12 @@ class TasksService {
           await _localTasksRepository.markTaskAsDeleted(taskId);
           return Result.success(null);
         } catch (e, stackTrace) {
-          return Result.failure(ErrorMapper.map(e, stackTrace));
+          return Result.failure(e, stackTrace);
         }
       },
     ));
 
-    if (!enqueueResult.isSuccess) return Result.failure(enqueueResult.error!);
+    if (!enqueueResult.isSuccess) return enqueueResult;
 
     return Result.success(null);
   }
@@ -83,11 +82,11 @@ class TasksService {
               taskId: taskId, title: title, description: description);
           return Result.success(null);
         } catch (e, stackTrace) {
-          return Result.failure(ErrorMapper.map(e, stackTrace));
+          return Result.failure(e, stackTrace);
         }
       },
     ));
-    if (!enqueueResult.isSuccess) return Result.failure(enqueueResult.error!);
+    if (!enqueueResult.isSuccess) return enqueueResult;
 
     return Result.success(null);
   }
@@ -120,12 +119,12 @@ class TasksService {
           await _localTasksRepository.upsertTasks([task]);
           return Result.success(null);
         } catch (e, stackTrace) {
-          return Result.failure(ErrorMapper.map(e, stackTrace));
+          return Result.failure(e, stackTrace);
         }
       },
     ));
 
-    if (!enqueueResult.isSuccess) return Result.failure(enqueueResult.error!);
+    if (!enqueueResult.isSuccess) return enqueueResult;
 
     return Result.success(null);
   }
@@ -142,7 +141,7 @@ class TasksService {
       return Result.success(await _remoteTasksRepository.assignTask(
           taskId: taskId, groupId: groupId, ids: ids));
     } catch (e, stackTrace) {
-      return Result.failure(ErrorMapper.map(e, stackTrace));
+      return Result.failure(e, stackTrace);
     }
   }
 
@@ -158,7 +157,7 @@ class TasksService {
       return Result.success(await _remoteTasksRepository.setAssignTask(
           taskId: taskId, groupId: groupId, ids: ids));
     } catch (e, stackTrace) {
-      return Result.failure(ErrorMapper.map(e, stackTrace));
+      return Result.failure(e, stackTrace);
     }
   }
 
@@ -179,12 +178,12 @@ class TasksService {
               taskId: taskId, userId: _authState.user!.id, isDone: isDone);
           return Result.success(null);
         } catch (e, stackTrace) {
-          return Result.failure(ErrorMapper.map(e, stackTrace));
+          return Result.failure(e, stackTrace);
         }
       },
     ));
 
-    if (!enqueueResult.isSuccess) return Result.failure(enqueueResult.error!);
+    if (!enqueueResult.isSuccess) return enqueueResult;
 
     return Result.success(null);
   }

@@ -25,11 +25,11 @@ class AppSpacing {
   static const EdgeInsets paddingVerticalLg =
       EdgeInsets.symmetric(vertical: lg);
 
-  static const SizedBox horizontalSpaceSm = SizedBox(height: sm);
-  static const SizedBox horizontalSpaceMd = SizedBox(height: md);
-  static const SizedBox horizontalSpaceLg = SizedBox(height: lg);
+  static const SizedBox horizontalSpaceSm = SizedBox(width: sm);
+  static const SizedBox horizontalSpaceMd = SizedBox(width: md);
+  static const SizedBox horizontalSpaceLg = SizedBox(width: lg);
 
-  static const SizedBox verticalSpaceSm = SizedBox(width: sm);
-  static const SizedBox verticalSpaceMd = SizedBox(width: md);
-  static const SizedBox verticalSpaceLg = SizedBox(width: lg);
+  static const SizedBox verticalSpaceSm = SizedBox(height: sm);
+  static const SizedBox verticalSpaceMd = SizedBox(height: md);
+  static const SizedBox verticalSpaceLg = SizedBox(height: lg);
 }

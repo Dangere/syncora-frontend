@@ -1,5 +1,5 @@
+import 'package:cancellation_token/cancellation_token.dart';
 import 'package:flutter/foundation.dart';
-import 'package:syncora_frontend/core/typedef.dart';
 import 'package:syncora_frontend/core/utils/app_error.dart';
 import 'package:syncora_frontend/core/utils/error_mapper.dart';
 
@@ -10,11 +10,14 @@ class Result<T> {
   Result({this.data, this.error});
 
   bool get isSuccess => error == null;
+  bool get isCancelled => error?.errorObject is CancelledException;
 
   // Helper methods to make the API cleaner
   static Result<T> success<T>(T data) => Result<T>(data: data);
 
-  static Result<T> failure<T>(AppError error) => Result<T>(error: error);
+  static Result<T> failure<T>(Object exception, StackTrace stackTrace) =>
+      Result<T>(error: ErrorMapper.map(exception, stackTrace));
+
   static Result<T> failureMessage<T>(String message) =>
       Result<T>(error: AppError(message: message));
 
@@ -23,7 +26,7 @@ class Result<T> {
       callback();
       return Result.success(null);
     } catch (e, stackTrace) {
-      return Result.failure(ErrorMapper.map(e, stackTrace));
+      return Result.failure(e, stackTrace);
     }
   }
 
@@ -32,8 +35,21 @@ class Result<T> {
       T result = await callback();
       return Result.success(result);
     } catch (e, stackTrace) {
-      return Result.failure(ErrorMapper.map(e, stackTrace));
+      return Result.failure(e, stackTrace);
     }
+  }
+
+  // TODO: replace all the manual if checks for the isSuccess in other classes with these fluent methods
+  Result<T> onSuccess(void Function(T data) callback) {
+    if (isSuccess) callback(data as T);
+
+    return this;
+  }
+
+  Result<T> onError(void Function(AppError error) callback) {
+    if (!isSuccess && !isCancelled) callback(error!);
+
+    return this;
   }
 
   E? errorObject<E>() => error?.errorObject as E;

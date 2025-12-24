@@ -5,7 +5,6 @@ import 'package:syncora_frontend/common/providers/common_providers.dart';
 import 'package:syncora_frontend/common/providers/connection_provider.dart';
 import 'package:syncora_frontend/core/network/outbox/model/enqueue_request.dart';
 import 'package:syncora_frontend/core/network/outbox/model/outbox_entry.dart';
-import 'package:syncora_frontend/core/network/outbox/model/queue_processor_response.dart';
 import 'package:syncora_frontend/core/network/outbox/outbox_id_mapper.dart';
 import 'package:syncora_frontend/core/network/outbox/outbox_service.dart';
 import 'package:syncora_frontend/core/network/outbox/processors/groups_processor.dart';
@@ -59,12 +58,13 @@ class OutboxNotifier extends AsyncNotifier<OutboxStatus> {
 
     state = const AsyncValue.loading();
 
-    ref.read(loggerProvider).i("Processing Outbox Queue!");
+    // ref.read(loggerProvider).i("Processing Outbox Queue!");
     Result<void> response = await ref.read(outboxServiceProvider).processQueue(
       onFail: (error) {
         ref.read(appErrorProvider.notifier).state = ErrorMapper.map(error);
       },
       onGroupModified: (groupId) {
+        // TODO: This is being called on each group update to reflect the changes on the UI but relaoding the entire groups each time is a bit expensive...
         ref.read(groupsNotifierProvider.notifier).reloadGroups();
         ref.read(groupsNotifierProvider.notifier).reloadViewedGroup(groupId);
       },
@@ -80,7 +80,7 @@ class OutboxNotifier extends AsyncNotifier<OutboxStatus> {
           response.error!.stackTrace ?? StackTrace.current);
     }
 
-    ref.read(loggerProvider).i("Done processing Outbox Queue!");
+    // ref.read(loggerProvider).i("Done processing Outbox Queue!");
 
     if (response.isSuccess) {
       state = const AsyncValue.data(OutboxStatus.complete);
@@ -113,9 +113,9 @@ class OutboxNotifier extends AsyncNotifier<OutboxStatus> {
       if (next == ConnectionStatus.connected || next == ConnectionStatus.slow) {
         _isProcessing = false;
         _isAwaiting = false;
-        ref
-            .read(loggerProvider)
-            .i("Processing Outbox Queue on connection change!");
+        // ref
+        //     .read(loggerProvider)
+        //     .i("Processing Outbox Queue on connection change!");
         await processQueue();
       }
     });
@@ -137,6 +137,7 @@ final outboxProvider =
 final outboxServiceProvider = Provider<OutboxService>((ref) {
   return OutboxService(
       rateLimitDelay: Duration(seconds: 10),
+      timeoutDelay: Duration(seconds: 10),
       logger: ref.read(loggerProvider),
       outboxRepository: ref.watch(outboxRepositoryProvider),
       processors: {

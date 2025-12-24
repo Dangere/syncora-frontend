@@ -1,10 +1,10 @@
 import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:logger/logger.dart';
 import 'package:syncora_frontend/common/providers/common_providers.dart';
 import 'package:syncora_frontend/common/providers/connection_provider.dart';
 import 'package:syncora_frontend/core/network/outbox/outbox_viewmodel.dart';
-import 'package:syncora_frontend/core/utils/app_error.dart';
+import 'package:syncora_frontend/core/network/syncing/sync_state.dart';
+import 'package:syncora_frontend/core/network/syncing/sync_viewmodel.dart';
 import 'package:syncora_frontend/core/utils/result.dart';
 import 'package:syncora_frontend/features/authentication/models/auth_state.dart';
 import 'package:syncora_frontend/features/authentication/viewmodel/auth_viewmodel.dart';
@@ -56,8 +56,9 @@ class GroupsNotifier extends AsyncNotifier<List<Group>> {
       ref.read(appErrorProvider.notifier).state = deleteResult.error;
       return;
     }
-    reloadGroups();
 
+    // These reflect local changes, the groups are onces referenced in the outbox for online changes
+    reloadGroups();
     reloadViewedGroup(groupId);
   }
 
@@ -188,12 +189,10 @@ class GroupsNotifier extends AsyncNotifier<List<Group>> {
   }
 
   Future<void> reloadGroups() async {
+    // Multiple calls to reload groups can happen at the same time (one for local changes and one for remote changes)
     if (state.isLoading) {
       await Future.doWhile(() async {
         await Future.delayed(const Duration(seconds: 3));
-        ref
-            .read(loggerProvider)
-            .d("Groups viewmodel: we are waiting for loading to finish");
         return state.isLoading;
       });
     }
@@ -209,7 +208,7 @@ class GroupsNotifier extends AsyncNotifier<List<Group>> {
     state = AsyncValue.data(fetchResult.data!);
   }
 
-  // Takes in an id of a group that was modified to check if it's 're currently displayed then refresh the UI corresponding to it
+  // Takes in an id of a group that was modified to check if it's currently displayed then refresh the UI corresponding to it
   void reloadViewedGroup(int groupId) async {
     if (ref.exists(groupViewGetterProvider(groupId))) {
       ref.invalidate(groupViewGetterProvider(groupId));
@@ -229,9 +228,19 @@ class GroupsNotifier extends AsyncNotifier<List<Group>> {
   FutureOr<List<Group>> build() async {
     var authState = ref.watch(authNotifierProvider);
 
-    ref
-        .watch(loggerProvider)
-        .w("Building groups notifier, authState: $authState");
+    // ref
+    //     .watch(loggerProvider)
+    //     .w("Building groups notifier, authState: $authState");
+
+    // Updating the UI on group changes
+    ref.listen(syncBackendNotifierProvider, (previous, next) {
+      if (next.hasValue && next.error == null) {
+        if (!next.value!.isInProgress || next.value!.payload!.isEmpty()) return;
+        reloadGroups();
+        // Updating the UI for current displayed group
+        reloadViewedGroups(next.value!.payload!.groupIds().toList());
+      }
+    });
 
     // There was some weird bug, both the if (data.isAuthenticated) and if(data.isUnauthenticated) would get triggered in the same time? even if isUnauthenticated is false....
 
@@ -262,47 +271,6 @@ class GroupsNotifier extends AsyncNotifier<List<Group>> {
         return Completer<List<Group>>().future;
       },
     );
-
-    //
-
-    // return authState.when(
-    //     data: (AuthState data) async {
-    //       if (data.isAuthenticated) {
-    //         ref.watch(loggerProvider).f("We are logged in my boy");
-    //         Result<List<Group>> fetchResult =
-    //             await ref.read(groupsServiceProvider).getAllGroups();
-
-    //         if (!fetchResult.isSuccess) {
-    //           ref.read(appErrorProvider.notifier).state = fetchResult.error;
-    //           return [];
-    //         }
-
-    //         return fetchResult.data!;
-    //       }
-    //       if (data is AuthUnauthenticated) {
-    //         ref.read(loggerProvider).f(data is AuthUnauthenticated);
-    //         throw Exception("User is not logged in");
-    //       }
-
-    //       return [];
-    //     },
-    //     error: (error, stackTrace) {
-    //       throw error;
-    //     },
-    //     loading: () => Completer<List<Group>>().future);
-
-    // if (authState.isLoading) {
-    //   return Completer<List<Group>>().future;
-    // }
-    // Result<List<Group>> fetchResult =
-    //     await ref.read(groupsServiceProvider).getAllGroups();
-
-    // if (!fetchResult.isSuccess) {
-    //   ref.read(appErrorProvider.notifier).state = fetchResult.error;
-    //   return [];
-    // }
-
-    // return fetchResult.data!;
   }
 }
 
@@ -311,7 +279,6 @@ final groupsNotifierProvider =
 
 final groupViewGetterProvider =
     FutureProvider.family.autoDispose<Group?, int>((ref, id) async {
-  // return null;
   try {
     return await ref.read(localGroupsRepositoryProvider).getGroup(id);
   } catch (e) {

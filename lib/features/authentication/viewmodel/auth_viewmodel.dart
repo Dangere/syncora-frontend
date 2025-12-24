@@ -1,11 +1,10 @@
 import 'dart:async';
+import 'package:cancellation_token/cancellation_token.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:syncora_frontend/common/providers/common_providers.dart';
-import 'package:syncora_frontend/core/tests.dart';
 import 'package:syncora_frontend/core/typedef.dart';
 import 'package:syncora_frontend/core/utils/app_error.dart';
 import 'package:syncora_frontend/core/utils/result.dart';
-import 'package:syncora_frontend/core/utils/snack_bar_alerts.dart';
 import 'package:syncora_frontend/features/authentication/models/auth_response_dto.dart';
 import 'package:syncora_frontend/features/authentication/models/auth_state.dart';
 import 'package:syncora_frontend/features/authentication/models/google_register_user_info.dart';
@@ -121,6 +120,7 @@ class AuthNotifier extends AsyncNotifier<AuthState> {
 
   void loginAsGuest(String username) async {
     if (state.isLoading || _isLoggedIn) return;
+    state = const AsyncValue.loading();
 
     await ref
         .read(sessionStorageProvider)
@@ -130,6 +130,8 @@ class AuthNotifier extends AsyncNotifier<AuthState> {
   }
 
   void logout() async {
+    ref.read(loggerProvider).f("Logging out!");
+
     await ref.read(sessionStorageProvider).clearSession();
     state = const AsyncValue.data(AuthUnauthenticated());
   }
@@ -144,17 +146,16 @@ class AuthNotifier extends AsyncNotifier<AuthState> {
             "Your session was either expired or revoked, please login again");
   }
 
-  Future<Result> refreshTokens() async {
+  Future<Result> refreshTokens([CancellationToken? cancellationToken]) async {
     if (state.value == null || !state.value!.isAuthenticated) {
-      return Result.failure(
-          AppError(message: "Cannot refresh tokens when no user is logged in"));
+      return Result.failureMessage(
+          "Cannot refresh tokens when no user is logged in");
     }
 
     TokensDTO? tokens = ref.read(sessionStorageProvider).tokens;
 
     if (tokens == null) {
-      return Result.failure(
-          AppError(message: "Tokens are empty, cannot refresh them"));
+      return Result.failureMessage("Tokens are empty, cannot refresh them");
     }
 
     if (_refreshTokenCompleter != null) {
@@ -170,7 +171,10 @@ class AuthNotifier extends AsyncNotifier<AuthState> {
     ref.read(loggerProvider).d("Refreshing tokens");
     Result<TokensDTO> result = await ref
         .read(authServiceProvider)
-        .refreshAccessToken(tokens: tokens, onExpire: kickUser);
+        .refreshAccessToken(
+            tokens: tokens,
+            onExpire: kickUser,
+            cancellationToken: cancellationToken);
 
     if (!result.isSuccess) {
       if (!_refreshTokenCompleter!.isCompleted) {
@@ -187,14 +191,6 @@ class AuthNotifier extends AsyncNotifier<AuthState> {
     _refreshTokenCompleter = null;
 
     return result;
-  }
-
-  // Value can be null when we are loading or theres an error,
-  // even tho i dont throw errors when it happens and instead capture it in an AppError provider,
-  // edge cases can happen and the notifier automatically wraps the throws into an AsyncValue.error
-  bool get _isLoggedIn {
-    final value = state.valueOrNull;
-    return value?.isAuthenticated == true || value?.isGuest == true;
   }
 
   Future<Result> sendVerificationEmail() async {
@@ -241,6 +237,25 @@ class AuthNotifier extends AsyncNotifier<AuthState> {
     }
     state = AsyncValue.data(
         AuthAuthenticated(state.value!.asAuthenticated!.user, isVerified));
+  }
+
+  Future<Result> requestPasswordReset(String email) async {
+    Result result =
+        await ref.read(authServiceProvider).requestPasswordReset(email);
+
+    if (!result.isSuccess) {
+      ref.read(appErrorProvider.notifier).state = result.error!;
+    }
+
+    return result;
+  }
+
+  // Value can be null when we are loading or theres an error,
+  // even tho i dont throw errors when it happens and instead capture it in an AppError provider,
+  // edge cases can happen and the notifier automatically wraps the throws into an AsyncValue.error
+  bool get _isLoggedIn {
+    final value = state.valueOrNull;
+    return value?.isAuthenticated == true || value?.isGuest == true;
   }
 
   Future<Session?> loadSession() async {
