@@ -62,13 +62,13 @@ class GroupsService {
       onAfterEnqueue: () async {
         try {
           await _localGroupsRepository.createGroup(newGroup);
-          return Result.success(null);
+          return Result.success();
         } catch (e, stackTrace) {
           return Result.failure(e, stackTrace);
         }
       },
     ));
-    if (!enqueueResult.isSuccess) {
+    if (!enqueueResult.isSuccess && !enqueueResult.isCancelled) {
       return Result.failure(enqueueResult.error!,
           enqueueResult.error!.stackTrace ?? StackTrace.current);
     }
@@ -95,15 +95,16 @@ class GroupsService {
         try {
           await _localGroupsRepository.updateGroupDetails(
               title, description, groupId);
-          return Result.success(null);
+          return Result.success();
         } catch (e, stackTrace) {
           return Result.failure(e, stackTrace);
         }
       },
     ));
-    if (!enqueueResult.isSuccess) return enqueueResult;
+    if (!enqueueResult.isSuccess && !enqueueResult.isCancelled)
+      return enqueueResult;
 
-    return Result.success(null);
+    return Result.success();
   }
 
   Future<Result<void>> grantAccessToGroup(
@@ -124,7 +125,7 @@ class GroupsService {
             username: username, groupId: groupId);
       }
 
-      return Result.success(null);
+      return Result.success();
     } catch (e, stackTrace) {
       return Result.failure(e, stackTrace);
     }
@@ -143,15 +144,16 @@ class GroupsService {
       onAfterEnqueue: () async {
         try {
           await _localGroupsRepository.markGroupAsDeleted(groupId);
-          return Result.success(null);
+          return Result.success();
         } catch (e, stackTrace) {
           return Result.failure(e, stackTrace);
         }
       },
     ));
-    if (!enqueueResult.isSuccess) return enqueueResult;
+    if (!enqueueResult.isSuccess && !enqueueResult.isCancelled)
+      return enqueueResult;
 
-    return Result.success(null);
+    return Result.success();
   }
 
   // Deletes group by marking it as deleted which will be synced to server then fully deleted later
@@ -166,14 +168,15 @@ class GroupsService {
       onAfterEnqueue: () async {
         try {
           await _localGroupsRepository.markGroupAsDeleted(groupId);
-          return Result.success(null);
+          return Result.success();
         } catch (e, stackTrace) {
           return Result.failure(e, stackTrace);
         }
       },
     ));
-    if (!enqueueResult.isSuccess) return enqueueResult;
+    if (!enqueueResult.isSuccess && !enqueueResult.isCancelled)
+      return enqueueResult;
 
-    return Result.success(null);
+    return Result.success();
   }
 }

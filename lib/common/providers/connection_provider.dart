@@ -3,14 +3,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:internet_connection_checker/internet_connection_checker.dart';
 import 'package:syncora_frontend/common/providers/common_providers.dart';
 
-final fakeBeingOnlineProvider = StateProvider<bool>((ref) {
+final debug_fakeBeingOnlineProvider = StateProvider<bool>((ref) {
   return false;
 });
 
 class ConnectionNotifier extends Notifier<ConnectionStatus> {
   @override
   build() {
-    ref.listen(fakeBeingOnlineProvider, (previous, next) {
+    ref.listen(debug_fakeBeingOnlineProvider, (previous, next) {
       if (next) {
         state = ConnectionStatus.connected;
       } else {

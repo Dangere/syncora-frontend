@@ -12,7 +12,7 @@ class OutboxIcon extends ConsumerWidget {
     return syncState.when(
         data: (data) => switch (data) {
               OutboxStatus.complete => const Icon(Icons.check),
-              OutboxStatus.pending => const Icon(Icons.cloud_sync_sharp),
+              OutboxStatus.pending => const Icon(Icons.pending_actions),
               OutboxStatus.inProcess => const Icon(Icons.cloud_sync_sharp),
               OutboxStatus.failed => const Icon(Icons.error),
               OutboxStatus.ignored => const Icon(Icons.wind_power),

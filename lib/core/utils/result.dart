@@ -13,10 +13,14 @@ class Result<T> {
   bool get isCancelled => error?.errorObject is CancelledException;
 
   // Helper methods to make the API cleaner
-  static Result<T> success<T>(T data) => Result<T>(data: data);
+  static Result<T> success<T>([T? data]) => Result<T>(data: data);
 
   static Result<T> failure<T>(Object exception, StackTrace stackTrace) =>
       Result<T>(error: ErrorMapper.map(exception, stackTrace));
+
+  static Result<T> canceled<T>(String message) => Result<T>(
+      error:
+          AppError(message: message, errorObject: const CancelledException()));
 
   static Result<T> failureMessage<T>(String message) =>
       Result<T>(error: AppError(message: message));
@@ -24,7 +28,7 @@ class Result<T> {
   static Result<void> wrap(VoidCallback callback) {
     try {
       callback();
-      return Result.success(null);
+      return Result.success();
     } catch (e, stackTrace) {
       return Result.failure(e, stackTrace);
     }

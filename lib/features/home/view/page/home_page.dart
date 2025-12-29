@@ -97,13 +97,14 @@ class _HomeScreenState extends ConsumerState<HomePage> {
         children: [
           IconButton(
             onPressed: () {
-              bool fakeOnline = ref.read(fakeBeingOnlineProvider);
-              ref.read(fakeBeingOnlineProvider.notifier).state = !fakeOnline;
+              bool fakeOnline = ref.read(debug_fakeBeingOnlineProvider);
+              ref.read(debug_fakeBeingOnlineProvider.notifier).state =
+                  !fakeOnline;
 
               // ref.read(syncBackendNotifierProvider.notifier).test();
               // ref.read(syncBackendNotifierProvider.notifier).toggleSyncing();
             },
-            tooltip: 'TEST',
+            tooltip: 'CHANGE ONLINE STATUS',
             icon: const Icon(Icons.signal_wifi_connected_no_internet_4_rounded),
           ),
           IconButton(
@@ -122,8 +123,21 @@ class _HomeScreenState extends ConsumerState<HomePage> {
                   ?.asAuthenticated!
                   .isVerified);
             },
-            tooltip: 'TEST',
-            icon: const Icon(Icons.text_rotation_angleup_sharp),
+            tooltip: 'PRINT DB',
+            icon: const Icon(Icons.data_array),
+          ),
+          IconButton(
+            onPressed: () {
+              bool stopListeningToSignalR =
+                  ref.read(debug_disposeSignalRProvider);
+              ref.read(debug_disposeSignalRProvider.notifier).state =
+                  !stopListeningToSignalR;
+
+              // ref.read(syncBackendNotifierProvider.notifier).test();
+              // ref.read(syncBackendNotifierProvider.notifier).toggleSyncing();
+            },
+            tooltip: 'DISPOSE SIGNALR',
+            icon: const Icon(Icons.hub),
           ),
         ],
       ), // This trailing comma makes auto-formatting nicer for build methods.

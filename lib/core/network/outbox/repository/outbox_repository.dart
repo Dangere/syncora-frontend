@@ -11,13 +11,15 @@ class OutboxRepository {
   OutboxRepository({required databaseManager})
       : _databaseManager = databaseManager;
 
+  // TODO: this logic lowkey needs reworking (some are marked as TODO) but the logic should be moved somewhere else and not in the repo
   Future<int> insertEntry(OutboxEntry entry) async {
     Database db = await _databaseManager.getDatabase();
 
-    // TODO: One bug i noticed is when queuing a bunch of task deletion then group deletion (the logic below will mark the tasks deletions as ignored) leaves us with a group deletion entry only, which is fine but if that task deletion fails for whatever reason and reverted to user, the task deletions wont be reverted because they were makred as ignored
+    // One bug i noticed is when queuing a bunch of task deletion then group deletion (the logic below will mark the tasks deletions as ignored) leaves us with a group deletion entry only, which is fine but if that task deletion fails for whatever reason and reverted to user, the task deletions wont be reverted because they were makred as ignored (solved by unignore them when reverting)
 
     // TODO: Another related bug, if a queue has a mark task entry and a delete task entry, only the delete will be processed and reverted in failure, but it will be marked (the mark action failed too but didnt revert because the entry for it was ignored all together)
 
+    // TODO: Marking and unmarking a task doesnt cancel out
     // Handing when we trying to insert a delete a group entry, we mark the entries that either correspond to the group or reference it as ignored
     // And not insert the delete entry if we ignored its creation entry
     if (entry.actionType == OutboxActionType.delete &&
@@ -211,13 +213,14 @@ class OutboxRepository {
         whereArgs: [entityId, entityId, OutboxStatus.pending.index]);
   }
 
-  Future<void> unignoreDependingEntries(int entityId) async {
+  Future<bool> unignoreDependingEntries(int entityId) async {
     Database db = await _databaseManager.getDatabase();
 
-    await db.update(
-        DatabaseTables.outbox, {"status": OutboxStatus.pending.index},
-        where: "(entityId = ? or dependencyId = ?) AND status = ?",
-        whereArgs: [entityId, entityId, OutboxStatus.ignored.index]);
+    return (await db.update(
+            DatabaseTables.outbox, {"status": OutboxStatus.pending.index},
+            where: "(entityId = ? or dependencyId = ?) AND status = ?",
+            whereArgs: [entityId, entityId, OutboxStatus.ignored.index])) >
+        0;
   }
 
   Future<void> deleteEntry(int entryId) async {

@@ -25,13 +25,20 @@ class OutboxNotifier extends AsyncNotifier<OutboxStatus> {
     Result<void> result =
         await ref.read(outboxServiceProvider).enqueue(request);
 
-    if (result.isSuccess) {
-      processQueue();
-      state = const AsyncValue.data(OutboxStatus.complete);
-    } else {
+    if (!result.isSuccess) {
       state = AsyncValue.error(
           result.error!, result.error!.stackTrace ?? StackTrace.current);
+      return result;
     }
+
+    if (ref.read(connectionProvider) == ConnectionStatus.disconnected) {
+      state = const AsyncValue.data(OutboxStatus.pending);
+      return Result.canceled("Cant process outbox queue when offline");
+    }
+
+    processQueue();
+    state = const AsyncValue.data(OutboxStatus.inProcess);
+
     return result;
   }
 
@@ -41,17 +48,13 @@ class OutboxNotifier extends AsyncNotifier<OutboxStatus> {
 
   // TODO: A behavior i noticed is that when processing a list of entries at once, the actions will revert on failing but it wont update the UI or show errors until the entire list is processed, which is a bit confusing for the user,
   Future<Result<void>> processQueue() async {
-    if (ref.read(connectionProvider) == ConnectionStatus.disconnected) {
-      return Result.failureMessage("Cant process outbox queue when offline");
-    }
-
     // If we are trying to process the queue while we are already processing it, we mark it as awaiting
     if (_isProcessing) {
       if (!_isAwaiting) {
         _isAwaiting = true;
       }
 
-      return Result.success(null);
+      return Result.success();
     }
     _isProcessing = true;
     // await Future.delayed(Duration(seconds: 5));
@@ -69,7 +72,9 @@ class OutboxNotifier extends AsyncNotifier<OutboxStatus> {
         ref.read(groupsNotifierProvider.notifier).reloadViewedGroup(groupId);
       },
       requireSecondPass: () {
-        Logger().w("We are calling for a second pass!");
+        ref
+            .read(loggerProvider)
+            .w("Outbox Queue: We are calling for a second pass!");
         _isAwaiting = true;
       },
     );
@@ -90,9 +95,8 @@ class OutboxNotifier extends AsyncNotifier<OutboxStatus> {
     // If we have entires waiting to be processed after this, process them
     if (_isAwaiting) {
       _isAwaiting = false;
-      ref
-          .read(loggerProvider)
-          .i("Outbox Queue was waiting to be processed, processing them!");
+      ref.read(loggerProvider).i(
+          "Outbox Queue: Second pass was required, proceeding with second pass!");
       processQueue();
     }
     return response;

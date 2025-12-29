@@ -45,16 +45,17 @@ class TasksService {
       onAfterEnqueue: () async {
         try {
           await _localTasksRepository.markTaskAsDeleted(taskId);
-          return Result.success(null);
+          return Result.success();
         } catch (e, stackTrace) {
           return Result.failure(e, stackTrace);
         }
       },
     ));
 
-    if (!enqueueResult.isSuccess) return enqueueResult;
+    if (!enqueueResult.isSuccess && !enqueueResult.isCancelled)
+      return enqueueResult;
 
-    return Result.success(null);
+    return Result.success();
   }
 
   Future<Result<void>> updateTask(
@@ -80,15 +81,16 @@ class TasksService {
         try {
           await _localTasksRepository.updateTaskDetails(
               taskId: taskId, title: title, description: description);
-          return Result.success(null);
+          return Result.success();
         } catch (e, stackTrace) {
           return Result.failure(e, stackTrace);
         }
       },
     ));
-    if (!enqueueResult.isSuccess) return enqueueResult;
+    if (!enqueueResult.isSuccess && !enqueueResult.isCancelled)
+      return enqueueResult;
 
-    return Result.success(null);
+    return Result.success();
   }
 
   Future<Result<void>> createTask(
@@ -117,16 +119,17 @@ class TasksService {
       onAfterEnqueue: () async {
         try {
           await _localTasksRepository.upsertTasks([task]);
-          return Result.success(null);
+          return Result.success();
         } catch (e, stackTrace) {
           return Result.failure(e, stackTrace);
         }
       },
     ));
 
-    if (!enqueueResult.isSuccess) return enqueueResult;
+    if (!enqueueResult.isSuccess && !enqueueResult.isCancelled)
+      return enqueueResult;
 
-    return Result.success(null);
+    return Result.success();
   }
 
   Future<Result<void>> assignTaskToUsers(
@@ -176,15 +179,16 @@ class TasksService {
         try {
           await _localTasksRepository.markTaskCompletion(
               taskId: taskId, userId: _authState.user!.id, isDone: isDone);
-          return Result.success(null);
+          return Result.success();
         } catch (e, stackTrace) {
           return Result.failure(e, stackTrace);
         }
       },
     ));
 
-    if (!enqueueResult.isSuccess) return enqueueResult;
+    if (!enqueueResult.isSuccess && !enqueueResult.isCancelled)
+      return enqueueResult;
 
-    return Result.success(null);
+    return Result.success();
   }
 }

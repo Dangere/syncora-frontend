@@ -18,7 +18,7 @@ class SignalRClient with WidgetsBindingObserver {
 
   final int _timeoutAwaitSeconds = 5;
 
-  CancellationToken? cancelationToken;
+  CancellationToken? _cancelationToken;
 
   SignalRClient(Logger logger,
       {required String serverUrl,
@@ -48,8 +48,7 @@ class SignalRClient with WidgetsBindingObserver {
     );
     _connection.onclose(
       ({error}) {
-        _logger.f("SignalRClient: closed");
-        if (cancelationToken!.isCancelled) return;
+        if (_cancelationToken!.isCancelled) return;
         _connectToServer();
       },
     );
@@ -57,13 +56,13 @@ class SignalRClient with WidgetsBindingObserver {
 
   // Tries to establish a connection to the server until it succeeds
   Future<Result> connect() async {
-    if (_connection.state != HubConnectionState.Disconnected) {
-      _logger.i(
-          "SignalRClient: connection is not disconnected to connect, skipping");
+    // return Result.canceled("Canceling connection to hub");
+    if (_connection.state == HubConnectionState.Connected) {
+      _logger.i("SignalRClient: connection is already connected, skipping");
 
-      return Result.success(null);
+      return Result.canceled("Connection is not disconnected to connect");
     }
-    cancelationToken = CancellationToken();
+    _cancelationToken = CancellationToken();
     Result result = await _connectToServer();
 
     if (result.isSuccess) {
@@ -74,17 +73,20 @@ class SignalRClient with WidgetsBindingObserver {
   }
 
   void dispose() async {
-    if (cancelationToken == null) {
+    if (_cancelationToken == null) {
       _logger.f("SignalRClient: tried to dispose without connecting first!");
       return;
     }
+    _cancelationToken!.cancel();
+    // We have to check that its connected to stop it first, otherwise if we try to stop it while it has a disconnect error, it will bug out and get stuck at "disconnecting" (this happens when we try to call this method when we lose internet connection, it already has a no internet error)
+    if (_connection.state == HubConnectionState.Connected) {
+      await _connection.stop();
+    }
     _logger.f("SignalRClient: disposed!");
-    cancelationToken!.cancel();
-    await _connection.stop();
-  }
 
-  void onClose(void Function({Exception? error}) handler) {
-    _connection.onclose(handler);
+    _logger.f(
+        "SignalRClient: fully stopped connection to hub, connection state: ${_connection.state}");
+    _cancelationToken = null;
   }
 
   void on(String method, void Function(List<Object?>?) handler) {
@@ -102,18 +104,17 @@ class SignalRClient with WidgetsBindingObserver {
   }
 
   // This will loop until a connection is established or returns an error that isn't an expired token or timeout
-  // TODO: Handle server connection when connected throws XMLHttpRequest error
-  // TODO: Cancl
+  // TODO: Handle server disconnection when connected throws XMLHttpRequest error (web only problem, not native)
 
   Future<Result> _connectToServer() async {
     while (_connection.state == HubConnectionState.Disconnected &&
-        !cancelationToken!.isCancelled) {
+        !_cancelationToken!.isCancelled) {
       try {
         // Try to start the connection
-        await _connection.start()?.asCancellable(cancelationToken);
+        await _connection.start()?.asCancellable(_cancelationToken);
 
         // If it succeeds, we return
-        return Result.success(null);
+        return Result.success();
 
         // If it cant start, we process the error and try to reconnect
       } catch (e, stackTrace) {
@@ -128,7 +129,7 @@ class SignalRClient with WidgetsBindingObserver {
           if (e.statusCode == 401) {
             _logger.d(
                 "SignalRClient: connection failed due to expired tokens, refreshing tokens then trying again");
-            await _refreshTokenRequest(cancelationToken!);
+            await _refreshTokenRequest(_cancelationToken!);
             continue;
 
             // If its not an expired token, we return
@@ -152,14 +153,15 @@ class SignalRClient with WidgetsBindingObserver {
       }
     }
 
-    if (cancelationToken!.isCancelled) {
+    if (_cancelationToken!.isCancelled) {
       _logger.d("SignalRClient: connection was cancelled, returning");
 
-      return Result.failure(CancelledException(), StackTrace.empty);
+      return Result.canceled("Canceling connection to hub");
     }
 
     _logger.d(
         "SignalRClient: tried to connect to server while its ${_connection.state}");
-    return Result.success(null);
+    return Result.canceled(
+        "Tried to connect to server while its ${_connection.state}");
   }
 }

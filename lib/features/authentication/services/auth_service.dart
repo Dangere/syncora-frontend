@@ -142,7 +142,7 @@ class AuthService {
     try {
       await _authRepository.sendVerificationEmail();
 
-      return Result.success(null);
+      return Result.success();
     } catch (e, stackTrace) {
       return Result.failure(e, stackTrace);
     }
@@ -159,7 +159,7 @@ class AuthService {
   Future<Result<void>> requestPasswordReset(String email) async {
     try {
       await _authRepository.requestPasswordReset(email);
-      return Result.success(null);
+      return Result.success();
     } catch (e, stackTrace) {
       return Result.failure(e, stackTrace);
     }

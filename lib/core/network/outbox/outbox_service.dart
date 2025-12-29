@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:cancellation_token/cancellation_token.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/services.dart';
 import 'package:logger/logger.dart';
@@ -19,6 +20,9 @@ class OutboxService {
   final Logger _logger;
   final Duration _rateLimitDelay;
   final Duration _timeoutDelay;
+
+  CancellationToken? _cancelationToken;
+
   OutboxService(
       {required OutboxRepository outboxRepository,
       required Map<OutboxEntityType, OutboxProcessor> processors,
@@ -38,12 +42,12 @@ class OutboxService {
     try {
       int entryId = await _outboxRepository.insertEntry(request.entry);
 
-      if (request.onAfterEnqueue == null) return Result.success(null);
+      if (request.onAfterEnqueue == null) return Result.success();
 
       // If we got local creation or updating needing to be done, we call it
       Result result = await request.onAfterEnqueue!();
 
-      if (result.isSuccess) return Result.success(null);
+      if (result.isSuccess) return Result.success();
 
       // If it fails, we roll back the creation of the entry
       await _outboxRepository.deleteEntry(entryId);
@@ -58,7 +62,7 @@ class OutboxService {
   // It uses delegates to immediately update the UI and display errors
   // It also requires a requireSecondPass callback to tell the viewmodel that it needs a second pass
 
-  // Processes the outbox queue and can return an error if a fetal error occurs
+  // Processes the outbox queue and can return an error if a fetal error occurs (stops the processing of the queue)
 
   // TODO: One thing to consider is if the refresh token runs out and the user get a 401 response which kicks them, however in the process it will revert the changes made offline and stored in outbox.
 
@@ -66,6 +70,8 @@ class OutboxService {
       {required Func<int, void> onGroupModified,
       required Func<Exception, void> onFail,
       required VoidCallback requireSecondPass}) async {
+    _cancelationToken = CancellationToken();
+
     // TODO (DONE): Add some filtering here so if we are trying to add a task to a group that we delete, it should cancel out
     // dependency-aware sorting, Create group -> modify group -> create task -> modify task
     var entries =
@@ -73,11 +79,20 @@ class OutboxService {
 
     // _logger.d(
     //     "Processing ${entries.map((e) => "\n${e.toString()}\n").toList().toString()} entries");
+    await Future.delayed(const Duration(seconds: 5));
 
     for (final entry in entries) {
+      await Future.delayed(const Duration(seconds: 2));
+
       if (_processors[entry.entityType] == null) {
+        _cancelationToken = null;
         return Result.failureMessage(
             'No processor found for ${entry.entityType}');
+      }
+
+      if (_cancelationToken!.isCancelled) {
+        _cancelationToken = null;
+        return Result.canceled("Outbox processor: queue cancelled");
       }
 
       // Before we process an entity, we see if the dependencies for it are available
@@ -87,9 +102,9 @@ class OutboxService {
       // Failure to get a dependency means we should skip processing the entity in need of that dependency (no reverting, just skipping entirely as the dependency itself will be unaccessible along with its children, for example failure to get a sync group id, means that group was failed to create and was already reverted (marked deleted), so anything depending on it will be unaccessible inside it for the user)
 
       // We process the entry, it runs a while loop until it succeeds and returns the group that was modified or returns an error that we handle here
-      while (true) {
+      while (_cancelationToken!.isCancelled == false) {
         // Gets set if an entry fails and we need to revert local changes
-        Exception? failedError;
+        Exception? failedEntryException;
 
         try {
           await _outboxRepository.markEntryInProcess(entry.id!);
@@ -110,19 +125,28 @@ class OutboxService {
         } on OutboxDependencyFailureException catch (e) {
           await _outboxRepository.failEntry(entry.id!);
           onFail(e);
-        } on TimeoutException {
-          // The entry stays pending and processed in the next time the loop is called
+        }
+        // If its a timeout error we stop the queue
+        on TimeoutException {
+          // The entry stays pending and we reprocessed in the next loop
           await _outboxRepository.markEntryPending(entry.id!);
-          _logger.d(
-              'Outbox debug: Timeout error, putting the entry as pending again');
+          _logger.d('Outbox debug: Timeout error, stopping queue');
 
-          await Future.delayed(Duration(seconds: _timeoutDelay.inSeconds));
+          _cancelationToken = null;
+          return Result.failureMessage('Timeout error');
+        }
+        // If its a network error we process it
+        on DioException catch (e) {
+          if (e.type == DioExceptionType.connectionError) {
+            await _outboxRepository.markEntryPending(entry.id!);
+            _logger.d('Outbox debug: unable to reach server, stopping queue');
+            _cancelationToken = null;
+            return Result.failureMessage('Network error');
+          }
 
-          continue;
-        } on DioException catch (e) {
-          // If we get a 403 error (forbidden), we revert the local changes and fail the entry
+          // If we get a 403 error (forbidden), we fail the entry (which will revert it)
           if (e.response?.statusCode == 403) {
-            failedError = e;
+            failedEntryException = e;
           }
           // If we get a 429 error (too many requests), we delay and try again
           // We extract the retry-after header and wait for that many seconds
@@ -142,25 +166,28 @@ class OutboxService {
             await Future.delayed(Duration(seconds: secondsToWait));
 
             continue;
-          } else {
-            // TODO: An edge case that might happen is the error not being 401 and the loop will never end, we should handle this
-            continue;
           }
-
-          // If its a timeout error we just try again
-        } on Exception catch (e) {
-          failedError = e;
+          // TODO: Other status codes could be handled here, beacuse if the error is not 403 or 429
+          else {
+            failedEntryException = e;
+          }
+        }
+        // If its an exception, we fail the entry (which will revert it)
+        on Exception catch (e) {
+          failedEntryException = e;
         }
 
         // If we got a failed error, we revert the local changes
-        if (failedError != null) {
-          onFail(failedError);
+        if (failedEntryException != null) {
+          onFail(failedEntryException);
           _logger.d('Outbox debug: Reverting local for ${entry.toString()}');
 
           Result<int> revertResult = await Result.wrapAsync(() async =>
               await _processors[entry.entityType]!.revertLocalChange(entry));
 
           if (!revertResult.isSuccess) {
+            // If we failed to revert, we stop the entire queue and return that failed result
+            _cancelationToken = null;
             return revertResult;
           }
 
@@ -171,15 +198,38 @@ class OutboxService {
 
           // If its a deletion fail, means it could've marked other entires as ignored, so we unignore them and call for a second pass
           if (entry.actionType == OutboxActionType.delete) {
-            await _outboxRepository.unignoreDependingEntries(entry.entityId);
-            requireSecondPass();
+            bool entiresUnignored = await _outboxRepository
+                .unignoreDependingEntries(entry.entityId);
+
+            if (entiresUnignored) {
+              requireSecondPass();
+            }
           }
-          break;
         }
 
+        // Stop looping through the entry if no previous condition forced it to loop
         break;
       }
     }
-    return Result.success(null);
+
+    // End of queue
+    if (_cancelationToken?.isCancelled ?? false) {
+      _cancelationToken = null;
+
+      return Result.canceled("Canceling queue");
+    }
+    _cancelationToken = null;
+
+    return Result.success();
   }
+
+  // // Gets called when the queue is running but client loses connection or the user logs out
+  // void forceShutQueue() {
+  //   // If _cancelationToken, it means we are not currently processing the queue
+
+  //   if (_cancelationToken == null) {
+  //     return;
+  //   }
+  //   _cancelationToken?.cancel();
+  // }
 }

@@ -163,7 +163,7 @@ class AuthNotifier extends AsyncNotifier<AuthState> {
       // Right now second callers to this method will only wait for the first caller to finish refreshing the tokens
       // For all of them and it will return, but if it fails it will also return and the second callers wont know either.
       // Refactor this part
-      return Result.success(null);
+      return Result.success();
     }
 
     _refreshTokenCompleter = Completer();

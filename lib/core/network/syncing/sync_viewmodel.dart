@@ -43,10 +43,10 @@ class SyncBackendNotifier extends AsyncNotifier<SyncState> {
       }
     });
 
-    (await ref.read(signalRClientProvider).connect()).onError((error) {
-      ref.read(appErrorProvider.notifier).state = error;
-      throw error.errorObject;
-    });
+    // (await ref.read(signalRClientProvider).connect()).onError((error) {
+    //   ref.read(appErrorProvider.notifier).state = error;
+    //   throw error.errorObject;
+    // });
 
     ref.read(signalRClientProvider).on("ReceiveSync", (p0) => _syncData());
     ref
@@ -100,6 +100,10 @@ final syncRepositoryProvider = Provider<SyncRepository>((ref) {
       dio: ref.watch(dioProvider), databaseManager: ref.watch(localDbProvider));
 });
 
+final debug_disposeSignalRProvider = StateProvider<bool>((ref) {
+  return false;
+});
+
 final signalRClientProvider = Provider<SignalRClient>((ref) {
   SignalRClient client = SignalRClient(
     ref.read(loggerProvider),
@@ -115,9 +119,19 @@ final signalRClientProvider = Provider<SignalRClient>((ref) {
     client.dispose();
   });
 
+  ref.listen(debug_disposeSignalRProvider, (previous, next) {
+    if (next) {
+      ref
+          .read(loggerProvider)
+          .d("signalRClientProvider: debug mode enabled, disposing connection");
+      client.dispose();
+    }
+  });
+
   // Listen for authentication changes
   ref.listen(isAuthenticatedProvider, (previous, next) {
     if (next) {
+      if (ref.read(connectionProvider) == ConnectionStatus.disconnected) return;
       ref
           .read(loggerProvider)
           .d("signalRClientProvider: User is authenticated, connecting to hub");
@@ -132,15 +146,16 @@ final signalRClientProvider = Provider<SignalRClient>((ref) {
 
   // Listen for connection changes
   ref.listen(connectionProvider, (previous, next) {
-    if (next == ConnectionStatus.disconnected) {
-      ref.read(loggerProvider).d(
-          "signalRClientProvider: internet disconnected, disposing connection");
-      client.dispose();
-    } else {
+    if (!(next == ConnectionStatus.disconnected)) {
+      if (!ref.read(isAuthenticatedProvider)) return;
       ref
           .read(loggerProvider)
           .d("signalRClientProvider: internet reconnected, connecting to hub");
       client.connect();
+    } else {
+      ref.read(loggerProvider).d(
+          "signalRClientProvider: internet disconnected, disposing connection");
+      client.dispose();
     }
   });
   return client;
