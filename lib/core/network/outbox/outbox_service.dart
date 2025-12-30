@@ -139,7 +139,7 @@ class OutboxService {
           _logger.d('Outbox debug: Timeout error, stopping queue');
 
           _cancelationToken = null;
-          return Result.failureMessage('Timeout error');
+          return Result.canceled('Timeout error');
         }
         // If its a network error we process it
         on DioException catch (e) {
@@ -147,7 +147,7 @@ class OutboxService {
             await _outboxRepository.markEntryPending(entry.id!);
             _logger.d('Outbox debug: unable to reach server, stopping queue');
             _cancelationToken = null;
-            return Result.failureMessage('Network error');
+            return Result.canceled('Unable to reach server');
           }
 
           // If we get a 403 error (forbidden), we fail the entry (which will revert it)

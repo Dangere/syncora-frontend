@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:signalr_netcore/hub_connection.dart';
 import 'package:syncora_frontend/common/providers/common_providers.dart';
 import 'package:syncora_frontend/common/providers/connection_provider.dart';
 import 'package:syncora_frontend/core/network/outbox/model/enqueue_request.dart';
@@ -10,6 +11,7 @@ import 'package:syncora_frontend/core/network/outbox/outbox_service.dart';
 import 'package:syncora_frontend/core/network/outbox/processors/groups_processor.dart';
 import 'package:syncora_frontend/core/network/outbox/processors/tasks_processor.dart';
 import 'package:syncora_frontend/core/network/outbox/repository/outbox_repository.dart';
+import 'package:syncora_frontend/core/network/syncing/sync_viewmodel.dart';
 import 'package:syncora_frontend/core/utils/error_mapper.dart';
 import 'package:syncora_frontend/core/utils/result.dart';
 import 'package:syncora_frontend/features/groups/viewmodel/groups_viewmodel.dart';
@@ -80,10 +82,12 @@ class OutboxNotifier extends AsyncNotifier<OutboxStatus>
       },
     );
 
-    if (!response.isSuccess) {
+    if (!response.isSuccess && !response.isCancelled) {
       ref.read(appErrorProvider.notifier).state = response.error;
       state = AsyncValue.error(response.error!.message,
           response.error!.stackTrace ?? StackTrace.current);
+    } else if (response.isCancelled) {
+      state = const AsyncValue.data(OutboxStatus.pending);
     }
 
     // ref.read(loggerProvider).i("Done processing Outbox Queue!");
@@ -97,7 +101,7 @@ class OutboxNotifier extends AsyncNotifier<OutboxStatus>
     if (_isAwaiting) {
       _isAwaiting = false;
       ref.read(loggerProvider).i(
-          "Outbox Queue: Second pass was required, proceeding with second pass!");
+          "Outbox Queue: second pass was required, proceeding with second pass!");
       _processQueue();
     }
     return response;
@@ -115,22 +119,30 @@ class OutboxNotifier extends AsyncNotifier<OutboxStatus>
     ref.onDispose(_onDispose);
     ref.listen(connectionProvider, (previous, next) async {
       if (next == ConnectionStatus.connected || next == ConnectionStatus.slow) {
-        _isProcessing = false;
-        _isAwaiting = false;
-        // ref
-        //     .read(loggerProvider)
-        //     .i("Processing Outbox Queue on connection change!");
+        ref
+            .read(loggerProvider)
+            .i("Outbox Queue: Processing Queue on connection change!");
         await _processQueue();
       }
     });
+
+    ref.read(signalRClientProvider).onStateChanged.listen((event) async {
+      if (event == HubConnectionState.Connected) {
+        ref
+            .read(loggerProvider)
+            .i("Outbox Queue: Processing Queue on connecting to the server!");
+        await _processQueue();
+      }
+    });
+
     _isProcessing = false;
     _isAwaiting = false;
     Result result = await _processQueue();
 
-    if (result.isSuccess) {
+    if (result.isSuccess || result.isCancelled) {
       return OutboxStatus.complete;
     } else {
-      throw result.error!;
+      throw result.error!.errorObject;
     }
   }
 

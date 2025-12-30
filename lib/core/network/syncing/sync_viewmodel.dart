@@ -66,12 +66,15 @@ class SyncBackendNotifier extends AsyncNotifier<SyncState>
     // TODO: Instead of waiting for it to finish loading, we should schedule it to run in the future for new data
     if (state.isLoading) return;
 
+    if (ref.read(connectionProvider) == ConnectionStatus.disconnected) return;
+    if (ref.read(isAuthenticatedProvider) == false) return;
+
     state = const AsyncValue.loading();
     Result<SyncPayload> result =
         await ref.read(syncServiceProvider).syncFromServer();
 
     if (!result.isSuccess) {
-      state = AsyncValue.error(result.error!, StackTrace.current);
+      state = AsyncValue.error(result.error!.errorObject, StackTrace.current);
       return;
     }
 
