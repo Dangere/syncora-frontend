@@ -1,6 +1,6 @@
 import 'dart:async';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:logger/logger.dart';
 import 'package:syncora_frontend/common/providers/common_providers.dart';
 import 'package:syncora_frontend/common/providers/connection_provider.dart';
 import 'package:syncora_frontend/core/network/outbox/model/enqueue_request.dart';
@@ -15,7 +15,8 @@ import 'package:syncora_frontend/core/utils/result.dart';
 import 'package:syncora_frontend/features/groups/viewmodel/groups_viewmodel.dart';
 import 'package:syncora_frontend/features/tasks/viewmodel/tasks_providers.dart';
 
-class OutboxNotifier extends AsyncNotifier<OutboxStatus> {
+class OutboxNotifier extends AsyncNotifier<OutboxStatus>
+    with WidgetsBindingObserver {
   bool _isProcessing = false;
   bool _isAwaiting = false;
 
@@ -36,7 +37,7 @@ class OutboxNotifier extends AsyncNotifier<OutboxStatus> {
       return Result.canceled("Cant process outbox queue when offline");
     }
 
-    processQueue();
+    _processQueue();
     state = const AsyncValue.data(OutboxStatus.inProcess);
 
     return result;
@@ -47,7 +48,7 @@ class OutboxNotifier extends AsyncNotifier<OutboxStatus> {
   // TODO: Show an indication to the user that shows if the queue is being processed or paused or faced an error
 
   // TODO: A behavior i noticed is that when processing a list of entries at once, the actions will revert on failing but it wont update the UI or show errors until the entire list is processed, which is a bit confusing for the user,
-  Future<Result<void>> processQueue() async {
+  Future<Result<void>> _processQueue() async {
     // If we are trying to process the queue while we are already processing it, we mark it as awaiting
     if (_isProcessing) {
       if (!_isAwaiting) {
@@ -97,22 +98,21 @@ class OutboxNotifier extends AsyncNotifier<OutboxStatus> {
       _isAwaiting = false;
       ref.read(loggerProvider).i(
           "Outbox Queue: Second pass was required, proceeding with second pass!");
-      processQueue();
+      _processQueue();
     }
     return response;
   }
 
-  void
-      handelInProcess() {} // TODO: Handle inProcess entires that were interrupted by a forceful disconnect
-
-  void onDispose() {
+  void _onDispose() {
     _isProcessing = false;
     _isAwaiting = false;
+    WidgetsBinding.instance.removeObserver(this);
   }
 
   @override
   FutureOr<OutboxStatus> build() async {
-    ref.onDispose(onDispose);
+    WidgetsBinding.instance.addObserver(this);
+    ref.onDispose(_onDispose);
     ref.listen(connectionProvider, (previous, next) async {
       if (next == ConnectionStatus.connected || next == ConnectionStatus.slow) {
         _isProcessing = false;
@@ -120,17 +120,28 @@ class OutboxNotifier extends AsyncNotifier<OutboxStatus> {
         // ref
         //     .read(loggerProvider)
         //     .i("Processing Outbox Queue on connection change!");
-        await processQueue();
+        await _processQueue();
       }
     });
     _isProcessing = false;
     _isAwaiting = false;
-    Result result = await processQueue();
+    Result result = await _processQueue();
 
     if (result.isSuccess) {
       return OutboxStatus.complete;
     } else {
       throw result.error!;
+    }
+  }
+
+  // Handling when the app is resumed, just to make sure if it failed somewhere while in the background, we process the queue
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      ref
+          .read(loggerProvider)
+          .d("Outbox Notifier: calling process queue on resume");
+      _processQueue();
     }
   }
 }

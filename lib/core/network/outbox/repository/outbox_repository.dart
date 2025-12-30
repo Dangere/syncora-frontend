@@ -243,6 +243,19 @@ class OutboxRepository {
     return entries;
   }
 
+  Future<List<OutboxEntry>> getInProcessEntries() async {
+    Database db = await _databaseManager.getDatabase();
+
+    List<Map<String, Object?>> query = await db.query(DatabaseTables.outbox,
+        where: "status = ?",
+        whereArgs: [OutboxStatus.inProcess.index],
+        orderBy: "creationDate ASC");
+    List<OutboxEntry> entries =
+        query.map((e) => OutboxEntry.fromTable(e)).toList();
+
+    return entries;
+  }
+
   Future<void> completeEntry(int id) async {
     Database db = await _databaseManager.getDatabase();
 

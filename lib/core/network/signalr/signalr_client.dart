@@ -9,7 +9,7 @@ import 'package:syncora_frontend/core/utils/result.dart';
 
 // Exposes method to listen to events from the server
 // This handles all the connection and reconnection logic without having to worry about it in other classes
-class SignalRClient with WidgetsBindingObserver {
+class SignalRClient {
   Stream<HubConnectionState> get onStateChanged => _connection.stateStream;
 
   final HubConnection _connection;
@@ -95,12 +95,6 @@ class SignalRClient with WidgetsBindingObserver {
 
   void off(String method) {
     _connection.off(method);
-  }
-
-  // Handing pause and resume when app goes to background and comes back
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    // TODO: implement didChangeAppLifecycleState
   }
 
   // This will loop until a connection is established or returns an error that isn't an expired token or timeout

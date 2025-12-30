@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:cancellation_token/cancellation_token.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:logger/logger.dart';
 import 'package:syncora_frontend/core/network/outbox/exception/outbox_exception.dart';
@@ -35,7 +36,6 @@ class OutboxService {
         _outboxRepository = outboxRepository,
         _processors = processors,
         _timeoutDelay = timeoutDelay;
-
   // Enqueue an entry to sync local data creation/update/delete with the cloud
   // It also makes sure the entry is inserted first then modify local data to avoid ghost data not syncing
   Future<Result<void>> enqueue(EnqueueRequest request) async {
@@ -74,16 +74,18 @@ class OutboxService {
 
     // TODO (DONE): Add some filtering here so if we are trying to add a task to a group that we delete, it should cancel out
     // dependency-aware sorting, Create group -> modify group -> create task -> modify task
-    var entries =
-        OutboxSorter.sort(await _outboxRepository.getPendingEntries());
 
-    // _logger.d(
-    //     "Processing ${entries.map((e) => "\n${e.toString()}\n").toList().toString()} entries");
-    await Future.delayed(const Duration(seconds: 5));
+    // Entries currently in the "pending" state
+    var pendingEntries =
+        OutboxSorter.sort(await _outboxRepository.getPendingEntries());
+    // Entries that were being processed previously but got interrupted before they can reach the "complete" state
+    var interruptedEntires =
+        OutboxSorter.sort(await _outboxRepository.getInProcessEntries());
+
+    // Combine the pending and interrupted entries,
+    var entries = [...interruptedEntires, ...pendingEntries];
 
     for (final entry in entries) {
-      await Future.delayed(const Duration(seconds: 2));
-
       if (_processors[entry.entityType] == null) {
         _cancelationToken = null;
         return Result.failureMessage(
@@ -108,6 +110,10 @@ class OutboxService {
 
         try {
           await _outboxRepository.markEntryInProcess(entry.id!);
+
+          // TODO: remove artificial delay
+          await Future.delayed(const Duration(seconds: 10));
+
           int processResult =
               await _processors[entry.entityType]!.processToBackend(entry);
 

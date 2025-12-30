@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:signalr_netcore/hub_connection.dart';
 import 'package:syncora_frontend/common/providers/common_providers.dart';
@@ -16,10 +17,13 @@ import 'package:syncora_frontend/features/tasks/viewmodel/tasks_providers.dart';
 import 'package:syncora_frontend/features/users/viewmodel/users_providers.dart';
 
 // TODO: this needs needs serious refactoring with heavy focus on separation of concerns
-class SyncBackendNotifier extends AsyncNotifier<SyncState> {
+class SyncBackendNotifier extends AsyncNotifier<SyncState>
+    with WidgetsBindingObserver {
   @override
   FutureOr<SyncState> build() async {
-    ref.read(loggerProvider).d("Building sync backend notifier");
+    WidgetsBinding.instance.addObserver(this);
+
+    ref.read(loggerProvider).d("Sync Notifier: building sync backend notifier");
 
     ref.read(signalRClientProvider).onStateChanged.listen((event) {
       switch (event) {
@@ -53,6 +57,8 @@ class SyncBackendNotifier extends AsyncNotifier<SyncState> {
         .read(signalRClientProvider)
         .on("ReceiveVerification", (p0) => _receiveVerification(p0));
 
+    ref.onDispose(() => WidgetsBinding.instance.removeObserver(this));
+
     return const SyncIdle();
   }
 
@@ -80,6 +86,15 @@ class SyncBackendNotifier extends AsyncNotifier<SyncState> {
     ref
         .read(authNotifierProvider.notifier)
         .updateVerificationStatus(isVerified);
+  }
+
+  // Handling when the app is resumed, recalling the sync just to make sure we are up to date
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      ref.read(loggerProvider).d("Sync Notifier: syncing on resume");
+      _syncData();
+    }
   }
 }
 
