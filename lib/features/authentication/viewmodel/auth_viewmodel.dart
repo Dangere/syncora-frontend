@@ -133,6 +133,7 @@ class AuthNotifier extends AsyncNotifier<AuthState> {
     ref.read(loggerProvider).f("Logging out!");
 
     await ref.read(sessionStorageProvider).clearSession();
+    await ref.read(authServiceProvider).googleSignOut();
     state = const AsyncValue.data(AuthUnauthenticated());
   }
 
@@ -162,7 +163,7 @@ class AuthNotifier extends AsyncNotifier<AuthState> {
       await _refreshTokenCompleter?.future;
       // Right now second callers to this method will only wait for the first caller to finish refreshing the tokens
       // For all of them and it will return, but if it fails it will also return and the second callers wont know either.
-      // Refactor this part
+      // TODO: Refactor this part
       return Result.success();
     }
 
@@ -178,15 +179,15 @@ class AuthNotifier extends AsyncNotifier<AuthState> {
 
     if (!result.isSuccess) {
       if (!_refreshTokenCompleter!.isCompleted) {
+        //TODO: Throw error for other callers
+
         // _refreshTokenCompleter?.completeError("failed to refresh tokens");
       }
-
-      _refreshTokenCompleter = null;
+    } else {
+      await ref.read(sessionStorageProvider).updateTokens(
+          accessToken: result.data!.accessToken,
+          refreshToken: result.data!.refreshToken);
     }
-
-    await ref.read(sessionStorageProvider).updateTokens(
-        accessToken: result.data!.accessToken,
-        refreshToken: result.data!.refreshToken);
     _refreshTokenCompleter!.complete();
     _refreshTokenCompleter = null;
 

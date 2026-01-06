@@ -12,9 +12,9 @@ class SyncPayload {
   final List<Task> tasks;
   final List<User> users;
 
-  final List<int>? deletedGroups;
-  final List<int>? deletedTasks;
-  final List<int>? kickedGroupsIds;
+  final List<int> deletedGroups;
+  final List<int> deletedTasks;
+  final List<int> kickedGroupsIds;
 
   SyncPayload(
       {required this.timestamp,
@@ -31,15 +31,9 @@ class SyncPayload {
           List<GroupDTO>.from(json['groups'].map((x) => GroupDTO.fromJson(x))),
       tasks: List<Task>.from(json['tasks'].map((x) => Task.fromJson(x))),
       users: List<User>.from(json['users'].map((x) => User.fromJson(x))),
-      deletedGroups: json['deletedGroups'] == null
-          ? null
-          : List<int>.from(json['deletedGroups']),
-      deletedTasks: json['deletedTasks'] == null
-          ? null
-          : List<int>.from(json['deletedTasks']),
-      kickedGroupsIds: json['kickedGroupsIds'] == null
-          ? null
-          : List<int>.from(json['kickedGroupsIds']));
+      deletedGroups: List<int>.from(json['deletedGroupsIds']),
+      deletedTasks: List<int>.from(json['deletedTasksIds']),
+      kickedGroupsIds: List<int>.from(json['kickedGroupsIds']));
 
   HashSet<int> groupIds() {
     HashSet<int> ids = HashSet<int>();
@@ -50,11 +44,11 @@ class SyncPayload {
     for (var element in tasks) {
       ids.add(element.groupId);
     }
-    if (kickedGroupsIds != null) {
-      for (var element in kickedGroupsIds!) {
-        ids.add(element);
-      }
+
+    for (var element in kickedGroupsIds) {
+      ids.add(element);
     }
+
     return ids;
   }
 
@@ -63,18 +57,18 @@ class SyncPayload {
         'groups': groups.map((x) => x.toJson()).toList(),
         'tasks': tasks.map((x) => x.toJson()).toList(),
         'users': users.map((x) => x.toJson()).toList(),
-        'deletedGroups': deletedGroups?.toList(),
-        'deletedTasks': deletedTasks?.toList(),
-        'kickedGroupsIds': kickedGroupsIds?.toList()
+        'deletedGroups': deletedGroups.toList(),
+        'deletedTasks': deletedTasks.toList(),
+        'kickedGroupsIds': kickedGroupsIds.toList()
       };
 
   bool isEmpty() =>
       groups.isEmpty &&
       tasks.isEmpty &&
       users.isEmpty &&
-      deletedGroups!.isEmpty &&
-      deletedTasks!.isEmpty &&
-      kickedGroupsIds!.isEmpty;
+      deletedGroups.isEmpty &&
+      deletedTasks.isEmpty &&
+      kickedGroupsIds.isEmpty;
   @override
   String toString() {
     JsonEncoder encoder =

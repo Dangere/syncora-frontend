@@ -26,37 +26,48 @@ class SyncService {
     }
   }
 
-  Future<Result<SyncPayload>> syncFromServer() async {
+  Future<Result<SyncPayload>> refreshFromServer() async {
     Result<SyncPayload> result = await fetchPayload();
 
     if (!result.isSuccess) {
       return result;
     }
 
+    Result<void> processResult = await processPayload(result.data!);
+
+    if (!processResult.isSuccess) {
+      return Result.failure(processResult.error!.errorObject,
+          processResult.error!.stackTrace ?? StackTrace.current);
+    }
+
+    return Result.success(result.data!);
+  }
+
+  Future<Result<void>> processPayload(SyncPayload payload) async {
     // Handling added users from payload
     try {
-      await _localUsersRepository.upsertUsers(result.data!.users);
+      await _localUsersRepository.upsertUsers(payload.users);
     } catch (e, stackTrace) {
       return Result.failure(e, stackTrace);
     }
 
     // Handling added groups from payload
     try {
-      await _localGroupsRepository.upsertGroups(result.data!.groups);
+      await _localGroupsRepository.upsertGroups(payload.groups);
     } catch (e, stackTrace) {
       return Result.failure(e, stackTrace);
     }
 
     // Handling added tasks from payload
     try {
-      await _localTasksRepository.upsertTasks(result.data!.tasks);
+      await _localTasksRepository.upsertTasks(payload.tasks);
     } catch (e, stackTrace) {
       return Result.failure(e, stackTrace);
     }
 
     // Handling kicked groups in payload
     try {
-      for (var groupId in result.data!.kickedGroupsIds!) {
+      for (var groupId in payload.kickedGroupsIds) {
         await _localGroupsRepository.markGroupAsDeleted(groupId);
         await _localGroupsRepository.wipeDeletedGroup(groupId);
       }
@@ -66,7 +77,7 @@ class SyncService {
 
     // Handling deleted groups in payload
     try {
-      for (var groupId in result.data!.deletedGroups!) {
+      for (var groupId in payload.deletedGroups) {
         await _localGroupsRepository.markGroupAsDeleted(groupId);
         await _localGroupsRepository.wipeDeletedGroup(groupId);
       }
@@ -76,7 +87,7 @@ class SyncService {
 
     // Handling deleted tasks from payload
     try {
-      for (var taskId in result.data!.deletedTasks!) {
+      for (var taskId in payload.deletedTasks) {
         await _localTasksRepository.markTaskAsDeleted(taskId);
         await _localTasksRepository.wipeDeletedTask(taskId);
       }
@@ -90,6 +101,6 @@ class SyncService {
       return Result.failure(e, stackTrace);
     }
 
-    return Result.success(result.data!);
+    return Result.success();
   }
 }

@@ -44,11 +44,13 @@ class SignalRClient {
     });
     _connection.onreconnecting(
       ({error}) {
-        _logger.f("SignalRClient: reconnecting");
+        _logger.f("SignalRClient: reconnecting, error: $error");
       },
     );
     _connection.onclose(
       ({error}) {
+        _logger.f("SignalRClient: connection closed");
+
         if (_cancelationToken!.isCancelled) return;
         _connectToServer();
       },

@@ -121,7 +121,7 @@ class AuthService {
           await afterAccountSelect(googleAccount.email);
 
       if (userInfo == null) {
-        googleSignIn.signOut();
+        await googleSignIn.signOut();
         return Result.failureMessage("Google registration failed");
       }
 
@@ -163,5 +163,9 @@ class AuthService {
     } catch (e, stackTrace) {
       return Result.failure(e, stackTrace);
     }
+  }
+
+  Future<void> googleSignOut() async {
+    if (await googleSignIn.isSignedIn()) await googleSignIn.signOut();
   }
 }

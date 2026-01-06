@@ -1,14 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:logger/logger.dart';
 import 'package:syncora_frontend/common/providers/common_providers.dart';
 import 'package:syncora_frontend/common/themes/app_sizes.dart';
 import 'package:syncora_frontend/common/themes/app_spacing.dart';
-import 'package:syncora_frontend/core/utils/alert_dialogs.dart';
 import 'package:syncora_frontend/core/utils/snack_bar_alerts.dart';
-import 'package:syncora_frontend/core/utils/validators.dart';
 import 'package:syncora_frontend/features/authentication/models/auth_state.dart';
 import 'package:syncora_frontend/features/authentication/models/user.dart';
 import 'package:syncora_frontend/features/authentication/viewmodel/auth_viewmodel.dart';
@@ -69,7 +66,8 @@ class _GroupViewPageState extends ConsumerState<GroupViewPage> {
 
     bool isOwner = authState?.user?.id == group.ownerUserId;
 
-    ref.read(loggerProvider).d("Displaying group view");
+    // TODO: this page gets rebuilt like a million times cuz of the future we are watching and the notifier, optimize it king
+    // ref.read(loggerProvider).d("Displaying group view");
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,

@@ -112,7 +112,7 @@ class OutboxService {
           await _outboxRepository.markEntryInProcess(entry.id!);
 
           // TODO: remove artificial delay
-          await Future.delayed(const Duration(seconds: 10));
+          // await Future.delayed(const Duration(seconds: 3));
 
           int processResult =
               await _processors[entry.entityType]!.processToBackend(entry);

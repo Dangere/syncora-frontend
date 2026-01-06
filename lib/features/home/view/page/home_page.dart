@@ -139,6 +139,16 @@ class _HomeScreenState extends ConsumerState<HomePage> {
             tooltip: 'DISPOSE SIGNALR',
             icon: const Icon(Icons.hub),
           ),
+          IconButton(
+            onPressed: () async {
+              (await ref.read(syncServiceProvider).fetchPayload())
+                  .onError((error) {
+                ref.read(appErrorProvider.notifier).state = error;
+              });
+            },
+            tooltip: 'FETCH SYNC PAYLOAD',
+            icon: const Icon(Icons.dataset_linked_sharp),
+          ),
         ],
       ), // This trailing comma makes auto-formatting nicer for build methods.
     );

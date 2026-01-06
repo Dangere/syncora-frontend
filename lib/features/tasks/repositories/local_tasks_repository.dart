@@ -35,7 +35,6 @@ class LocalTasksRepository {
       return Task.fromJson(mutatedTask);
     }).toList();
 
-    for (var i = 0; i < tasks.length; i++) {}
     return taskList;
   }
 

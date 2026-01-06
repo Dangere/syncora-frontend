@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:signalr_netcore/hub_connection.dart';
@@ -19,6 +20,10 @@ import 'package:syncora_frontend/features/users/viewmodel/users_providers.dart';
 // TODO: this needs needs serious refactoring with heavy focus on separation of concerns
 class SyncBackendNotifier extends AsyncNotifier<SyncState>
     with WidgetsBindingObserver {
+  // When this is enabled, on each time the event payload is received from signalR
+  // A fetch call to the state payload will be called to compare both event vs state data, which should be almost the same
+  final bool debugEventPayloadCheck = true;
+
   @override
   FutureOr<SyncState> build() async {
     WidgetsBinding.instance.addObserver(this);
@@ -28,31 +33,49 @@ class SyncBackendNotifier extends AsyncNotifier<SyncState>
     ref.read(signalRClientProvider).onStateChanged.listen((event) {
       switch (event) {
         case HubConnectionState.Connected:
+          ref
+              .read(loggerProvider)
+              .d("Sync Notifier: refreshing data on server connect");
+
           state = const AsyncValue.data(SyncIdle());
-          _syncData();
+          _refreshData();
           break;
         case HubConnectionState.Disconnected:
+          ref
+              .read(loggerProvider)
+              .d("Sync Notifier: we lost connection to server");
+
           state = const AsyncValue.data(SyncDisconnected());
           break;
         case HubConnectionState.Connecting:
+          ref
+              .read(loggerProvider)
+              .d("Sync Notifier: we are connecting to server");
+
           state = const AsyncValue.loading();
           break;
 
         case HubConnectionState.Reconnecting:
+          ref
+              .read(loggerProvider)
+              .d("Sync Notifier: we are reconnecting to server");
+
           state = const AsyncValue.loading();
           break;
 
         case HubConnectionState.Disconnecting:
+          ref
+              .read(loggerProvider)
+              .d("Sync Notifier: we are disconnecting to server");
+
           state = const AsyncValue.loading();
       }
     });
 
-    // (await ref.read(signalRClientProvider).connect()).onError((error) {
-    //   ref.read(appErrorProvider.notifier).state = error;
-    //   throw error.errorObject;
-    // });
+    ref
+        .read(signalRClientProvider)
+        .on("ReceiveSync", (p0) => _receiveData(p0?.first));
 
-    ref.read(signalRClientProvider).on("ReceiveSync", (p0) => _syncData());
     ref
         .read(signalRClientProvider)
         .on("ReceiveVerification", (p0) => _receiveVerification(p0));
@@ -62,8 +85,39 @@ class SyncBackendNotifier extends AsyncNotifier<SyncState>
     return const SyncIdle();
   }
 
-  Future<void> _syncData() async {
-    // TODO: Instead of waiting for it to finish loading, we should schedule it to run in the future for new data
+  void _receiveData(Object? parameter) async {
+    if (parameter == null || parameter is! Map<String, dynamic>) return;
+    if (ref.read(connectionProvider) == ConnectionStatus.disconnected) return;
+    if (ref.read(isAuthenticatedProvider) == false) return;
+
+    SyncPayload eventPayload = SyncPayload.fromJson(parameter);
+
+    if (debugEventPayloadCheck) {
+      ref
+          .read(loggerProvider)
+          .d("Sync Notifier: event payload, ${eventPayload.toString()}");
+      SyncPayload statePayload =
+          (await ref.read(syncServiceProvider).fetchPayload()).data!;
+
+      ref
+          .read(loggerProvider)
+          .d("Sync Notifier: state payload, ${statePayload.toString()}");
+    }
+
+    state = const AsyncValue.loading();
+
+    Result<void> result =
+        await ref.read(syncServiceProvider).processPayload(eventPayload);
+    if (!result.isSuccess) {
+      state = AsyncValue.error(result.error!.errorObject,
+          result.error!.stackTrace ?? StackTrace.current);
+      return;
+    }
+
+    state = AsyncValue.data(SyncInProgress(eventPayload));
+  }
+
+  Future<void> _refreshData() async {
     if (state.isLoading) return;
 
     if (ref.read(connectionProvider) == ConnectionStatus.disconnected) return;
@@ -71,10 +125,11 @@ class SyncBackendNotifier extends AsyncNotifier<SyncState>
 
     state = const AsyncValue.loading();
     Result<SyncPayload> result =
-        await ref.read(syncServiceProvider).syncFromServer();
+        await ref.read(syncServiceProvider).refreshFromServer();
 
     if (!result.isSuccess) {
-      state = AsyncValue.error(result.error!.errorObject, StackTrace.current);
+      state = AsyncValue.error(result.error!.errorObject,
+          result.error!.stackTrace ?? StackTrace.current);
       return;
     }
 
@@ -96,7 +151,7 @@ class SyncBackendNotifier extends AsyncNotifier<SyncState>
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
       ref.read(loggerProvider).d("Sync Notifier: syncing on resume");
-      _syncData();
+      _refreshData();
     }
   }
 }
