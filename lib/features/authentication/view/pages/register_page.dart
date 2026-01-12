@@ -61,8 +61,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title:
-            Center(child: Text(AppLocalizations.of(context).registerPageTitle)),
+        title: Center(child: Text(AppLocalizations.of(context).signUp)),
         elevation: 0,
       ),
       body: OverlayLoader(
@@ -250,8 +249,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                     AppSpacing.verticalSpaceLg,
                     ElevatedButton(
                         onPressed: register,
-                        child: Text(
-                            AppLocalizations.of(context).registerPageTitle)),
+                        child: Text(AppLocalizations.of(context).signUp)),
                   ],
                 ),
               ),
@@ -309,7 +307,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                               .bodyMedium!
                               .copyWith(
                                   color: Theme.of(context).colorScheme.primary),
-                          AppLocalizations.of(context).loginPageTitle),
+                          AppLocalizations.of(context).signIn),
                     ],
                   ),
                 )),

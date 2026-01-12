@@ -81,7 +81,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Center(child: Text(AppLocalizations.of(context).loginPageTitle)),
+        title: Center(child: Text(AppLocalizations.of(context).signIn)),
       ),
       body: OverlayLoader(
         isLoading: user.isLoading,
@@ -196,7 +196,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                   children: [
                     ElevatedButton(
                         onPressed: login,
-                        child: Text(AppLocalizations.of(context).loginButton)),
+                        child: Text(AppLocalizations.of(context).signIn)),
                     ElevatedButton(
                         onPressed: guestLogin,
                         style: ButtonStyle(

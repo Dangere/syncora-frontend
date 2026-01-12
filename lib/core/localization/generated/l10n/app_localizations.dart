@@ -93,24 +93,6 @@ abstract class AppLocalizations {
     Locale('en')
   ];
 
-  /// The conventional newborn programmer greeting
-  ///
-  /// In en, this message translates to:
-  /// **'Hello World!'**
-  String get helloWorld;
-
-  /// The title of the login page
-  ///
-  /// In en, this message translates to:
-  /// **'Login'**
-  String get loginPageTitle;
-
-  /// The login button
-  ///
-  /// In en, this message translates to:
-  /// **'Login'**
-  String get loginButton;
-
   /// The guest login button
   ///
   /// In en, this message translates to:
@@ -135,17 +117,149 @@ abstract class AppLocalizations {
   /// **'invalid username format'**
   String get loginPage_guestPopError_invalid;
 
-  /// The register title
-  ///
-  /// In en, this message translates to:
-  /// **'Register'**
-  String get registerPageTitle;
-
   /// The title of the groups front page
   ///
   /// In en, this message translates to:
   /// **'Groups'**
   String get groupsFrontPageTitle;
+
+  /// The title of the onboarding page
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome To CoTask'**
+  String get onboardingPage_Title;
+
+  /// The description of the onboarding page
+  ///
+  /// In en, this message translates to:
+  /// **'Create personal or collaborative tasks with others in real-time '**
+  String get onboardingPage_Description;
+
+  /// No description provided for @onboardingPage_CreateAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Create Your Account'**
+  String get onboardingPage_CreateAccount;
+
+  /// No description provided for @onboardingPage_ContinueAsGuest.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue As Guest'**
+  String get onboardingPage_ContinueAsGuest;
+
+  /// No description provided for @onboardingPage_AlreadyHaveAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Already have an account?'**
+  String get onboardingPage_AlreadyHaveAccount;
+
+  /// No description provided for @signIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign In'**
+  String get signIn;
+
+  /// No description provided for @signUp.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign Up'**
+  String get signUp;
+
+  /// No description provided for @signInPage_Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign In Your Account'**
+  String get signInPage_Title;
+
+  /// No description provided for @email.
+  ///
+  /// In en, this message translates to:
+  /// **'Email'**
+  String get email;
+
+  /// No description provided for @email_Field.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter email'**
+  String get email_Field;
+
+  /// No description provided for @password.
+  ///
+  /// In en, this message translates to:
+  /// **'Password'**
+  String get password;
+
+  /// No description provided for @password_Field.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter password'**
+  String get password_Field;
+
+  /// No description provided for @signInPage_ForgotPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Forgot Password?'**
+  String get signInPage_ForgotPassword;
+
+  /// No description provided for @signInPage_NotAUser.
+  ///
+  /// In en, this message translates to:
+  /// **'Not a user?'**
+  String get signInPage_NotAUser;
+
+  /// No description provided for @signUpPage_Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Create Your Account'**
+  String get signUpPage_Title;
+
+  /// No description provided for @signUpPage_Username.
+  ///
+  /// In en, this message translates to:
+  /// **'Username'**
+  String get signUpPage_Username;
+
+  /// No description provided for @signUpPage_Username_Field.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter username'**
+  String get signUpPage_Username_Field;
+
+  /// No description provided for @signUpPage_FirstName.
+  ///
+  /// In en, this message translates to:
+  /// **'First Name'**
+  String get signUpPage_FirstName;
+
+  /// No description provided for @signUpPage_LastName.
+  ///
+  /// In en, this message translates to:
+  /// **'Last Name'**
+  String get signUpPage_LastName;
+
+  /// No description provided for @signUpPage_Name_Field.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter name'**
+  String get signUpPage_Name_Field;
+
+  /// No description provided for @signUpPage_ConfirmPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm Password'**
+  String get signUpPage_ConfirmPassword;
+
+  /// No description provided for @signUpPage_ConfirmPassword_Field.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter password again'**
+  String get signUpPage_ConfirmPassword_Field;
+
+  /// No description provided for @signUpPage_AlreadyHaveAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Already have an account?'**
+  String get signUpPage_AlreadyHaveAccount;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

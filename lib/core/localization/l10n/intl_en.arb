@@ -1,16 +1,4 @@
 {
-  "helloWorld": "Hello World!",
-  "@helloWorld": {
-    "description": "The conventional newborn programmer greeting"
-  },
-  "loginPageTitle": "Login",
-  "@loginPageTitle": {
-    "description": "The title of the login page"
-  },
-  "loginButton": "Login",
-  "@loginButton": {
-    "description": "The login button"
-  },
   "guestLoginButton": "Login as Guest",
   "@guestLoginButton": {
     "description": "The guest login button"
@@ -27,12 +15,58 @@
   "@loginPage_guestPopError_invalid": {
     "description": "The guest pop up error when text is invalid"
   },
-  "registerPageTitle": "Register",
-  "@registerPageTitle": {
-    "description": "The register title"
-  },
   "groupsFrontPageTitle": "Groups",
   "@groupsFrontPageTitle": {
     "description": "The title of the groups front page"
-  }
+  },
+  "onboardingPage_Title": "Welcome To CoTask",
+  "@onboardingPage_Title": {
+    "description": "The title of the onboarding page"
+  },
+  "onboardingPage_Description": "Create personal or collaborative tasks with others in real-time ",
+  "@onboardingPage_Description": {
+    "description": "The description of the onboarding page"
+  },
+  "onboardingPage_CreateAccount": "Create Your Account",
+  "@onboardingPage_CreateAccount": {},
+  "onboardingPage_ContinueAsGuest": "Continue As Guest",
+  "@onboardingPage_ContinueAsGuest": {},
+  "onboardingPage_AlreadyHaveAccount": "Already have an account?",
+  "@onboardingPage_AlreadyHaveAccount": {},
+  "signIn": "Sign In",
+  "@signIn": {},
+  "signUp": "Sign Up",
+  "@signUp": {},
+  "signInPage_Title": "Sign In Your Account",
+  "@signInPage_Title": {},
+  "email": "Email",
+  "@email": {},
+  "email_Field": "Enter email",
+  "@email_Field": {},
+  "password": "Password",
+  "@password": {},
+  "password_Field": "Enter password",
+  "@password_Field": {},
+  "signInPage_ForgotPassword": "Forgot Password?",
+  "@signInPage_ForgotPassword": {},
+  "signInPage_NotAUser": "Not a user?",
+  "@signInPage_NotAUser": {},
+  "signUpPage_Title": "Create Your Account",
+  "@signUpPage_Title": {},
+  "signUpPage_Username": "Username",
+  "@signUpPage_Username": {},
+  "signUpPage_Username_Field": "Enter username",
+  "@signUpPage_Username_Field": {},
+  "signUpPage_FirstName": "First Name",
+  "@signUpPage_FirstName": {},
+  "signUpPage_LastName": "Last Name",
+  "@signUpPage_LastName": {},
+  "signUpPage_Name_Field": "Enter name",
+  "@signUpPage_Name_Field": {},
+  "signUpPage_ConfirmPassword": "Confirm Password",
+  "@signUpPage_ConfirmPassword": {},
+  "signUpPage_ConfirmPassword_Field": "Enter password again",
+  "@signUpPage_ConfirmPassword_Field": {},
+  "signUpPage_AlreadyHaveAccount": "Already have an account?",
+  "@signUpPage_AlreadyHaveAccount": {}
 }

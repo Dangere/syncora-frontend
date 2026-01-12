@@ -5,10 +5,12 @@ import 'package:syncora_frontend/common/providers/common_providers.dart';
 import 'package:syncora_frontend/features/authentication/view/pages/login_page.dart';
 import 'package:syncora_frontend/features/authentication/view/pages/password_reset_page.dart';
 import 'package:syncora_frontend/features/authentication/view/pages/register_page.dart';
+import 'package:syncora_frontend/features/authentication/view/pages/sign_up_page.dart';
 import 'package:syncora_frontend/features/authentication/viewmodel/auth_viewmodel.dart';
 import 'package:syncora_frontend/features/groups/view/page/group_view_page.dart';
 // import 'package:syncora_frontend/features/groups/view/page/groups_page.dart';
 import 'package:syncora_frontend/features/home/view/page/home_page.dart';
+import 'package:syncora_frontend/features/onboarding/view/onboarding_page.dart';
 
 final routeProvider = Provider<GoRouter>((ref) {
   bool isLogged = ref.watch(isLoggedProvider);
@@ -37,6 +39,12 @@ final routeProvider = Provider<GoRouter>((ref) {
           },
         ),
         GoRoute(
+            name: 'onboarding',
+            path: '/onboarding',
+            builder: (context, state) {
+              return const OnboardingPage();
+            }),
+        GoRoute(
             name: 'login',
             path: '/login',
             builder: (context, state) {
@@ -52,10 +60,10 @@ final routeProvider = Provider<GoRouter>((ref) {
               ),
             ]),
         GoRoute(
-          name: 'register',
-          path: '/register',
+          name: 'sign-up',
+          path: '/sign-up',
           builder: (context, state) {
-            return const RegisterPage();
+            return const SignUpPage();
           },
         ),
         GoRoute(
@@ -74,11 +82,12 @@ final routeProvider = Provider<GoRouter>((ref) {
       redirect: (context, state) {
         if (!isLogged &&
             state.fullPath != "/login" &&
-            state.fullPath != "/register" &&
-            state.fullPath != "/login/reset-password") {
+            state.fullPath != "/sign-up" &&
+            state.fullPath != "/login/reset-password" &&
+            state.fullPath != "/onboarding") {
           logger.d(
               "You were on ${state.fullPath} and getting redirected to login page");
-          return '/login';
+          return '/onboarding';
         }
 
         return null;
