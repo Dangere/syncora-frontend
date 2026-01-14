@@ -41,6 +41,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get signUp => 'Sign Up';
 
   @override
+  String get confirm => 'Confirm';
+
+  @override
   String get signInPage_Title => 'Sign In Your Account';
 
   @override
@@ -59,7 +62,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get signInPage_ForgotPassword => 'Forgot Password?';
 
   @override
+  String get passwordRestPage_Title => 'Reset Your Password';
+
+  @override
+  String get passwordRestPage_Description => 'Enter your email to receive a link to reset your password';
+
+  @override
+  String get passwordRestPage_ResendEmail => 'Resend email in';
+
+  @override
   String get signInPage_NotAUser => 'Not a user?';
+
+  @override
+  String get signInPage_GoogleSignIn => 'Sign in with Google';
 
   @override
   String get signUpPage_Title => 'Create Your Account';
@@ -87,4 +102,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get signUpPage_AlreadyHaveAccount => 'Already have an account?';
+
+  @override
+  String get signUpPage_GoogleSignUp => 'Sign up with Google';
 }

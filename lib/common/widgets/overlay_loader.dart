@@ -1,12 +1,10 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 
 class OverlayLoader extends StatefulWidget {
   const OverlayLoader({
     super.key,
     required this.isLoading,
-    required this.overlay,
+    this.overlay = const CircularProgressIndicator(),
     required this.body,
   });
 

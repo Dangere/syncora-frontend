@@ -165,6 +165,12 @@ abstract class AppLocalizations {
   /// **'Sign Up'**
   String get signUp;
 
+  /// No description provided for @confirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm'**
+  String get confirm;
+
   /// No description provided for @signInPage_Title.
   ///
   /// In en, this message translates to:
@@ -201,11 +207,35 @@ abstract class AppLocalizations {
   /// **'Forgot Password?'**
   String get signInPage_ForgotPassword;
 
+  /// No description provided for @passwordRestPage_Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset Your Password'**
+  String get passwordRestPage_Title;
+
+  /// No description provided for @passwordRestPage_Description.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your email to receive a link to reset your password'**
+  String get passwordRestPage_Description;
+
+  /// No description provided for @passwordRestPage_ResendEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Resend email in'**
+  String get passwordRestPage_ResendEmail;
+
   /// No description provided for @signInPage_NotAUser.
   ///
   /// In en, this message translates to:
   /// **'Not a user?'**
   String get signInPage_NotAUser;
+
+  /// No description provided for @signInPage_GoogleSignIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in with Google'**
+  String get signInPage_GoogleSignIn;
 
   /// No description provided for @signUpPage_Title.
   ///
@@ -260,6 +290,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Already have an account?'**
   String get signUpPage_AlreadyHaveAccount;
+
+  /// No description provided for @signUpPage_GoogleSignUp.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign up with Google'**
+  String get signUpPage_GoogleSignUp;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

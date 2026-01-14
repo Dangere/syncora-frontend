@@ -92,6 +92,10 @@ class AppTheme {
       inputDecorationTheme: InputDecorationTheme(
           floatingLabelBehavior: FloatingLabelBehavior.never,
           contentPadding: const EdgeInsets.symmetric(horizontal: 20),
+          constraints: const BoxConstraints(
+              // minHeight: 45,
+              // maxHeight: 45,
+              ),
           suffixIconColor: lightColorScheme.scrim,
           errorMaxLines: 2,
           errorStyle: TextStyle(

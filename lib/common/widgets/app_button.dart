@@ -9,6 +9,7 @@ enum AppButtonVariant {
 /// The most buttons will call from
 class AppButton extends StatelessWidget {
   final AppButtonVariant variant;
+  final bool disabled;
   final VoidCallback onPressed;
   final Widget child;
   final double height;
@@ -21,6 +22,7 @@ class AppButton extends StatelessWidget {
     required this.child,
     this.height = 56,
     this.width = double.infinity,
+    this.disabled = false,
   });
 
   @override
@@ -46,12 +48,17 @@ class AppButton extends StatelessWidget {
         ),
     };
 
+    final ButtonStyle disabledStyle = ElevatedButton.styleFrom(
+      backgroundColor: theme.colorScheme.onSurface,
+      foregroundColor: theme.colorScheme.outline,
+      elevation: 0,
+    );
+
     return Container(
       height: height,
       width: width,
-      decoration: variant != AppButtonVariant.glow
-          ? null
-          : BoxDecoration(
+      decoration: (variant == AppButtonVariant.glow && !disabled)
+          ? BoxDecoration(
               borderRadius:
                   BorderRadius.circular(8), // Match your Figma corner radius
               boxShadow: [
@@ -63,11 +70,15 @@ class AppButton extends StatelessWidget {
                   spreadRadius: 0,
                 ),
               ],
-            ),
-      child: ElevatedButton(
-        style: style,
-        onPressed: onPressed,
-        child: child,
+            )
+          : null,
+      child: AbsorbPointer(
+        absorbing: disabled,
+        child: ElevatedButton(
+          style: disabled ? disabledStyle : style,
+          onPressed: onPressed,
+          child: child,
+        ),
       ),
     );
   }

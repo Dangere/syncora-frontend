@@ -327,3 +327,31 @@ final isVerifiedProvider = Provider.autoDispose<bool>((ref) {
   }
   return authState.value!.asAuthenticated!.isVerified;
 });
+
+// A simple persistent countdown timer that counts from 0 to seconds and then completes
+class ResetPasswordTimerNotifier extends Notifier<int?> {
+  void startTimer(int seconds) {
+    if (state != null) return;
+    state = seconds;
+    Timer.periodic(
+      const Duration(seconds: 1),
+      (Timer timer) {
+        state = state! - 1;
+
+        if (state! <= 0) {
+          timer.cancel();
+          state = null;
+        }
+      },
+    );
+  }
+
+  @override
+  int? build() {
+    return null;
+  }
+}
+
+final resetPasswordTimerNotifierProvider =
+    NotifierProvider<ResetPasswordTimerNotifier, int?>(
+        ResetPasswordTimerNotifier.new);

@@ -1,10 +1,14 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_svg/svg.dart';
+import 'package:go_router/go_router.dart';
 import 'package:syncora_frontend/common/themes/app_spacing.dart';
 import 'package:syncora_frontend/common/widgets/app_button.dart';
+import 'package:syncora_frontend/common/widgets/input_field.dart';
 import 'package:syncora_frontend/common/widgets/overlay_loader.dart';
 import 'package:syncora_frontend/core/localization/generated/l10n/app_localizations.dart';
 import 'package:syncora_frontend/core/localization/generated/l10n/app_localizations_ar.dart';
@@ -70,29 +74,32 @@ class _SignUpPageState extends ConsumerState<SignUpPage> {
       appBar: AppBar(),
       body: OverlayLoader(
         isLoading: user.isLoading,
-        overlay: const CircularProgressIndicator(),
-        body: SingleChildScrollView(
-          child: Padding(
-            padding: AppSpacing.paddingHorizontalLg +
-                AppSpacing.paddingVerticalXl +
-                const EdgeInsets.only(top: 50),
-            child: Column(
-              children: [
-                // TITLE
-                Row(
+        body: CustomScrollView(
+          slivers: [
+            SliverFillRemaining(
+              hasScrollBody: false,
+              child: Padding(
+                padding: AppSpacing.paddingHorizontalLg +
+                    AppSpacing.paddingVerticalXl +
+                    const EdgeInsets.only(top: 80),
+                child: Column(
                   children: [
-                    Text(
-                      AppLocalizations.of(context).signUpPage_Title,
-                      style: Theme.of(context).textTheme.titleLarge,
+                    // TITLE
+                    Row(
+                      children: [
+                        Text(
+                          AppLocalizations.of(context).signUpPage_Title,
+                          style: Theme.of(context).textTheme.titleLarge,
+                        ),
+                      ],
                     ),
-                  ],
-                ),
-                const SizedBox(height: 38),
-                Form(
-                    key: _formKey,
-                    child: Column(
+                    const SizedBox(height: 38),
+                    Form(
+                      key: _formKey,
+                      child: Column(
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: [
+                          // FIRST AND LAST NAME
                           Row(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -260,104 +267,85 @@ class _SignUpPageState extends ConsumerState<SignUpPage> {
                               );
                             },
                           ),
+                        ],
+                      ),
+                    ),
 
-                          const SizedBox(height: 24),
-                          // SIGN UP
-                          AppButton(
-                              variant: AppButtonVariant.primary,
-                              onPressed: signUp,
-                              child: Text(AppLocalizations.of(context).signUp)),
-                          const SizedBox(height: 12),
+                    const SizedBox(height: 24),
+                    const Spacer(),
 
-                          // GOOGLE SIGN UP
-                          AppButton(
-                              variant: AppButtonVariant.glow,
-                              onPressed: googleSignUp,
-                              child: Text(AppLocalizations.of(context).signUp))
-                        ]))
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
+                    // SIGN UP
+                    AppButton(
+                        variant: AppButtonVariant.primary,
+                        onPressed: signUp,
+                        child: Text(AppLocalizations.of(context).signUp)),
+                    const SizedBox(height: 12),
 
-class InputField extends StatelessWidget {
-  const InputField({
-    super.key,
-    required this.controller,
-    required this.validator,
-    required this.labelText,
-    required this.hintText,
-    required this.keyboardType,
-    this.obscureText = false,
-    this.suffixIcon,
-    this.onSuffixIconPressed,
-  });
-  final String labelText;
-  final String hintText;
-  final bool obscureText;
+                    // GOOGLE SIGN UP
+                    AppButton(
+                        variant: AppButtonVariant.glow,
+                        onPressed: googleSignUp,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            SvgPicture.asset(
+                              "assets/logos/google-icon.svg",
+                              semanticsLabel: 'Google Logo',
+                              height: 20,
+                            ),
+                            const SizedBox(width: 10),
+                            Text(
+                                AppLocalizations.of(context)
+                                    .signUpPage_GoogleSignUp,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodyLarge!
+                                    .copyWith(
+                                        fontWeight: FontWeight.w600,
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .outlineVariant)),
+                          ],
+                        )),
+                    const SizedBox(height: 25),
 
-  final TextEditingController controller;
-  final String? Function(String?)? validator;
-  final VoidCallback? onSuffixIconPressed;
-
-  final IconData? suffixIcon;
-
-  final TextInputType keyboardType;
-
-  @override
-  Widget build(BuildContext context) {
-    return Stack(
-      // alignment: Alignment.bottomLeft,
-
-      children: [
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(
-              padding: const EdgeInsets.only(left: 5, bottom: 8),
-              child: Text(labelText,
-                  style: Theme.of(context).textTheme.bodyMedium),
-            ),
-            ConstrainedBox(
-              constraints: const BoxConstraints(minHeight: 45),
-              child: TextFormField(
-                keyboardType: keyboardType,
-                obscureText: obscureText,
-                textAlignVertical: TextAlignVertical.center,
-                decoration: InputDecoration(
-                  hintText: hintText,
-                  suffixIcon: suffixIcon != null ? Icon(suffixIcon) : null,
+                    // FOOTER
+                    TextButton(
+                      onPressed: () {
+                        context.replace('/sign-in');
+                      },
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodyLarge!
+                                  .copyWith(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .outline),
+                              "${AppLocalizations.of(context).onboardingPage_AlreadyHaveAccount} "),
+                          Text(
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodyLarge!
+                                  .copyWith(
+                                      fontWeight: FontWeight.bold,
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .primary),
+                              AppLocalizations.of(context).signIn)
+                        ],
+                      ),
+                    )
+                  ],
                 ),
-                controller: controller,
-                validator: validator,
               ),
-            ),
+            )
           ],
         ),
-        Positioned(
-            top: 30,
-            right: 0,
-            child: GestureDetector(
-              onTap: () {
-                if (suffixIcon != null && onSuffixIconPressed != null) {
-                  onSuffixIconPressed!();
-                }
-              },
-              child: Container(
-                // color: Colors.red.withOpacity(0.2),
-                child: SizedBox(
-                  height: 45,
-                  width: 45,
-                  child: Center(
-                      child: Icon(suffixIcon, color: Colors.transparent)),
-                ),
-              ),
-            )),
-      ],
+      ),
     );
   }
 }

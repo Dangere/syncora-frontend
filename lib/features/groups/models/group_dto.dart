@@ -1,5 +1,3 @@
-import 'package:logger/logger.dart';
-
 class GroupDTO {
   final int id;
   final String title;
