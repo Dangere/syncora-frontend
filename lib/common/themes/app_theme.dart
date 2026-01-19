@@ -18,6 +18,31 @@ class AppGrays {
   static const gray200 = Color(0xFFb8b7bb);
 }
 
+class AppShadow {
+  /// Timid shadow
+  static BoxShadow shadow0(BuildContext context) {
+    return BoxShadow(
+      color: Theme.of(context).colorScheme.secondary.withOpacity(0.20),
+      offset: const Offset(0, 4),
+      blurRadius: 18.2,
+      spreadRadius: 0,
+    );
+  }
+
+  /// Bright shadow
+  static BoxShadow shadow1(BuildContext context) {
+    return BoxShadow(
+      color: Theme.of(context)
+          .colorScheme
+          .primary
+          .withOpacity(0.28), // The color of the glow
+      offset: const Offset(0, 4),
+      blurRadius: 16, // The intensity of the glow
+      spreadRadius: 0,
+    );
+  }
+}
+
 class AppTheme {
   static ColorScheme lightColorScheme = const ColorScheme(
     brightness: Brightness.light,
@@ -64,34 +89,39 @@ class AppTheme {
         style: ElevatedButton.styleFrom(
           foregroundColor: lightColorScheme.onPrimary,
           backgroundColor: lightColorScheme.primary,
-          textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+          textStyle: const TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(17)),
         ),
       ),
       // APP BAR
       appBarTheme: AppBarTheme(
-        color: Colors.transparent,
-        surfaceTintColor: Colors.transparent,
-        // backgroundColor: Colors.transparent,
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(
-            bottom: Radius.circular(30), // Adjust the radius as needed
+          color: Colors.transparent,
+          surfaceTintColor: Colors.transparent,
+          // backgroundColor: Colors.transparent,
+          shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.vertical(
+              bottom: Radius.circular(30), // Adjust the radius as needed
+            ),
           ),
-        ),
-        elevation: 0,
-
-        toolbarHeight: 70,
-        iconTheme: IconThemeData(
-          color: lightColorScheme.outline,
-          size: 24,
-        ),
-      ),
+          elevation: 0,
+          toolbarHeight: 70,
+          iconTheme: IconThemeData(
+            color: lightColorScheme.outline,
+            size: 24,
+          ),
+          titleTextStyle: const TextStyle(
+            fontSize: 24,
+            height: 1.1,
+            color: AppGrays.gray900,
+            fontWeight: FontWeight.w700,
+          )),
 
       // INPUT DECORATION
       inputDecorationTheme: InputDecorationTheme(
           floatingLabelBehavior: FloatingLabelBehavior.never,
-          contentPadding: const EdgeInsets.symmetric(horizontal: 20),
+          contentPadding:
+              const EdgeInsets.symmetric(horizontal: 20, vertical: 0),
           constraints: const BoxConstraints(
               // minHeight: 45,
               // maxHeight: 45,
@@ -99,18 +129,21 @@ class AppTheme {
           suffixIconColor: lightColorScheme.scrim,
           errorMaxLines: 2,
           errorStyle: TextStyle(
+              height: 1.1,
               color: lightColorScheme.error,
-              fontSize: 14,
+              fontSize: 13,
               fontWeight: FontWeight.w400),
           labelStyle: TextStyle(
+              height: 1.1,
               color: lightColorScheme.outlineVariant,
-              fontSize: 14,
+              fontSize: 13,
               fontWeight: FontWeight.w400),
           hintStyle: TextStyle(
+              height: 1.1,
 
               // height: 20,
               color: lightColorScheme.scrim,
-              fontSize: 14,
+              fontSize: 13,
               fontWeight: FontWeight.w400),
 
           // fillColor: Colors.white,
@@ -127,27 +160,33 @@ class AppTheme {
       textTheme: const TextTheme(
         titleLarge: TextStyle(
           fontSize: 30,
+          height: 1.1,
           fontWeight: FontWeight.w600,
           color: AppGrays.gray900,
         ),
         titleMedium: TextStyle(
           fontSize: 24,
+          height: 1.1,
           color: AppGrays.gray900,
         ),
         titleSmall: TextStyle(
           fontSize: 20,
+          height: 1.1,
           color: AppGrays.gray500,
         ),
         bodyLarge: TextStyle(
+          height: 1.1,
           fontSize: 16,
           color: AppGrays.gray700,
         ),
         bodyMedium: TextStyle(
           fontSize: 14,
+          height: 1.1,
           color: AppGrays.gray700,
         ),
         bodySmall: TextStyle(
           fontSize: 12,
+          height: 1.1,
           color: AppGrays.gray500,
         ),
       ));

@@ -6,10 +6,12 @@ import 'package:syncora_frontend/features/authentication/view/pages/password_res
 import 'package:syncora_frontend/features/authentication/view/pages/sign_in_page.dart';
 import 'package:syncora_frontend/features/authentication/view/pages/sign_up_page.dart';
 import 'package:syncora_frontend/features/authentication/viewmodel/auth_viewmodel.dart';
+import 'package:syncora_frontend/features/dashboard/view/dashboard_page.dart';
 import 'package:syncora_frontend/features/groups/view/page/group_view_page.dart';
 // import 'package:syncora_frontend/features/groups/view/page/groups_page.dart';
 import 'package:syncora_frontend/features/home/view/page/home_page.dart';
 import 'package:syncora_frontend/features/onboarding/view/onboarding_page.dart';
+import 'package:syncora_frontend/features/settings/view/settings_page.dart';
 
 final routeProvider = Provider<GoRouter>((ref) {
   bool isLogged = ref.watch(isLoggedProvider);
@@ -17,11 +19,11 @@ final routeProvider = Provider<GoRouter>((ref) {
   Logger logger = ref.read(loggerProvider);
   logger.w('Refreshing routes, isLogged: $isLogged');
 
-  const publicRoutes = {
-    'login',
-    'register',
-    'reset-password',
-  };
+  // const publicRoutes = {
+  //   'login',
+  //   'register',
+  //   'reset-password',
+  // };
 
   return GoRouter(
       initialLocation: '/',
@@ -42,7 +44,16 @@ final routeProvider = Provider<GoRouter>((ref) {
             path: '/onboarding',
             builder: (context, state) {
               return const OnboardingPage();
-            }),
+            },
+            routes: [
+              GoRoute(
+                name: 'settings',
+                path: '/settings',
+                builder: (context, state) {
+                  return const SettingsPage();
+                },
+              ),
+            ]),
         GoRoute(
           name: 'sign-up',
           path: '/sign-up',

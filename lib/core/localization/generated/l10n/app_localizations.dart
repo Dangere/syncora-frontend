@@ -171,6 +171,30 @@ abstract class AppLocalizations {
   /// **'Confirm'**
   String get confirm;
 
+  /// No description provided for @tasks.
+  ///
+  /// In en, this message translates to:
+  /// **'Tasks'**
+  String get tasks;
+
+  /// No description provided for @language.
+  ///
+  /// In en, this message translates to:
+  /// **'Language'**
+  String get language;
+
+  /// No description provided for @darkMode.
+  ///
+  /// In en, this message translates to:
+  /// **'Dark Mode'**
+  String get darkMode;
+
+  /// No description provided for @logout.
+  ///
+  /// In en, this message translates to:
+  /// **'Logout'**
+  String get logout;
+
   /// No description provided for @signInPage_Title.
   ///
   /// In en, this message translates to:
@@ -296,6 +320,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Sign up with Google'**
   String get signUpPage_GoogleSignUp;
+
+  /// No description provided for @settingsPage_Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Settings'**
+  String get settingsPage_Title;
+
+  /// No description provided for @settingsPage_ChangeMyPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Change My Password'**
+  String get settingsPage_ChangeMyPassword;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

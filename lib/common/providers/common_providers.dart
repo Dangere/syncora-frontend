@@ -36,7 +36,29 @@ final themeProvider = Provider<ThemeData>((ref) {
   return AppTheme.appLightTheme;
 });
 
-final localeProvider = Provider<Locale>((ref) => const Locale('en'));
+// final localeProvider = Provider<Locale>((ref) => const Locale('en'));
+
+class LocaleNotifier extends Notifier<Locale> {
+  void setLocale(Locale locale) {
+    state = locale;
+  }
+
+  void toggleLocale() {
+    if (state.languageCode == 'en') {
+      state = const Locale('ar');
+    } else {
+      state = const Locale('en');
+    }
+  }
+
+  @override
+  Locale build() {
+    return const Locale('en');
+  }
+}
+
+final localeNotifierProvider =
+    NotifierProvider<LocaleNotifier, Locale>(LocaleNotifier.new);
 
 final appErrorProvider = StateProvider<AppError?>((ref) {
   return null;

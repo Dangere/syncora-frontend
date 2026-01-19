@@ -44,6 +44,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get confirm => 'Confirm';
 
   @override
+  String get tasks => 'Tasks';
+
+  @override
+  String get language => 'Language';
+
+  @override
+  String get darkMode => 'Dark Mode';
+
+  @override
+  String get logout => 'Logout';
+
+  @override
   String get signInPage_Title => 'Sign In Your Account';
 
   @override
@@ -105,4 +117,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get signUpPage_GoogleSignUp => 'Sign up with Google';
+
+  @override
+  String get settingsPage_Title => 'Settings';
+
+  @override
+  String get settingsPage_ChangeMyPassword => 'Change My Password';
 }

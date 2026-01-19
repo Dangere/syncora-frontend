@@ -107,7 +107,7 @@ class _SignInPageState extends ConsumerState<SignInPage> {
                               return null;
                             },
                           ),
-                          const SizedBox(height: 12),
+                          const SizedBox(height: 28),
 
                           StatefulBuilder(
                             builder: (context, setState) {
@@ -176,7 +176,7 @@ class _SignInPageState extends ConsumerState<SignInPage> {
                         variant: AppButtonVariant.primary,
                         onPressed: signIn,
                         child: Text(AppLocalizations.of(context).signIn)),
-                    const SizedBox(height: 12),
+                    const SizedBox(height: 24),
 
                     // GOOGLE SIGN IN
                     AppButton(

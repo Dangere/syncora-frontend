@@ -39,6 +39,14 @@
   "@signUp": {},
   "confirm": "Confirm",
   "@confirm": {},
+  "tasks": "Tasks",
+  "@tasks": {},
+  "language": "Language",
+  "@language": {},
+  "darkMode": "Dark Mode",
+  "@darkMode": {},
+  "logout": "Logout",
+  "@logout": {},
   "signInPage_Title": "Sign In Your Account",
   "@signInPage_Title": {},
   "email": "Email",
@@ -80,5 +88,9 @@
   "signUpPage_AlreadyHaveAccount": "Already have an account?",
   "@signUpPage_AlreadyHaveAccount": {},
   "signUpPage_GoogleSignUp": "Sign up with Google",
-  "@signUpPage_GoogleSignUp": {}
+  "@signUpPage_GoogleSignUp": {},
+  "settingsPage_Title": "Settings",
+  "@settingsPage_Title": {},
+  "settingsPage_ChangeMyPassword": "Change My Password",
+  "@settingsPage_ChangeMyPassword": {}
 }

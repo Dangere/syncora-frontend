@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import 'package:syncora_frontend/common/themes/app_spacing.dart';
 import 'package:syncora_frontend/common/widgets/app_button.dart';
 import 'package:syncora_frontend/common/widgets/input_field.dart';
@@ -119,30 +118,35 @@ class _PasswordResetPageState extends ConsumerState<PasswordResetPage> {
                         return Column(
                           children: [
                             // RESEND EMAIL TIMER
-                            if (resendTimer != null)
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Text(
-                                    "${AppLocalizations.of(context).passwordRestPage_ResendEmail} ",
+                            // if (resendTimer != null)
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  resendTimer == null
+                                      ? " "
+                                      : "${AppLocalizations.of(context).passwordRestPage_ResendEmail} ",
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .bodyMedium!
+                                      .copyWith(
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .outlineVariant),
+                                ),
+                                Text(
+                                    resendTimer == null
+                                        ? ""
+                                        : "00:${formatTwoDigits(resendTimer)}",
                                     style: Theme.of(context)
                                         .textTheme
                                         .bodyMedium!
                                         .copyWith(
                                             color: Theme.of(context)
                                                 .colorScheme
-                                                .outlineVariant),
-                                  ),
-                                  Text("00:${formatTwoDigits(resendTimer)}",
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .bodyMedium!
-                                          .copyWith(
-                                              color: Theme.of(context)
-                                                  .colorScheme
-                                                  .outlineVariant)),
-                                ],
-                              ),
+                                                .outlineVariant)),
+                              ],
+                            ),
                             const SizedBox(height: 74),
 
                             // RESET PASSWORD

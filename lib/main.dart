@@ -9,8 +9,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:syncora_frontend/common/providers/common_providers.dart';
 import 'package:syncora_frontend/common/themes/app_theme.dart';
 import 'package:syncora_frontend/core/localization/generated/l10n/app_localizations.dart';
-import 'package:syncora_frontend/core/network/syncing/sync_viewmodel.dart';
-import 'package:syncora_frontend/features/authentication/viewmodel/auth_viewmodel.dart';
 import 'package:syncora_frontend/router.dart';
 
 void main() async {
@@ -31,14 +29,14 @@ class MyApp extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     GoRouter router = ref.watch(routeProvider);
     // ThemeData theme = AppTheme.appLightTheme;
-    // Locale locale = ref.watch(localeProvider);
+    Locale locale = ref.watch(localeNotifierProvider);
     // Initialize sync notifier
     // registerSyncListeners(ref);
 
     return MaterialApp.router(
       useInheritedMediaQuery: true,
       debugShowCheckedModeBanner: false,
-      locale: DevicePreview.locale(context),
+      locale: locale,
       builder: DevicePreview.appBuilder,
       // locale: locale,
       localizationsDelegates: AppLocalizations.localizationsDelegates,

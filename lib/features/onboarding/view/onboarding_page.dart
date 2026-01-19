@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:syncora_frontend/common/themes/app_spacing.dart';
-import 'package:syncora_frontend/common/themes/app_theme.dart';
 import 'package:syncora_frontend/common/widgets/app_button.dart';
 import 'package:syncora_frontend/common/widgets/language_button.dart';
 import 'package:syncora_frontend/common/widgets/overlay_loader.dart';
@@ -57,32 +55,34 @@ class OnboardingPage extends ConsumerWidget {
               padding:
                   AppSpacing.paddingHorizontalLg + AppSpacing.paddingVerticalXl,
               child: Column(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   const Row(
                     children: [
                       LanguageButton(),
                     ],
                   ),
-                  // const SizedBox(height: 30),
-                  Expanded(child: Container()),
 
                   // LOGO
-                  Container(
-                    width: 205 - (MediaQuery.of(context).size.height * 0.01),
-                    height: 205 - (MediaQuery.of(context).size.height * 0.01),
-                    decoration: const BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.all(Radius.circular(32)),
-                    ),
-                    child: Icon(
-                      Icons.person_3,
-                      size: 150,
-                      color: Theme.of(context).colorScheme.onBackground,
+                  Expanded(
+                    child: Center(
+                      child: Container(
+                        width:
+                            205 - (MediaQuery.of(context).size.height * 0.01),
+                        height:
+                            205 - (MediaQuery.of(context).size.height * 0.01),
+                        decoration: const BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.all(Radius.circular(32)),
+                        ),
+                        child: Icon(
+                          Icons.person_3,
+                          size: 150,
+                          color: Theme.of(context).colorScheme.onBackground,
+                        ),
+                      ),
                     ),
                   ),
-
-                  Expanded(child: Container()),
                   // TITLE
                   Row(
                     children: [
@@ -93,6 +93,8 @@ class OnboardingPage extends ConsumerWidget {
                       ),
                     ],
                   ),
+                  const SizedBox(height: 14),
+
                   // DESCRIPTION
                   Text(
                     AppLocalizations.of(context).onboardingPage_Description,
@@ -101,24 +103,27 @@ class OnboardingPage extends ConsumerWidget {
                     softWrap: true,
                   ),
 
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 48),
                   // CREATE ACCOUNT BUTTON
                   AppButton(
+                    // highlighted: true,
+                    fontSize: 16,
                     variant: AppButtonVariant.primary,
                     onPressed: () => context.push('/sign-up'),
                     child: Text(AppLocalizations.of(context)
                         .onboardingPage_CreateAccount),
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 24),
                   // CONTINUE AS A GUEST
                   AppButton(
+                    fontSize: 16,
                     variant: AppButtonVariant.glow,
                     // style: Theme.of(context).elevatedButtonTheme.style,
                     onPressed: guestLogin,
                     child: Text(AppLocalizations.of(context)
                         .onboardingPage_ContinueAsGuest),
                   ),
-                  const SizedBox(height: 35),
+                  const SizedBox(height: 15),
 
                   TextButton(
                     onPressed: () {

@@ -1,8 +1,4 @@
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
@@ -11,8 +7,6 @@ import 'package:syncora_frontend/common/widgets/app_button.dart';
 import 'package:syncora_frontend/common/widgets/input_field.dart';
 import 'package:syncora_frontend/common/widgets/overlay_loader.dart';
 import 'package:syncora_frontend/core/localization/generated/l10n/app_localizations.dart';
-import 'package:syncora_frontend/core/localization/generated/l10n/app_localizations_ar.dart';
-import 'package:syncora_frontend/core/localization/generated/l10n/app_localizations_en.dart';
 import 'package:syncora_frontend/core/utils/snack_bar_alerts.dart';
 import 'package:syncora_frontend/core/utils/validators.dart';
 import 'package:syncora_frontend/features/authentication/view/popups/auth_popups.dart';
@@ -93,7 +87,7 @@ class _SignUpPageState extends ConsumerState<SignUpPage> {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 38),
+                    const SizedBox(height: 30),
                     Form(
                       key: _formKey,
                       child: Column(
@@ -279,7 +273,7 @@ class _SignUpPageState extends ConsumerState<SignUpPage> {
                         variant: AppButtonVariant.primary,
                         onPressed: signUp,
                         child: Text(AppLocalizations.of(context).signUp)),
-                    const SizedBox(height: 12),
+                    const SizedBox(height: 24),
 
                     // GOOGLE SIGN UP
                     AppButton(
@@ -307,7 +301,7 @@ class _SignUpPageState extends ConsumerState<SignUpPage> {
                                             .outlineVariant)),
                           ],
                         )),
-                    const SizedBox(height: 25),
+                    const SizedBox(height: 15),
 
                     // FOOTER
                     TextButton(

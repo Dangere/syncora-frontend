@@ -5,104 +5,122 @@ class AppLocalizationsAr extends AppLocalizations {
   AppLocalizationsAr([String locale = 'ar']) : super(locale);
 
   @override
-  String get guestLoginButton => 'تسجيل الدخول كضيف';
+  String get guestLoginButton => 'الدخول كضيف';
 
   @override
-  String get loginPage_guestPopTitle => 'اسم الضيف';
+  String get loginPage_guestPopTitle => 'اسم مستخدم الضيف';
 
   @override
-  String get loginPage_guestPopError_empty => 'اسم الضيف لا يمكن ان يكون فارغ';
+  String get loginPage_guestPopError_empty => 'لا يمكن ترك اسم مستخدم الضيف فارغًا';
 
   @override
-  String get loginPage_guestPopError_invalid => 'اسم الضيف غير معرف';
+  String get loginPage_guestPopError_invalid => 'تنسيق اسم المستخدم غير صالح';
 
   @override
   String get groupsFrontPageTitle => 'المجموعات';
 
   @override
-  String get onboardingPage_Title => 'Welcome To CoTask';
+  String get onboardingPage_Title => 'مرحبًا بك في CoTask';
 
   @override
-  String get onboardingPage_Description => 'Create personal or collaborative tasks with others in real-time ';
+  String get onboardingPage_Description => 'أنشئ مهام شخصية أو تعاونية مع الآخرين في الوقت الحقيقي';
 
   @override
-  String get onboardingPage_CreateAccount => 'Create Your Account';
+  String get onboardingPage_CreateAccount => 'إنشاء حساب';
 
   @override
-  String get onboardingPage_ContinueAsGuest => 'Continue As Guest';
+  String get onboardingPage_ContinueAsGuest => 'المتابعة كضيف';
 
   @override
-  String get onboardingPage_AlreadyHaveAccount => 'Already have an account?';
+  String get onboardingPage_AlreadyHaveAccount => 'لديك حساب بالفعل؟';
 
   @override
-  String get signIn => 'Sign In';
+  String get signIn => 'تسجيل الدخول';
 
   @override
-  String get signUp => 'Sign Up';
+  String get signUp => 'إنشاء حساب';
 
   @override
-  String get confirm => 'Confirm';
+  String get confirm => 'تأكيد';
 
   @override
-  String get signInPage_Title => 'Sign In Your Account';
+  String get tasks => 'المهام';
 
   @override
-  String get email => 'Email';
+  String get language => 'اللغة';
 
   @override
-  String get email_Field => 'Enter email';
+  String get darkMode => 'الوضع الداكن';
 
   @override
-  String get password => 'Password';
+  String get logout => 'تسجيل الخروج';
 
   @override
-  String get password_Field => 'Enter password';
+  String get signInPage_Title => 'تسجيل الدخول إلى حسابك';
 
   @override
-  String get signInPage_ForgotPassword => 'Forgot Password?';
+  String get email => 'البريد الإلكتروني';
 
   @override
-  String get passwordRestPage_Title => 'Reset Your Password';
+  String get email_Field => 'أدخل البريد الإلكتروني';
 
   @override
-  String get passwordRestPage_Description => 'Enter your email to receive a link to reset your password';
+  String get password => 'كلمة المرور';
 
   @override
-  String get passwordRestPage_ResendEmail => 'Resend email in';
+  String get password_Field => 'أدخل كلمة المرور';
 
   @override
-  String get signInPage_NotAUser => 'Not a user?';
+  String get signInPage_ForgotPassword => 'نسيت كلمة المرور؟';
 
   @override
-  String get signInPage_GoogleSignIn => 'Sign in with Google';
+  String get passwordRestPage_Title => 'إعادة تعيين كلمة المرور';
 
   @override
-  String get signUpPage_Title => 'Create Your Account';
+  String get passwordRestPage_Description => 'أدخل بريدك الإلكتروني لتلقي رابط إعادة تعيين كلمة المرور';
 
   @override
-  String get signUpPage_Username => 'Username';
+  String get passwordRestPage_ResendEmail => 'إعادة إرسال البريد خلال';
 
   @override
-  String get signUpPage_Username_Field => 'Enter username';
+  String get signInPage_NotAUser => 'لست مستخدمًا بعد؟';
 
   @override
-  String get signUpPage_FirstName => 'First Name';
+  String get signInPage_GoogleSignIn => 'تسجيل الدخول باستخدام Google';
 
   @override
-  String get signUpPage_LastName => 'Last Name';
+  String get signUpPage_Title => 'إنشاء حسابك';
 
   @override
-  String get signUpPage_Name_Field => 'Enter name';
+  String get signUpPage_Username => 'اسم المستخدم';
 
   @override
-  String get signUpPage_ConfirmPassword => 'Confirm Password';
+  String get signUpPage_Username_Field => 'أدخل اسم المستخدم';
 
   @override
-  String get signUpPage_ConfirmPassword_Field => 'Enter password again';
+  String get signUpPage_FirstName => 'الاسم الأول';
 
   @override
-  String get signUpPage_AlreadyHaveAccount => 'Already have an account?';
+  String get signUpPage_LastName => 'اسم العائلة';
 
   @override
-  String get signUpPage_GoogleSignUp => 'Sign up with Google';
+  String get signUpPage_Name_Field => 'أدخل الاسم';
+
+  @override
+  String get signUpPage_ConfirmPassword => 'تأكيد كلمة المرور';
+
+  @override
+  String get signUpPage_ConfirmPassword_Field => 'أعد إدخال كلمة المرور';
+
+  @override
+  String get signUpPage_AlreadyHaveAccount => 'لديك حساب بالفعل؟';
+
+  @override
+  String get signUpPage_GoogleSignUp => 'إنشاء حساب باستخدام Google';
+
+  @override
+  String get settingsPage_Title => 'الإعدادات';
+
+  @override
+  String get settingsPage_ChangeMyPassword => 'تغيير كلمة المرور';
 }
