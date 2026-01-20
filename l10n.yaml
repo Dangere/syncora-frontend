@@ -4,8 +4,6 @@ output-localization-file: app_localizations.dart
 output-class: AppLocalizations
 output-dir: lib/core/localization/generated/l10n
 
-#  Determines whether or not the generated output files will be generated as a synthetic package or at a specified directory in the Flutter project.
-synthetic-package: false
 
 # By default, getters in the generated localizations class are nullable. To eliminate the need for repeated null checks, you can turn off the `nullable-getter` option
 nullable-getter: false

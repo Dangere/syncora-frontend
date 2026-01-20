@@ -34,9 +34,9 @@ final routeProvider = Provider<GoRouter>((ref) {
           path: '/',
 
           builder: (context, state) {
-            return const HomePage(
-              title: "Home",
-            );
+            return const DashboardPage(
+                // title: "Home",
+                );
           },
         ),
         GoRoute(

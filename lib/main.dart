@@ -28,7 +28,7 @@ class MyApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     GoRouter router = ref.watch(routeProvider);
-    // ThemeData theme = AppTheme.appLightTheme;
+    ThemeMode themeMode = ref.watch(themeModeProvider);
     Locale locale = ref.watch(localeNotifierProvider);
     // Initialize sync notifier
     // registerSyncListeners(ref);
@@ -43,8 +43,9 @@ class MyApp extends ConsumerWidget {
       supportedLocales: AppLocalizations.supportedLocales,
       routerConfig: router,
       title: 'Syncora',
-      theme: AppTheme.appLightTheme,
-      darkTheme: AppTheme.appDarkTheme,
+      themeMode: themeMode,
+      theme: AppTheme.lightTheme(),
+      darkTheme: AppTheme.darkTheme(),
     );
   }
 }

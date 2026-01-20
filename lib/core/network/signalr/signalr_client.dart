@@ -49,7 +49,7 @@ class SignalRClient {
       ({error}) {
         _logger.f("SignalRClient: connection closed");
 
-        if (_cancelationToken!.isCancelled) return;
+        if (_cancelationToken == null || _cancelationToken!.isCancelled) return;
         _connectToServer();
       },
     );

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:flutter_switch/flutter_switch.dart';
 import 'package:syncora_frontend/common/providers/common_providers.dart';
 import 'package:syncora_frontend/common/themes/app_spacing.dart';
 import 'package:syncora_frontend/common/themes/app_theme.dart';
@@ -31,6 +32,9 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     SnackBarAlerts.registerErrorListener(ref, context);
 
     Locale currentLocale = ref.watch(localeNotifierProvider);
+    // bool isDarkMode = ref.watch(themeModeProvider);
+
+    bool isDarkMode = ref.watch(themeModeProvider) == ThemeMode.dark;
 
     return Scaffold(
       extendBodyBehindAppBar: true,
@@ -48,41 +52,89 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                   const EdgeInsets.only(top: 80),
               child: Column(
                 children: [
+                  // LANGUAGE
                   LanguageExpandableCard(
                     currentLocale: currentLocale,
                     onTap: updateLanguage,
                   ),
-                  Card(
-                    shape: const RoundedRectangleBorder(
-                        borderRadius: BorderRadius.all(
-                      Radius.circular(20),
-                    )),
-                    child: SizedBox(
-                      height: 66,
-                      width: double.infinity,
-                      child: Text(AppLocalizations.of(context).darkMode),
+                  const SizedBox(height: 16),
+                  // TOGGLE DARK MODE
+                  AppButton(
+                    fontSize: 16,
+                    variant: AppButtonVariant.settings,
+                    onPressed: () {
+                      ref.read(themeModeProvider.notifier).toggleTheme();
+                    },
+                    child: Row(
+                      children: [
+                        Icon(Icons.dark_mode_sharp, size: 24),
+
+                        // Icon(Icons.dark_mode_sharp, size: 24),
+                        // Icon(Icons.dark_mode_sharp, size: 24),
+
+                        const SizedBox(width: 17),
+                        Text(
+                          AppLocalizations.of(context).darkMode,
+                        ),
+
+                        const Spacer(),
+                        FlutterSwitch(
+                          // padding: const EdgeInsets.all(0),
+                          toggleColor:
+                              Theme.of(context).colorScheme.surfaceContainer,
+                          activeColor: Theme.of(context).colorScheme.primary,
+                          inactiveColor: Theme.of(context).colorScheme.scrim,
+                          toggleSize: 16,
+                          height: 24,
+                          width: 44,
+                          value: isDarkMode,
+                          onToggle: (value) {
+                            ref
+                                .read(themeModeProvider.notifier)
+                                .setThemDark(value);
+                          },
+                        ),
+                      ],
                     ),
                   ),
+                  const SizedBox(height: 16),
+                  // CHANGE PASSWORD
+                  AppButton(
+                    fontSize: 16,
+                    variant: AppButtonVariant.settings,
+                    onPressed: () {},
+                    child: Row(
+                      children: [
+                        Icon(Icons.lock, size: 24),
 
+                        // Icon(Icons.dark_mode_sharp, size: 24),
+                        // Icon(Icons.dark_mode_sharp, size: 24),
+
+                        const SizedBox(width: 17),
+                        Text(
+                          AppLocalizations.of(context)
+                              .settingsPage_ChangeMyPassword,
+                        ),
+
+                        const Spacer(),
+                        Transform.rotate(
+                            angle: 3.14 * (3 / 2),
+                            child: Icon(Icons.expand_more, size: 24)),
+                      ],
+                    ),
+                  ),
                   const Spacer(),
                   // LOGOUT BUTTON
                   AppButton(
-                      variant: AppButtonVariant.glow,
+                      variant: AppButtonVariant.logout,
                       onPressed: logout,
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text(AppLocalizations.of(context).logout,
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .bodyLarge!
-                                  .copyWith(
-                                      fontWeight: FontWeight.w600,
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .outlineVariant)),
+                          Text(AppLocalizations.of(context).logout),
                           const Icon(
                             Icons.logout,
+                            size: 26,
                           ),
                         ],
                       )),
@@ -113,6 +165,7 @@ class LanguageExpandableCard extends StatelessWidget {
         boxShadow: [AppShadow.shadow0(context)],
       ),
       child: Card(
+        margin: const EdgeInsets.all(0),
         shadowColor: Colors.transparent,
         elevation: 0,
         clipBehavior: Clip.antiAlias,
@@ -120,11 +173,17 @@ class LanguageExpandableCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(20.0),
         ),
         child: ExpansionTile(
-          // minTileHeight: 40.0,
-          leading: const Icon(Icons.translate_outlined),
+          // childrenPadding: EdgeInsets.all(0),
+          minTileHeight: 66,
+          tilePadding: const EdgeInsets.symmetric(horizontal: 16),
+          leading: const Icon(
+            Icons.translate_outlined,
+            size: 24,
+          ),
           shape: const Border(),
-          // backgroundColor: Theme.of(context).colorScheme.surface,
-          // collapsedBackgroundColor: Theme.of(context).colorScheme.surface,
+          backgroundColor: Theme.of(context).colorScheme.surfaceContainer,
+          collapsedBackgroundColor:
+              Theme.of(context).colorScheme.surfaceContainer,
           title: Text(AppLocalizations.of(context).language,
               style: Theme.of(context)
                   .textTheme

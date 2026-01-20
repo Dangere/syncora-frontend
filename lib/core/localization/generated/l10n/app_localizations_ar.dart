@@ -1,4 +1,8 @@
+// ignore: unused_import
+import 'package:intl/intl.dart' as intl;
 import 'app_localizations.dart';
+
+// ignore_for_file: type=lint
 
 /// The translations for Arabic (`ar`).
 class AppLocalizationsAr extends AppLocalizations {
@@ -11,7 +15,8 @@ class AppLocalizationsAr extends AppLocalizations {
   String get loginPage_guestPopTitle => 'اسم مستخدم الضيف';
 
   @override
-  String get loginPage_guestPopError_empty => 'لا يمكن ترك اسم مستخدم الضيف فارغًا';
+  String get loginPage_guestPopError_empty =>
+      'لا يمكن ترك اسم مستخدم الضيف فارغًا';
 
   @override
   String get loginPage_guestPopError_invalid => 'تنسيق اسم المستخدم غير صالح';
@@ -23,7 +28,8 @@ class AppLocalizationsAr extends AppLocalizations {
   String get onboardingPage_Title => 'مرحبًا بك في CoTask';
 
   @override
-  String get onboardingPage_Description => 'أنشئ مهام شخصية أو تعاونية مع الآخرين في الوقت الحقيقي';
+  String get onboardingPage_Description =>
+      'أنشئ مهام شخصية أو تعاونية مع الآخرين في الوقت الحقيقي';
 
   @override
   String get onboardingPage_CreateAccount => 'إنشاء حساب';
@@ -77,7 +83,8 @@ class AppLocalizationsAr extends AppLocalizations {
   String get passwordRestPage_Title => 'إعادة تعيين كلمة المرور';
 
   @override
-  String get passwordRestPage_Description => 'أدخل بريدك الإلكتروني لتلقي رابط إعادة تعيين كلمة المرور';
+  String get passwordRestPage_Description =>
+      'أدخل بريدك الإلكتروني لتلقي رابط إعادة تعيين كلمة المرور';
 
   @override
   String get passwordRestPage_ResendEmail => 'إعادة إرسال البريد خلال';

@@ -1,12 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:syncora_frontend/common/themes/app_theme.dart';
 
-enum AppButtonVariant {
-  primary,
-  secondary,
-  glow,
-  dropdown,
-}
+enum AppButtonVariant { primary, secondary, glow, dropdown, settings, logout }
 
 /// The most buttons will call from
 class AppButton extends StatelessWidget {
@@ -31,39 +27,77 @@ class AppButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-
+    final fontFamily = Theme.of(context).textTheme.bodyLarge!.fontFamily;
     final ButtonStyle style = switch (variant) {
       AppButtonVariant.primary => ElevatedButton.styleFrom(
-          textStyle: TextStyle(fontSize: fontSize, fontWeight: FontWeight.w700),
+          // This applied to texts nested but not color wise
+          textStyle: TextStyle(
+              fontFamily: fontFamily,
+              fontSize: fontSize,
+              fontWeight: FontWeight.w700),
           backgroundColor: theme.colorScheme.primary,
+          // Text, icons nested are colored here
           foregroundColor: theme.colorScheme.onPrimary,
           elevation: 2,
         ),
       AppButtonVariant.secondary => ElevatedButton.styleFrom(
-          textStyle: TextStyle(fontSize: fontSize, fontWeight: FontWeight.w700),
-          backgroundColor: theme.colorScheme.surface,
+          textStyle: TextStyle(
+              fontFamily: fontFamily,
+              fontSize: fontSize,
+              fontWeight: FontWeight.w700),
+          backgroundColor: theme.colorScheme.surfaceContainer,
           foregroundColor: theme.colorScheme.primary,
           side: BorderSide(color: theme.colorScheme.primary),
           elevation: 0,
         ),
       AppButtonVariant.glow => ElevatedButton.styleFrom(
-          textStyle: TextStyle(fontSize: fontSize, fontWeight: FontWeight.w700),
-          backgroundColor: theme.colorScheme.surface,
+          textStyle: TextStyle(
+              fontFamily: fontFamily,
+              fontSize: fontSize,
+              fontWeight: FontWeight.w700),
+          backgroundColor: theme.colorScheme.surfaceContainer,
           foregroundColor: theme.colorScheme.primary,
           elevation: 0,
         ),
       AppButtonVariant.dropdown => ElevatedButton.styleFrom(
-          textStyle: TextStyle(fontSize: fontSize, fontWeight: FontWeight.w700),
-          backgroundColor: theme.colorScheme.surface,
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
+          textStyle: TextStyle(
+              fontFamily: fontFamily,
+              fontSize: fontSize,
+              fontWeight: FontWeight.w700),
+          backgroundColor: theme.colorScheme.surfaceContainer,
           foregroundColor: theme.colorScheme.outline,
           side: BorderSide(
               width: 0.8,
               color: highlighted
                   ? theme.colorScheme.primary
-                  : theme.colorScheme.scrim.withOpacity(0.4)),
+                  : theme.colorScheme.scrim.withValues(alpha: 0.4)),
           elevation: 0,
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        ),
+      AppButtonVariant.settings => ElevatedButton.styleFrom(
+          textStyle: TextStyle(
+              fontFamily: fontFamily,
+              fontSize: fontSize,
+              fontWeight: FontWeight.w700),
+          backgroundColor: theme.colorScheme.surfaceContainer,
+          foregroundColor: theme.colorScheme.onSurfaceVariant,
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          elevation: 0,
+        ),
+      AppButtonVariant.logout => ElevatedButton.styleFrom(
+          textStyle: TextStyle(
+              color: theme.colorScheme.error,
+              fontFamily: fontFamily,
+              fontSize: fontSize,
+              fontWeight: FontWeight.w700),
+          backgroundColor: theme.colorScheme.error,
+          foregroundColor: theme.colorScheme.onError,
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          elevation: 0,
         ),
     };
 
@@ -71,32 +105,33 @@ class AppButton extends StatelessWidget {
       AppButtonVariant.primary => 56.0,
       AppButtonVariant.secondary => 56.0,
       AppButtonVariant.glow => 56.0,
-      AppButtonVariant.dropdown => 52.0
+      AppButtonVariant.dropdown => 52.0,
+      AppButtonVariant.settings => 66,
+      AppButtonVariant.logout => 66,
     };
 
     final ButtonStyle disabledStyle = style.copyWith(
-      backgroundColor:
-          MaterialStateProperty.all<Color>(theme.colorScheme.onSurface),
-      foregroundColor:
-          MaterialStateProperty.all<Color>(theme.colorScheme.outline),
-      elevation: MaterialStateProperty.all<double>(0),
-      side: MaterialStateProperty.all<BorderSide?>(null),
+      backgroundColor: WidgetStateProperty.all(theme.colorScheme.onSurface),
+      foregroundColor: WidgetStateProperty.all(theme.colorScheme.outline),
+      elevation: WidgetStateProperty.all(0),
+      side: WidgetStateProperty.all(null),
     );
 
-    bool hasShadow = ((variant == AppButtonVariant.glow ||
-            (variant == AppButtonVariant.dropdown && highlighted)) &&
-        !disabled);
+    List<BoxShadow> shadows = [
+      if (variant == AppButtonVariant.glow) AppShadow.shadow1(context),
+      if (variant == AppButtonVariant.dropdown && highlighted)
+        AppShadow.shadow1(context),
+      if (variant == AppButtonVariant.settings) AppShadow.shadow0(context),
+    ];
 
     return Container(
       height: height,
       width: width,
-      decoration: hasShadow
-          ? BoxDecoration(
-              borderRadius:
-                  BorderRadius.circular(8), // Match your Figma corner radius
-              boxShadow: [AppShadow.shadow1(context)],
-            )
-          : null,
+      decoration: BoxDecoration(
+        borderRadius:
+            BorderRadius.circular(8), // Match your Figma corner radius
+        boxShadow: shadows,
+      ),
       child: AbsorbPointer(
         absorbing: disabled,
         child: ElevatedButton(

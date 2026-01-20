@@ -1,4 +1,8 @@
+// ignore: unused_import
+import 'package:intl/intl.dart' as intl;
 import 'app_localizations.dart';
+
+// ignore_for_file: type=lint
 
 /// The translations for English (`en`).
 class AppLocalizationsEn extends AppLocalizations {
@@ -23,7 +27,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get onboardingPage_Title => 'Welcome To CoTask';
 
   @override
-  String get onboardingPage_Description => 'Create personal or collaborative tasks with others in real-time ';
+  String get onboardingPage_Description =>
+      'Create personal or collaborative tasks with others in real-time ';
 
   @override
   String get onboardingPage_CreateAccount => 'Create Your Account';
@@ -77,7 +82,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get passwordRestPage_Title => 'Reset Your Password';
 
   @override
-  String get passwordRestPage_Description => 'Enter your email to receive a link to reset your password';
+  String get passwordRestPage_Description =>
+      'Enter your email to receive a link to reset your password';
 
   @override
   String get passwordRestPage_ResendEmail => 'Resend email in';

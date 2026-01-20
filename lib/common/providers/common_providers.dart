@@ -5,7 +5,6 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:logger/logger.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:syncora_frontend/common/interceptors/auth_interceptor.dart';
-import 'package:syncora_frontend/common/themes/app_theme.dart';
 import 'package:syncora_frontend/core/data/database_manager.dart';
 import 'package:syncora_frontend/core/utils/app_error.dart';
 import 'package:syncora_frontend/features/authentication/viewmodel/auth_viewmodel.dart';
@@ -32,10 +31,6 @@ final sharedPreferencesProvider = Provider<SharedPreferences>((ref) {
   throw UnimplementedError();
 });
 
-final themeProvider = Provider<ThemeData>((ref) {
-  return AppTheme.appLightTheme;
-});
-
 // final localeProvider = Provider<Locale>((ref) => const Locale('en'));
 
 class LocaleNotifier extends Notifier<Locale> {
@@ -59,6 +54,24 @@ class LocaleNotifier extends Notifier<Locale> {
 
 final localeNotifierProvider =
     NotifierProvider<LocaleNotifier, Locale>(LocaleNotifier.new);
+
+class ThemeModeNotifier extends Notifier<ThemeMode> {
+  void setThemDark(bool isDark) {
+    state = isDark ? ThemeMode.dark : ThemeMode.light;
+  }
+
+  void toggleTheme() {
+    state = state == ThemeMode.light ? ThemeMode.dark : ThemeMode.light;
+  }
+
+  @override
+  ThemeMode build() {
+    return ThemeMode.light;
+  }
+}
+
+final themeModeProvider =
+    NotifierProvider<ThemeModeNotifier, ThemeMode>(ThemeModeNotifier.new);
 
 final appErrorProvider = StateProvider<AppError?>((ref) {
   return null;

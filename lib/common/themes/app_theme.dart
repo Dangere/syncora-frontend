@@ -22,7 +22,7 @@ class AppShadow {
   /// Timid shadow
   static BoxShadow shadow0(BuildContext context) {
     return BoxShadow(
-      color: Theme.of(context).colorScheme.secondary.withOpacity(0.20),
+      color: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.20),
       offset: const Offset(0, 4),
       blurRadius: 18.2,
       spreadRadius: 0,
@@ -35,7 +35,7 @@ class AppShadow {
       color: Theme.of(context)
           .colorScheme
           .primary
-          .withOpacity(0.28), // The color of the glow
+          .withValues(alpha: 0.28), // The color of the glow
       offset: const Offset(0, 4),
       blurRadius: 16, // The intensity of the glow
       spreadRadius: 0,
@@ -44,7 +44,7 @@ class AppShadow {
 }
 
 class AppTheme {
-  static ColorScheme lightColorScheme = const ColorScheme(
+  static const ColorScheme _lightColorScheme = ColorScheme(
     brightness: Brightness.light,
     primary: Color(0xFF7265E3),
     onPrimary: Color(0xFFFFFFFF),
@@ -52,12 +52,29 @@ class AppTheme {
     onSecondary: Color(0xFF4E4E4E),
     error: Color(0xFFE54D52),
     onError: Color(0xFFFFFFFF),
-    background: Color(0xFFFDFCFF),
-    surface: Color(0xFFFFFFFF),
+    // background: Color(0xFFFDFCFF),
+
+    // Background of the app
+    surface: Color(0xFFFDFCFF),
+    // surface: Colors.yellow,
+
+    surfaceContainer: Color(0xFFFFFFFF),
+
+    // an even deeper surface color than the surface to have an even flatter look
+    // surfaceContainerLowest: Color(0xFFE54D52),
+
+    // Color for cards and containers
+    // surfaceContainerHighest: Color(0xFFE54D52),
+    // surfaceContainerHigh: Color(0xFFE54D52),
+    // surfaceContainerLow: Color(0xFFE54D52),
+    // primaryContainer: Color(0xFFE54D52),
+    // secondaryContainer: Color(0xFFE54D52),
+    // surfaceContainerLowest: Color(0xFFE54D52),
+    // surfaceContainerLowest: Color(0xFFFDFCFF),
 
     // TEXT – primary & secondary
     onSurface: AppGrays.gray900, // main text (titles, primary body)
-    onBackground: AppGrays.gray900,
+    // onBackground: AppGrays.gray900,
 
     onSurfaceVariant: AppGrays.gray700, // secondary text, descriptions
     outline: AppGrays.gray500, // muted text, metadata, captions
@@ -66,29 +83,46 @@ class AppTheme {
     // Optional
     scrim: AppGrays.gray200, // very low emphasis / separators
   );
-  static ColorScheme darkColorScheme = const ColorScheme(
-      brightness: Brightness.dark,
-      primary: Color(0xFF5349B4),
-      onPrimary: Color(0xFFEAEAEA),
-      secondary: Color(0xFF28234F),
-      onSecondary: Color(0xFFC5C5C5),
-      error: Color(0xFFB82426),
-      onError: Color(0xFFEAEAEA),
-      background: Color(0xFF000000),
-      onBackground: Color(0xFFC5C5C5),
-      surface: Color(0xFF141414),
-      onSurface: Color(0xFFDDDDDD));
+  static const ColorScheme _darkColorScheme = ColorScheme(
+    brightness: Brightness.dark,
+    primary: Color(0xFF5349B4),
+    onPrimary: Color(0xFFEAEAEA),
+    secondary: Color(0xFF28234F),
+    onSecondary: Color(0xFFC5C5C5),
+    error: Color(0xFFB82426),
+    onError: Color(0xFFEAEAEA),
+    surface: Color(0xFF000000),
+    onSurface: Color(0xFFC5C5C5),
 
-  static ThemeData get appLightTheme => ThemeData(
+    onSurfaceVariant: AppGrays.gray700, // secondary text, descriptions
+    outline: AppGrays.gray500, // muted text, metadata, captions
+    outlineVariant: AppGrays.gray300, // disabled text, hints, placeholders
+
+    // Optional
+    scrim: AppGrays.gray200, // very low emphasis / separators
+  );
+
+  static ThemeData lightTheme() => _theme(_lightColorScheme, false);
+  static ThemeData darkTheme() => _theme(_darkColorScheme, true);
+
+  static ThemeData _theme(ColorScheme colorScheme, bool isDark) => ThemeData(
       fontFamily: GoogleFonts.lato().fontFamily,
       useMaterial3: true,
-      colorScheme: lightColorScheme,
+      colorScheme: colorScheme,
+      cardColor: colorScheme.surfaceContainer,
+      scaffoldBackgroundColor: colorScheme.surface,
+      cardTheme: CardThemeData(
+        color: colorScheme.surfaceContainer,
+        shadowColor: Colors.transparent,
+        elevation: 0,
+      ),
 
       // ELEVATED BUTTON
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
-          foregroundColor: lightColorScheme.onPrimary,
-          backgroundColor: lightColorScheme.primary,
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+          foregroundColor: colorScheme.onPrimary,
+          backgroundColor: colorScheme.primary,
           textStyle: const TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(17)),
@@ -96,7 +130,6 @@ class AppTheme {
       ),
       // APP BAR
       appBarTheme: AppBarTheme(
-          color: Colors.transparent,
           surfaceTintColor: Colors.transparent,
           // backgroundColor: Colors.transparent,
           shape: const RoundedRectangleBorder(
@@ -107,7 +140,7 @@ class AppTheme {
           elevation: 0,
           toolbarHeight: 70,
           iconTheme: IconThemeData(
-            color: lightColorScheme.outline,
+            color: colorScheme.outline,
             size: 24,
           ),
           titleTextStyle: const TextStyle(
@@ -126,23 +159,23 @@ class AppTheme {
               // minHeight: 45,
               // maxHeight: 45,
               ),
-          suffixIconColor: lightColorScheme.scrim,
+          suffixIconColor: colorScheme.scrim,
           errorMaxLines: 2,
           errorStyle: TextStyle(
               height: 1.1,
-              color: lightColorScheme.error,
+              color: colorScheme.error,
               fontSize: 13,
               fontWeight: FontWeight.w400),
           labelStyle: TextStyle(
               height: 1.1,
-              color: lightColorScheme.outlineVariant,
+              color: colorScheme.outlineVariant,
               fontSize: 13,
               fontWeight: FontWeight.w400),
           hintStyle: TextStyle(
               height: 1.1,
 
               // height: 20,
-              color: lightColorScheme.scrim,
+              color: colorScheme.scrim,
               fontSize: 13,
               fontWeight: FontWeight.w400),
 
@@ -153,7 +186,7 @@ class AppTheme {
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(17),
             borderSide:
-                BorderSide(color: lightColorScheme.outlineVariant, width: .5),
+                BorderSide(color: colorScheme.outlineVariant, width: .5),
           )),
 
       // TEXT THEMES
@@ -190,15 +223,4 @@ class AppTheme {
           color: AppGrays.gray500,
         ),
       ));
-  static ThemeData appDarkTheme = ThemeData(
-    fontFamily: GoogleFonts.cairo().fontFamily,
-    useMaterial3: true,
-    colorScheme: darkColorScheme,
-    elevatedButtonTheme: ElevatedButtonThemeData(
-      style: ElevatedButton.styleFrom(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(17)),
-        backgroundColor: darkColorScheme.primary,
-      ),
-    ),
-  );
 }
