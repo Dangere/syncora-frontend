@@ -67,7 +67,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                     },
                     child: Row(
                       children: [
-                        Icon(Icons.dark_mode_sharp, size: 24),
+                        const Icon(Icons.dark_mode_sharp, size: 24),
 
                         // Icon(Icons.dark_mode_sharp, size: 24),
                         // Icon(Icons.dark_mode_sharp, size: 24),
@@ -105,7 +105,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                     onPressed: () {},
                     child: Row(
                       children: [
-                        Icon(Icons.lock, size: 24),
+                        const Icon(Icons.lock, size: 24),
 
                         // Icon(Icons.dark_mode_sharp, size: 24),
                         // Icon(Icons.dark_mode_sharp, size: 24),
@@ -119,7 +119,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                         const Spacer(),
                         Transform.rotate(
                             angle: 3.14 * (3 / 2),
-                            child: Icon(Icons.expand_more, size: 24)),
+                            child: const Icon(Icons.expand_more, size: 24)),
                       ],
                     ),
                   ),

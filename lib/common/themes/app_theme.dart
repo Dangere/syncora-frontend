@@ -94,6 +94,8 @@ class AppTheme {
     surface: Color(0xFF000000),
     onSurface: Color(0xFFC5C5C5),
 
+    surfaceContainer: Color(0xFF141414),
+
     onSurfaceVariant: AppGrays.gray700, // secondary text, descriptions
     outline: AppGrays.gray500, // muted text, metadata, captions
     outlineVariant: AppGrays.gray300, // disabled text, hints, placeholders
@@ -106,7 +108,7 @@ class AppTheme {
   static ThemeData darkTheme() => _theme(_darkColorScheme, true);
 
   static ThemeData _theme(ColorScheme colorScheme, bool isDark) => ThemeData(
-      fontFamily: GoogleFonts.lato().fontFamily,
+      fontFamily: GoogleFonts.cairo().fontFamily,
       useMaterial3: true,
       colorScheme: colorScheme,
       cardColor: colorScheme.surfaceContainer,

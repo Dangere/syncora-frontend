@@ -42,6 +42,7 @@ class OnboardingPage extends ConsumerWidget {
         isLoading: user.isLoading,
         body: Stack(
           children: [
+            // BACKGROUND GRAPHIC
             Positioned.fill(
               child: SvgPicture.asset(
                   width: double.infinity,
@@ -62,27 +63,29 @@ class OnboardingPage extends ConsumerWidget {
                       LanguageButton(),
                     ],
                   ),
-
+                  const Spacer(
+                    flex: 1,
+                  ),
                   // LOGO
-                  Expanded(
-                    child: Center(
-                      child: Container(
-                        width:
-                            205 - (MediaQuery.of(context).size.height * 0.01),
-                        height:
-                            205 - (MediaQuery.of(context).size.height * 0.01),
-                        decoration: const BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.all(Radius.circular(32)),
-                        ),
-                        child: Icon(
-                          Icons.person_3,
-                          size: 150,
-                          color: Theme.of(context).colorScheme.onBackground,
-                        ),
+                  Center(
+                    child: Container(
+                      width: 205 - (MediaQuery.of(context).size.height * 0.01),
+                      height: 205 - (MediaQuery.of(context).size.height * 0.01),
+                      decoration: const BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.all(Radius.circular(32)),
+                      ),
+                      child: Icon(
+                        Icons.person_3,
+                        size: 150,
+                        color: Theme.of(context).colorScheme.onBackground,
                       ),
                     ),
                   ),
+                  const Spacer(
+                    flex: 2,
+                  ),
+
                   // TITLE
                   Row(
                     children: [

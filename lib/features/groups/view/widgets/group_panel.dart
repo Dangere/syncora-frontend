@@ -20,47 +20,51 @@ class GroupPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Members + owner
     Widget membersDisplay() {
+      int membersCount = group.groupMembersIds.length + 1;
+      bool flipMembers = Directionality.of(context) == TextDirection.rtl;
       return Row(
         children: [
           Stack(
+            textDirection: TextDirection.ltr,
             clipBehavior: Clip.none,
             children: [
-              if (group.groupMembersIds.length > 2)
+              if (membersCount > 2)
                 Positioned(
-                  right: memberIconsSpacing * 2,
+                  right: memberIconsSpacing * 2 * (flipMembers ? -1 : 1),
                   child: CircleAvatar(
                       backgroundColor:
                           Random().nextBool() ? Colors.cyan : Colors.yellow,
                       radius: memberIconsRadius,
-                      child: Icon(
+                      child: const Icon(
                         Icons.person,
                       )),
                 ),
-              if (group.groupMembersIds.length > 1)
+              if (membersCount > 1)
                 Positioned(
-                  right: memberIconsSpacing,
+                  right: memberIconsSpacing * (flipMembers ? -1 : 1),
                   child: CircleAvatar(
                     backgroundColor:
                         Random().nextBool() ? Colors.red : Colors.green,
                     radius: memberIconsRadius,
-                    child: Icon(
+                    child: const Icon(
                       Icons.person,
                     ),
                   ),
                 ),
               CircleAvatar(
                   radius: memberIconsRadius,
-                  child: Icon(
+                  child: const Icon(
                     Icons.person,
                   )),
             ],
           ),
 
           // Text if members over 3
-          if (group.groupMembersIds.length > 3)
+          if (membersCount > 3)
             Text(
-              " +${group.groupMembersIds.length - 3}",
+              " +${membersCount - 3}",
               style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                     color: Theme.of(context).colorScheme.scrim,
                   ),
@@ -122,7 +126,7 @@ class GroupPanel extends StatelessWidget {
                   ],
                 ),
                 // MEMBERS DISPLAY
-                if (group.groupMembersIds.isNotEmpty) membersDisplay(),
+                membersDisplay(),
               ],
             )
           ],
