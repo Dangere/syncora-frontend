@@ -270,14 +270,17 @@ class _SignUpPageState extends ConsumerState<SignUpPage> {
 
                     // SIGN UP
                     AppButton(
-                        variant: AppButtonVariant.primary,
+                        size: AppButtonSize.large,
+                        style: AppButtonStyle.filled,
+                        intent: AppButtonIntent.primary,
                         onPressed: signUp,
                         child: Text(AppLocalizations.of(context).signUp)),
                     const SizedBox(height: 24),
 
                     // GOOGLE SIGN UP
                     AppButton(
-                        variant: AppButtonVariant.glow,
+                        size: AppButtonSize.large,
+                        style: AppButtonStyle.glow,
                         onPressed: googleSignUp,
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,

@@ -108,7 +108,7 @@ class AppTheme {
   static ThemeData darkTheme() => _theme(_darkColorScheme, true);
 
   static ThemeData _theme(ColorScheme colorScheme, bool isDark) => ThemeData(
-      fontFamily: GoogleFonts.cairo().fontFamily,
+      fontFamily: GoogleFonts.lato().fontFamily,
       useMaterial3: true,
       colorScheme: colorScheme,
       cardColor: colorScheme.surfaceContainer,
@@ -122,7 +122,7 @@ class AppTheme {
       // ELEVATED BUTTON
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
           foregroundColor: colorScheme.onPrimary,
           backgroundColor: colorScheme.primary,
           textStyle: const TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
@@ -133,7 +133,7 @@ class AppTheme {
       // APP BAR
       appBarTheme: AppBarTheme(
           surfaceTintColor: Colors.transparent,
-          // backgroundColor: Colors.transparent,
+          backgroundColor: Colors.transparent,
           shape: const RoundedRectangleBorder(
             borderRadius: BorderRadius.vertical(
               bottom: Radius.circular(30), // Adjust the radius as needed
@@ -195,7 +195,7 @@ class AppTheme {
       textTheme: const TextTheme(
         titleLarge: TextStyle(
           fontSize: 30,
-          height: 1.1,
+          height: 1,
           fontWeight: FontWeight.w600,
           color: AppGrays.gray900,
         ),

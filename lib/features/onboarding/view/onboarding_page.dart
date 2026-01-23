@@ -87,14 +87,21 @@ class OnboardingPage extends ConsumerWidget {
                   ),
 
                   // TITLE
-                  Row(
-                    children: [
-                      Text(
-                        AppLocalizations.of(context).onboardingPage_Title,
-                        style: Theme.of(context).textTheme.titleLarge,
-                        textAlign: TextAlign.start,
-                      ),
-                    ],
+                  Container(
+                    color: Colors.red,
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Container(
+                          color: Colors.amber,
+                          child: Text(
+                            AppLocalizations.of(context).onboardingPage_Title,
+                            style: Theme.of(context).textTheme.titleLarge,
+                            textAlign: TextAlign.start,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                   const SizedBox(height: 14),
 
@@ -111,7 +118,10 @@ class OnboardingPage extends ConsumerWidget {
                   AppButton(
                     // highlighted: true,
                     fontSize: 16,
-                    variant: AppButtonVariant.primary,
+                    // variant: AppButtonVariant.wide,
+                    size: AppButtonSize.large,
+                    style: AppButtonStyle.filled,
+                    intent: AppButtonIntent.primary,
                     onPressed: () => context.push('/sign-up'),
                     child: Text(AppLocalizations.of(context)
                         .onboardingPage_CreateAccount),
@@ -120,7 +130,9 @@ class OnboardingPage extends ConsumerWidget {
                   // CONTINUE AS A GUEST
                   AppButton(
                     fontSize: 16,
-                    variant: AppButtonVariant.glow,
+                    size: AppButtonSize.large,
+                    style: AppButtonStyle.glow,
+                    intent: AppButtonIntent.primary,
                     // style: Theme.of(context).elevatedButtonTheme.style,
                     onPressed: guestLogin,
                     child: Text(AppLocalizations.of(context)

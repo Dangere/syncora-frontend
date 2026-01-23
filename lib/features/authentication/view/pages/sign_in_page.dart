@@ -173,14 +173,17 @@ class _SignInPageState extends ConsumerState<SignInPage> {
 
                     // SIGN IN
                     AppButton(
-                        variant: AppButtonVariant.primary,
+                        size: AppButtonSize.large,
+                        style: AppButtonStyle.filled,
+                        intent: AppButtonIntent.primary,
                         onPressed: signIn,
                         child: Text(AppLocalizations.of(context).signIn)),
                     const SizedBox(height: 24),
 
                     // GOOGLE SIGN IN
                     AppButton(
-                        variant: AppButtonVariant.glow,
+                        size: AppButtonSize.large,
+                        style: AppButtonStyle.glow,
                         onPressed: googleSignIn,
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,

@@ -7,14 +7,17 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:syncora_frontend/common/providers/common_providers.dart';
-import 'package:syncora_frontend/common/themes/app_sizes.dart';
 import 'package:syncora_frontend/common/themes/app_spacing.dart';
-import 'package:syncora_frontend/common/widgets/language_button.dart';
+import 'package:syncora_frontend/common/widgets/app_button.dart';
+import 'package:syncora_frontend/common/widgets/filter_list.dart';
+import 'package:syncora_frontend/common/widgets/overlay_loader.dart';
+import 'package:syncora_frontend/core/localization/generated/l10n/app_localizations.dart';
 import 'package:syncora_frontend/features/authentication/models/auth_state.dart';
 import 'package:syncora_frontend/features/authentication/models/user.dart';
 import 'package:syncora_frontend/features/authentication/viewmodel/auth_viewmodel.dart';
 import 'package:syncora_frontend/features/groups/models/group.dart';
 import 'package:syncora_frontend/features/groups/view/widgets/group_panel.dart';
+import 'package:syncora_frontend/features/groups/viewmodel/groups_viewmodel.dart';
 
 class DashboardPage extends ConsumerStatefulWidget {
   const DashboardPage({super.key});
@@ -28,6 +31,9 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
   Widget build(BuildContext context) {
     // We assume that the user is logged in and there's always a user provided if we are on this page
     // User user = ref.read(authNotifierProvider).value!.user!;
+    final groups = ref.watch(groupsNotifierProvider);
+
+    List<Group> groupsList = groups.hasValue ? groups.value! : List.empty();
 
     ref.read(loggerProvider).d("Building dashboard page");
     return Scaffold(
@@ -56,7 +62,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
           ),
 
           Padding(
-            padding: EdgeInsets.only(top: AppSpacing.xl),
+            padding: const EdgeInsets.only(top: AppSpacing.xl),
             child: Column(
               // mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
@@ -136,41 +142,84 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                     ],
                   ),
                 ),
-                SizedBox(height: AppSpacing.lg),
+                const SizedBox(height: AppSpacing.lg),
+                // GROUPS
+
                 Expanded(
                   child: Container(
-                    clipBehavior: Clip.antiAlias,
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.surface,
-                      borderRadius: const BorderRadius.only(
-                          topLeft: Radius.circular(40.0),
-                          topRight: Radius.circular(40.0)),
-                    ),
-                    child: ListView.separated(
-                        itemBuilder: (context, index) {
-                          return GroupPanel(
-                              group: Group(
-                                  id: index,
-                                  title:
-                                      "Project 00$index - ${index + 1}th Sprint",
-                                  creationDate: DateTime.now(),
-                                  ownerUserId: 1,
-                                  groupMembersIds: List.generate(
-                                      Random().nextInt(6), (index) => 1),
-                                  tasksIds: List.generate(
-                                      Random().nextInt(20), (index) => 1),
-                                  description:
-                                      "In this sprint we are finishing all de are finishing all design related tasks."
-                                          .substring(
-                                              0, Random().nextInt(40) + 36)));
-                        },
-                        separatorBuilder: (context, index) {
-                          return const SizedBox(
-                            height: 16,
-                          );
-                        },
-                        itemCount: 5),
-                  ),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.surface,
+                        borderRadius: const BorderRadius.only(
+                            topLeft: Radius.circular(40.0),
+                            topRight: Radius.circular(40.0)),
+                      ),
+                      child: Column(
+                        children: [
+                          const SizedBox(height: AppSpacing.lg),
+                          // CREATE GROUP BUTTON
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              AppButton(
+                                  width: 150,
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: AppSpacing.lg),
+                                  // variant: AppButtonVariant.wide,
+                                  onPressed: () {},
+                                  size: AppButtonSize.small,
+                                  style: AppButtonStyle.filled,
+                                  intent: AppButtonIntent.primary,
+                                  fontSize: 16,
+                                  child: const Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Icon(Icons.add),
+                                      Text(
+                                        "Create Group",
+                                      ),
+                                    ],
+                                  )),
+                            ],
+                          ),
+                          const SizedBox(height: AppSpacing.lg),
+
+                          // FILTER
+                          FilterList(
+                            disable: groups.isLoading,
+                            items: GroupFilter.values,
+                            titles: [
+                              AppLocalizations.of(context).confirm,
+                              AppLocalizations.of(context).confirm,
+                              AppLocalizations.of(context).confirm,
+                              AppLocalizations.of(context).confirm,
+                            ],
+                            onTap: (arg) {
+                              ref
+                                  .read(groupsNotifierProvider.notifier)
+                                  .filterGroups(arg as GroupFilter);
+                            },
+                          ),
+                          // GROUPS LIST
+                          Expanded(
+                              child: OverlayLoader(
+                            isLoading: groups.isLoading,
+                            body: ListView.separated(
+                              itemCount: groupsList.length,
+                              itemBuilder: (context, index) {
+                                return GroupPanel(
+                                  group: groupsList[index],
+                                );
+                              },
+                              separatorBuilder: (context, index) {
+                                return const SizedBox(
+                                  height: 16,
+                                );
+                              },
+                            ),
+                          )),
+                        ],
+                      )),
                 ),
               ],
             ),

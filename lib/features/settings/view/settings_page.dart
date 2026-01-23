@@ -61,7 +61,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                   // TOGGLE DARK MODE
                   AppButton(
                     fontSize: 16,
-                    variant: AppButtonVariant.settings,
+                    size: AppButtonSize.huge,
+                    style: AppButtonStyle.filled,
                     onPressed: () {
                       ref.read(themeModeProvider.notifier).toggleTheme();
                     },
@@ -101,7 +102,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                   // CHANGE PASSWORD
                   AppButton(
                     fontSize: 16,
-                    variant: AppButtonVariant.settings,
+                    size: AppButtonSize.huge,
+                    style: AppButtonStyle.filled,
                     onPressed: () {},
                     child: Row(
                       children: [
@@ -126,7 +128,9 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                   const Spacer(),
                   // LOGOUT BUTTON
                   AppButton(
-                      variant: AppButtonVariant.logout,
+                      size: AppButtonSize.huge,
+                      style: AppButtonStyle.filled,
+                      intent: AppButtonIntent.destructive,
                       onPressed: logout,
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -200,7 +204,8 @@ class LanguageExpandableCard extends StatelessWidget {
                 children: [
                   AppButton(
                     highlighted: currentLocale.languageCode == "en",
-                    variant: AppButtonVariant.dropdown,
+                    size: AppButtonSize.medium,
+                    style: AppButtonStyle.dropdown,
                     onPressed: () => onTap(const Locale("en")),
                     fontSize: 16,
                     child: const Text("English"),
@@ -210,7 +215,8 @@ class LanguageExpandableCard extends StatelessWidget {
                   const SizedBox(height: 8),
                   AppButton(
                     highlighted: currentLocale.languageCode == "ar",
-                    variant: AppButtonVariant.dropdown,
+                    size: AppButtonSize.medium,
+                    style: AppButtonStyle.dropdown,
                     onPressed: () => onTap(const Locale("ar")),
                     fontSize: 16,
                     child: const Text("عربي"),

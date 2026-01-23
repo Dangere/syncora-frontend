@@ -152,7 +152,8 @@ class _PasswordResetPageState extends ConsumerState<PasswordResetPage> {
                             // RESET PASSWORD
                             AppButton(
                                 disabled: resendTimer != null || isLoading,
-                                variant: AppButtonVariant.primary,
+                                size: AppButtonSize.large,
+                                style: AppButtonStyle.filled,
                                 onPressed: () {
                                   if (_emailFieldKey.currentState!.validate()) {
                                     resetPassword();
