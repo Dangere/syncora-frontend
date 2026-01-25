@@ -222,6 +222,37 @@ class Tests {
     Logger().f(sortedEntries);
   }
 
+  static void test_group_query(WidgetRef ref) async {
+    Database db = await ref.read(localDbProvider).getDatabase();
+    // String getMembersQuery =
+    //     "SELECT json_group_array(id) as membersIds FROM ${DatabaseTables.groupsMembers} WHERE groupId = 142";
+
+    // var membersRaw = await db.rawQuery(getMembersQuery);
+    // final raw = membersRaw[0]['membersIds'];
+
+    // final List<int> members =
+    //     raw == null ? const [] : List<int>.from(jsonDecode(raw as String));
+    // Logger().f(members);
+
+    int groupId = 142;
+
+    String groupQuery = '''SELECT
+        id, clientGeneratedId, ownerUserId, title, description, creationDate, 
+        (SELECT json_group_array(id) FROM ${DatabaseTables.groupsMembers} WHERE groupId = g.id)
+        AS members, 
+        (SELECT json_group_array(id) FROM ${DatabaseTables.tasks} WHERE groupId = g.id AND isDeleted = 0)
+        as tasks
+        FROM ${DatabaseTables.groups} g
+        WHERE isDeleted = 0''';
+    var rawQuery = await db.rawQuery(groupQuery);
+
+    final List<int> members = rawQuery[0]['members'] == null
+        ? const []
+        : List<int>.from(jsonDecode(rawQuery[0]['members'] as String));
+
+    Logger().f(rawQuery);
+  }
+
   static Future<void> printDb(Database db) async {
     var tasksRawQuery =
         await db.rawQuery("SELECT * FROM ${DatabaseTables.tasks}");

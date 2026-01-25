@@ -11,7 +11,9 @@ import 'package:syncora_frontend/common/themes/app_spacing.dart';
 import 'package:syncora_frontend/common/widgets/app_button.dart';
 import 'package:syncora_frontend/common/widgets/filter_list.dart';
 import 'package:syncora_frontend/common/widgets/overlay_loader.dart';
+import 'package:syncora_frontend/core/data/enums/database_tables.dart';
 import 'package:syncora_frontend/core/localization/generated/l10n/app_localizations.dart';
+import 'package:syncora_frontend/core/tests.dart';
 import 'package:syncora_frontend/core/utils/snack_bar_alerts.dart';
 import 'package:syncora_frontend/features/authentication/models/auth_state.dart';
 import 'package:syncora_frontend/features/authentication/models/user.dart';
@@ -39,6 +41,11 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
 
     ref.read(loggerProvider).d("Building dashboard page");
     return Scaffold(
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Tests.test_group_query(ref);
+        },
+      ),
       body: Stack(
         children: [
           // BACKGROUND GRAPHIC COLORS

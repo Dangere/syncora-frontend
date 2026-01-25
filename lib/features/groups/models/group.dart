@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:syncora_frontend/features/groups/models/group_dto.dart';
 import 'package:equatable/equatable.dart';
 
@@ -31,18 +33,22 @@ class Group extends Equatable {
     );
   }
 
-  factory Group.fromJsonWithIds(
-          {required Map<String, dynamic> json,
-          required List<int> taskIds,
-          required List<int> groupMembersIds}) =>
-      Group(
-          id: json["id"],
-          title: json["title"],
-          description: json["description"],
-          creationDate: DateTime.parse(json["creationDate"]),
-          ownerUserId: json["ownerUserId"],
-          groupMembersIds: groupMembersIds,
-          tasksIds: taskIds);
+  factory Group.fromJson(Map<String, dynamic> json) {
+    final List<int> members = json['members'] == null
+        ? const []
+        : List<int>.from(jsonDecode(json['members'] as String));
+    final List<int> tasks = json['tasks'] == null
+        ? const []
+        : List<int>.from(jsonDecode(json['members'] as String));
+    return Group(
+        id: json["id"],
+        title: json["title"],
+        description: json["description"],
+        creationDate: DateTime.parse(json["creationDate"]),
+        ownerUserId: json["ownerUserId"],
+        groupMembersIds: members,
+        tasksIds: tasks);
+  }
 
   Map<String, dynamic> toTable() => {
         "id": id,
