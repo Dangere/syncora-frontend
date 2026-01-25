@@ -7,6 +7,7 @@ import 'package:syncora_frontend/features/authentication/models/auth_state.dart'
 import 'package:syncora_frontend/features/groups/models/group.dart';
 import 'package:syncora_frontend/features/groups/repositories/local_groups_repository.dart';
 import 'package:syncora_frontend/features/groups/repositories/remote_groups_repository.dart';
+import 'package:syncora_frontend/features/groups/viewmodel/groups_viewmodel.dart';
 
 // If group is shared, user can leave and modify it when online only using remote requests
 // When its local group, the user can leave and modify it when online or offline
@@ -30,9 +31,12 @@ class GroupsService {
         _isOnline = isOnline,
         _enqueueEntry = enqueueEntry;
 
-  Future<Result<List<Group>>> getAllGroups() async {
+  Future<Result<List<Group>>> getAllGroups(
+      GroupsFilter filter, bool ascending) async {
     try {
-      List<Group> groups = await _localGroupsRepository.getAllGroups();
+      if (_authState.user == null) return Result.failureMessage("User is null");
+      List<Group> groups = await _localGroupsRepository.getAllGroups(
+          filter, ascending, _authState.user!.id);
       return Result.success(groups);
     } catch (e, stackTrace) {
       return Result.failure(e, stackTrace);

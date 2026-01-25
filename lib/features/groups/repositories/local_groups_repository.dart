@@ -3,6 +3,7 @@ import 'package:syncora_frontend/core/data/database_manager.dart';
 import 'package:syncora_frontend/core/data/enums/database_tables.dart';
 import 'package:syncora_frontend/features/groups/models/group.dart';
 import 'package:syncora_frontend/features/groups/models/group_dto.dart';
+import 'package:syncora_frontend/features/groups/viewmodel/groups_viewmodel.dart';
 
 class LocalGroupsRepository {
   final DatabaseManager _databaseManager;
@@ -23,41 +24,61 @@ class LocalGroupsRepository {
     return groupQuery.isNotEmpty;
   }
 
-  Future<List<Group>> getAllGroups() async {
+  Future<List<Group>> getAllGroups(
+      GroupsFilter filter, bool ascending, int userId) async {
     final db = await _databaseManager.getDatabase();
 
-    List<Map<String, dynamic>> groups = await db.rawQuery(
-        ''' SELECT * FROM ${DatabaseTables.groups} WHERE isDeleted = 0 ORDER BY creationDate ASC''');
+    final String order =
+        ascending ? "ORDER BY creationDate ASC" : "ORDER BY creationDate DESC";
 
-    List<Map<String, dynamic>> members =
-        await db.rawQuery(''' SELECT * FROM ${DatabaseTables.groupsMembers}
-        LEFT JOIN ${DatabaseTables.users} ON ${DatabaseTables.groupsMembers}.userId = ${DatabaseTables.users}.id ''');
+    final String groupsQuery = switch (filter) {
+      GroupsFilter.owned =>
+        "SELECT * FROM ${DatabaseTables.groups} WHERE isDeleted = 0 AND ownerUserId = $userId $order",
+      GroupsFilter.shared =>
+        "SELECT * FROM ${DatabaseTables.groups} WHERE isDeleted = 0 AND ownerUserId != $userId $order",
+      GroupsFilter.inProgress =>
+        "SELECT * FROM ${DatabaseTables.groups} WHERE isDeleted = 0 $order",
+      GroupsFilter.completed =>
+        "SELECT * FROM ${DatabaseTables.groups} WHERE isDeleted = 0 $order",
+    };
 
-    List<Map<String, dynamic>> tasks =
-        await db.rawQuery(''' SELECT * FROM ${DatabaseTables.tasks}
-        LEFT JOIN ${DatabaseTables.groups} ON ${DatabaseTables.tasks}.groupId = ${DatabaseTables.groups}.id WHERE ${DatabaseTables.groups}.isDeleted = 0''');
+    List<Map<String, dynamic>> groups = await db.rawQuery(groupsQuery);
+    print(filter);
+    groups.forEach(
+      (element) {
+        print(element);
+      },
+    );
+
+    // List<Map<String, dynamic>> members =
+    //     await db.rawQuery(''' SELECT * FROM ${DatabaseTables.groupsMembers}
+    //     LEFT JOIN ${DatabaseTables.users} ON ${DatabaseTables.groupsMembers}.userId = ${DatabaseTables.users}.id ''');
+
+    // List<Map<String, dynamic>> tasks =
+    //     await db.rawQuery(''' SELECT * FROM ${DatabaseTables.tasks}
+    //     LEFT JOIN ${DatabaseTables.groups} ON ${DatabaseTables.tasks}.groupId = ${DatabaseTables.groups}.id WHERE ${DatabaseTables.groups}.isDeleted = 0''');
 
     List<Group> groupList = List.empty(growable: true);
 
     for (var i = 0; i < groups.length; i++) {
-      List<int> membersIdsForGroup = members
-          .where((member) => member["groupId"] == groups[i]["id"])
-          .map((e) => e["id"] as int)
+      int groupId = groups[i]["id"] as int;
+
+      List<int> members = (await db
+              .rawQuery(''' SELECT userId FROM ${DatabaseTables.groupsMembers}
+        WHERE groupId = $groupId '''))
+          .map((e) => e["userId"] as int)
           .toList();
 
-      List<int> tasksIdsForGroup = tasks
-          .where((task) => task["groupId"] == groups[i]["id"])
-          .map((e) => e["id"] as int)
-          .toList();
+      List<int> tasks =
+          (await db.rawQuery(''' SELECT id FROM ${DatabaseTables.tasks}
+        WHERE groupId = $groupId AND isDeleted = 0 '''))
+              .map((e) => e["id"] as int)
+              .toList();
 
       Group group = Group.fromJsonWithIds(
-          json: groups[i],
-          taskIds: tasksIdsForGroup,
-          groupMembersIds: membersIdsForGroup);
+          json: groups[i], taskIds: tasks, groupMembersIds: members);
       groupList.add(group);
     }
-
-    groupList.sort((a, b) => a.creationDate.compareTo(b.creationDate));
 
     return groupList;
   }
@@ -74,11 +95,11 @@ class LocalGroupsRepository {
 
     List<Map<String, dynamic>> members =
         await db.rawQuery(''' SELECT * FROM ${DatabaseTables.groupsMembers}
-        LEFT JOIN ${DatabaseTables.users} ON ${DatabaseTables.groupsMembers}.userId = ${DatabaseTables.users}.id WHERE ${DatabaseTables.groupsMembers}.groupId = $groupId''');
+        LEFT JOIN ${DatabaseTables.users} ON ${DatabaseTables.groupsMembers}.userId = ${DatabaseTables.users}.id WHERE ${DatabaseTables.groupsMembers}.groupId = $groupId AND ${DatabaseTables.groups}.isDeleted = 0''');
 
     List<Map<String, dynamic>> tasks =
         await db.rawQuery(''' SELECT * FROM ${DatabaseTables.tasks}
-        LEFT JOIN ${DatabaseTables.groups} ON ${DatabaseTables.tasks}.groupId = ${DatabaseTables.groups}.id WHERE ${DatabaseTables.tasks}.groupId = $groupId''');
+        LEFT JOIN ${DatabaseTables.groups} ON ${DatabaseTables.tasks}.groupId = ${DatabaseTables.groups}.id WHERE ${DatabaseTables.tasks}.groupId = $groupId AND ${DatabaseTables.groups}.isDeleted = 0 AND ${DatabaseTables.tasks}.isDeleted = 0''');
 
     List<int> membersIdsForGroup = members
         .where((member) => member["groupId"] == groupQuery[0]["id"])

@@ -14,9 +14,11 @@ import 'package:syncora_frontend/features/groups/repositories/remote_groups_repo
 import 'package:syncora_frontend/features/groups/services/groups_service.dart';
 import 'package:syncora_frontend/features/tasks/viewmodel/tasks_providers.dart';
 
-enum GroupFilter { inProgress, completed, newest, oldest }
+enum GroupsFilter { inProgress, completed, shared, owned }
 
 class GroupsNotifier extends AsyncNotifier<List<Group>> {
+  GroupsFilter filter = GroupsFilter.inProgress;
+
   Future<void> createGroup(String title, String description) async {
     // state = const AsyncValue.loading();
 
@@ -201,57 +203,22 @@ class GroupsNotifier extends AsyncNotifier<List<Group>> {
     state = const AsyncValue.loading();
 
     Result<List<Group>> fetchResult =
-        await ref.read(groupsServiceProvider).getAllGroups();
+        await ref.read(groupsServiceProvider).getAllGroups(filter, true);
 
     if (!fetchResult.isSuccess) {
       ref.read(appErrorProvider.notifier).state = fetchResult.error;
-    }
-
-    state = AsyncValue.data(fetchResult.data!);
+      state = AsyncValue.error(fetchResult.error!.errorObject,
+          fetchResult.error!.stackTrace ?? StackTrace.current);
+    } else
+      state = AsyncValue.data(fetchResult.data!);
   }
 
-  Future<void> filterGroups(GroupFilter filter) async {
+  Future<void> filterGroups(GroupsFilter groupFilter) async {
     if (state.isLoading) {
       return;
     }
-    state = const AsyncValue.loading();
-    Result<List<Group>> fetchResult =
-        await ref.read(groupsServiceProvider).getAllGroups();
-
-    // await Future.delayed(const Duration(seconds: 3));
-
-    if (!fetchResult.isSuccess) {
-      ref.read(appErrorProvider.notifier).state = fetchResult.error;
-    }
-    print("Filtering groups to $filter");
-    switch (filter) {
-      case GroupFilter.inProgress:
-        state = AsyncValue.data(fetchResult.data!
-            .where((group) => group.tasksIds.isNotEmpty)
-            .toList());
-      // TODO: Handle this case.
-      // throw UnimplementedError();
-      case GroupFilter.completed:
-        state = AsyncValue.data(fetchResult.data!
-            .where((group) => group.tasksIds.isEmpty)
-            .toList());
-      // TODO: Handle this case.
-      // throw UnimplementedError();
-      case GroupFilter.newest:
-        fetchResult.data!
-            .sort((a, b) => b.creationDate.compareTo(a.creationDate));
-
-        state = AsyncValue.data(fetchResult.data!);
-      // TODO: Handle this case.
-      // throw UnimplementedError();
-      case GroupFilter.oldest:
-        fetchResult.data!
-            .sort((a, b) => a.creationDate.compareTo(b.creationDate));
-
-        state = AsyncValue.data(fetchResult.data!);
-      // TODO: Handle this case.
-      // throw UnimplementedError();
-    }
+    filter = groupFilter;
+    await reloadGroups();
   }
 
   // Takes in an id of a group that was modified to check if it's currently displayed then refresh the UI corresponding to it
@@ -295,8 +262,9 @@ class GroupsNotifier extends AsyncNotifier<List<Group>> {
       data: (AuthState data) async {
         if (data.isAuthenticated) {
           // await Future.delayed(const Duration(seconds: 1));
-          Result<List<Group>> fetchResult =
-              await ref.read(groupsServiceProvider).getAllGroups();
+          Result<List<Group>> fetchResult = await ref
+              .read(groupsServiceProvider)
+              .getAllGroups(GroupsFilter.inProgress, true);
 
           if (!fetchResult.isSuccess) {
             ref.read(appErrorProvider.notifier).state = fetchResult.error;

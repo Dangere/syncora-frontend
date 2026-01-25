@@ -12,6 +12,7 @@ import 'package:syncora_frontend/common/widgets/app_button.dart';
 import 'package:syncora_frontend/common/widgets/filter_list.dart';
 import 'package:syncora_frontend/common/widgets/overlay_loader.dart';
 import 'package:syncora_frontend/core/localization/generated/l10n/app_localizations.dart';
+import 'package:syncora_frontend/core/utils/snack_bar_alerts.dart';
 import 'package:syncora_frontend/features/authentication/models/auth_state.dart';
 import 'package:syncora_frontend/features/authentication/models/user.dart';
 import 'package:syncora_frontend/features/authentication/viewmodel/auth_viewmodel.dart';
@@ -32,6 +33,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
     // We assume that the user is logged in and there's always a user provided if we are on this page
     // User user = ref.read(authNotifierProvider).value!.user!;
     final groups = ref.watch(groupsNotifierProvider);
+    SnackBarAlerts.registerErrorListener(ref, context);
 
     List<Group> groupsList = groups.hasValue ? groups.value! : List.empty();
 
@@ -187,7 +189,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                           // FILTER
                           FilterList(
                             disable: groups.isLoading,
-                            items: GroupFilter.values,
+                            items: GroupsFilter.values,
                             titles: [
                               AppLocalizations.of(context).confirm,
                               AppLocalizations.of(context).confirm,
@@ -197,7 +199,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                             onTap: (arg) {
                               ref
                                   .read(groupsNotifierProvider.notifier)
-                                  .filterGroups(arg as GroupFilter);
+                                  .filterGroups(arg as GroupsFilter);
                             },
                           ),
                           // GROUPS LIST
