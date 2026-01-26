@@ -216,8 +216,14 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                             body: ListView.separated(
                               itemCount: groupsList.length,
                               itemBuilder: (context, index) {
-                                return GroupPanel(
-                                  group: groupsList[index],
+                                return GestureDetector(
+                                  onTap: () {
+                                    context.push(
+                                        '/group-view/${groupsList[index].id}');
+                                  },
+                                  child: GroupPanel(
+                                    group: groupsList[index],
+                                  ),
                                 );
                               },
                               separatorBuilder: (context, index) {

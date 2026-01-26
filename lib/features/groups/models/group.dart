@@ -37,9 +37,10 @@ class Group extends Equatable {
     final List<int> members = json['members'] == null
         ? const []
         : List<int>.from(jsonDecode(json['members'] as String));
+
     final List<int> tasks = json['tasks'] == null
         ? const []
-        : List<int>.from(jsonDecode(json['members'] as String));
+        : List<int>.from(jsonDecode(json['tasks'] as String));
     return Group(
         id: json["id"],
         title: json["title"],

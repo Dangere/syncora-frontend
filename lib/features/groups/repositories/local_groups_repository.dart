@@ -34,7 +34,7 @@ class LocalGroupsRepository {
     final String groupsQuery = switch (filter) {
       GroupsFilter.owned => '''SELECT
         id, clientGeneratedId, ownerUserId, title, description, creationDate, 
-        (SELECT json_group_array(id) FROM ${DatabaseTables.groupsMembers} WHERE groupId = g.id)
+        (SELECT json_group_array(userId) FROM ${DatabaseTables.groupsMembers} WHERE groupId = g.id)
         AS members, 
         (SELECT json_group_array(id) FROM ${DatabaseTables.tasks} WHERE groupId = g.id AND isDeleted = 0)
         as tasks
@@ -43,17 +43,47 @@ class LocalGroupsRepository {
          $order''',
       GroupsFilter.shared => '''SELECT
         id, clientGeneratedId, ownerUserId, title, description, creationDate, 
-        (SELECT json_group_array(id) FROM ${DatabaseTables.groupsMembers} WHERE groupId = g.id)
+        (SELECT json_group_array(userId) FROM ${DatabaseTables.groupsMembers} WHERE groupId = g.id)
         AS members, 
         (SELECT json_group_array(id) FROM ${DatabaseTables.tasks} WHERE groupId = g.id AND isDeleted = 0)
         as tasks
         FROM ${DatabaseTables.groups} g
         WHERE isDeleted = 0 AND ownerUserId != $userId
          $order''',
-      GroupsFilter.inProgress =>
-        "SELECT * FROM ${DatabaseTables.groups} WHERE isDeleted = 0 $order",
-      GroupsFilter.completed =>
-        "SELECT * FROM ${DatabaseTables.groups} WHERE isDeleted = 0 $order",
+      GroupsFilter.inProgress => '''SELECT
+        id, clientGeneratedId, ownerUserId, title, description, creationDate,
+        (SELECT json_group_array(userId) FROM ${DatabaseTables.groupsMembers} WHERE groupId = g.id)
+        AS members, 
+        (SELECT json_group_array(id) FROM ${DatabaseTables.tasks} WHERE groupId = g.id AND isDeleted = 0)
+        as tasks,
+        (EXISTS (
+        SELECT 1
+          FROM ${DatabaseTables.tasks}
+          WHERE groupId = g.id AND isDeleted = 0)
+        AND NOT EXISTS (
+          SELECT 1
+          FROM ${DatabaseTables.tasks}
+          WHERE groupId = g.id AND isDeleted = 0 AND completedById IS NULL
+        )) AS completed
+        FROM ${DatabaseTables.groups} g
+        WHERE isDeleted = 0 AND completed = 0''',
+      GroupsFilter.completed => '''SELECT
+        id, clientGeneratedId, ownerUserId, title, description, creationDate,
+        (SELECT json_group_array(userId) FROM ${DatabaseTables.groupsMembers} WHERE groupId = g.id)
+        AS members, 
+        (SELECT json_group_array(id) FROM ${DatabaseTables.tasks} WHERE groupId = g.id AND isDeleted = 0)
+        as tasks, 
+        (EXISTS (
+        SELECT 1
+          FROM ${DatabaseTables.tasks}
+          WHERE groupId = g.id AND isDeleted = 0)
+        AND NOT EXISTS (
+          SELECT 1
+          FROM ${DatabaseTables.tasks}
+          WHERE groupId = g.id AND isDeleted = 0 AND completedById IS NULL
+        )) AS completed
+        FROM ${DatabaseTables.groups} g
+        WHERE isDeleted = 0 AND completed = 1'''
     };
 
     List<Map<String, dynamic>> groups = await db.rawQuery(groupsQuery);
@@ -69,7 +99,7 @@ class LocalGroupsRepository {
 
     List<Map<String, dynamic>> groupRow = await db.rawQuery('''SELECT
         id, clientGeneratedId, ownerUserId, title, description, creationDate, 
-        (SELECT json_group_array(id) FROM ${DatabaseTables.groupsMembers} WHERE groupId = g.id)
+        (SELECT json_group_array(userId) FROM ${DatabaseTables.groupsMembers} WHERE groupId = g.id)
         AS members, 
         (SELECT json_group_array(id) FROM ${DatabaseTables.tasks} WHERE groupId = g.id AND isDeleted = 0)
         as tasks
@@ -83,11 +113,6 @@ class LocalGroupsRepository {
     Group group = Group.fromJson(groupRow[0]);
 
     return group;
-  }
-
-  Future<void> leaveGroup(int groupId) {
-    // TODO: implement leaveGroup
-    throw UnimplementedError();
   }
 
   Future<int> updateGroupDetails(

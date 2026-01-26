@@ -224,31 +224,37 @@ class Tests {
 
   static void test_group_query(WidgetRef ref) async {
     Database db = await ref.read(localDbProvider).getDatabase();
-    // String getMembersQuery =
-    //     "SELECT json_group_array(id) as membersIds FROM ${DatabaseTables.groupsMembers} WHERE groupId = 142";
 
-    // var membersRaw = await db.rawQuery(getMembersQuery);
-    // final raw = membersRaw[0]['membersIds'];
+    // String groupQuery = '''SELECT
+    //     id, clientGeneratedId, ownerUserId, title, description, creationDate,
+    //     (SELECT json_group_array(userId) FROM ${DatabaseTables.groupsMembers} WHERE groupId = g.id)
+    //     AS members,
+    //     (SELECT json_group_array(id) FROM ${DatabaseTables.tasks} WHERE groupId = g.id AND isDeleted = 0)
+    //     as tasks
+    //     FROM ${DatabaseTables.groups} g
+    //     WHERE isDeleted = 0''';
 
-    // final List<int> members =
-    //     raw == null ? const [] : List<int>.from(jsonDecode(raw as String));
-    // Logger().f(members);
+//     String completedTasksQuery = '''
+// SELECT Count(id) FROM ${DatabaseTables.tasks} WHERE groupId = 138 AND isDeleted = 0 AND completedById IS NOT NULL
+//     ''';
 
-    int groupId = 142;
-
-    String groupQuery = '''SELECT
-        id, clientGeneratedId, ownerUserId, title, description, creationDate, 
-        (SELECT json_group_array(id) FROM ${DatabaseTables.groupsMembers} WHERE groupId = g.id)
-        AS members, 
-        (SELECT json_group_array(id) FROM ${DatabaseTables.tasks} WHERE groupId = g.id AND isDeleted = 0)
-        as tasks
+    String groupFilteredQuery = '''SELECT
+        id, clientGeneratedId, ownerUserId, title, description, creationDate,
+        (SELECT json_group_array(completedById) FROM ${DatabaseTables.tasks} WHERE groupId = g.id AND isDeleted = 0)
+        as tasks,
+        (EXISTS (
+        SELECT 1
+          FROM ${DatabaseTables.tasks}
+          WHERE groupId = g.id AND isDeleted = 0)
+        AND NOT EXISTS (
+          SELECT 1
+          FROM ${DatabaseTables.tasks}
+          WHERE groupId = g.id AND isDeleted = 0 AND completedById IS NULL
+        )) AS completed
         FROM ${DatabaseTables.groups} g
         WHERE isDeleted = 0''';
-    var rawQuery = await db.rawQuery(groupQuery);
 
-    final List<int> members = rawQuery[0]['members'] == null
-        ? const []
-        : List<int>.from(jsonDecode(rawQuery[0]['members'] as String));
+    var rawQuery = await db.rawQuery(groupFilteredQuery);
 
     Logger().f(rawQuery);
   }
