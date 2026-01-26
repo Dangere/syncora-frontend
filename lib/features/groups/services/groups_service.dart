@@ -32,11 +32,11 @@ class GroupsService {
         _enqueueEntry = enqueueEntry;
 
   Future<Result<List<Group>>> getAllGroups(
-      GroupsFilter filter, bool ascending) async {
+      List<GroupsFilter> filters, bool ascending) async {
     try {
       if (_authState.user == null) return Result.failureMessage("User is null");
       List<Group> groups = await _localGroupsRepository.getAllGroups(
-          filter, ascending, _authState.user!.id);
+          filters, _authState.user!.id);
       return Result.success(groups);
     } catch (e, stackTrace) {
       return Result.failure(e, stackTrace);

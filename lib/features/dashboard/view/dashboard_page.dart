@@ -34,10 +34,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
   Widget build(BuildContext context) {
     // We assume that the user is logged in and there's always a user provided if we are on this page
     // User user = ref.read(authNotifierProvider).value!.user!;
-    final groups = ref.watch(groupsNotifierProvider);
     SnackBarAlerts.registerErrorListener(ref, context);
-
-    List<Group> groupsList = groups.hasValue ? groups.value! : List.empty();
 
     ref.read(loggerProvider).d("Building dashboard page");
     return Scaffold(
@@ -192,53 +189,94 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                             ],
                           ),
                           const SizedBox(height: AppSpacing.lg),
-
-                          // FILTER
-                          FilterList(
-                            disable: groups.isLoading,
-                            items: GroupsFilter.values,
-                            titles: [
-                              AppLocalizations.of(context).confirm,
-                              AppLocalizations.of(context).confirm,
-                              AppLocalizations.of(context).confirm,
-                              AppLocalizations.of(context).confirm,
-                            ],
-                            onTap: (arg) {
-                              ref
-                                  .read(groupsNotifierProvider.notifier)
-                                  .filterGroups(arg as GroupsFilter);
-                            },
-                          ),
-                          // GROUPS LIST
-                          Expanded(
-                              child: OverlayLoader(
-                            isLoading: groups.isLoading,
-                            body: ListView.separated(
-                              itemCount: groupsList.length,
-                              itemBuilder: (context, index) {
-                                return GestureDetector(
-                                  onTap: () {
-                                    context.push(
-                                        '/group-view/${groupsList[index].id}');
-                                  },
-                                  child: GroupPanel(
-                                    group: groupsList[index],
-                                  ),
-                                );
-                              },
-                              separatorBuilder: (context, index) {
-                                return const SizedBox(
-                                  height: 16,
-                                );
-                              },
-                            ),
-                          )),
+                          // GROUPS LIST AND FILTER
+                          const GroupsList(),
                         ],
                       )),
                 ),
               ],
             ),
           ),
+        ],
+      ),
+    );
+  }
+}
+
+class GroupsList extends ConsumerWidget {
+  const GroupsList({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    var groups = ref.watch(groupsNotifierProvider);
+    List<Group> groupsList = groups.hasValue ? groups.value! : List.empty();
+    return Expanded(
+      child: Column(
+        children: [
+          // FILTER
+          FilterList(
+            multiSelect: true,
+            disable: groups.isLoading,
+            items: [
+              FilterListItem(
+                title: "Completed",
+                value: GroupsFilter.completed,
+                opposites: [GroupsFilter.inProgress],
+              ),
+              FilterListItem(
+                title: "In Progress",
+                value: GroupsFilter.inProgress,
+                opposites: [GroupsFilter.completed],
+              ),
+              FilterListItem(
+                title: "Owned",
+                value: GroupsFilter.owned,
+                opposites: [GroupsFilter.shared],
+              ),
+              FilterListItem(
+                title: "Shared",
+                value: GroupsFilter.shared,
+                opposites: [GroupsFilter.owned],
+              ),
+              FilterListItem(
+                title: "Newest",
+                value: GroupsFilter.newest,
+                opposites: [GroupsFilter.oldest],
+              ),
+              FilterListItem(
+                title: "Oldest",
+                value: GroupsFilter.oldest,
+                opposites: [GroupsFilter.newest],
+              ),
+            ],
+            onTap: (List<Enum> arg) {
+              ref
+                  .read(groupsNotifierProvider.notifier)
+                  .filterGroups(arg.map((e) => e as GroupsFilter).toList());
+            },
+          ),
+          Expanded(
+              child: OverlayLoader(
+            isLoading: groups.isLoading,
+            body: ListView.separated(
+              itemCount: groupsList.length,
+              itemBuilder: (context, index) {
+                return GestureDetector(
+                  onTap: () {
+                    context.push('/group-view/${groupsList[index].id}');
+                  },
+                  child: GroupPanel(
+                    group: groupsList[index],
+                  ),
+                );
+              },
+              separatorBuilder: (context, index) {
+                return const SizedBox(
+                  height: 16,
+                );
+              },
+            ),
+          )),
         ],
       ),
     );

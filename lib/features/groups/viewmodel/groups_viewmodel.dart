@@ -14,10 +14,10 @@ import 'package:syncora_frontend/features/groups/repositories/remote_groups_repo
 import 'package:syncora_frontend/features/groups/services/groups_service.dart';
 import 'package:syncora_frontend/features/tasks/viewmodel/tasks_providers.dart';
 
-enum GroupsFilter { inProgress, completed, shared, owned }
+enum GroupsFilter { inProgress, completed, shared, owned, newest, oldest }
 
 class GroupsNotifier extends AsyncNotifier<List<Group>> {
-  GroupsFilter filter = GroupsFilter.inProgress;
+  List<GroupsFilter> filters = [GroupsFilter.inProgress];
 
   Future<void> createGroup(String title, String description) async {
     // state = const AsyncValue.loading();
@@ -203,21 +203,22 @@ class GroupsNotifier extends AsyncNotifier<List<Group>> {
     state = const AsyncValue.loading();
 
     Result<List<Group>> fetchResult =
-        await ref.read(groupsServiceProvider).getAllGroups(filter, true);
+        await ref.read(groupsServiceProvider).getAllGroups(filters, true);
 
     if (!fetchResult.isSuccess) {
       ref.read(appErrorProvider.notifier).state = fetchResult.error;
       state = AsyncValue.error(fetchResult.error!.errorObject,
           fetchResult.error!.stackTrace ?? StackTrace.current);
-    } else
+    } else {
       state = AsyncValue.data(fetchResult.data!);
+    }
   }
 
-  Future<void> filterGroups(GroupsFilter groupFilter) async {
+  Future<void> filterGroups(List<GroupsFilter> groupFilters) async {
     if (state.isLoading) {
       return;
     }
-    filter = groupFilter;
+    filters = groupFilters;
     await reloadGroups();
   }
 
@@ -264,7 +265,7 @@ class GroupsNotifier extends AsyncNotifier<List<Group>> {
           // await Future.delayed(const Duration(seconds: 1));
           Result<List<Group>> fetchResult = await ref
               .read(groupsServiceProvider)
-              .getAllGroups(GroupsFilter.inProgress, true);
+              .getAllGroups([GroupsFilter.inProgress], true);
 
           if (!fetchResult.isSuccess) {
             ref.read(appErrorProvider.notifier).state = fetchResult.error;

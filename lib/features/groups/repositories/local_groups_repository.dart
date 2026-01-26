@@ -25,38 +25,33 @@ class LocalGroupsRepository {
   }
 
   Future<List<Group>> getAllGroups(
-      GroupsFilter filter, bool ascending, int userId) async {
+      List<GroupsFilter> filters, int userId) async {
     final db = await _databaseManager.getDatabase();
 
-    final String order =
-        ascending ? "ORDER BY creationDate ASC" : "ORDER BY creationDate DESC";
+    final String orderString = (filters.contains(GroupsFilter.newest) ||
+            filters.contains(GroupsFilter.oldest))
+        ? (filters.contains(GroupsFilter.oldest)
+            ? "ORDER BY creationDate DESC"
+            : "ORDER BY creationDate ASC")
+        : "";
 
-    final String groupsQuery = switch (filter) {
-      GroupsFilter.owned => '''SELECT
-        id, clientGeneratedId, ownerUserId, title, description, creationDate, 
-        (SELECT json_group_array(userId) FROM ${DatabaseTables.groupsMembers} WHERE groupId = g.id)
-        AS members, 
-        (SELECT json_group_array(id) FROM ${DatabaseTables.tasks} WHERE groupId = g.id AND isDeleted = 0)
-        as tasks
-        FROM ${DatabaseTables.groups} g
-        WHERE isDeleted = 0 AND ownerUserId = $userId
-         $order''',
-      GroupsFilter.shared => '''SELECT
-        id, clientGeneratedId, ownerUserId, title, description, creationDate, 
-        (SELECT json_group_array(userId) FROM ${DatabaseTables.groupsMembers} WHERE groupId = g.id)
-        AS members, 
-        (SELECT json_group_array(id) FROM ${DatabaseTables.tasks} WHERE groupId = g.id AND isDeleted = 0)
-        as tasks
-        FROM ${DatabaseTables.groups} g
-        WHERE isDeleted = 0 AND ownerUserId != $userId
-         $order''',
-      GroupsFilter.inProgress => '''SELECT
-        id, clientGeneratedId, ownerUserId, title, description, creationDate,
-        (SELECT json_group_array(userId) FROM ${DatabaseTables.groupsMembers} WHERE groupId = g.id)
-        AS members, 
-        (SELECT json_group_array(id) FROM ${DatabaseTables.tasks} WHERE groupId = g.id AND isDeleted = 0)
-        as tasks,
-        (EXISTS (
+    final String ownershipString = (filters.contains(GroupsFilter.owned) ||
+            filters.contains(GroupsFilter.shared))
+        ? (filters.contains(GroupsFilter.owned)
+            ? "AND ownerUserId = $userId"
+            : "AND ownerUserId != $userId")
+        : "";
+
+    final String completedString = (filters.contains(GroupsFilter.completed) ||
+            filters.contains(GroupsFilter.inProgress))
+        ? (filters.contains(GroupsFilter.completed)
+            ? "AND completed = 1"
+            : "AND completed = 0")
+        : "";
+
+    final String completedQuery = completedString.isNotEmpty
+        ? '''
+        ,(EXISTS (
         SELECT 1
           FROM ${DatabaseTables.tasks}
           WHERE groupId = g.id AND isDeleted = 0)
@@ -65,26 +60,20 @@ class LocalGroupsRepository {
           FROM ${DatabaseTables.tasks}
           WHERE groupId = g.id AND isDeleted = 0 AND completedById IS NULL
         )) AS completed
-        FROM ${DatabaseTables.groups} g
-        WHERE isDeleted = 0 AND completed = 0''',
-      GroupsFilter.completed => '''SELECT
+        '''
+        : "";
+
+    String groupsQuery = '''
+        SELECT
         id, clientGeneratedId, ownerUserId, title, description, creationDate,
         (SELECT json_group_array(userId) FROM ${DatabaseTables.groupsMembers} WHERE groupId = g.id)
         AS members, 
         (SELECT json_group_array(id) FROM ${DatabaseTables.tasks} WHERE groupId = g.id AND isDeleted = 0)
-        as tasks, 
-        (EXISTS (
-        SELECT 1
-          FROM ${DatabaseTables.tasks}
-          WHERE groupId = g.id AND isDeleted = 0)
-        AND NOT EXISTS (
-          SELECT 1
-          FROM ${DatabaseTables.tasks}
-          WHERE groupId = g.id AND isDeleted = 0 AND completedById IS NULL
-        )) AS completed
+        as tasks 
+        $completedQuery 
         FROM ${DatabaseTables.groups} g
-        WHERE isDeleted = 0 AND completed = 1'''
-    };
+        WHERE isDeleted = 0 $ownershipString $completedString $orderString
+ ''';
 
     List<Map<String, dynamic>> groups = await db.rawQuery(groupsQuery);
 
