@@ -18,6 +18,7 @@ import 'package:syncora_frontend/features/authentication/models/auth_state.dart'
 import 'package:syncora_frontend/features/authentication/viewmodel/auth_viewmodel.dart';
 import 'package:syncora_frontend/features/groups/models/group.dart';
 import 'package:syncora_frontend/features/groups/models/group_dto.dart';
+import 'package:syncora_frontend/features/groups/repositories/statistics_repository.dart';
 import 'package:syncora_frontend/features/groups/viewmodel/groups_viewmodel.dart';
 import 'package:syncora_frontend/features/tasks/models/task.dart';
 import 'package:syncora_frontend/features/tasks/viewmodel/tasks_providers.dart';
@@ -257,6 +258,42 @@ class Tests {
     var rawQuery = await db.rawQuery(groupFilteredQuery);
 
     Logger().f(rawQuery);
+  }
+
+  // Apparently i was told (ai told me) that i cant use column aliases in where clause, which is odd cuz i did and it was working so ill test it here
+  // Surprise surprise, it works fine, turns out sqflite does allow column aliases in where clause as a non-standard extension to the SQL language
+  // Dont blindly follow AI
+  static void column_alias_in_where_clause(WidgetRef ref) async {
+    Database db = await ref.read(localDbProvider).getDatabase();
+    String groupsQuery = '''
+        SELECT
+        id, clientGeneratedId, ownerUserId, title, description, creationDate,
+        (EXISTS (
+        SELECT 1
+          FROM ${DatabaseTables.tasks}
+          WHERE groupId = g.id AND isDeleted = 0)
+        AND NOT EXISTS (
+          SELECT 1
+          FROM ${DatabaseTables.tasks}
+          WHERE groupId = g.id AND isDeleted = 0 AND completedById IS NULL
+        )) AS completed
+        FROM ${DatabaseTables.groups} g
+        WHERE isDeleted = 0 AND completed = 1''';
+
+    var result = await db.rawQuery(groupsQuery);
+
+    Logger().f(result);
+  }
+
+  static void testing_statistics_for_group_count(WidgetRef ref) async {
+    // Database db = await ref.read(localDbProvider).getDatabase();
+    StatisticsRepository statisticsRepository =
+        StatisticsRepository(ref.read(localDbProvider));
+
+    var result =
+        await statisticsRepository.getGroupsCount([GroupsFilter.inProgress], 1);
+
+    Logger().f(result);
   }
 
   static Future<void> printDb(Database db) async {

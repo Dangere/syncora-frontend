@@ -7,6 +7,7 @@ import 'package:syncora_frontend/features/authentication/models/auth_state.dart'
 import 'package:syncora_frontend/features/groups/models/group.dart';
 import 'package:syncora_frontend/features/groups/repositories/local_groups_repository.dart';
 import 'package:syncora_frontend/features/groups/repositories/remote_groups_repository.dart';
+import 'package:syncora_frontend/features/groups/repositories/statistics_repository.dart';
 import 'package:syncora_frontend/features/groups/viewmodel/groups_viewmodel.dart';
 
 // If group is shared, user can leave and modify it when online only using remote requests
@@ -14,6 +15,7 @@ import 'package:syncora_frontend/features/groups/viewmodel/groups_viewmodel.dart
 class GroupsService {
   final LocalGroupsRepository _localGroupsRepository;
   final RemoteGroupsRepository _remoteGroupsRepository;
+  final StatisticsRepository _groupStatisticsRepository;
   final AsyncFunc<EnqueueRequest, Result<void>> _enqueueEntry;
 
   final AuthState _authState;
@@ -24,15 +26,16 @@ class GroupsService {
       required bool isOnline,
       required LocalGroupsRepository localGroupsRepository,
       required RemoteGroupsRepository remoteGroupsRepository,
+      required StatisticsRepository groupStatisticsRepository,
       required AsyncFunc<EnqueueRequest, Result<void>> enqueueEntry})
       : _localGroupsRepository = localGroupsRepository,
         _remoteGroupsRepository = remoteGroupsRepository,
+        _groupStatisticsRepository = groupStatisticsRepository,
         _authState = authState,
         _isOnline = isOnline,
         _enqueueEntry = enqueueEntry;
 
-  Future<Result<List<Group>>> getAllGroups(
-      List<GroupsFilter> filters, bool ascending) async {
+  Future<Result<List<Group>>> getAllGroups(List<GroupsFilter> filters) async {
     try {
       if (_authState.user == null) return Result.failureMessage("User is null");
       List<Group> groups = await _localGroupsRepository.getAllGroups(
@@ -182,5 +185,16 @@ class GroupsService {
       return enqueueResult;
 
     return Result.success();
+  }
+
+  Future<Result<int>> getGroupsCount(List<GroupsFilter> filters) async {
+    try {
+      if (_authState.user == null) return Result.failureMessage("User is null");
+
+      return Result.success(await _groupStatisticsRepository.getGroupsCount(
+          filters, _authState.user!.id));
+    } catch (e, stackTrace) {
+      return Result.failure(e, stackTrace);
+    }
   }
 }

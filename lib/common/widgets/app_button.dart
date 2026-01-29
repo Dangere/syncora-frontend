@@ -50,6 +50,7 @@ class AppButton extends StatelessWidget {
   final AppButtonStyle style;
   final AppButtonIntent intent;
   final EdgeInsetsGeometry padding;
+  final bool ignoreContentPadding;
   final bool disabled;
   final bool highlighted;
   final double? width;
@@ -63,6 +64,7 @@ class AppButton extends StatelessWidget {
     required this.style,
     this.intent = AppButtonIntent.normal,
     this.padding = const EdgeInsets.all(0),
+    this.ignoreContentPadding = false,
     this.width = double.infinity,
     this.disabled = false,
     this.highlighted = false,
@@ -83,13 +85,15 @@ class AppButton extends StatelessWidget {
       AppButtonSize.icon => 8.0,
     };
 
-    final double contentHorizontalPadding = switch (size) {
-      AppButtonSize.huge => 16.0,
-      AppButtonSize.large => 16.0,
-      AppButtonSize.medium => 16.0,
-      AppButtonSize.small => 14.0,
-      AppButtonSize.icon => 16.0,
-    };
+    final double contentHorizontalPadding = ignoreContentPadding
+        ? 0
+        : switch (size) {
+            AppButtonSize.huge => 16.0,
+            AppButtonSize.large => 16.0,
+            AppButtonSize.medium => 16.0,
+            AppButtonSize.small => 14.0,
+            AppButtonSize.icon => 16.0,
+          };
 
     final double height = switch (size) {
       AppButtonSize.huge => 66.0,

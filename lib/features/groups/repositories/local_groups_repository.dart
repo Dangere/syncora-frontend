@@ -28,28 +28,28 @@ class LocalGroupsRepository {
       List<GroupsFilter> filters, int userId) async {
     final db = await _databaseManager.getDatabase();
 
-    final String orderString = (filters.contains(GroupsFilter.newest) ||
+    final String orderingFilter = (filters.contains(GroupsFilter.newest) ||
             filters.contains(GroupsFilter.oldest))
-        ? (filters.contains(GroupsFilter.oldest)
+        ? (filters.contains(GroupsFilter.newest)
             ? "ORDER BY creationDate DESC"
             : "ORDER BY creationDate ASC")
         : "";
 
-    final String ownershipString = (filters.contains(GroupsFilter.owned) ||
+    final String ownershipFilter = (filters.contains(GroupsFilter.owned) ||
             filters.contains(GroupsFilter.shared))
         ? (filters.contains(GroupsFilter.owned)
             ? "AND ownerUserId = $userId"
             : "AND ownerUserId != $userId")
         : "";
 
-    final String completedString = (filters.contains(GroupsFilter.completed) ||
+    final String completedFilter = (filters.contains(GroupsFilter.completed) ||
             filters.contains(GroupsFilter.inProgress))
         ? (filters.contains(GroupsFilter.completed)
             ? "AND completed = 1"
             : "AND completed = 0")
         : "";
 
-    final String completedQuery = completedString.isNotEmpty
+    final String completedSubQuery = completedFilter.isNotEmpty
         ? '''
         ,(EXISTS (
         SELECT 1
@@ -70,11 +70,9 @@ class LocalGroupsRepository {
         AS members, 
         (SELECT json_group_array(id) FROM ${DatabaseTables.tasks} WHERE groupId = g.id AND isDeleted = 0)
         as tasks 
-        $completedQuery 
+        $completedSubQuery 
         FROM ${DatabaseTables.groups} g
-        WHERE isDeleted = 0 $ownershipString $completedString $orderString
- ''';
-
+        WHERE isDeleted = 0 $ownershipFilter $completedFilter $orderingFilter ''';
     List<Map<String, dynamic>> groups = await db.rawQuery(groupsQuery);
 
     List<Group> groupList =
@@ -190,7 +188,7 @@ class LocalGroupsRepository {
         where: "id = ?", whereArgs: [groupId]);
   }
 
-  // Method used to wipe groups marked as deleted
+  // Method used to wipe groups marked as deleted, it's paired with the purgeOrphanedUsers() method to clean users that dont belong to groups
   Future<int> wipeDeletedGroup(int groupId) async {
     final db = await _databaseManager.getDatabase();
 

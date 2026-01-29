@@ -11,6 +11,7 @@ import 'package:syncora_frontend/features/authentication/viewmodel/auth_viewmode
 import 'package:syncora_frontend/features/groups/models/group.dart';
 import 'package:syncora_frontend/features/groups/repositories/local_groups_repository.dart';
 import 'package:syncora_frontend/features/groups/repositories/remote_groups_repository.dart';
+import 'package:syncora_frontend/features/groups/repositories/statistics_repository.dart';
 import 'package:syncora_frontend/features/groups/services/groups_service.dart';
 import 'package:syncora_frontend/features/tasks/viewmodel/tasks_providers.dart';
 
@@ -203,7 +204,7 @@ class GroupsNotifier extends AsyncNotifier<List<Group>> {
     state = const AsyncValue.loading();
 
     Result<List<Group>> fetchResult =
-        await ref.read(groupsServiceProvider).getAllGroups(filters, true);
+        await ref.read(groupsServiceProvider).getAllGroups(filters);
 
     if (!fetchResult.isSuccess) {
       ref.read(appErrorProvider.notifier).state = fetchResult.error;
@@ -220,6 +221,18 @@ class GroupsNotifier extends AsyncNotifier<List<Group>> {
     }
     filters = groupFilters;
     await reloadGroups();
+  }
+
+  Future<int?> getGroupsCount(List<GroupsFilter> groupFilters) async {
+    Result<int> fetchResult =
+        await ref.read(groupsServiceProvider).getGroupsCount(groupFilters);
+
+    if (!fetchResult.isSuccess) {
+      ref.read(appErrorProvider.notifier).state = fetchResult.error;
+      return null;
+    } else {
+      return fetchResult.data!;
+    }
   }
 
   // Takes in an id of a group that was modified to check if it's currently displayed then refresh the UI corresponding to it
@@ -265,7 +278,7 @@ class GroupsNotifier extends AsyncNotifier<List<Group>> {
           // await Future.delayed(const Duration(seconds: 1));
           Result<List<Group>> fetchResult = await ref
               .read(groupsServiceProvider)
-              .getAllGroups([GroupsFilter.inProgress], true);
+              .getAllGroups([GroupsFilter.inProgress]);
 
           if (!fetchResult.isSuccess) {
             ref.read(appErrorProvider.notifier).state = fetchResult.error;
@@ -331,6 +344,10 @@ final remoteGroupsRepositoryProvider = Provider<RemoteGroupsRepository>((ref) {
   return RemoteGroupsRepository(dio: ref.read(dioProvider));
 });
 
+final groupStatisticsProvider = Provider<StatisticsRepository>((ref) {
+  return StatisticsRepository(ref.read(localDbProvider));
+});
+
 final groupsServiceProvider = Provider<GroupsService>((ref) {
   var authState = ref.watch(authNotifierProvider).asData!.value;
   ConnectionStatus connectionStatus = ref.watch(connectionProvider);
@@ -344,6 +361,7 @@ final groupsServiceProvider = Provider<GroupsService>((ref) {
       localGroupsRepositoryProvider,
     ),
     remoteGroupsRepository: ref.watch(remoteGroupsRepositoryProvider),
+    groupStatisticsRepository: ref.watch(groupStatisticsProvider),
     enqueueEntry: (enqueueRequest) =>
         ref.read(outboxProvider.notifier).enqueue(enqueueRequest),
   );

@@ -40,7 +40,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
     return Scaffold(
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          Tests.test_group_query(ref);
+          Tests.testing_statistics_for_group_count(ref);
         },
       ),
       body: Stack(
@@ -72,6 +72,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
             child: Column(
               // mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
+                // SETTINGS AND PROFILE BUTTONS
                 Padding(
                   padding: AppSpacing.paddingHorizontalLg,
                   child: Row(
@@ -214,7 +215,7 @@ class GroupsList extends ConsumerWidget {
       child: Column(
         children: [
           // FILTER
-          FilterList(
+          FilterList<GroupsFilter>(
             multiSelect: true,
             disable: groups.isLoading,
             items: [
@@ -222,11 +223,17 @@ class GroupsList extends ConsumerWidget {
                 title: "Completed",
                 value: GroupsFilter.completed,
                 opposites: [GroupsFilter.inProgress],
+                countFactory: (arg) => ref
+                    .read(groupsNotifierProvider.notifier)
+                    .getGroupsCount([arg]),
               ),
               FilterListItem(
                 title: "In Progress",
                 value: GroupsFilter.inProgress,
                 opposites: [GroupsFilter.completed],
+                countFactory: (arg) => ref
+                    .read(groupsNotifierProvider.notifier)
+                    .getGroupsCount([arg]),
               ),
               FilterListItem(
                 title: "Owned",
@@ -249,16 +256,17 @@ class GroupsList extends ConsumerWidget {
                 opposites: [GroupsFilter.newest],
               ),
             ],
-            onTap: (List<Enum> arg) {
-              ref
-                  .read(groupsNotifierProvider.notifier)
-                  .filterGroups(arg.map((e) => e as GroupsFilter).toList());
+            onTap: (arg) {
+              ref.read(groupsNotifierProvider.notifier).filterGroups(arg);
             },
           ),
+          const SizedBox(height: AppSpacing.lg / 2),
+
           Expanded(
               child: OverlayLoader(
             isLoading: groups.isLoading,
             body: ListView.separated(
+              padding: const EdgeInsets.symmetric(vertical: AppSpacing.lg / 2),
               itemCount: groupsList.length,
               itemBuilder: (context, index) {
                 return GestureDetector(
