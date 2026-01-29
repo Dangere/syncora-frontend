@@ -17,6 +17,7 @@ class FilterListItem<T extends Enum> {
 
 // A widget that displays a list of filters that can be single or multi selected
 class FilterList<T extends Enum> extends StatefulWidget {
+  final List<T>? initialValue;
   final bool disable;
   final bool multiSelect;
   final List<FilterListItem<T>> items;
@@ -24,6 +25,7 @@ class FilterList<T extends Enum> extends StatefulWidget {
   final Func<List<T>, void> onTap;
   const FilterList(
       {super.key,
+      this.initialValue,
       required this.disable,
       this.multiSelect = false,
       required this.items,
@@ -38,6 +40,14 @@ class _FilterListState<T extends Enum> extends State<FilterList<T>> {
   // int selectedIndex = 0;
 
   List<T> selectedValues = List.empty(growable: true);
+
+  @override
+  void initState() {
+    if (widget.initialValue != null) {
+      selectedValues = widget.initialValue!;
+    }
+    super.initState();
+  }
 
   void _onSelect(FilterListItem<T> item) {
     if (widget.disable) return;
@@ -113,7 +123,7 @@ class _FilterListState<T extends Enum> extends State<FilterList<T>> {
                                         ? Theme.of(context).colorScheme.primary
                                         : Theme.of(context)
                                             .colorScheme
-                                            .secondary,
+                                            .tertiaryContainer,
                                     shape: BoxShape.circle),
                                 child: Center(
                                     child: !snapshot.hasData
@@ -127,7 +137,7 @@ class _FilterListState<T extends Enum> extends State<FilterList<T>> {
                                                         .onPrimary
                                                     : Theme.of(context)
                                                         .colorScheme
-                                                        .onSecondary),
+                                                        .tertiary),
                                           ))),
                           ),
                         );

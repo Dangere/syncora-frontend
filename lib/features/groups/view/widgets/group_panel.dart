@@ -1,12 +1,9 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:syncora_frontend/common/themes/app_sizes.dart';
 import 'package:syncora_frontend/common/themes/app_theme.dart';
-import 'package:syncora_frontend/common/widgets/marquee_widget.dart';
 import 'package:syncora_frontend/core/localization/generated/l10n/app_localizations.dart';
-import 'package:syncora_frontend/core/network/outbox/outbox_viewmodel.dart';
 import 'package:syncora_frontend/features/groups/models/group.dart';
 
 class GroupPanel extends StatelessWidget {

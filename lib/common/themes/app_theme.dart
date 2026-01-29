@@ -54,6 +54,9 @@ class AppTheme {
     onError: Color(0xFFFFFFFF),
     // background: Color(0xFFFDFCFF),
 
+    tertiary: Color(0XFFFC9D5C),
+    tertiaryContainer: Color(0xFFFCE2D1),
+
     // Background of the app
     surface: Color(0xFFFDFCFF),
     // surface: Colors.yellow,
@@ -95,6 +98,9 @@ class AppTheme {
     onSurface: Color(0xFFC5C5C5),
 
     surfaceContainer: Color(0xFF141414),
+
+    tertiary: Color(0XFFFC9D5C),
+    tertiaryContainer: Color(0xFF5E422E),
 
     onSurfaceVariant: AppGrays.gray700, // secondary text, descriptions
     outline: AppGrays.gray500, // muted text, metadata, captions
