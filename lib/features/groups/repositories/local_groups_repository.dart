@@ -25,7 +25,7 @@ class LocalGroupsRepository {
   }
 
   Future<List<Group>> getAllGroups(
-      List<GroupsFilter> filters, int userId) async {
+      List<GroupsFilter> filters, int userId, String? search) async {
     final db = await _databaseManager.getDatabase();
 
     final String orderingFilter = (filters.contains(GroupsFilter.newest) ||
@@ -63,6 +63,9 @@ class LocalGroupsRepository {
         '''
         : "";
 
+    final String searchQuery =
+        search != null ? "AND title LIKE '%$search%'" : "";
+
     String groupsQuery = '''
         SELECT
         id, clientGeneratedId, ownerUserId, title, description, creationDate,
@@ -72,7 +75,7 @@ class LocalGroupsRepository {
         as tasks 
         $completedSubQuery 
         FROM ${DatabaseTables.groups} g
-        WHERE isDeleted = 0 $ownershipFilter $completedFilter $orderingFilter ''';
+        WHERE isDeleted = 0 $ownershipFilter $completedFilter $searchQuery $orderingFilter''';
     List<Map<String, dynamic>> groups = await db.rawQuery(groupsQuery);
 
     List<Group> groupList =

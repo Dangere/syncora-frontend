@@ -200,6 +200,42 @@ abstract class AppLocalizations {
   /// **'Logout'**
   String get logout;
 
+  /// No description provided for @filter_Completed.
+  ///
+  /// In en, this message translates to:
+  /// **'Completed'**
+  String get filter_Completed;
+
+  /// No description provided for @filter_InProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'In Progress'**
+  String get filter_InProgress;
+
+  /// No description provided for @filter_Owned.
+  ///
+  /// In en, this message translates to:
+  /// **'Owned'**
+  String get filter_Owned;
+
+  /// No description provided for @filter_Shared.
+  ///
+  /// In en, this message translates to:
+  /// **'Shared'**
+  String get filter_Shared;
+
+  /// No description provided for @filter_Newest.
+  ///
+  /// In en, this message translates to:
+  /// **'Newest'**
+  String get filter_Newest;
+
+  /// No description provided for @filter_Oldest.
+  ///
+  /// In en, this message translates to:
+  /// **'Oldest'**
+  String get filter_Oldest;
+
   /// No description provided for @signInPage_Title.
   ///
   /// In en, this message translates to:
@@ -337,6 +373,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Change My Password'**
   String get settingsPage_ChangeMyPassword;
+
+  /// No description provided for @dashboardPage_MyGroups.
+  ///
+  /// In en, this message translates to:
+  /// **'My Groups'**
+  String get dashboardPage_MyGroups;
+
+  /// No description provided for @dashboardPage_CreateGroup.
+  ///
+  /// In en, this message translates to:
+  /// **'Create Group'**
+  String get dashboardPage_CreateGroup;
+
+  /// No description provided for @dashboardPage_SearchGroups.
+  ///
+  /// In en, this message translates to:
+  /// **'Search for a group'**
+  String get dashboardPage_SearchGroups;
 }
 
 class _AppLocalizationsDelegate

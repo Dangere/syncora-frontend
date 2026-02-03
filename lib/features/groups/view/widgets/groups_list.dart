@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:syncora_frontend/common/providers/common_providers.dart';
 import 'package:syncora_frontend/common/themes/app_spacing.dart';
 import 'package:syncora_frontend/common/widgets/filter_list.dart';
 import 'package:syncora_frontend/common/widgets/overlay_loader.dart';
+import 'package:syncora_frontend/core/localization/generated/l10n/app_localizations.dart';
 import 'package:syncora_frontend/features/groups/models/group.dart';
 import 'package:syncora_frontend/features/groups/view/widgets/group_panel.dart';
 import 'package:syncora_frontend/features/groups/viewmodel/groups_viewmodel.dart';
@@ -25,7 +27,7 @@ class GroupsList extends ConsumerWidget {
             initialValue: ref.read(groupsNotifierProvider.notifier).filters,
             items: [
               FilterListItem(
-                title: "Completed",
+                title: AppLocalizations.of(context).filter_Completed,
                 value: GroupsFilter.completed,
                 opposites: [GroupsFilter.inProgress],
                 countFactory: (arg) => ref
@@ -33,7 +35,7 @@ class GroupsList extends ConsumerWidget {
                     .getGroupsCount([arg]),
               ),
               FilterListItem(
-                title: "In Progress",
+                title: AppLocalizations.of(context).filter_InProgress,
                 value: GroupsFilter.inProgress,
                 opposites: [GroupsFilter.completed],
                 countFactory: (arg) => ref
@@ -41,22 +43,22 @@ class GroupsList extends ConsumerWidget {
                     .getGroupsCount([arg]),
               ),
               FilterListItem(
-                title: "Owned",
+                title: AppLocalizations.of(context).filter_Owned,
                 value: GroupsFilter.owned,
                 opposites: [GroupsFilter.shared],
               ),
               FilterListItem(
-                title: "Shared",
+                title: AppLocalizations.of(context).filter_Shared,
                 value: GroupsFilter.shared,
                 opposites: [GroupsFilter.owned],
               ),
               FilterListItem(
-                title: "Newest",
+                title: AppLocalizations.of(context).filter_Newest,
                 value: GroupsFilter.newest,
                 opposites: [GroupsFilter.oldest],
               ),
               FilterListItem(
-                title: "Oldest",
+                title: AppLocalizations.of(context).filter_Oldest,
                 value: GroupsFilter.oldest,
                 opposites: [GroupsFilter.newest],
               ),

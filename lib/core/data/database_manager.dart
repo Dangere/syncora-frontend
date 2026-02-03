@@ -7,11 +7,18 @@ import 'package:syncora_frontend/core/data/enums/database_tables.dart';
 
 class DatabaseManager {
   Database? _db;
-
+  bool mutex = false;
   DatabaseManager();
 
   Future<Database> getDatabase() async {
     if (_db != null && _db!.isOpen) return _db!;
+
+    while (mutex) {
+      await Future.delayed(const Duration(milliseconds: 100));
+      if (_db != null && _db!.isOpen) return _db!;
+    }
+
+    mutex = true;
     String dbFileName = "syncora_database.db";
 
     Logger().d("Creating database and caching it");
@@ -42,7 +49,7 @@ class DatabaseManager {
         await db.execute('PRAGMA foreign_keys = ON');
       },
     );
-
+    mutex = false;
     return _db!;
   }
 

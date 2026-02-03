@@ -18,9 +18,13 @@ import 'package:syncora_frontend/features/tasks/viewmodel/tasks_providers.dart';
 enum GroupsFilter { inProgress, completed, shared, owned, newest, oldest }
 
 class GroupsNotifier extends AsyncNotifier<List<Group>> {
-  List<GroupsFilter> filters = [GroupsFilter.inProgress];
+  List<GroupsFilter> get filters => _filters;
 
-  Future<void> createGroup(String title, String description) async {
+  List<GroupsFilter> _filters = [GroupsFilter.inProgress];
+  String? _search;
+
+  Future<void> createGroup(
+      {required String title, required String description}) async {
     // state = const AsyncValue.loading();
 
     Result<Group> newGroupResult =
@@ -204,7 +208,7 @@ class GroupsNotifier extends AsyncNotifier<List<Group>> {
     state = const AsyncValue.loading();
 
     Result<List<Group>> fetchResult =
-        await ref.read(groupsServiceProvider).getAllGroups(filters);
+        await ref.read(groupsServiceProvider).getAllGroups(_filters, _search);
 
     if (!fetchResult.isSuccess) {
       ref.read(appErrorProvider.notifier).state = fetchResult.error;
@@ -219,7 +223,19 @@ class GroupsNotifier extends AsyncNotifier<List<Group>> {
     if (state.isLoading) {
       return;
     }
-    filters = groupFilters;
+    _filters = groupFilters;
+    await reloadGroups();
+  }
+
+  Future<void> searchGroups(String? search) async {
+    if (state.isLoading) {
+      return;
+    }
+
+    _search = search?.trim();
+
+    ref.read(loggerProvider).w("Search: $_search");
+
     await reloadGroups();
   }
 
@@ -274,11 +290,11 @@ class GroupsNotifier extends AsyncNotifier<List<Group>> {
     // Okay i think i found the issue, when the user logs out and isUnauthenticated is actually set to true, it doesn't throw the error, but the moment the notifier is built again when isUnauthenticated is false, it throws the old exception from during the logout when it was true
     return authState.when(
       data: (AuthState data) async {
-        if (data.isAuthenticated) {
+        if (data.isAuthenticated || data.isGuest) {
           // await Future.delayed(const Duration(seconds: 1));
           Result<List<Group>> fetchResult = await ref
               .read(groupsServiceProvider)
-              .getAllGroups([GroupsFilter.inProgress]);
+              .getAllGroups(_filters, null);
 
           if (!fetchResult.isSuccess) {
             ref.read(appErrorProvider.notifier).state = fetchResult.error;
@@ -289,7 +305,6 @@ class GroupsNotifier extends AsyncNotifier<List<Group>> {
         } else if (data.isUnauthenticated) {
           return [];
         }
-
         return Completer<List<Group>>().future;
       },
       error: (error, stackTrace) {

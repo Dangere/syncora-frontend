@@ -5,8 +5,11 @@ import 'package:go_router/go_router.dart';
 import 'package:syncora_frontend/common/providers/common_providers.dart';
 import 'package:syncora_frontend/common/themes/app_spacing.dart';
 import 'package:syncora_frontend/common/widgets/app_button.dart';
+import 'package:syncora_frontend/core/localization/generated/l10n/app_localizations.dart';
 import 'package:syncora_frontend/core/tests.dart';
 import 'package:syncora_frontend/core/utils/snack_bar_alerts.dart';
+import 'package:syncora_frontend/features/dashboard/view/widgets/dashboard_searchbar.dart';
+import 'package:syncora_frontend/features/groups/view/popups/group_popups.dart';
 import 'package:syncora_frontend/features/groups/view/widgets/groups_list.dart';
 
 class DashboardPage extends ConsumerStatefulWidget {
@@ -17,11 +20,23 @@ class DashboardPage extends ConsumerStatefulWidget {
 }
 
 class _DashboardPageState extends ConsumerState<DashboardPage> {
+  bool foldProgressCard = false;
   @override
   Widget build(BuildContext context) {
     // We assume that the user is logged in and there's always a user provided if we are on this page
     // User user = ref.read(authNotifierProvider).value!.user!;
     SnackBarAlerts.registerErrorListener(ref, context);
+
+    void createGroupPopup() {
+      GroupPopups.createGroupPopup(context, ref);
+    }
+
+    void shouldFoldProgressCard(bool fold) {
+      ref.read(loggerProvider).d("Should fold progress card: $fold");
+      setState(() {
+        foldProgressCard = fold;
+      });
+    }
 
     ref.read(loggerProvider).d("Building dashboard page");
     return Scaffold(
@@ -137,50 +152,97 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                   ),
                 ),
                 const SizedBox(height: AppSpacing.lg),
-                // GROUPS
-
-                Expanded(
-                  child: Container(
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.surface,
-                        borderRadius: const BorderRadius.only(
-                            topLeft: Radius.circular(40.0),
-                            topRight: Radius.circular(40.0)),
-                      ),
-                      child: Column(
-                        children: [
-                          const SizedBox(height: AppSpacing.lg),
-                          // CREATE GROUP BUTTON
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children: [
-                              AppButton(
-                                  width: 150,
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: AppSpacing.lg),
-                                  // variant: AppButtonVariant.wide,
-                                  onPressed: () {},
-                                  size: AppButtonSize.small,
-                                  style: AppButtonStyle.filled,
-                                  intent: AppButtonIntent.primary,
-                                  fontSize: 16,
-                                  child: const Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Icon(Icons.add),
-                                      Text(
-                                        "Create Group",
-                                      ),
-                                    ],
-                                  )),
-                            ],
+                Padding(
+                  padding: AppSpacing.paddingHorizontalLg,
+                  child: AnimatedSize(
+                    duration: const Duration(milliseconds: 500),
+                    curve: Curves.easeOutCirc,
+                    child: SizedBox(
+                      height: foldProgressCard ? 50 : 182,
+                      child: GestureDetector(
+                        onTap: () => shouldFoldProgressCard(false),
+                        child: Container(
+                          color: Colors.amber,
+                          child: const Center(
+                            child: Icon(Icons.group),
                           ),
-                          const SizedBox(height: AppSpacing.lg),
-                          // GROUPS LIST AND FILTER
-                          const GroupsList(),
-                        ],
-                      )),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: AppSpacing.lg),
+
+                // SEARCH BAR
+                GestureDetector(
+                    onTap: () => shouldFoldProgressCard(true),
+                    child: const DashboardSearchBar()),
+                const SizedBox(height: AppSpacing.md),
+
+                // GROUPS
+                Expanded(
+                  child: GestureDetector(
+                    onTap: () => shouldFoldProgressCard(true),
+                    child: Container(
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).colorScheme.surface,
+                          borderRadius: const BorderRadius.only(
+                              topLeft: Radius.circular(40.0),
+                              topRight: Radius.circular(40.0)),
+                        ),
+                        child: Column(
+                          children: [
+                            const SizedBox(height: AppSpacing.lg),
+                            // TITLE AND CREATE GROUP BUTTON
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                // TITLE
+                                Padding(
+                                  padding: AppSpacing.paddingHorizontalLg,
+                                  child: Text(
+                                    AppLocalizations.of(context)
+                                        .dashboardPage_MyGroups,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .titleSmall!
+                                        .copyWith(
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .onSurfaceVariant,
+                                            fontWeight: FontWeight.bold),
+                                  ),
+                                ),
+                                // CREATE GROUP
+                                AppButton(
+                                    width: 150,
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: AppSpacing.lg),
+                                    // variant: AppButtonVariant.wide,
+                                    onPressed: createGroupPopup,
+                                    size: AppButtonSize.small,
+                                    style: AppButtonStyle.filled,
+                                    intent: AppButtonIntent.primary,
+                                    fontSize: 16,
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Icon(Icons.add),
+                                        Text(
+                                          AppLocalizations.of(context)
+                                              .dashboardPage_CreateGroup,
+                                        ),
+                                      ],
+                                    )),
+                              ],
+                            ),
+                            const SizedBox(height: AppSpacing.lg),
+                            // GROUPS LIST AND FILTER
+                            const GroupsList(),
+                          ],
+                        )),
+                  ),
                 ),
               ],
             ),

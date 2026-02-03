@@ -111,7 +111,23 @@ class AppTheme {
   );
 
   static ThemeData lightTheme() => _theme(_lightColorScheme, false);
-  static ThemeData darkTheme() => _theme(_darkColorScheme, true);
+  static ThemeData darkTheme() => _theme(_darkColorScheme, true).copyWith(
+        searchViewTheme: SearchViewThemeData(
+          headerTextStyle:
+              TextStyle(fontSize: 16, color: _darkColorScheme.onSurface),
+          elevation: 0,
+          side: BorderSide(
+            width: 1,
+            color: _darkColorScheme.primary.withValues(alpha: 1),
+          ),
+          // padding: EdgeInsets.symmetric(horizontal: 24),
+          constraints: const BoxConstraints(maxHeight: 380),
+          dividerColor: _darkColorScheme.scrim.withValues(alpha: 0.0),
+          backgroundColor: _darkColorScheme.surfaceContainer,
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        ),
+      );
 
   static ThemeData _theme(ColorScheme colorScheme, bool isDark) => ThemeData(
       fontFamily: GoogleFonts.lato().fontFamily,
@@ -157,7 +173,34 @@ class AppTheme {
             color: AppGrays.gray900,
             fontWeight: FontWeight.w700,
           )),
-
+      // SEARCH BAR
+      searchViewTheme: SearchViewThemeData(
+        headerTextStyle: TextStyle(fontSize: 16, color: colorScheme.onSurface),
+        elevation: 1,
+        // padding: EdgeInsets.symmetric(horizontal: 24),
+        constraints: const BoxConstraints(maxHeight: 380),
+        dividerColor: colorScheme.scrim.withValues(alpha: 0.0),
+        backgroundColor: colorScheme.surfaceContainer,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      ),
+      searchBarTheme: SearchBarThemeData(
+        hintStyle: WidgetStateProperty.all(
+            TextStyle(color: colorScheme.scrim, fontSize: 14)),
+        side: WidgetStateProperty.all(BorderSide(
+          width: 1,
+          color: colorScheme.scrim.withValues(alpha: 0.2),
+        )),
+        // style
+        padding:
+            WidgetStateProperty.all(const EdgeInsets.symmetric(horizontal: 18)),
+        backgroundColor: WidgetStateProperty.all(colorScheme.surfaceContainer),
+        // overlayColor: WidgetStateProperty.all(colorScheme.error),
+        // surfaceTintColor: WidgetStateProperty.all(colorScheme.error),
+        elevation: WidgetStateProperty.all(0),
+        shape: WidgetStateProperty.all(RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        )),
+      ),
       // INPUT DECORATION
       inputDecorationTheme: InputDecorationTheme(
           floatingLabelBehavior: FloatingLabelBehavior.never,

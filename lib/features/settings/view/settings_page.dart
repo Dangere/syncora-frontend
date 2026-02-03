@@ -32,10 +32,11 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     SnackBarAlerts.registerErrorListener(ref, context);
 
     Locale currentLocale = ref.watch(localeNotifierProvider);
-    // bool isDarkMode = ref.watch(themeModeProvider);
+    // bool isDarkMode = ref.watch(themeModeProvider);7
 
     bool isDarkMode = ref.watch(themeModeProvider) == ThemeMode.dark;
 
+    // TODO: Language card gets grayed out when held unlike other buttons
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(

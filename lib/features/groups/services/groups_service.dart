@@ -35,11 +35,12 @@ class GroupsService {
         _isOnline = isOnline,
         _enqueueEntry = enqueueEntry;
 
-  Future<Result<List<Group>>> getAllGroups(List<GroupsFilter> filters) async {
+  Future<Result<List<Group>>> getAllGroups(
+      List<GroupsFilter> filters, String? search) async {
     try {
       if (_authState.user == null) return Result.failureMessage("User is null");
       List<Group> groups = await _localGroupsRepository.getAllGroups(
-          filters, _authState.user!.id);
+          filters, _authState.user!.id, search);
       return Result.success(groups);
     } catch (e, stackTrace) {
       return Result.failure(e, stackTrace);

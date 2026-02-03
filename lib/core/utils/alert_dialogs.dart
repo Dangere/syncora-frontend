@@ -1,6 +1,5 @@
 import 'dart:ui';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:syncora_frontend/core/typedef.dart';
 
@@ -61,7 +60,7 @@ class AlertDialogs {
     );
   }
 
-  static void showTextFieldDialog(context,
+  static Future showTextFieldDialog(context,
       {required bool barrierDismissible,
       required bool blurBackground,
       required String message,
@@ -74,7 +73,7 @@ class AlertDialogs {
 
     String? invalidationMessage;
 
-    showDialog(
+    return showDialog(
       barrierDismissible: barrierDismissible,
       context: context,
       builder: (context) {

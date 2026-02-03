@@ -14,6 +14,7 @@ import 'package:syncora_frontend/core/network/outbox/repository/outbox_repositor
 import 'package:syncora_frontend/core/network/syncing/sync_viewmodel.dart';
 import 'package:syncora_frontend/core/utils/error_mapper.dart';
 import 'package:syncora_frontend/core/utils/result.dart';
+import 'package:syncora_frontend/features/authentication/viewmodel/auth_viewmodel.dart';
 import 'package:syncora_frontend/features/groups/viewmodel/groups_viewmodel.dart';
 import 'package:syncora_frontend/features/tasks/viewmodel/tasks_providers.dart';
 
@@ -24,7 +25,6 @@ class OutboxNotifier extends AsyncNotifier<OutboxStatus>
 
   // Calls the enqueue method and processes the queue list and updates UI accordingly
   Future<Result<void>> enqueue(EnqueueRequest request) async {
-    state = const AsyncValue.loading();
     Result<void> result =
         await ref.read(outboxServiceProvider).enqueue(request);
 
@@ -34,13 +34,8 @@ class OutboxNotifier extends AsyncNotifier<OutboxStatus>
       return result;
     }
 
-    if (ref.read(connectionProvider) == ConnectionStatus.disconnected) {
-      state = const AsyncValue.data(OutboxStatus.pending);
-      return Result.canceled("Cant process outbox queue when offline");
-    }
-
+    // state = const AsyncValue.data(OutboxStatus.inProcess);
     _processQueue();
-    state = const AsyncValue.data(OutboxStatus.inProcess);
 
     return result;
   }
@@ -51,6 +46,22 @@ class OutboxNotifier extends AsyncNotifier<OutboxStatus>
 
   // TODO: A behavior i noticed is that when processing a list of entries at once, the actions will revert on failing but it wont update the UI or show errors until the entire list is processed, which is a bit confusing for the user,
   Future<Result<void>> _processQueue() async {
+    if (ref.read(connectionProvider) == ConnectionStatus.disconnected) {
+      state = const AsyncValue.data(OutboxStatus.pending);
+      ref
+          .read(loggerProvider)
+          .w("Outbox Queue: Not processing queue when offline!");
+      return Result.canceled("Cant process outbox queue when offline");
+    }
+
+    if (ref.read(isGuestProvider) == true) {
+      state = const AsyncValue.data(OutboxStatus.pending);
+      ref
+          .read(loggerProvider)
+          .w("Outbox Queue: Not processing queue when guest!");
+      return Result.canceled("Cant process outbox queue when guest");
+    }
+
     // If we are trying to process the queue while we are already processing it, we mark it as awaiting
     if (_isProcessing) {
       if (!_isAwaiting) {
@@ -65,7 +76,7 @@ class OutboxNotifier extends AsyncNotifier<OutboxStatus>
     state = const AsyncValue.loading();
 
     // ref.read(loggerProvider).i("Processing Outbox Queue!");
-    Result<void> response = await ref.read(outboxServiceProvider).processQueue(
+    Result<void> result = await ref.read(outboxServiceProvider).processQueue(
       onFail: (error) {
         ref.read(appErrorProvider.notifier).state = ErrorMapper.map(error);
       },
@@ -82,17 +93,17 @@ class OutboxNotifier extends AsyncNotifier<OutboxStatus>
       },
     );
 
-    if (!response.isSuccess && !response.isCancelled) {
-      ref.read(appErrorProvider.notifier).state = response.error;
-      state = AsyncValue.error(response.error!.message,
-          response.error!.stackTrace ?? StackTrace.current);
-    } else if (response.isCancelled) {
+    if (!result.isSuccess && !result.isCancelled) {
+      ref.read(appErrorProvider.notifier).state = result.error;
+      state = AsyncValue.error(result.error!.message,
+          result.error!.stackTrace ?? StackTrace.current);
+    } else if (result.isCancelled) {
       state = const AsyncValue.data(OutboxStatus.pending);
     }
 
     // ref.read(loggerProvider).i("Done processing Outbox Queue!");
 
-    if (response.isSuccess) {
+    if (result.isSuccess) {
       state = const AsyncValue.data(OutboxStatus.complete);
     }
 
@@ -104,7 +115,7 @@ class OutboxNotifier extends AsyncNotifier<OutboxStatus>
           "Outbox Queue: second pass was required, proceeding with second pass!");
       _processQueue();
     }
-    return response;
+    return result;
   }
 
   void _onDispose() {

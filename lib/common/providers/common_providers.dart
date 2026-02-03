@@ -82,6 +82,22 @@ final localDbProvider = Provider<DatabaseManager>((ref) {
   return DatabaseManager();
 });
 
+class SearchBarSuggestionsNotifier extends Notifier<List<String>> {
+  void addSuggestion(String suggestion) {
+    state.remove(suggestion);
+    state = [suggestion, ...state];
+  }
+
+  @override
+  List<String> build() {
+    return [];
+  }
+}
+
+final searchBarSuggestionsProvider =
+    NotifierProvider<SearchBarSuggestionsNotifier, List<String>>(
+        SearchBarSuggestionsNotifier.new);
+
 // final localDbProvider = Provider<DatabaseManager>((ref) {
 //   bool isGuest = ref.watch(isGuestProvider);
 //   ref.read(loggerProvider).w(isGuest);

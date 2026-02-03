@@ -61,6 +61,24 @@ class AppLocalizationsEn extends AppLocalizations {
   String get logout => 'Logout';
 
   @override
+  String get filter_Completed => 'Completed';
+
+  @override
+  String get filter_InProgress => 'In Progress';
+
+  @override
+  String get filter_Owned => 'Owned';
+
+  @override
+  String get filter_Shared => 'Shared';
+
+  @override
+  String get filter_Newest => 'Newest';
+
+  @override
+  String get filter_Oldest => 'Oldest';
+
+  @override
   String get signInPage_Title => 'Sign In Your Account';
 
   @override
@@ -129,4 +147,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsPage_ChangeMyPassword => 'Change My Password';
+
+  @override
+  String get dashboardPage_MyGroups => 'My Groups';
+
+  @override
+  String get dashboardPage_CreateGroup => 'Create Group';
+
+  @override
+  String get dashboardPage_SearchGroups => 'Search for a group';
 }

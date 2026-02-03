@@ -181,4 +181,39 @@ class GroupPopups {
         },
         validation: (p0) => null);
   }
+
+  static void createGroupPopup(BuildContext context, WidgetRef ref) async {
+    String? title;
+    String? description;
+
+    // TITLE POPUP
+    await AlertDialogs.showTextFieldDialog(context,
+        barrierDismissible: true,
+        blurBackground: false,
+        message: "New Group title",
+        onContinue: (p0) {
+          title = p0;
+        },
+        validation: (p0) =>
+            Validators.validateGroupTitle(p0) ? null : "Invalid title");
+
+    if (title != null && context.mounted) {
+      await AlertDialogs.showTextFieldDialog(context,
+          barrierDismissible: true,
+          blurBackground: false,
+          message: "New Group description",
+          onContinue: (p0) {
+            description = p0;
+          },
+          validation: (p0) => Validators.validateGroupDescription(p0)
+              ? null
+              : "Invalid description");
+    }
+
+    if (title != null && description != null) {
+      ref
+          .read(groupsNotifierProvider.notifier)
+          .createGroup(title: title!, description: description!);
+    }
+  }
 }
