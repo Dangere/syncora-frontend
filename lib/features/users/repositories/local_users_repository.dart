@@ -67,4 +67,14 @@ class LocalUsersRepository {
     await db.rawQuery(
         "DELETE FROM ${DatabaseTables.users} WHERE isMainUser = 0 AND id NOT IN (SELECT userId FROM ${DatabaseTables.groupsMembers}) AND id NOT IN (SELECT ownerUserId FROM ${DatabaseTables.groups});");
   }
+
+  Future<String?> userProfileUrl(int userId) async {
+    final db = await _databaseManager.getDatabase();
+
+    Map<String, Object?>? query = (await db.rawQuery(
+            "SELECT profilePictureURL FROM ${DatabaseTables.users} WHERE id = $userId"))
+        .firstOrNull;
+    String? url = query?["profilePictureURL"] as String?;
+    return url;
+  }
 }

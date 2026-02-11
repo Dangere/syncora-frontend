@@ -31,7 +31,6 @@ class ConnectionNotifier extends Notifier<ConnectionStatus> {
           case InternetConnectionStatus.slow:
             state = ConnectionStatus.slow;
             break;
-          default:
         }
       },
     );
@@ -39,6 +38,7 @@ class ConnectionNotifier extends Notifier<ConnectionStatus> {
   }
 }
 
+// TODO: Randomly says disconnected dispite the emulator being connected to the internet
 final connectionProvider =
     NotifierProvider<ConnectionNotifier, ConnectionStatus>(
         ConnectionNotifier.new);

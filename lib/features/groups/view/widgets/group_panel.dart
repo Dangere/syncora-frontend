@@ -1,67 +1,105 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:logger/web.dart';
+import 'package:syncora_frontend/common/providers/common_providers.dart';
 import 'package:syncora_frontend/common/themes/app_sizes.dart';
 import 'package:syncora_frontend/common/themes/app_theme.dart';
 import 'package:syncora_frontend/core/localization/generated/l10n/app_localizations.dart';
 import 'package:syncora_frontend/features/groups/models/group.dart';
+import 'package:syncora_frontend/features/users/viewmodel/users_providers.dart';
 
 class GroupPanel extends StatelessWidget {
   final Group group;
   final double memberIconsSpacing = 15;
   final double memberIconsRadius = 13;
 
-  // TODO: Use this to display icons instead
-
   const GroupPanel({super.key, required this.group});
 
   @override
   Widget build(BuildContext context) {
-    // Members + owner
+    // Logger().w("Building group panel for group ${group.id}");
+    Widget profilePicture(WidgetRef ref, int id) {
+      return FutureBuilder(
+        future: ref.read(usersServiceProvider).getUserProfilePicture(id),
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            if (snapshot.data!.isSuccess) {
+              // if we have no image
+              if (snapshot.data!.data == null) {
+                return const Icon(
+                  Icons.person,
+                );
+              }
+              // if we have an image
+              return Image.memory(snapshot.data!.data!);
+            } else {
+              // if we have an error
+              ref.read(loggerProvider).e(snapshot.data!.error!.message);
+              ref.read(loggerProvider).e(snapshot.data!.error!.stackTrace);
+
+              return const Icon(
+                Icons.error,
+              );
+            }
+          } else {
+            // if we are still loading
+            return const CircularProgressIndicator();
+          }
+        },
+      );
+    }
+
+    // Members, and owner if less than 3
     Widget membersDisplay() {
-      int membersCount = group.groupMembersIds.length + 1;
+      // Displayed members, is only between 1 and 3
+      List<int> displayedMembers = group.groupMembersIds.sublist(0,
+          group.groupMembersIds.length > 3 ? 3 : group.groupMembersIds.length);
+      if (displayedMembers.length < 3) {
+        displayedMembers.add(group.ownerUserId);
+        displayedMembers = displayedMembers.reversed.toList();
+      }
       bool flipMembers = Directionality.of(context) == TextDirection.rtl;
       return Row(
         children: [
-          Stack(
-            textDirection: TextDirection.ltr,
-            clipBehavior: Clip.none,
-            children: [
-              if (membersCount > 2)
-                Positioned(
-                  right: memberIconsSpacing * 2 * (flipMembers ? -1 : 1),
-                  child: CircleAvatar(
+          Consumer(builder: (context, ref, child) {
+            return Stack(
+              textDirection: TextDirection.ltr,
+              clipBehavior: Clip.none,
+              children: [
+                if (displayedMembers.length > 2)
+                  Positioned(
+                    right: memberIconsSpacing * 2 * (flipMembers ? -1 : 1),
+                    child: CircleAvatar(
                       backgroundColor:
                           Random().nextBool() ? Colors.cyan : Colors.yellow,
                       radius: memberIconsRadius,
-                      child: const Icon(
-                        Icons.person,
-                      )),
-                ),
-              if (membersCount > 1)
-                Positioned(
-                  right: memberIconsSpacing * (flipMembers ? -1 : 1),
-                  child: CircleAvatar(
-                    backgroundColor:
-                        Random().nextBool() ? Colors.red : Colors.green,
-                    radius: memberIconsRadius,
-                    child: const Icon(
-                      Icons.person,
+                      child: profilePicture(ref, displayedMembers[2]),
                     ),
                   ),
-                ),
-              CircleAvatar(
+                if (displayedMembers.length > 1)
+                  Positioned(
+                    right: memberIconsSpacing * (flipMembers ? -1 : 1),
+                    child: CircleAvatar(
+                      backgroundColor:
+                          Random().nextBool() ? Colors.red : Colors.green,
+                      radius: memberIconsRadius,
+                      child: profilePicture(ref, displayedMembers[1]),
+                    ),
+                  ),
+                CircleAvatar(
                   radius: memberIconsRadius,
-                  child: const Icon(
-                    Icons.person,
-                  )),
-            ],
-          ),
+                  child: profilePicture(ref, displayedMembers[0]),
+                ),
+              ],
+            );
+          }),
 
           // Text if members over 3
-          if (membersCount > 3)
+          if (displayedMembers.length > 3)
             Text(
-              " +${membersCount - 3}",
+              " +${group.groupMembersIds.length - 2}",
               style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                     color: Theme.of(context).colorScheme.scrim,
                   ),
@@ -95,6 +133,8 @@ class GroupPanel extends StatelessWidget {
               style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                   height: 1.2,
                   color: Theme.of(context).colorScheme.outlineVariant),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
             ),
             Expanded(child: Container()),
             Row(

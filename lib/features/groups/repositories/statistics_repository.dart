@@ -37,7 +37,7 @@ class StatisticsRepository {
         )) AS completed
         '''
         : "";
-
+    //
     final query = '''
     SELECT COUNT(*) as count
     $completedSubQuery
@@ -45,7 +45,7 @@ class StatisticsRepository {
     WHERE g.isDeleted = 0
     $ownershipFilter
     $completedFilter
-  ''';
+    ''';
 
     final result = await db.rawQuery(query);
     return result.first['count'] as int;

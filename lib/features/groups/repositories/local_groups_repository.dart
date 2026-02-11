@@ -66,7 +66,7 @@ class LocalGroupsRepository {
     final String searchQuery =
         search != null ? "AND title LIKE '%$search%'" : "";
 
-    String groupsQuery = '''
+    String query = '''
         SELECT
         id, clientGeneratedId, ownerUserId, title, description, creationDate,
         (SELECT json_group_array(userId) FROM ${DatabaseTables.groupsMembers} WHERE groupId = g.id)
@@ -76,7 +76,7 @@ class LocalGroupsRepository {
         $completedSubQuery 
         FROM ${DatabaseTables.groups} g
         WHERE isDeleted = 0 $ownershipFilter $completedFilter $searchQuery $orderingFilter''';
-    List<Map<String, dynamic>> groups = await db.rawQuery(groupsQuery);
+    List<Map<String, dynamic>> groups = await db.rawQuery(query);
 
     List<Group> groupList =
         groups.map((group) => Group.fromJson(group)).toList();

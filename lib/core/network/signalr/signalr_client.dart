@@ -87,7 +87,7 @@ class SignalRClient {
 
     _logger.f(
         "SignalRClient: fully stopped connection to hub, connection state: ${_connection.state}");
-    _cancelationToken = null;
+    // _cancelationToken = null;
   }
 
   void on(String method, void Function(List<Object?>?) handler) {

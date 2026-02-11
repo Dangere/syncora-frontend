@@ -15,15 +15,20 @@ class GroupsList extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var groups = ref.watch(groupsNotifierProvider);
-    List<Group> groupsList = groups.hasValue ? groups.value! : List.empty();
+    // TODO: This builds 4 times even when not viewed..
+    // it rebuilds 2 times if loading indicator is disabled
+    ref.read(loggerProvider).d("Building groups list");
+    List<Group> groups =
+        ref.watch(groupsNotifierProvider.select((state) => state.value)) ??
+            List.empty();
+    // List<Group> groupsList = groups ? groups.value! : List.empty();
     return Expanded(
       child: Column(
         children: [
           // FILTER
           FilterList<GroupsFilter>(
             multiSelect: true,
-            disable: groups.isLoading,
+            disable: false,
             initialValue: ref.read(groupsNotifierProvider.notifier).filters,
             items: [
               FilterListItem(
@@ -71,17 +76,17 @@ class GroupsList extends ConsumerWidget {
 
           Expanded(
               child: OverlayLoader(
-            isLoading: groups.isLoading,
+            isLoading: false,
             body: ListView.separated(
               padding: const EdgeInsets.symmetric(vertical: AppSpacing.lg / 2),
-              itemCount: groupsList.length,
+              itemCount: groups.length,
               itemBuilder: (context, index) {
                 return GestureDetector(
                   onTap: () {
-                    context.push('/group-view/${groupsList[index].id}');
+                    context.push('/group-view/${groups[index].id}');
                   },
                   child: GroupPanel(
-                    group: groupsList[index],
+                    group: groups[index],
                   ),
                 );
               },

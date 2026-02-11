@@ -134,6 +134,7 @@ class AuthNotifier extends AsyncNotifier<AuthState> {
 
     await ref.read(sessionStorageProvider).clearSession();
     await ref.read(authServiceProvider).googleSignOut();
+    await ref.read(cacheManagerProvider).emptyCache();
     state = const AsyncValue.data(AuthUnauthenticated());
   }
 

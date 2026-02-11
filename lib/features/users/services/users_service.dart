@@ -1,19 +1,41 @@
+import 'dart:typed_data';
+
+import 'package:image_picker/image_picker.dart';
+import 'package:logger/logger.dart';
+import 'package:syncora_frontend/core/image/image_service.dart';
 import 'package:syncora_frontend/core/utils/result.dart';
+import 'package:syncora_frontend/features/authentication/models/auth_state.dart';
 import 'package:syncora_frontend/features/authentication/models/user.dart';
 import 'package:syncora_frontend/features/users/repositories/local_users_repository.dart';
+import 'package:syncora_frontend/features/users/repositories/remote_users_repository.dart';
 
 class UsersService {
   final LocalUsersRepository _localUsersRepository;
+  final RemoteUsersRepository _remoteUsersRepository;
+  final ImageService _imageService;
+  final AuthState _authState;
 
-  UsersService({required localUsersRepository})
-      : _localUsersRepository = localUsersRepository;
+  UsersService(
+      {required LocalUsersRepository localUsersRepository,
+      required RemoteUsersRepository remoteUsersRepository,
+      required ImageService imageService,
+      required AuthState authState})
+      : _localUsersRepository = localUsersRepository,
+        _remoteUsersRepository = remoteUsersRepository,
+        _imageService = imageService,
+        _authState = authState;
 
-  Future<Result<void>> deleteDiscarded() {
-    throw UnimplementedError();
-  }
+  final Map<int, Uint8List?> _userProfilePictures = {};
 
   Future<Result<void>> upsertUsers(List<User> users) async {
     try {
+      // clear profile picture cache when users are updated
+      Logger().f("Upserting users");
+
+      for (var i = 0; i < users.length; i++) {
+        clearProfilePictureCache(users[i].id);
+      }
+
       return Result.success(await _localUsersRepository.upsertUsers(users));
     } catch (e, stackTrace) {
       return Result.failure(e, stackTrace);
@@ -37,6 +59,69 @@ class UsersService {
       return Result.success(users);
     } catch (e, stackTrace) {
       return Result.failure(e, stackTrace);
+    }
+  }
+
+  Future<Result<void>> uploadProfilePicture(ImageSource source) async {
+    if (_authState.user == null || _authState.isGuest) {
+      return Result.failureMessage(
+          "Can't upload profile picture when not logged in");
+    }
+    try {
+      final ImagePicker picker = ImagePicker();
+      XFile? image = await picker.pickImage(source: source);
+      if (image == null) return Result.failureMessage("No image selected");
+      Result<String> result = await _imageService.uploadImage(image);
+
+      if (!result.isSuccess) return result;
+      String imageUrl = result.data!;
+
+      await _remoteUsersRepository.updateUserProfilePicture(imageUrl);
+
+      if (result.isSuccess) {
+        clearProfilePictureCache(_authState.user!.id);
+      }
+
+      return result;
+    } catch (e, stacktrace) {
+      return Result.failure(e, stacktrace);
+    }
+  }
+
+  // Gets the profile picture for the user with the given id using a cache
+  Future<Result<Uint8List?>> getUserProfilePicture(int id) async {
+    try {
+      if (_userProfilePictures.containsKey(id)) {
+        return Result.success(_userProfilePictures[id]);
+      }
+
+      String? imageUrl = await _localUsersRepository.userProfileUrl(id);
+
+      // Logger().i("we got no cache for user $id, loaded Image url: $imageUrl");
+      if (imageUrl == null) {
+        _userProfilePictures[id] = null;
+        // Logger().i("saved null for user $id");
+
+        return Result.success(null);
+      }
+
+      Result<Uint8List> imageResult =
+          await _imageService.getImageFromUrl(imageUrl);
+
+      if (imageResult.isSuccess) {
+        _userProfilePictures[id] = imageResult.data!;
+      }
+
+      return imageResult;
+    } catch (e, stackTrace) {
+      return Result.failure(e, stackTrace);
+    }
+  }
+
+  void clearProfilePictureCache(int id) {
+    Logger().w("Clearing profile picture cache for user $id");
+    if (_userProfilePictures.containsKey(id)) {
+      _userProfilePictures.remove(id);
     }
   }
 }

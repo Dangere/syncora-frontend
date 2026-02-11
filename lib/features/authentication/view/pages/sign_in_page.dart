@@ -213,7 +213,7 @@ class _SignInPageState extends ConsumerState<SignInPage> {
                     // FOOTER
                     TextButton(
                       onPressed: () {
-                        context.replace('/sign-up');
+                        context.replaceNamed('sign-up');
                       },
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,

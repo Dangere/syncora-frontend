@@ -1,16 +1,22 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:syncora_frontend/common/providers/common_providers.dart';
+import 'package:syncora_frontend/common/providers/connection_provider.dart';
 import 'package:syncora_frontend/common/themes/app_spacing.dart';
 import 'package:syncora_frontend/common/widgets/app_button.dart';
+import 'package:syncora_frontend/core/image/image_provider.dart';
 import 'package:syncora_frontend/core/localization/generated/l10n/app_localizations.dart';
 import 'package:syncora_frontend/core/tests.dart';
 import 'package:syncora_frontend/core/utils/snack_bar_alerts.dart';
 import 'package:syncora_frontend/features/dashboard/view/widgets/dashboard_searchbar.dart';
 import 'package:syncora_frontend/features/groups/view/popups/group_popups.dart';
 import 'package:syncora_frontend/features/groups/view/widgets/groups_list.dart';
+import 'package:syncora_frontend/features/users/viewmodel/users_providers.dart';
 
 class DashboardPage extends ConsumerStatefulWidget {
   const DashboardPage({super.key});
@@ -32,18 +38,40 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
     }
 
     void shouldFoldProgressCard(bool fold) {
-      ref.read(loggerProvider).d("Should fold progress card: $fold");
-      setState(() {
-        foldProgressCard = fold;
-      });
+      // setState(() {
+      //   foldProgressCard = fold;
+      // });
     }
 
     ref.read(loggerProvider).d("Building dashboard page");
     return Scaffold(
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Tests.testing_statistics_for_group_count(ref);
-        },
+      floatingActionButton: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          AppButton(
+            width: 80,
+            onPressed: () {
+              Tests.test_profile_picture(ref);
+              // ref.read(loggerProvider).w(ref.read(connectionProvider));
+            },
+            size: AppButtonSize.icon,
+            style: AppButtonStyle.filled,
+            intent: AppButtonIntent.warning,
+            child: const Icon(Icons.picture_as_pdf),
+          ),
+          AppButton(
+            width: 80,
+            onPressed: () {
+              ref
+                  .read(debug_fakeBeingOnlineProvider.notifier)
+                  .update((state) => !state);
+            },
+            size: AppButtonSize.icon,
+            style: AppButtonStyle.filled,
+            intent: AppButtonIntent.warning,
+            child: const Icon(Icons.add),
+          )
+        ],
       ),
       body: Stack(
         children: [
@@ -74,6 +102,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
             child: Column(
               // mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
+                Text(ref.watch(connectionProvider).toString()),
                 // SETTINGS AND PROFILE BUTTONS
                 Padding(
                   padding: AppSpacing.paddingHorizontalLg,
@@ -152,26 +181,26 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                   ),
                 ),
                 const SizedBox(height: AppSpacing.lg),
-                Padding(
-                  padding: AppSpacing.paddingHorizontalLg,
-                  child: AnimatedSize(
-                    duration: const Duration(milliseconds: 500),
-                    curve: Curves.easeOutCirc,
-                    child: SizedBox(
-                      height: foldProgressCard ? 50 : 182,
-                      child: GestureDetector(
-                        onTap: () => shouldFoldProgressCard(false),
-                        child: Container(
-                          color: Colors.amber,
-                          child: const Center(
-                            child: Icon(Icons.group),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: AppSpacing.lg),
+                // Padding(
+                //   padding: AppSpacing.paddingHorizontalLg,
+                //   child: AnimatedSize(
+                //     duration: const Duration(milliseconds: 500),
+                //     curve: Curves.easeOutCirc,
+                //     child: SizedBox(
+                //       height: foldProgressCard ? 50 : 182,
+                //       child: GestureDetector(
+                //         onTap: () => shouldFoldProgressCard(false),
+                //         child: Container(
+                //           color: Colors.amber,
+                //           child: const Center(
+                //             child: Icon(Icons.group),
+                //           ),
+                //         ),
+                //       ),
+                //     ),
+                //   ),
+                // ),
+                // const SizedBox(height: AppSpacing.lg),
 
                 // SEARCH BAR
                 GestureDetector(

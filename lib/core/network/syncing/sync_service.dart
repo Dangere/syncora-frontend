@@ -4,15 +4,21 @@ import 'package:syncora_frontend/core/utils/result.dart';
 import 'package:syncora_frontend/features/groups/repositories/local_groups_repository.dart';
 import 'package:syncora_frontend/features/tasks/repositories/local_tasks_repository.dart';
 import 'package:syncora_frontend/features/users/repositories/local_users_repository.dart';
+import 'package:syncora_frontend/features/users/services/users_service.dart';
 
 class SyncService {
   final SyncRepository _syncRepository;
   final LocalUsersRepository _localUsersRepository;
+  final UsersService _usersService;
   final LocalGroupsRepository _localGroupsRepository;
   final LocalTasksRepository _localTasksRepository;
 
-  SyncService(this._syncRepository, this._localGroupsRepository,
-      this._localTasksRepository, this._localUsersRepository);
+  SyncService(
+      this._syncRepository,
+      this._localGroupsRepository,
+      this._localTasksRepository,
+      this._localUsersRepository,
+      this._usersService);
 
   Future<Result<SyncPayload>> fetchPayload() async {
     try {
@@ -45,10 +51,10 @@ class SyncService {
 
   Future<Result<void>> processPayload(SyncPayload payload) async {
     // Handling added users from payload
-    try {
-      await _localUsersRepository.upsertUsers(payload.users);
-    } catch (e, stackTrace) {
-      return Result.failure(e, stackTrace);
+
+    Result result = await _usersService.upsertUsers(payload.users);
+    if (!result.isSuccess) {
+      return result;
     }
 
     // Handling added groups from payload

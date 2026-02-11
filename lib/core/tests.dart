@@ -2,13 +2,17 @@
 // ignore_for_file: non_constant_identifier_names
 
 import 'dart:convert';
-
+import 'dart:io';
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:logger/logger.dart';
+import 'package:lorem_ipsum/lorem_ipsum.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:syncora_frontend/common/providers/common_providers.dart';
 import 'package:syncora_frontend/core/data/enums/database_tables.dart';
+import 'package:syncora_frontend/core/image/image_provider.dart';
 import 'package:syncora_frontend/core/network/outbox/model/outbox_entry.dart';
 import 'package:syncora_frontend/core/network/outbox/outbox_sorter.dart';
 import 'package:syncora_frontend/core/network/syncing/model/sync_payload.dart';
@@ -16,12 +20,12 @@ import 'package:syncora_frontend/core/utils/alert_dialogs.dart';
 import 'package:syncora_frontend/core/utils/result.dart';
 import 'package:syncora_frontend/features/authentication/models/auth_state.dart';
 import 'package:syncora_frontend/features/authentication/viewmodel/auth_viewmodel.dart';
-import 'package:syncora_frontend/features/groups/models/group.dart';
 import 'package:syncora_frontend/features/groups/models/group_dto.dart';
 import 'package:syncora_frontend/features/groups/repositories/statistics_repository.dart';
 import 'package:syncora_frontend/features/groups/viewmodel/groups_viewmodel.dart';
 import 'package:syncora_frontend/features/tasks/models/task.dart';
 import 'package:syncora_frontend/features/tasks/viewmodel/tasks_providers.dart';
+import 'package:syncora_frontend/features/users/viewmodel/users_providers.dart';
 
 class Tests {
   // 2. Turns out it was because of the mapping from the json to the payload, the backend would return the "completed" property as a bool
@@ -294,6 +298,29 @@ class Tests {
         await statisticsRepository.getGroupsCount([GroupsFilter.inProgress], 1);
 
     Logger().f(result);
+  }
+
+  static void populate_groups(WidgetRef ref, int count) async {
+    // Database db = await ref.read(localDbProvider).getDatabase();
+
+    for (var i = 0; i < count; i++) {
+      String title = loremIpsum(paragraphs: 1, words: Random().nextInt(4) + 1);
+
+      String description =
+          loremIpsum(paragraphs: 1, words: 10 + Random().nextInt(10));
+
+      await ref
+          .read(groupsNotifierProvider.notifier)
+          .createGroup(title: title, description: description);
+    }
+  }
+
+  static void test_profile_picture(WidgetRef ref) async {
+    Result result = await ref
+        .read(usersServiceProvider)
+        .uploadProfilePicture(ImageSource.gallery);
+
+    if (!result.isSuccess) return Logger().e(result.error!.message);
   }
 
   static Future<void> printDb(Database db) async {

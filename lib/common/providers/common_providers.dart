@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:logger/logger.dart';
@@ -19,6 +20,10 @@ final dioProvider = Provider<Dio>((ref) {
       sessionStorage: ref.read(sessionStorageProvider), ref: ref, dio: dio));
 
   return dio;
+});
+
+final cacheManagerProvider = Provider<CacheManager>((ref) {
+  return DefaultCacheManager();
 });
 
 final secureStorageProvider = Provider<FlutterSecureStorage>((ref) {

@@ -14,6 +14,7 @@ import 'package:syncora_frontend/features/groups/repositories/remote_groups_repo
 import 'package:syncora_frontend/features/groups/repositories/statistics_repository.dart';
 import 'package:syncora_frontend/features/groups/services/groups_service.dart';
 import 'package:syncora_frontend/features/tasks/viewmodel/tasks_providers.dart';
+import 'package:syncora_frontend/router.dart';
 
 enum GroupsFilter { inProgress, completed, shared, owned, newest, oldest }
 
@@ -22,6 +23,9 @@ class GroupsNotifier extends AsyncNotifier<List<Group>> {
 
   List<GroupsFilter> _filters = [GroupsFilter.inProgress];
   String? _search;
+
+  // A bool that gets set to true when the groups list needs to be reloaded but the user is not viewing it yet
+  bool waitingToReloadGroupList = false;
 
   Future<void> createGroup(
       {required String title, required String description}) async {
@@ -35,25 +39,25 @@ class GroupsNotifier extends AsyncNotifier<List<Group>> {
       return;
     }
 
-    reloadGroups();
+    _reloadGroupsList();
   }
 
   Future<void> updateGroupDetails(
       String? title, String? description, int groupId) async {
     if (title == null && description == null) return;
 
-    ref.read(loggerProvider).d("Updating group details");
+    ref.read(loggerProvider).d("Groups provider: Updating group details");
     Result<void> updateResult = await ref
         .read(groupsServiceProvider)
         .updateGroupDetails(title, description, groupId);
-    ref.read(loggerProvider).d("Done updating group details");
+    ref.read(loggerProvider).d("Groups provider: Done updating group details");
 
     if (!updateResult.isSuccess) {
       ref.read(appErrorProvider.notifier).state = updateResult.error;
       return;
     }
 
-    reloadGroups();
+    _reloadGroupsList();
     reloadViewedGroup(groupId);
   }
 
@@ -67,7 +71,7 @@ class GroupsNotifier extends AsyncNotifier<List<Group>> {
     }
 
     // These reflect local changes, the groups are onces referenced in the outbox for online changes
-    reloadGroups();
+    _reloadGroupsList();
     reloadViewedGroup(groupId);
   }
 
@@ -197,7 +201,7 @@ class GroupsNotifier extends AsyncNotifier<List<Group>> {
     reloadViewedGroup(groupId);
   }
 
-  Future<void> reloadGroups() async {
+  void _reloadGroupsList() async {
     // Multiple calls to reload groups can happen at the same time (one for local changes and one for remote changes)
     if (state.isLoading) {
       await Future.doWhile(() async {
@@ -205,6 +209,18 @@ class GroupsNotifier extends AsyncNotifier<List<Group>> {
         return state.isLoading;
       });
     }
+    if (waitingToReloadGroupList) return;
+
+    // If we aren't on the home page (not viewing the groups list), we schedule a reload
+    if (ref.read(routeProvider).state.name != "home") {
+      ref.read(loggerProvider).d(
+          "Groups provider: Scheduling a groups list reload on going to home page");
+
+      waitingToReloadGroupList = true;
+      return;
+    }
+
+    ref.read(loggerProvider).d("Groups provider: Reloading groups");
     state = const AsyncValue.loading();
 
     Result<List<Group>> fetchResult =
@@ -224,7 +240,7 @@ class GroupsNotifier extends AsyncNotifier<List<Group>> {
       return;
     }
     _filters = groupFilters;
-    await reloadGroups();
+    _reloadGroupsList();
   }
 
   Future<void> searchGroups(String? search) async {
@@ -234,9 +250,9 @@ class GroupsNotifier extends AsyncNotifier<List<Group>> {
 
     _search = search?.trim();
 
-    ref.read(loggerProvider).w("Search: $_search");
+    ref.read(loggerProvider).w("Groups provider: Searching for $_search");
 
-    await reloadGroups();
+    _reloadGroupsList();
   }
 
   Future<int?> getGroupsCount(List<GroupsFilter> groupFilters) async {
@@ -271,19 +287,32 @@ class GroupsNotifier extends AsyncNotifier<List<Group>> {
   FutureOr<List<Group>> build() async {
     var authState = ref.watch(authNotifierProvider);
 
-    // ref
-    //     .watch(loggerProvider)
-    //     .w("Building groups notifier, authState: $authState");
-
     // Updating the UI on group changes
     ref.listen(syncBackendNotifierProvider, (previous, next) {
-      if (next.hasValue && next.error == null) {
+      // If there is no error and the payload is not null in the next value, then we have a new payload
+      if (next.error == null && !next.isLoading && next.value != null) {
+        // Checking if the payload is empty or still in progress (loading)
         if (!next.value!.isInProgress || next.value!.payload!.isEmpty()) return;
-        reloadGroups();
+        // ref.read(loggerProvider).d("Syncing groups from cloud payload $next");
+        _reloadGroupsList();
         // Updating the UI for current displayed group
         reloadViewedGroups(next.value!.payload!.groupIds().toList());
       }
     });
+
+    // Updating the UI on viewing the groups list in the home page if we had changes
+    ref.read(routeProvider.notifier).dataStream.listen(
+      (event) {
+        if (event == "home" && waitingToReloadGroupList) {
+          waitingToReloadGroupList = false;
+          ref
+              .read(loggerProvider)
+              .d("Groups provider: Reloading groups list on home page");
+
+          _reloadGroupsList();
+        }
+      },
+    );
 
     // There was some weird bug, both the if (data.isAuthenticated) and if(data.isUnauthenticated) would get triggered in the same time? even if isUnauthenticated is false....
 

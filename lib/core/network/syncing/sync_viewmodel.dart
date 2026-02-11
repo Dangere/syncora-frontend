@@ -17,12 +17,12 @@ import 'package:syncora_frontend/features/groups/viewmodel/groups_viewmodel.dart
 import 'package:syncora_frontend/features/tasks/viewmodel/tasks_providers.dart';
 import 'package:syncora_frontend/features/users/viewmodel/users_providers.dart';
 
-// TODO: this needs needs serious refactoring with heavy focus on separation of concerns
+// TODO(DONE): this needs needs serious refactoring with heavy focus on separation of concerns
 class SyncBackendNotifier extends AsyncNotifier<SyncState>
     with WidgetsBindingObserver {
   // When this is enabled, on each time the event payload is received from signalR
   // A fetch call to the state payload will be called to compare both event vs state data, which should be almost the same
-  final bool debugEventPayloadCheck = true;
+  final bool debugEventPayloadCheck = false;
 
   @override
   FutureOr<SyncState> build() async {
@@ -92,10 +92,10 @@ class SyncBackendNotifier extends AsyncNotifier<SyncState>
 
     SyncPayload eventPayload = SyncPayload.fromJson(parameter);
 
+    ref
+        .read(loggerProvider)
+        .d("Sync Notifier: event payload, ${eventPayload.toString()}");
     if (debugEventPayloadCheck) {
-      ref
-          .read(loggerProvider)
-          .d("Sync Notifier: event payload, ${eventPayload.toString()}");
       SyncPayload statePayload =
           (await ref.read(syncServiceProvider).fetchPayload()).data!;
 
@@ -165,7 +165,8 @@ final syncServiceProvider = Provider<SyncService>((ref) {
       ref.watch(syncRepositoryProvider),
       ref.watch(localGroupsRepositoryProvider),
       ref.watch(localTasksRepositoryProvider),
-      ref.watch(localUsersRepositoryProvider));
+      ref.watch(localUsersRepositoryProvider),
+      ref.watch(usersServiceProvider));
 });
 
 final syncRepositoryProvider = Provider<SyncRepository>((ref) {

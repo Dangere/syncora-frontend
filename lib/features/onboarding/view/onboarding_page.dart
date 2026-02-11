@@ -122,7 +122,7 @@ class OnboardingPage extends ConsumerWidget {
                     size: AppButtonSize.large,
                     style: AppButtonStyle.filled,
                     intent: AppButtonIntent.primary,
-                    onPressed: () => context.push('/sign-up'),
+                    onPressed: () => context.pushNamed('sign-up'),
                     child: Text(AppLocalizations.of(context)
                         .onboardingPage_CreateAccount),
                   ),
@@ -142,7 +142,7 @@ class OnboardingPage extends ConsumerWidget {
 
                   TextButton(
                     onPressed: () {
-                      context.push('/sign-in');
+                      context.pushNamed('sign-in');
                     },
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,

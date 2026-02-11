@@ -64,7 +64,6 @@ class ErrorMapper {
       case DioExceptionType.connectionError:
         return "Network error: Unable to reach server. Check your connection.";
       case DioExceptionType.unknown:
-      default:
         return "Unexpected error occurred. Please try again later. ${e}";
     }
   }
