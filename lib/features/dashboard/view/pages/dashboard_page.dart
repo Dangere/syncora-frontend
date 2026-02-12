@@ -1,4 +1,4 @@
-import 'dart:io';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -51,7 +51,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
           AppButton(
             width: 80,
             onPressed: () {
-              Tests.test_profile_picture(ref);
+              Tests.test_profile_picture(ref, context);
               // ref.read(loggerProvider).w(ref.read(connectionProvider));
             },
             size: AppButtonSize.icon,
@@ -77,24 +77,23 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
         children: [
           // BACKGROUND GRAPHIC COLORS
           Positioned.fill(
-            child: SvgPicture.asset(
+            child: Image.asset(
                 width: double.infinity,
                 // height: 371,
                 // fit: BoxFit.fitWidth,
                 alignment: Alignment.topCenter,
                 fit: BoxFit.fitWidth,
-                "assets/images/background_dashboard_effect.svg"),
+                "assets/images/background_dashboard_effect.png"),
           ),
-          // BACKGROUND GRAPHIC
-
+          //BACKGROUND GRAPHIC
           Positioned.fill(
-            child: SvgPicture.asset(
+            child: Image.asset(
                 width: double.infinity,
                 // height: 371,
                 // fit: BoxFit.fitWidth,
                 alignment: Alignment.topCenter,
                 fit: BoxFit.fitWidth,
-                "assets/images/background_dashboard.svg"),
+                "assets/images/background_dashboard.png"),
           ),
 
           Padding(
@@ -210,67 +209,65 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
 
                 // GROUPS
                 Expanded(
-                  child: GestureDetector(
-                    onTap: () => shouldFoldProgressCard(true),
-                    child: Container(
-                        decoration: BoxDecoration(
-                          color: Theme.of(context).colorScheme.surface,
-                          borderRadius: const BorderRadius.only(
-                              topLeft: Radius.circular(40.0),
-                              topRight: Radius.circular(40.0)),
-                        ),
-                        child: Column(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.surface,
+                      borderRadius: const BorderRadius.only(
+                          topLeft: Radius.circular(40.0),
+                          topRight: Radius.circular(40.0)),
+                    ),
+                    child: Column(
+                      children: [
+                        const SizedBox(height: AppSpacing.lg),
+                        // TITLE AND CREATE GROUP BUTTON
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            const SizedBox(height: AppSpacing.lg),
-                            // TITLE AND CREATE GROUP BUTTON
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                // TITLE
-                                Padding(
-                                  padding: AppSpacing.paddingHorizontalLg,
-                                  child: Text(
-                                    AppLocalizations.of(context)
-                                        .dashboardPage_MyGroups,
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .titleSmall!
-                                        .copyWith(
-                                            color: Theme.of(context)
-                                                .colorScheme
-                                                .onSurfaceVariant,
-                                            fontWeight: FontWeight.bold),
-                                  ),
-                                ),
-                                // CREATE GROUP
-                                AppButton(
-                                    width: 150,
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: AppSpacing.lg),
-                                    // variant: AppButtonVariant.wide,
-                                    onPressed: createGroupPopup,
-                                    size: AppButtonSize.small,
-                                    style: AppButtonStyle.filled,
-                                    intent: AppButtonIntent.primary,
-                                    fontSize: 16,
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Icon(Icons.add),
-                                        Text(
-                                          AppLocalizations.of(context)
-                                              .dashboardPage_CreateGroup,
-                                        ),
-                                      ],
-                                    )),
-                              ],
+                            // TITLE
+                            Padding(
+                              padding: AppSpacing.paddingHorizontalLg,
+                              child: Text(
+                                AppLocalizations.of(context)
+                                    .dashboardPage_MyGroups,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .titleSmall!
+                                    .copyWith(
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .onSurfaceVariant,
+                                        fontWeight: FontWeight.bold),
+                              ),
                             ),
-                            const SizedBox(height: AppSpacing.lg),
-                            // GROUPS LIST AND FILTER
-                            const GroupsList(),
+                            // CREATE GROUP
+                            AppButton(
+                                width: 152,
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: AppSpacing.lg),
+                                // variant: AppButtonVariant.wide,
+                                onPressed: createGroupPopup,
+                                size: AppButtonSize.small,
+                                style: AppButtonStyle.filled,
+                                intent: AppButtonIntent.primary,
+                                fontSize: 16,
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Icon(Icons.add),
+                                    Text(
+                                      AppLocalizations.of(context)
+                                          .dashboardPage_CreateGroup,
+                                    ),
+                                  ],
+                                )),
                           ],
-                        )),
+                        ),
+                        const SizedBox(height: AppSpacing.lg),
+                        // GROUPS LIST AND FILTER
+                        const GroupsList(),
+                      ],
+                    ),
                   ),
                 ),
               ],
