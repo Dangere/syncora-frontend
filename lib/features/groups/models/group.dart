@@ -33,14 +33,18 @@ class Group extends Equatable {
     );
   }
 
-  factory Group.fromJson(Map<String, dynamic> json) {
+  factory Group.fromJson(Map<String, dynamic> json, bool json1Supported) {
     final List<int> members = json['members'] == null
         ? const []
-        : List<int>.from(jsonDecode(json['members'] as String));
+        : json1Supported
+            ? List<int>.from(jsonDecode(json['members'] as String))
+            : (json['members'] as String).split(',').map(int.parse).toList();
 
     final List<int> tasks = json['tasks'] == null
         ? const []
-        : List<int>.from(jsonDecode(json['tasks'] as String));
+        : json1Supported
+            ? List<int>.from(jsonDecode(json['tasks'] as String))
+            : (json['tasks'] as String).split(',').map(int.parse).toList();
     return Group(
         id: json["id"],
         title: json["title"],

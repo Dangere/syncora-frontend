@@ -18,6 +18,7 @@ import 'package:syncora_frontend/core/network/outbox/outbox_sorter.dart';
 import 'package:syncora_frontend/core/network/syncing/model/sync_payload.dart';
 import 'package:syncora_frontend/core/utils/alert_dialogs.dart';
 import 'package:syncora_frontend/core/utils/result.dart';
+import 'package:syncora_frontend/core/utils/snack_bar_alerts.dart';
 import 'package:syncora_frontend/features/authentication/models/auth_state.dart';
 import 'package:syncora_frontend/features/authentication/viewmodel/auth_viewmodel.dart';
 import 'package:syncora_frontend/features/groups/models/group_dto.dart';
@@ -315,7 +316,18 @@ class Tests {
     }
   }
 
-  static void test_profile_picture(WidgetRef ref) async {
+  static void test_profile_picture(WidgetRef ref, BuildContext context) async {
+    Result result = await ref
+        .read(usersServiceProvider)
+        .uploadProfilePicture(ImageSource.gallery);
+
+    if (!result.isSuccess)
+      SnackBarAlerts.showErrorSnackBar(result.error!.message, context);
+
+    if (!result.isSuccess) return Logger().e(result.error!.message);
+  }
+
+  static void test_query_json_vs_concat(WidgetRef ref) async {
     Result result = await ref
         .read(usersServiceProvider)
         .uploadProfilePicture(ImageSource.gallery);

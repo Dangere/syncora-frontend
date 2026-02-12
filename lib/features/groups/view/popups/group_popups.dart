@@ -179,7 +179,8 @@ class GroupPopups {
               .read(groupsNotifierProvider.notifier)
               .createTask(groupId: groupId, title: p0, description: null);
         },
-        validation: (p0) => null);
+        validation: (p0) =>
+            Validators.validateGroupTitle(p0) ? null : "Invalid task title");
   }
 
   static void createGroupPopup(BuildContext context, WidgetRef ref) async {

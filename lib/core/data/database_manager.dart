@@ -7,18 +7,36 @@ import 'package:syncora_frontend/core/data/enums/database_tables.dart';
 
 class DatabaseManager {
   Database? _db;
-  bool mutex = false;
+  bool _mutex = false;
   DatabaseManager();
+
+  late bool isJson1Supported;
+
+  Future<String> _getSqliteVersion() async {
+    if (_db == null) await getDatabase();
+
+    List<Map<String, dynamic>> versionResult =
+        await _db!.rawQuery('SELECT sqlite_version() AS version');
+    return versionResult.first["version"] as String;
+  }
+
+  Future<bool> _supportsJSON1Extention() async {
+    String version = await _getSqliteVersion();
+    List<int> versionParts = version.split(".").map(int.parse).toList();
+
+    Logger().d(versionParts);
+    return versionParts[0] >= 3 && versionParts[1] >= 38;
+  }
 
   Future<Database> getDatabase() async {
     if (_db != null && _db!.isOpen) return _db!;
 
-    while (mutex) {
+    while (_mutex) {
       await Future.delayed(const Duration(milliseconds: 100));
       if (_db != null && _db!.isOpen) return _db!;
     }
 
-    mutex = true;
+    _mutex = true;
     String dbFileName = "syncora_database.db";
 
     Logger().d("Creating database and caching it");
@@ -36,20 +54,20 @@ class DatabaseManager {
               await db.execute('PRAGMA foreign_keys = ON');
             },
           ));
-
-      return _db!;
+    } else {
+      final path = join(await getDatabasesPath(), dbFileName);
+      _db = await openDatabase(
+        path,
+        version: 1,
+        onCreate: _onCreate,
+        onConfigure: (db) async {
+          await db.execute('PRAGMA foreign_keys = ON');
+        },
+      );
     }
+    _mutex = false;
 
-    final path = join(await getDatabasesPath(), dbFileName);
-    _db = await openDatabase(
-      path,
-      version: 1,
-      onCreate: _onCreate,
-      onConfigure: (db) async {
-        await db.execute('PRAGMA foreign_keys = ON');
-      },
-    );
-    mutex = false;
+    isJson1Supported = await _supportsJSON1Extention();
     return _db!;
   }
 

@@ -25,7 +25,7 @@ class GroupsNotifier extends AsyncNotifier<List<Group>> {
   String? _search;
 
   // A bool that gets set to true when the groups list needs to be reloaded but the user is not viewing it yet
-  bool waitingToReloadGroupList = false;
+  bool _waitingToReloadGroupList = false;
 
   Future<void> createGroup(
       {required String title, required String description}) async {
@@ -203,20 +203,22 @@ class GroupsNotifier extends AsyncNotifier<List<Group>> {
 
   void _reloadGroupsList() async {
     // Multiple calls to reload groups can happen at the same time (one for local changes and one for remote changes)
+    if (_waitingToReloadGroupList) return;
+
     if (state.isLoading) {
       await Future.doWhile(() async {
+        _waitingToReloadGroupList = true;
         await Future.delayed(const Duration(seconds: 3));
         return state.isLoading;
       });
     }
-    if (waitingToReloadGroupList) return;
 
     // If we aren't on the home page (not viewing the groups list), we schedule a reload
     if (ref.read(routeProvider).state.name != "home") {
       ref.read(loggerProvider).d(
           "Groups provider: Scheduling a groups list reload on going to home page");
 
-      waitingToReloadGroupList = true;
+      _waitingToReloadGroupList = true;
       return;
     }
 
@@ -303,8 +305,8 @@ class GroupsNotifier extends AsyncNotifier<List<Group>> {
     // Updating the UI on viewing the groups list in the home page if we had changes
     ref.read(routeProvider.notifier).dataStream.listen(
       (event) {
-        if (event == "home" && waitingToReloadGroupList) {
-          waitingToReloadGroupList = false;
+        if (event == "home" && _waitingToReloadGroupList) {
+          _waitingToReloadGroupList = false;
           ref
               .read(loggerProvider)
               .d("Groups provider: Reloading groups list on home page");

@@ -28,12 +28,21 @@ class GroupPanel extends StatelessWidget {
             if (snapshot.data!.isSuccess) {
               // if we have no image
               if (snapshot.data!.data == null) {
-                return const Icon(
-                  Icons.person,
+                return CircleAvatar(
+                  radius: memberIconsRadius,
+                  child: const Icon(
+                    Icons.person,
+                  ),
                 );
               }
               // if we have an image
-              return Image.memory(snapshot.data!.data!);
+              return SizedBox.square(
+                dimension: memberIconsRadius * 2,
+                child: Image.memory(
+                  fit: BoxFit.cover,
+                  snapshot.data!.data!,
+                ),
+              );
             } else {
               // if we have an error
               ref.read(loggerProvider).e(snapshot.data!.error!.message);
@@ -71,27 +80,20 @@ class GroupPanel extends StatelessWidget {
                 if (displayedMembers.length > 2)
                   Positioned(
                     right: memberIconsSpacing * 2 * (flipMembers ? -1 : 1),
-                    child: CircleAvatar(
-                      backgroundColor:
-                          Random().nextBool() ? Colors.cyan : Colors.yellow,
-                      radius: memberIconsRadius,
+                    child: ClipOval(
                       child: profilePicture(ref, displayedMembers[2]),
                     ),
                   ),
                 if (displayedMembers.length > 1)
                   Positioned(
                     right: memberIconsSpacing * (flipMembers ? -1 : 1),
-                    child: CircleAvatar(
-                      backgroundColor:
-                          Random().nextBool() ? Colors.red : Colors.green,
-                      radius: memberIconsRadius,
+                    child: ClipOval(
                       child: profilePicture(ref, displayedMembers[1]),
                     ),
                   ),
-                CircleAvatar(
-                  radius: memberIconsRadius,
+                ClipOval(
                   child: profilePicture(ref, displayedMembers[0]),
-                ),
+                )
               ],
             );
           }),

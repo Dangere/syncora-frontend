@@ -1,3 +1,4 @@
+import 'package:logger/logger.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:syncora_frontend/core/data/database_manager.dart';
 import 'package:syncora_frontend/core/data/enums/database_tables.dart';
@@ -27,6 +28,7 @@ class LocalGroupsRepository {
   Future<List<Group>> getAllGroups(
       List<GroupsFilter> filters, int userId, String? search) async {
     final db = await _databaseManager.getDatabase();
+    final bool isJson1Supported = _databaseManager.isJson1Supported;
 
     final String orderingFilter = (filters.contains(GroupsFilter.newest) ||
             filters.contains(GroupsFilter.oldest))
@@ -66,33 +68,47 @@ class LocalGroupsRepository {
     final String searchQuery =
         search != null ? "AND title LIKE '%$search%'" : "";
 
+    final String tasksSubQuery = isJson1Supported
+        ? "(SELECT json_group_array(id) FROM ${DatabaseTables.tasks} WHERE groupId = g.id AND isDeleted = 0)"
+        : "(SELECT GROUP_CONCAT(id) FROM ${DatabaseTables.tasks} WHERE groupId = g.id AND isDeleted = 0)";
+
+    final String membersSubQuery = isJson1Supported
+        ? "(SELECT json_group_array(userId) FROM ${DatabaseTables.groupsMembers} WHERE groupId = g.id)"
+        : "(SELECT GROUP_CONCAT(userId) FROM ${DatabaseTables.groupsMembers} WHERE groupId = g.id)";
+
     String query = '''
         SELECT
         id, clientGeneratedId, ownerUserId, title, description, creationDate,
-        (SELECT json_group_array(userId) FROM ${DatabaseTables.groupsMembers} WHERE groupId = g.id)
-        AS members, 
-        (SELECT json_group_array(id) FROM ${DatabaseTables.tasks} WHERE groupId = g.id AND isDeleted = 0)
-        as tasks 
+        $membersSubQuery AS members, 
+        $tasksSubQuery as tasks 
         $completedSubQuery 
         FROM ${DatabaseTables.groups} g
         WHERE isDeleted = 0 $ownershipFilter $completedFilter $searchQuery $orderingFilter''';
+
     List<Map<String, dynamic>> groups = await db.rawQuery(query);
 
     List<Group> groupList =
-        groups.map((group) => Group.fromJson(group)).toList();
+        groups.map((group) => Group.fromJson(group, isJson1Supported)).toList();
 
     return groupList;
   }
 
   Future<Group> getGroup(int groupId) async {
     final db = await _databaseManager.getDatabase();
+    final bool isJson1Supported = _databaseManager.isJson1Supported;
+
+    final String tasksSubQuery = isJson1Supported
+        ? "(SELECT json_group_array(id) FROM ${DatabaseTables.tasks} WHERE groupId = g.id AND isDeleted = 0)"
+        : "(SELECT GROUP_CONCAT(id) FROM ${DatabaseTables.tasks} WHERE groupId = g.id AND isDeleted = 0)";
+
+    final String membersSubQuery = isJson1Supported
+        ? "(SELECT json_group_array(userId) FROM ${DatabaseTables.groupsMembers} WHERE groupId = g.id)"
+        : "(SELECT GROUP_CONCAT(userId) FROM ${DatabaseTables.groupsMembers} WHERE groupId = g.id)";
 
     List<Map<String, dynamic>> groupRow = await db.rawQuery('''SELECT
         id, clientGeneratedId, ownerUserId, title, description, creationDate, 
-        (SELECT json_group_array(userId) FROM ${DatabaseTables.groupsMembers} WHERE groupId = g.id)
-        AS members, 
-        (SELECT json_group_array(id) FROM ${DatabaseTables.tasks} WHERE groupId = g.id AND isDeleted = 0)
-        as tasks
+        $membersSubQuery AS members, 
+        $tasksSubQuery as tasks
         FROM ${DatabaseTables.groups} g
         WHERE isDeleted = 0 AND id = $groupId''');
 
@@ -100,7 +116,7 @@ class LocalGroupsRepository {
       throw Exception("Group with id $groupId not found");
     }
 
-    Group group = Group.fromJson(groupRow[0]);
+    Group group = Group.fromJson(groupRow[0], isJson1Supported);
 
     return group;
   }
