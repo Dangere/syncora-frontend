@@ -391,6 +391,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Search for a group'**
   String get dashboardPage_SearchGroups;
+
+  /// No description provided for @cropImagePage_Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Crop Image'**
+  String get cropImagePage_Title;
+
+  /// No description provided for @cropImagePage_CropButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Crop'**
+  String get cropImagePage_CropButton;
 }
 
 class _AppLocalizationsDelegate

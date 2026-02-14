@@ -110,5 +110,9 @@
   "dashboardPage_CreateGroup": "Create Group",
   "@dashboardPage_CreateGroup": {},
   "dashboardPage_SearchGroups": "Search for a group",
-  "@dashboardPage_SearchGroups": {}
+  "@dashboardPage_SearchGroups": {},
+  "cropImagePage_Title": "Crop Image",
+  "@cropImagePage_Title": {},
+  "cropImagePage_CropButton": "Crop",
+  "@cropImagePage_CropButton": {}
 }

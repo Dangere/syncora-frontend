@@ -156,4 +156,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get dashboardPage_SearchGroups => 'Search for a group';
+
+  @override
+  String get cropImagePage_Title => 'Crop Image';
+
+  @override
+  String get cropImagePage_CropButton => 'Crop';
 }

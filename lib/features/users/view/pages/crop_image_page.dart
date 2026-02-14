@@ -7,9 +7,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:syncora_frontend/common/themes/app_spacing.dart';
+import 'package:syncora_frontend/common/themes/app_theme.dart';
 import 'package:syncora_frontend/common/widgets/app_button.dart';
 import 'package:syncora_frontend/common/widgets/overlay_loader.dart';
 import 'package:syncora_frontend/core/image/image_provider.dart';
+import 'package:syncora_frontend/core/localization/generated/l10n/app_localizations.dart';
 
 class CropImagePage extends ConsumerStatefulWidget {
   const CropImagePage({super.key, required this.imageFile});
@@ -25,8 +27,15 @@ class _CropImagePageState extends ConsumerState<CropImagePage> {
     aspectRatio: 1,
     // defaultCrop: const Rect.fromLTRB(0.1, 0.1, 0.9, 0.9),
   );
+  bool isLoading = false;
 
   void _crop() async {
+    if (isLoading) return;
+
+    setState(() {
+      isLoading = true;
+    });
+
     ui.Image bitmap = await controller.croppedBitmap();
 
     if (context.mounted) {
@@ -52,7 +61,15 @@ class _CropImagePageState extends ConsumerState<CropImagePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(),
+      appBar: AppBar(
+        centerTitle: true,
+        // shadowColor: Colors.black,
+        // backgroundColor: Theme.of(context).colorScheme.surface,
+        title: Text(
+          AppLocalizations.of(context).cropImagePage_Title,
+          // "Crop Image",
+        ),
+      ),
       extendBodyBehindAppBar: true,
       body: Stack(
         children: [
@@ -80,11 +97,9 @@ class _CropImagePageState extends ConsumerState<CropImagePage> {
               future: loadImage(),
               builder: (context, snapshot) {
                 return OverlayLoader(
-                  isLoading: !snapshot.hasData,
+                  isLoading: !snapshot.hasData || isLoading,
                   body: Padding(
-                    padding: AppSpacing.paddingHorizontalLg +
-                        AppSpacing.paddingVerticalXl +
-                        const EdgeInsets.only(top: 80),
+                    padding: EdgeInsets.only(top: 80),
                     child: !snapshot.hasData
                         ? Center(
                             child: const Icon(Icons.crop_free_sharp),
@@ -94,12 +109,19 @@ class _CropImagePageState extends ConsumerState<CropImagePage> {
                             child: Column(
                               children: [
                                 Expanded(
-                                  flex: 3,
-                                  child: Container(
-                                    // color: Colors.red,
-                                    child: CropImage(
-                                      controller: controller,
-                                      image: Image.memory(snapshot.data!),
+                                  flex: 5,
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                            vertical: 40.0) +
+                                        AppSpacing.paddingHorizontalLg,
+                                    child: Container(
+                                      // color: Colors.red,
+                                      child: IntrinsicHeight(
+                                        child: CropImage(
+                                          controller: controller,
+                                          image: Image.memory(snapshot.data!),
+                                        ),
+                                      ),
                                     ),
                                   ),
                                 ),
@@ -110,31 +132,46 @@ class _CropImagePageState extends ConsumerState<CropImagePage> {
                                 Expanded(
                                   flex: 1,
                                   child: Container(
+                                    decoration: BoxDecoration(
+                                      boxShadow: [
+                                        AppShadow.shadow0(context),
+                                        AppShadow.shadow0(context)
+                                      ],
+                                      color:
+                                          Theme.of(context).colorScheme.surface,
+                                      borderRadius: const BorderRadius.only(
+                                          topLeft: Radius.circular(40.0),
+                                          topRight: Radius.circular(40.0)),
+                                    ),
                                     child: Row(
                                       mainAxisAlignment:
-                                          MainAxisAlignment.spaceAround,
+                                          MainAxisAlignment.spaceEvenly,
                                       children: [
                                         AppButton(
                                             width: 50,
                                             size: AppButtonSize.small,
-                                            style: AppButtonStyle.filled,
-                                            intent: AppButtonIntent.secondary,
+                                            style: AppButtonStyle.dropdown,
                                             onPressed: () =>
                                                 controller.rotateLeft(),
-                                            child: Icon(Icons
-                                                .rotate_90_degrees_ccw_rounded)),
+                                            child: Transform.flip(
+                                              flipX: true,
+                                              child: Icon(Icons
+                                                  .rotate_90_degrees_cw_rounded),
+                                            )),
                                         AppButton(
-                                            width: 100,
-                                            size: AppButtonSize.small,
+                                            width: 120,
+                                            size: AppButtonSize.medium,
                                             style: AppButtonStyle.filled,
                                             intent: AppButtonIntent.primary,
                                             onPressed: _crop,
-                                            child: const Text("Crop")),
+                                            child: Text(
+                                                AppLocalizations.of(context)
+                                                    .confirm)),
                                         AppButton(
                                             width: 50,
                                             size: AppButtonSize.small,
-                                            style: AppButtonStyle.filled,
-                                            intent: AppButtonIntent.secondary,
+                                            style: AppButtonStyle.dropdown,
+                                            // intent: AppButtonIntent.secondary,
                                             onPressed: () =>
                                                 controller.rotateRight(),
                                             child: Icon(Icons
