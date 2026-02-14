@@ -61,6 +61,7 @@ dependencies:
   lorem_ipsum: ^0.0.3
   image_picker: ^1.2.1
   flutter_cache_manager: ^3.4.1
+  crop_image: ^1.0.17
 
 dev_dependencies:
   flutter_test:

@@ -32,6 +32,48 @@ class GroupViewPage extends ConsumerStatefulWidget {
 class _GroupViewPageState extends ConsumerState<GroupViewPage> {
   @override
   Widget build(BuildContext context) {
+    Widget profilePicture(WidgetRef ref, int id) {
+      final double memberIconsRadius = 13;
+
+      return FutureBuilder(
+        future: ref.read(usersServiceProvider).getUserProfilePicture(id),
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            if (snapshot.data!.isSuccess) {
+              // if we have no image
+              if (snapshot.data!.data == null) {
+                return CircleAvatar(
+                  radius: memberIconsRadius,
+                  child: const Icon(
+                    Icons.person,
+                  ),
+                );
+              }
+              // if we have an image
+              return SizedBox.square(
+                dimension: memberIconsRadius * 2,
+                child: Image.memory(
+                  fit: BoxFit.cover,
+                  snapshot.data!.data!,
+                ),
+              );
+            } else {
+              // if we have an error
+              ref.read(loggerProvider).e(snapshot.data!.error!.message);
+              ref.read(loggerProvider).e(snapshot.data!.error!.stackTrace);
+
+              return const Icon(
+                Icons.error,
+              );
+            }
+          } else {
+            // if we are still loading
+            return const CircularProgressIndicator();
+          }
+        },
+      );
+    }
+
     AsyncValue<Group> groupAsync = ref.watch(groupViewProvider(widget.groupId));
 
     SnackBarAlerts.registerErrorListener(ref, context);

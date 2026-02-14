@@ -1,5 +1,5 @@
-import 'package:image_picker/image_picker.dart';
+import 'dart:typed_data';
 
 abstract class ImageRepository {
-  Future<String> uploadImage(XFile image);
+  Future<String> uploadImage(Uint8List imageBytes);
 }

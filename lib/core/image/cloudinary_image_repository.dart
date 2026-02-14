@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:dio/dio.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:syncora_frontend/core/constants/constants.dart';
@@ -12,7 +14,7 @@ class CloudinaryImageRepository implements ImageRepository {
   CloudinaryImageRepository(this._dio);
 
   @override
-  Future<String> uploadImage(XFile image) async {
+  Future<String> uploadImage(Uint8List imageBytes) async {
     // Getting the signature for the upload
     final signatureResponse = await _dio
         .get("${Constants.BASE_API_URL}/users/images/generate-signature")
@@ -25,14 +27,14 @@ class CloudinaryImageRepository implements ImageRepository {
 
     map.addAll({
       'api_key': CLOUDINARY_API_KEY,
-      'file': await MultipartFile.fromFile(image.path, filename: image.name),
+      'file': MultipartFile.fromBytes(imageBytes, filename: 'image'),
     });
     final formData = FormData.fromMap(map);
 
     final uploadResponse = await _dio
         .post("https://api.cloudinary.com/v1_1/dpo5aj891/image/upload",
             data: formData)
-        .timeout(const Duration(seconds: 120));
+        .timeout(const Duration(seconds: 240));
 
     return uploadResponse.data['url'] as String;
   }

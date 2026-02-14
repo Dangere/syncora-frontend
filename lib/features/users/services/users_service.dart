@@ -1,5 +1,7 @@
 import 'dart:typed_data';
 
+import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:logger/logger.dart';
 import 'package:syncora_frontend/core/image/image_service.dart';
@@ -19,6 +21,7 @@ class UsersService {
       {required LocalUsersRepository localUsersRepository,
       required RemoteUsersRepository remoteUsersRepository,
       required ImageService imageService,
+      required ImagePicker picker,
       required AuthState authState})
       : _localUsersRepository = localUsersRepository,
         _remoteUsersRepository = remoteUsersRepository,
@@ -33,7 +36,7 @@ class UsersService {
       Logger().f("Upserting users");
 
       for (var i = 0; i < users.length; i++) {
-        clearProfilePictureCache(users[i].id);
+        _clearProfilePictureCache(users[i].id);
       }
 
       return Result.success(await _localUsersRepository.upsertUsers(users));
@@ -62,27 +65,20 @@ class UsersService {
     }
   }
 
-  Future<Result<void>> uploadProfilePicture(ImageSource source) async {
+  // This requires context to show the crop image page
+  Future<Result<void>> updateProfilePicture(String url) async {
     if (_authState.user == null || _authState.isGuest) {
       return Result.failureMessage(
           "Can't upload profile picture when not logged in");
     }
     try {
-      final ImagePicker picker = ImagePicker();
-      XFile? image = await picker.pickImage(source: source);
-      if (image == null) return Result.failureMessage("No image selected");
-      Result<String> result = await _imageService.uploadImage(image);
+      // Updating the user profile picture using the url
+      await _remoteUsersRepository.updateUserProfilePicture(url);
 
-      if (!result.isSuccess) return result;
-      String imageUrl = result.data!;
+      // Clearing image cache for old profile picture
+      _clearProfilePictureCache(_authState.user!.id);
 
-      await _remoteUsersRepository.updateUserProfilePicture(imageUrl);
-
-      if (result.isSuccess) {
-        clearProfilePictureCache(_authState.user!.id);
-      }
-
-      return result;
+      return Result.success();
     } catch (e, stacktrace) {
       return Result.failure(e, stacktrace);
     }
@@ -118,7 +114,7 @@ class UsersService {
     }
   }
 
-  void clearProfilePictureCache(int id) {
+  void _clearProfilePictureCache(int id) {
     Logger().w("Clearing profile picture cache for user $id");
     if (_userProfilePictures.containsKey(id)) {
       _userProfilePictures.remove(id);

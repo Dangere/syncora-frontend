@@ -20,5 +20,6 @@ final usersServiceProvider = Provider<UsersService>((ref) {
       localUsersRepository: ref.watch(localUsersRepositoryProvider),
       remoteUsersRepository: ref.watch(remoteUsersRepositoryProvider),
       imageService: ref.watch(imageServiceProvider),
+      picker: ref.watch(imagePickerProvider),
       authState: authState);
 });

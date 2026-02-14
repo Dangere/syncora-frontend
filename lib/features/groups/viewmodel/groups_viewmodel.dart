@@ -206,11 +206,12 @@ class GroupsNotifier extends AsyncNotifier<List<Group>> {
     if (_waitingToReloadGroupList) return;
 
     if (state.isLoading) {
+      _waitingToReloadGroupList = true;
       await Future.doWhile(() async {
-        _waitingToReloadGroupList = true;
         await Future.delayed(const Duration(seconds: 3));
         return state.isLoading;
       });
+      _waitingToReloadGroupList = false;
     }
 
     // If we aren't on the home page (not viewing the groups list), we schedule a reload

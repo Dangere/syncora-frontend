@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:logger/logger.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:syncora_frontend/common/interceptors/auth_interceptor.dart';
@@ -24,6 +25,10 @@ final dioProvider = Provider<Dio>((ref) {
 
 final cacheManagerProvider = Provider<CacheManager>((ref) {
   return DefaultCacheManager();
+});
+
+final imagePickerProvider = Provider<ImagePicker>((ref) {
+  return ImagePicker();
 });
 
 final secureStorageProvider = Provider<FlutterSecureStorage>((ref) {

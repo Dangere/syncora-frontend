@@ -4,8 +4,10 @@
 import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:logger/logger.dart';
 import 'package:lorem_ipsum/lorem_ipsum.dart';
@@ -317,22 +319,46 @@ class Tests {
   }
 
   static void test_profile_picture(WidgetRef ref, BuildContext context) async {
-    Result result = await ref
+    Result<XFile?> imagePicked =
+        await ref.read(imageServiceProvider).pickImage(ImageSource.gallery);
+
+    if (!imagePicked.isSuccess || imagePicked.data == null) {
+      return Logger().e(imagePicked.data == null
+          ? "No image picked"
+          : imagePicked.error!.message);
+    }
+    Logger().f("Picked image path: ${imagePicked.data!.path}");
+    if (!context.mounted) return;
+    Uint8List? croppedImageBytes =
+        await context.push<Uint8List>('/crop-image', extra: imagePicked.data!);
+
+    if (croppedImageBytes == null) return Logger().e("No image cropped");
+    Logger().f("Successfully cropped image");
+
+    Result<String> uploadedImageUrl =
+        await ref.read(imageServiceProvider).uploadImage(croppedImageBytes);
+
+    if (!uploadedImageUrl.isSuccess) {
+      return Logger().e(uploadedImageUrl.error!.message);
+    }
+
+    Logger().f("Successfully uploaded image: ${uploadedImageUrl.data}");
+
+    Result updateImageResult = await ref
         .read(usersServiceProvider)
-        .uploadProfilePicture(ImageSource.gallery);
+        .updateProfilePicture(uploadedImageUrl.data!);
 
-    if (!result.isSuccess)
-      SnackBarAlerts.showErrorSnackBar(result.error!.message, context);
-
-    if (!result.isSuccess) return Logger().e(result.error!.message);
-  }
-
-  static void test_query_json_vs_concat(WidgetRef ref) async {
-    Result result = await ref
-        .read(usersServiceProvider)
-        .uploadProfilePicture(ImageSource.gallery);
-
-    if (!result.isSuccess) return Logger().e(result.error!.message);
+    if (context.mounted) {
+      if (!updateImageResult.isSuccess) {
+        SnackBarAlerts.showErrorSnackBar(
+            updateImageResult.error!.message, context);
+      } else {
+        SnackBarAlerts.showSuccessSnackBar("Changed profile picture!", context);
+      }
+    }
+    if (!updateImageResult.isSuccess) {
+      return Logger().e(updateImageResult.error!.message);
+    }
   }
 
   static Future<void> printDb(Database db) async {

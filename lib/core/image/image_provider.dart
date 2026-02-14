@@ -7,7 +7,8 @@ import 'package:syncora_frontend/core/image/image_service.dart';
 final imageServiceProvider = Provider<ImageService>((ref) {
   return ImageService(
       imageRepository: ref.read(imageRepositoryProvider),
-      cacheManager: ref.read(cacheManagerProvider));
+      cacheManager: ref.read(cacheManagerProvider),
+      picker: ref.read(imagePickerProvider));
 });
 
 final imageRepositoryProvider = Provider<ImageRepository>((ref) {
