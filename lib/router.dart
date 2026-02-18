@@ -15,7 +15,8 @@ import 'package:syncora_frontend/features/dashboard/view/pages/dashboard_page.da
 import 'package:syncora_frontend/features/groups/view/page/group_view_page.dart';
 import 'package:syncora_frontend/features/onboarding/view/onboarding_page.dart';
 import 'package:syncora_frontend/features/settings/view/settings_page.dart';
-import 'package:syncora_frontend/features/users/view/pages/crop_image_page.dart';
+import 'package:syncora_frontend/core/image/crop_image_page.dart';
+import 'package:syncora_frontend/features/users/view/pages/profile_view_page.dart';
 
 class MyNavObserver extends NavigatorObserver {
   MyNavObserver({required this.ref, required this.onPush, required this.onPop});
@@ -80,6 +81,16 @@ class RouteNotifier extends Notifier<GoRouter> {
                 path: 'settings',
                 builder: (context, state) {
                   return const SettingsPage();
+                },
+              ),
+              GoRoute(
+                name: 'profile-view',
+                path: 'profile-view/:id',
+                builder: (context, state) {
+                  int userId = int.parse(state.pathParameters['id']!);
+                  return ProfileViewPage(
+                    userId: userId,
+                  );
                 },
               ),
             ]),

@@ -295,7 +295,7 @@ class GroupsNotifier extends AsyncNotifier<List<Group>> {
       // If there is no error and the payload is not null in the next value, then we have a new payload
       if (next.error == null && !next.isLoading && next.value != null) {
         // Checking if the payload is empty or still in progress (loading)
-        if (!next.value!.isInProgress || next.value!.payload!.isEmpty()) return;
+        if (!next.value!.isAvailable || next.value!.payload!.isEmpty()) return;
         // ref.read(loggerProvider).d("Syncing groups from cloud payload $next");
         _reloadGroupsList();
         // Updating the UI for current displayed group

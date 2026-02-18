@@ -10,6 +10,9 @@ class AuthAuthenticated extends AuthState {
   final User user;
   final bool isVerified;
   const AuthAuthenticated(this.user, this.isVerified);
+
+  AuthAuthenticated copyWith({User? user, bool? isVerified}) =>
+      AuthAuthenticated(user ?? this.user, isVerified ?? this.isVerified);
 }
 
 class AuthGuest extends AuthState {

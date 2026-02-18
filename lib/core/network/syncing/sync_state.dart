@@ -8,11 +8,11 @@ class SyncIdle extends SyncState {
   const SyncIdle();
 }
 
-class SyncInProgress extends SyncState {
+class SyncAvailable extends SyncState {
   final SyncPayload payload;
   bool get isEmpty => payload.isEmpty();
 
-  const SyncInProgress(this.payload);
+  const SyncAvailable(this.payload);
 }
 
 class SyncDisconnected extends SyncState {
@@ -21,8 +21,8 @@ class SyncDisconnected extends SyncState {
 
 extension SyncStateX on SyncState {
   bool get isIdle => this is SyncIdle;
-  bool get isInProgress => this is SyncInProgress;
+  bool get isAvailable => this is SyncAvailable;
 
   SyncPayload? get payload =>
-      this is SyncInProgress ? (this as SyncInProgress).payload : null;
+      this is SyncAvailable ? (this as SyncAvailable).payload : null;
 }

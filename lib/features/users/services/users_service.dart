@@ -30,24 +30,24 @@ class UsersService {
 
   final Map<int, Uint8List?> _userProfilePictures = {};
 
-  Future<Result<void>> upsertUsers(List<User> users) async {
+  // Future<Result<void>> upsertUsers(List<User> users) async {
+  //   try {
+  //     // clear profile picture cache when users are updated
+  //     Logger().f("Upserting users");
+
+  //     for (var i = 0; i < users.length; i++) {
+  //       _clearProfilePictureCache(users[i].id);
+  //     }
+
+  //     return Result.success(await _localUsersRepository.upsertUsers(users));
+  //   } catch (e, stackTrace) {
+  //     return Result.failure(e, stackTrace);
+  //   }
+  // }
+
+  Future<Result<User?>> getUser(int id) async {
     try {
-      // clear profile picture cache when users are updated
-      Logger().f("Upserting users");
-
-      for (var i = 0; i < users.length; i++) {
-        _clearProfilePictureCache(users[i].id);
-      }
-
-      return Result.success(await _localUsersRepository.upsertUsers(users));
-    } catch (e, stackTrace) {
-      return Result.failure(e, stackTrace);
-    }
-  }
-
-  Future<Result<User>> getUser(int id) async {
-    try {
-      return Result.success(await _localUsersRepository.getUser(id));
+      return Result.success<User?>(await _localUsersRepository.getUser(id));
     } catch (e, stackTrace) {
       return Result.failure(e, stackTrace);
     }
@@ -57,7 +57,10 @@ class UsersService {
     try {
       List<User> users = List.empty(growable: true);
       for (int id in ids) {
-        users.add(await _localUsersRepository.getUser(id));
+        User? user = await _localUsersRepository.getUser(id);
+        if (user != null) {
+          users.add(user);
+        }
       }
       return Result.success(users);
     } catch (e, stackTrace) {
@@ -76,7 +79,7 @@ class UsersService {
       await _remoteUsersRepository.updateUserProfilePicture(url);
 
       // Clearing image cache for old profile picture
-      _clearProfilePictureCache(_authState.user!.id);
+      clearProfilePictureCache(_authState.user!.id);
 
       return Result.success();
     } catch (e, stacktrace) {
@@ -114,7 +117,7 @@ class UsersService {
     }
   }
 
-  void _clearProfilePictureCache(int id) {
+  void clearProfilePictureCache(int id) {
     Logger().w("Clearing profile picture cache for user $id");
     if (_userProfilePictures.containsKey(id)) {
       _userProfilePictures.remove(id);

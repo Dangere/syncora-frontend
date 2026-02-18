@@ -44,11 +44,22 @@ class AppSpacing {
   /// padding of 48 lp
   static const EdgeInsets paddingVerticalXxl =
       EdgeInsets.symmetric(vertical: xxl);
+
+  /// size of 8 lp
   static const SizedBox horizontalSpaceSm = SizedBox(width: sm);
+
+  /// size of 16 lp
   static const SizedBox horizontalSpaceMd = SizedBox(width: md);
+
+  /// size of 24 lp
   static const SizedBox horizontalSpaceLg = SizedBox(width: lg);
 
+  /// size of 8 lp
   static const SizedBox verticalSpaceSm = SizedBox(height: sm);
+
+  /// size of 16 lp
   static const SizedBox verticalSpaceMd = SizedBox(height: md);
+
+  /// size of 24 lp
   static const SizedBox verticalSpaceLg = SizedBox(height: lg);
 }

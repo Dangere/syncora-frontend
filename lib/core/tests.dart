@@ -22,6 +22,7 @@ import 'package:syncora_frontend/core/utils/alert_dialogs.dart';
 import 'package:syncora_frontend/core/utils/result.dart';
 import 'package:syncora_frontend/core/utils/snack_bar_alerts.dart';
 import 'package:syncora_frontend/features/authentication/models/auth_state.dart';
+import 'package:syncora_frontend/features/authentication/models/user.dart';
 import 'package:syncora_frontend/features/authentication/viewmodel/auth_viewmodel.dart';
 import 'package:syncora_frontend/features/groups/models/group_dto.dart';
 import 'package:syncora_frontend/features/groups/repositories/statistics_repository.dart';
@@ -359,6 +360,14 @@ class Tests {
     if (!updateImageResult.isSuccess) {
       return Logger().e(updateImageResult.error!.message);
     }
+  }
+
+  static void update_user_object_state(WidgetRef ref) async {
+    User currentUser = ref.read(authNotifierProvider).value!.user!;
+
+    ref.read(authNotifierProvider.notifier).updateUser(currentUser.copyWith(
+        pfpURL:
+            "https://wallpapers-clan.com/wp-content/uploads/2023/06/cool-pfp-03.jpg"));
   }
 
   static Future<void> printDb(Database db) async {

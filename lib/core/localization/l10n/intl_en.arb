@@ -114,5 +114,11 @@
   "cropImagePage_Title": "Crop Image",
   "@cropImagePage_Title": {},
   "cropImagePage_CropButton": "Crop",
-  "@cropImagePage_CropButton": {}
+  "@cropImagePage_CropButton": {},
+  "profileViewPage_Title": "My Profile",
+  "@profileViewPage_Title": {},
+  "profileViewPage_ProfileChange": "Your profile has been updated",
+  "@profileViewPage_ProfileChange": {},
+  "image_NoImagePicked": "No image picked",
+  "@image_NoImagePicked": {}
 }

@@ -51,10 +51,10 @@ class SyncService {
 
   Future<Result<void>> processPayload(SyncPayload payload) async {
     // Handling added users from payload
-
-    Result result = await _usersService.upsertUsers(payload.users);
-    if (!result.isSuccess) {
-      return result;
+    try {
+      await _localUsersRepository.upsertUsers(payload.users);
+    } catch (e, stackTrace) {
+      return Result.failure(e, stackTrace);
     }
 
     // Handling added groups from payload

@@ -9,11 +9,14 @@ import 'package:syncora_frontend/common/providers/common_providers.dart';
 import 'package:syncora_frontend/common/providers/connection_provider.dart';
 import 'package:syncora_frontend/common/themes/app_spacing.dart';
 import 'package:syncora_frontend/common/widgets/app_button.dart';
-import 'package:syncora_frontend/core/image/image_provider.dart';
+import 'package:syncora_frontend/common/widgets/profile_picture.dart';
 import 'package:syncora_frontend/core/localization/generated/l10n/app_localizations.dart';
 import 'package:syncora_frontend/core/tests.dart';
 import 'package:syncora_frontend/core/utils/snack_bar_alerts.dart';
-import 'package:syncora_frontend/features/dashboard/view/widgets/dashboard_searchbar.dart';
+import 'package:syncora_frontend/features/authentication/models/auth_state.dart';
+import 'package:syncora_frontend/features/authentication/models/user.dart';
+import 'package:syncora_frontend/features/authentication/viewmodel/auth_viewmodel.dart';
+import 'package:syncora_frontend/features/dashboard/view/widgets/dashboard_search_bar.dart';
 import 'package:syncora_frontend/features/groups/view/popups/group_popups.dart';
 import 'package:syncora_frontend/features/groups/view/widgets/groups_list.dart';
 import 'package:syncora_frontend/features/users/viewmodel/users_providers.dart';
@@ -30,7 +33,11 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
   @override
   Widget build(BuildContext context) {
     // We assume that the user is logged in and there's always a user provided if we are on this page
-    // User user = ref.read(authNotifierProvider).value!.user!;
+    User user = ref.watch(authNotifierProvider).value!.user!;
+
+    // Warming up the providers
+    ref.read(usersOrchestratorProvider);
+
     SnackBarAlerts.registerErrorListener(ref, context);
 
     void createGroupPopup() {
@@ -163,16 +170,23 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                             SizedBox.square(
                                 dimension: 48,
                                 child: Padding(
-                                  padding: const EdgeInsets.all(2.3),
-                                  child: Container(
-                                      decoration: BoxDecoration(
-                                          color: Theme.of(context)
-                                              .colorScheme
-                                              .primary,
-                                          shape: BoxShape.circle),
-                                      child:
-                                          const Icon(Icons.person, size: 30)),
-                                ))
+                                    padding: const EdgeInsets.all(2.3),
+                                    child: Container(
+                                        decoration: BoxDecoration(
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .primary,
+                                            shape: BoxShape.circle),
+                                        child: IconButton(
+                                            padding: const EdgeInsets.all(0),
+                                            onPressed: () => context.pushNamed(
+                                                    "profile-view",
+                                                    pathParameters: {
+                                                      "id": user.id.toString()
+                                                    }),
+                                            icon: ProfilePicture(
+                                                userId: user.id,
+                                                radius: 48 / 2)))))
                           ],
                         ),
                       ),

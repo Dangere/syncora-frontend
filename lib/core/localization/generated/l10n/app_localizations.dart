@@ -403,6 +403,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Crop'**
   String get cropImagePage_CropButton;
+
+  /// No description provided for @profileViewPage_Title.
+  ///
+  /// In en, this message translates to:
+  /// **'My Profile'**
+  String get profileViewPage_Title;
+
+  /// No description provided for @profileViewPage_ProfileChange.
+  ///
+  /// In en, this message translates to:
+  /// **'Your profile has been updated'**
+  String get profileViewPage_ProfileChange;
+
+  /// No description provided for @image_NoImagePicked.
+  ///
+  /// In en, this message translates to:
+  /// **'No image picked'**
+  String get image_NoImagePicked;
 }
 
 class _AppLocalizationsDelegate

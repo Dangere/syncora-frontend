@@ -29,12 +29,12 @@ class DatabaseManager {
   }
 
   Future<Database> getDatabase() async {
-    if (_db != null && _db!.isOpen) return _db!;
-
     while (_mutex) {
       await Future.delayed(const Duration(milliseconds: 100));
-      if (_db != null && _db!.isOpen) return _db!;
+      // if (_db != null && _db!.isOpen) return _db!;
     }
+
+    if (_db != null && _db!.isOpen) return _db!;
 
     _mutex = true;
     String dbFileName = "syncora_database.db";
@@ -65,9 +65,9 @@ class DatabaseManager {
         },
       );
     }
-    _mutex = false;
-
     isJson1Supported = await _supportsJSON1Extention();
+
+    _mutex = false;
     return _db!;
   }
 
@@ -76,6 +76,8 @@ class DatabaseManager {
       CREATE TABLE ${DatabaseTables.users}  (
         id INTEGER PRIMARY KEY,
         username TEXT UNIQUE NOT NULL,
+        firstName TEXT NOT NULL,
+        lastName TEXT NOT NULL,
         email TEXT UNIQUE NOT NULL,
         profilePictureURL TEXT,
         isMainUser INTEGER NOT NULL DEFAULT 0

@@ -20,6 +20,21 @@ import 'package:syncora_frontend/features/authentication/services/session_storag
 class AuthNotifier extends AsyncNotifier<AuthState> {
   Completer? _refreshTokenCompleter;
 
+  void updateUser(User newData) {
+    if (!state.hasValue &&
+        (!state.value!.isAuthenticated || !state.value!.isGuest)) {
+      return;
+    }
+
+    if (state.asData!.value.isGuest) {
+      state = AsyncValue.data(AuthGuest(newData));
+      return;
+    }
+
+    state = AsyncValue.data(
+        state.asData!.value.asAuthenticated!.copyWith(user: newData));
+  }
+
   void loginUsingGoogle() async {
     if (state.isLoading || _isLoggedIn) return;
 

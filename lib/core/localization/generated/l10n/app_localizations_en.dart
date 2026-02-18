@@ -162,4 +162,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get cropImagePage_CropButton => 'Crop';
+
+  @override
+  String get profileViewPage_Title => 'My Profile';
+
+  @override
+  String get profileViewPage_ProfileChange => 'Your profile has been updated';
+
+  @override
+  String get image_NoImagePicked => 'No image picked';
 }

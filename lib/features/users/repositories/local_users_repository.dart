@@ -51,13 +51,13 @@ class LocalUsersRepository {
     });
   }
 
-  Future<User> getUser(int id) async {
+  Future<User?> getUser(int id) async {
     final db = await _databaseManager.getDatabase();
     Map<String, dynamic> user =
         (await db.query(DatabaseTables.users, where: "id = ?", whereArgs: [id]))
             .single;
 
-    if (user.isEmpty) throw Exception("User with id $id not found");
+    if (user.isEmpty) return null;
     return User.fromJson(user);
   }
 

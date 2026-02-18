@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:syncora_frontend/common/themes/app_sizes.dart';
 import 'package:syncora_frontend/common/widgets/marquee_widget.dart';
+import 'package:syncora_frontend/common/widgets/profile_picture.dart';
 import 'package:syncora_frontend/core/typedef.dart';
 import 'package:syncora_frontend/features/authentication/models/auth_state.dart';
 import 'package:syncora_frontend/features/authentication/models/user.dart';
@@ -64,15 +65,16 @@ class GroupMembers extends StatelessWidget {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: [
-                        SizedBox(
-                          child: CircleAvatar(
-                            radius: 25,
-                            backgroundColor: users[index].userColor(),
-                            child: const Icon(
-                              Icons.person,
-                            ),
-                          ),
-                        ),
+                        ProfilePicture(userId: users[index].id, radius: 25),
+                        // SizedBox(
+                        //   child: CircleAvatar(
+                        //     radius: 25,
+                        //     backgroundColor: users[index].userColor(),
+                        //     child: const Icon(
+                        //       Icons.person,
+                        //     ),
+                        //   ),
+                        // ),
                         MarqueeWidget(
                           child: Text(displayName(users[index]),
                               style: Theme.of(context).textTheme.bodySmall),

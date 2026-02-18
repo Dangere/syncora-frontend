@@ -114,7 +114,7 @@ class SyncBackendNotifier extends AsyncNotifier<SyncState>
       return;
     }
 
-    state = AsyncValue.data(SyncInProgress(eventPayload));
+    state = AsyncValue.data(SyncAvailable(eventPayload));
   }
 
   Future<void> _refreshData() async {
@@ -133,7 +133,7 @@ class SyncBackendNotifier extends AsyncNotifier<SyncState>
       return;
     }
 
-    state = AsyncValue.data(SyncInProgress(result.data!));
+    state = AsyncValue.data(SyncAvailable(result.data!));
   }
 
   void _receiveVerification(List<Object?>? parameters) {
