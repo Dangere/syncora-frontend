@@ -14,7 +14,7 @@ import 'package:lorem_ipsum/lorem_ipsum.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:syncora_frontend/common/providers/common_providers.dart';
 import 'package:syncora_frontend/core/data/enums/database_tables.dart';
-import 'package:syncora_frontend/core/image/image_provider.dart';
+import 'package:syncora_frontend/core/image/image_providers.dart';
 import 'package:syncora_frontend/core/network/outbox/model/outbox_entry.dart';
 import 'package:syncora_frontend/core/network/outbox/outbox_sorter.dart';
 import 'package:syncora_frontend/core/network/syncing/model/sync_payload.dart';

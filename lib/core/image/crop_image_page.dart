@@ -10,7 +10,7 @@ import 'package:syncora_frontend/common/themes/app_spacing.dart';
 import 'package:syncora_frontend/common/themes/app_theme.dart';
 import 'package:syncora_frontend/common/widgets/app_button.dart';
 import 'package:syncora_frontend/common/widgets/overlay_loader.dart';
-import 'package:syncora_frontend/core/image/image_provider.dart';
+import 'package:syncora_frontend/core/image/image_providers.dart';
 import 'package:syncora_frontend/core/localization/generated/l10n/app_localizations.dart';
 
 class CropImagePage extends ConsumerStatefulWidget {
@@ -38,7 +38,7 @@ class _CropImagePageState extends ConsumerState<CropImagePage> {
 
     ui.Image bitmap = await controller.croppedBitmap();
 
-    if (context.mounted) {
+    if (mounted) {
       final byteData = await bitmap.toByteData(
         format: ui.ImageByteFormat.png,
       );
@@ -51,7 +51,7 @@ class _CropImagePageState extends ConsumerState<CropImagePage> {
     Uint8List bytes = await widget.imageFile.readAsBytes();
 
     if (!(await ref.read(imageServiceProvider).isImageValid(bytes))) {
-      if (context.mounted) {
+      if (mounted) {
         context.pop();
       }
     }

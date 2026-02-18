@@ -168,11 +168,16 @@ class _GroupViewPageState extends ConsumerState<GroupViewPage> {
                         GroupPopups.addUserToGroupPopup(context, ref, group.id),
                     members: members,
                     onMemberClick: (id) {
-                      GroupPopups.removeUserFromGroupPopup(
-                          context,
-                          ref,
-                          group.id,
-                          members.firstWhere((e) => e.id == id).username);
+                      if (isOwner) {
+                        GroupPopups.removeUserFromGroupPopup(
+                            context,
+                            ref,
+                            group.id,
+                            members.firstWhere((e) => e.id == id).username);
+                      } else {
+                        context.pushNamed("profile-view",
+                            pathParameters: {"id": id.toString()});
+                      }
                     },
                   ),
                   // Text(group.groupMembersIds.length.toString()),

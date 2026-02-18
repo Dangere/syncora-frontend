@@ -1,7 +1,5 @@
 import 'dart:typed_data';
 
-import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:logger/logger.dart';
 import 'package:syncora_frontend/core/image/image_service.dart';

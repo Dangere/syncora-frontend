@@ -200,6 +200,12 @@ abstract class AppLocalizations {
   /// **'Logout'**
   String get logout;
 
+  /// No description provided for @save.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get save;
+
   /// No description provided for @filter_Completed.
   ///
   /// In en, this message translates to:
@@ -404,11 +410,29 @@ abstract class AppLocalizations {
   /// **'Crop'**
   String get cropImagePage_CropButton;
 
-  /// No description provided for @profileViewPage_Title.
+  /// No description provided for @profileViewPage_TitleMyProfile.
   ///
   /// In en, this message translates to:
   /// **'My Profile'**
-  String get profileViewPage_Title;
+  String get profileViewPage_TitleMyProfile;
+
+  /// No description provided for @profileViewPage_TitleProfile.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile'**
+  String get profileViewPage_TitleProfile;
+
+  /// No description provided for @profileViewPage_MyInfoTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'My Information'**
+  String get profileViewPage_MyInfoTitle;
+
+  /// No description provided for @profileViewPage_InfoTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Information'**
+  String get profileViewPage_InfoTitle;
 
   /// No description provided for @profileViewPage_ProfileChange.
   ///

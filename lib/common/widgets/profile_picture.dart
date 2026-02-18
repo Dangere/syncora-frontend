@@ -15,7 +15,7 @@ class ProfilePicture extends ConsumerWidget {
       child: SizedBox.square(
         dimension: radius * 2,
         child: FutureBuilder(
-          future: ref.watch(userProfileImage(userId).future),
+          future: ref.watch(userProfileImageProvider(userId).future),
           builder: (context, snapshot) {
             if (snapshot.hasError) {
               ref.read(loggerProvider).e(snapshot.error);

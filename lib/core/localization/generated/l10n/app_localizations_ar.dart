@@ -62,6 +62,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get logout => 'تسجيل الخروج';
 
   @override
+  String get save => 'Save';
+
+  @override
   String get filter_Completed => 'Completed';
 
   @override
@@ -165,7 +168,16 @@ class AppLocalizationsAr extends AppLocalizations {
   String get cropImagePage_CropButton => 'Crop';
 
   @override
-  String get profileViewPage_Title => 'My Profile';
+  String get profileViewPage_TitleMyProfile => 'My Profile';
+
+  @override
+  String get profileViewPage_TitleProfile => 'Profile';
+
+  @override
+  String get profileViewPage_MyInfoTitle => 'My Information';
+
+  @override
+  String get profileViewPage_InfoTitle => 'Information';
 
   @override
   String get profileViewPage_ProfileChange => 'Your profile has been updated';

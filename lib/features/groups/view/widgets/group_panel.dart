@@ -77,7 +77,7 @@ class GroupPanel extends StatelessWidget {
         decoration: BoxDecoration(
           boxShadow: [AppShadow.shadow0(context)],
           color: Theme.of(context).colorScheme.surfaceContainer,
-          borderRadius: BorderRadius.circular(AppSizes.borderRadius),
+          borderRadius: BorderRadius.circular(AppSizes.borderRadius0),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
