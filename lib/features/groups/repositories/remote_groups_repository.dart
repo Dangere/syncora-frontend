@@ -7,7 +7,8 @@ class RemoteGroupsRepository {
 
   RemoteGroupsRepository({required Dio dio}) : _dio = dio;
 
-  Future<GroupDTO> createGroup(String title, String? description) async {
+  Future<GroupDTO> createGroup(
+      {required String title, String? description}) async {
     final response = await _dio.post('${Constants.BASE_API_URL}/groups', data: {
       "title": title,
       "description": description
@@ -17,7 +18,7 @@ class RemoteGroupsRepository {
   }
 
   Future<void> updateGroupDetails(
-      String? title, String? description, int groupId) async {
+      {String? title, String? description, required int groupId}) async {
     await _dio.put('${Constants.BASE_API_URL}/groups/$groupId', data: {
       "title": title,
       "description": description

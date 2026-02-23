@@ -28,21 +28,6 @@ class UsersService {
 
   final Map<int, Uint8List?> _userProfilePictures = {};
 
-  // Future<Result<void>> upsertUsers(List<User> users) async {
-  //   try {
-  //     // clear profile picture cache when users are updated
-  //     Logger().f("Upserting users");
-
-  //     for (var i = 0; i < users.length; i++) {
-  //       _clearProfilePictureCache(users[i].id);
-  //     }
-
-  //     return Result.success(await _localUsersRepository.upsertUsers(users));
-  //   } catch (e, stackTrace) {
-  //     return Result.failure(e, stackTrace);
-  //   }
-  // }
-
   Future<Result<User?>> getUser(int id) async {
     try {
       return Result.success<User?>(await _localUsersRepository.getUser(id));
@@ -119,6 +104,17 @@ class UsersService {
     Logger().w("Clearing profile picture cache for user $id");
     if (_userProfilePictures.containsKey(id)) {
       _userProfilePictures.remove(id);
+    }
+  }
+
+  Future<Result<void>> updateProfile(
+      {String? username, String? firstName, String? lastName}) async {
+    try {
+      await _remoteUsersRepository.updateUserProfile(
+          username: username, firstName: firstName, lastName: lastName);
+      return Result.success();
+    } catch (e, stackTrace) {
+      return Result.failure(e, stackTrace);
     }
   }
 }

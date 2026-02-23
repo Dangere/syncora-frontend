@@ -2,6 +2,7 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:syncora_frontend/common/providers/common_providers.dart';
 import 'package:syncora_frontend/common/themes/app_sizes.dart';
 import 'package:syncora_frontend/common/themes/app_spacing.dart';
 import 'package:syncora_frontend/common/themes/app_theme.dart';
@@ -42,7 +43,7 @@ class _ProfileViewPageState extends ConsumerState<ProfileViewPage> {
   final TextEditingController emailController = TextEditingController();
 
   Future _changeProfilePicture() async {
-    if (ref.watch(profilePageNotifierProvider).isLoading) return;
+    if (ref.read(profilePageNotifierProvider).isLoading) return;
 
     String? imageUrl = await ref
         .read(profilePageNotifierProvider.notifier)
@@ -68,38 +69,52 @@ class _ProfileViewPageState extends ConsumerState<ProfileViewPage> {
     if (!isCurrentUser) return;
     setState(() {
       editMode = enabled;
-      if (!editMode && user != null) {
-        _populateFields(user!);
+      if (!editMode) {
+        _resetFields();
       }
     });
   }
 
-  void _populateFields(User user) {
-    user = user;
-    firstNameController.text = user.firstName;
-    lastNameController.text = user.lastName;
-    usernameController.text = user.username;
-    emailController.text = user.email;
+  void _resetFields() {
+    ref.read(loggerProvider).i("Resetting fields");
+    firstNameController.text = user!.firstName;
+    lastNameController.text = user!.lastName;
+    usernameController.text = user!.username;
+    emailController.text = user!.email;
   }
 
   void _onSnapshot(AsyncSnapshot<User?> snapshot) {
+    ref.read(loggerProvider).i("snapshot: ${snapshot.data}");
     if (snapshot.hasError) {
       SnackBarAlerts.showErrorSnackBar(snapshot.error.toString(), context);
     }
 
     if (snapshot.data != null) {
-      _populateFields(snapshot.data!);
+      user = snapshot.data!;
+      _resetFields();
     }
   }
 
   void _saveChanges() async {
     if (!isCurrentUser) return;
     if (_formKey.currentState!.validate()) {
-      // await ref.read(profilePageNotifierProvider.notifier).updateProfile(
-      //     firstName: firstNameController.text,
-      //     lastName: lastNameController.text,
-      //     username: usernameController.text,
-      //     email: emailController.text);
+      // ref.read(loggerProvider).i(user!.firstName ==
+      //     firstNameController.text +
+      //         " " +
+      //         lastNameController.text +
+      //         " " +
+      //         usernameController.text);
+      await ref.read(profilePageNotifierProvider.notifier).updateUserProfile(
+            firstName: user!.firstName == firstNameController.text
+                ? null
+                : firstNameController.text,
+            lastName: user!.lastName == lastNameController.text
+                ? null
+                : lastNameController.text,
+            username: user!.username == usernameController.text
+                ? null
+                : usernameController.text,
+          );
     }
 
     FocusScope.of(context).unfocus();
@@ -128,8 +143,19 @@ class _ProfileViewPageState extends ConsumerState<ProfileViewPage> {
 
     bool isLoading = ref.watch(profilePageNotifierProvider).isLoading;
 
+    Future<User?> userFuture = ref.watch(userProvider(widget.userId).future);
+    ref.read(loggerProvider).f("Building profile view page");
+
     return Scaffold(
       extendBodyBehindAppBar: true,
+      floatingActionButton: IconButton(
+          onPressed: () {
+            for (var i = 0; i < 10; i++) {
+              print("resetting provider");
+              ref.invalidate(userProvider(widget.userId));
+            }
+          },
+          icon: Icon(Icons.restart_alt)),
       appBar: AppBar(
         centerTitle: true,
         title: Text(isCurrentUser
@@ -248,8 +274,7 @@ class _ProfileViewPageState extends ConsumerState<ProfileViewPage> {
                           ),
 
                           FutureBuilder(
-                              future:
-                                  ref.watch(userProvider(widget.userId).future),
+                              future: userFuture,
                               builder: (context, asyncSnapshot) {
                                 _onSnapshot(asyncSnapshot);
 

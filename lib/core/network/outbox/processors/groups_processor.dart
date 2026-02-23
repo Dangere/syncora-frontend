@@ -52,8 +52,8 @@ class GroupsProcessor extends OutboxProcessor {
       case OutboxActionType.create:
         {
           GroupDTO newGroup = await _remoteGroupsRepository.createGroup(
-              entry.payload!.asCreateGroupPayload!.title,
-              entry.payload!.asCreateGroupPayload!.description);
+              title: entry.payload!.asCreateGroupPayload!.title,
+              description: entry.payload!.asCreateGroupPayload!.description);
 
           await _localGroupsRepository.updateGroupId(
               entry.entityId, newGroup.id);
@@ -65,9 +65,9 @@ class GroupsProcessor extends OutboxProcessor {
         {
           Logger().d(entry.payload!.asUpdateGroupPayload!.toJson());
           await _remoteGroupsRepository.updateGroupDetails(
-              entry.payload!.asUpdateGroupPayload!.title,
-              entry.payload!.asUpdateGroupPayload!.description,
-              groupId!);
+              title: entry.payload!.asUpdateGroupPayload!.title,
+              description: entry.payload!.asUpdateGroupPayload!.description,
+              groupId: groupId!);
           return groupId;
         }
       // The delete event

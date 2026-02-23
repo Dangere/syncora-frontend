@@ -4,6 +4,7 @@ import 'dart:typed_data';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:syncora_frontend/common/providers/common_providers.dart';
+import 'package:syncora_frontend/common/providers/connection_provider.dart';
 import 'package:syncora_frontend/core/image/image_providers.dart';
 import 'package:syncora_frontend/core/network/syncing/sync_state.dart';
 import 'package:syncora_frontend/core/network/syncing/sync_viewmodel.dart';
@@ -19,6 +20,11 @@ import 'package:syncora_frontend/features/users/services/users_service.dart';
 final userProvider =
     FutureProvider.autoDispose.family<User?, int>((ref, userId) async {
   Result<User?> result = await ref.read(usersServiceProvider).getUser(userId);
+
+  ref.read(loggerProvider).d("Created user provider for $userId");
+
+  ref.onDispose(() =>
+      ref.read(loggerProvider).d("Auto disposing user provider of $userId"));
 
   if (!result.isSuccess) {
     throw result.error!.errorObject;
@@ -66,13 +72,9 @@ final usersOrchestratorProvider = Provider<void>((ref) {
           ref.read(loggerProvider).f("Invalidating user providers");
           ref.read(usersServiceProvider).clearProfilePictureCache(user.id);
 
-          if (ref.exists(userProfileImageProvider(user.id))) {
-            ref.invalidate(userProfileImageProvider(user.id));
-          }
+          ref.invalidate(userProfileImageProvider(user.id));
 
-          if (ref.exists(userProvider(user.id))) {
-            ref.invalidate(userProvider(user.id));
-          }
+          ref.invalidate(userProvider(user.id));
         }
       }
     },
@@ -80,8 +82,38 @@ final usersOrchestratorProvider = Provider<void>((ref) {
 });
 
 class ProfilePageNotifier extends AsyncNotifier<void> {
+  Future<void> updateUserProfile({
+    String? username,
+    String? firstName,
+    String? lastName,
+  }) async {
+    if (ref.read(connectionProvider) == ConnectionStatus.disconnected) {
+      return;
+    }
+    if (username == null && firstName == null && lastName == null) {
+      ref.read(loggerProvider).w("No changes detected");
+      return;
+    }
+    ;
+
+    state = const AsyncValue.loading();
+    ref.read(loggerProvider).i("Updating user profile");
+
+    Result result = await ref.read(usersServiceProvider).updateProfile(
+        username: username, firstName: firstName, lastName: lastName);
+
+    if (!result.isSuccess) {
+      ref.read(appErrorProvider.notifier).state = result.error;
+    }
+    state = const AsyncValue.data(null);
+  }
+
   Future<String?> changeProfilePicture(
       AsyncFunc<XFile, Uint8List?> afterImageCropped) async {
+    if (ref.read(connectionProvider) == ConnectionStatus.disconnected) {
+      return null;
+    }
+
     state = const AsyncValue.loading();
 
     Result<XFile?> imagePicked =

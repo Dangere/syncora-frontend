@@ -85,16 +85,19 @@ class SyncBackendNotifier extends AsyncNotifier<SyncState>
     return const SyncIdle();
   }
 
+  // TODO: A throttle needs to be implemented
   void _receiveData(Object? parameter) async {
     if (parameter == null || parameter is! Map<String, dynamic>) return;
     if (ref.read(connectionProvider) == ConnectionStatus.disconnected) return;
     if (ref.read(isAuthenticatedProvider) == false) return;
+    state = const AsyncValue.loading();
 
     SyncPayload eventPayload = SyncPayload.fromJson(parameter);
 
     ref
         .read(loggerProvider)
         .d("Sync Notifier: event payload, ${eventPayload.toString()}");
+
     if (debugEventPayloadCheck) {
       SyncPayload statePayload =
           (await ref.read(syncServiceProvider).fetchPayload()).data!;
@@ -103,8 +106,6 @@ class SyncBackendNotifier extends AsyncNotifier<SyncState>
           .read(loggerProvider)
           .d("Sync Notifier: state payload, ${statePayload.toString()}");
     }
-
-    state = const AsyncValue.loading();
 
     Result<void> result =
         await ref.read(syncServiceProvider).processPayload(eventPayload);
