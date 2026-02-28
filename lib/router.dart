@@ -12,6 +12,7 @@ import 'package:syncora_frontend/features/authentication/view/pages/sign_in_page
 import 'package:syncora_frontend/features/authentication/view/pages/sign_up_page.dart';
 import 'package:syncora_frontend/features/authentication/viewmodel/auth_viewmodel.dart';
 import 'package:syncora_frontend/features/dashboard/view/pages/dashboard_page.dart';
+import 'package:syncora_frontend/features/groups/view/page/group_page.dart';
 import 'package:syncora_frontend/features/groups/view/page/group_view_page.dart';
 import 'package:syncora_frontend/features/onboarding/view/onboarding_page.dart';
 import 'package:syncora_frontend/features/settings/view/settings_page.dart';
@@ -125,12 +126,12 @@ class RouteNotifier extends Notifier<GoRouter> {
                   ]),
             ]),
         GoRoute(
-          name: 'group-view',
-          path: '/group-view/:groupId',
+          name: 'group',
+          path: '/group/:groupId',
           builder: (context, state) {
             int groupId = int.parse(state.pathParameters['groupId']!);
 
-            return GroupViewPage(
+            return GroupPage(
               groupId: groupId,
             );
           },

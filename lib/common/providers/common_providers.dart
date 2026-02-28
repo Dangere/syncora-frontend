@@ -12,7 +12,16 @@ import 'package:syncora_frontend/core/utils/app_error.dart';
 import 'package:syncora_frontend/features/authentication/viewmodel/auth_viewmodel.dart';
 
 final loggerProvider = Provider<Logger>((ref) {
-  return Logger();
+  return Logger(
+    printer: PrettyPrinter(
+      methodCount: 0, // Number of method calls to be displayed
+      errorMethodCount: 0, // Number of method calls if stacktrace is provided
+      lineLength: 40, // Width of the output (minimal)
+      colors: true, // Colorful log messages
+      printEmojis: true, // Print an emoji for each log message
+      // noBoxingByDefault: true, // THIS removes the rounded borders/lines
+    ),
+  );
 });
 
 final dioProvider = Provider<Dio>((ref) {
@@ -89,7 +98,7 @@ final appErrorProvider = StateProvider<AppError?>((ref) {
 final localDbProvider = Provider<DatabaseManager>((ref) {
   ref.read(loggerProvider).d("Constructing database manager");
 
-  return DatabaseManager();
+  return DatabaseManager(logger: ref.read(loggerProvider));
 });
 
 class SearchBarSuggestionsNotifier extends Notifier<List<String>> {

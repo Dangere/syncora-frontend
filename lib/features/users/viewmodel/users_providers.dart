@@ -185,6 +185,7 @@ final remoteUsersRepositoryProvider = Provider<RemoteUsersRepository>((ref) {
 final usersServiceProvider = Provider<UsersService>((ref) {
   var authState = ref.watch(authNotifierProvider).asData!.value;
   return UsersService(
+      logger: ref.watch(loggerProvider),
       localUsersRepository: ref.watch(localUsersRepositoryProvider),
       remoteUsersRepository: ref.watch(remoteUsersRepositoryProvider),
       imageService: ref.watch(imageServiceProvider),

@@ -30,7 +30,7 @@ class _DashboardSearchBarState extends ConsumerState<DashboardSearchBar> {
 
   @override
   Widget build(BuildContext context) {
-    Logger().d("DashboardSearchBar build");
+    ref.read(loggerProvider).d("DashboardSearchBar build");
 
     List<String> suggestions = ref.read(searchBarSuggestionsProvider);
     void onSearch(String query) {

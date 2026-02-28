@@ -35,12 +35,6 @@ class _SignInPageState extends ConsumerState<SignInPage> {
   }
 
   @override
-  void initState() {
-    super.initState();
-    ref.read(loggerProvider).d('Sign up page initialized');
-  }
-
-  @override
   Widget build(BuildContext context) {
     final user = ref.watch(authNotifierProvider);
 

@@ -74,6 +74,7 @@ class GroupsList extends ConsumerWidget {
           ),
           const SizedBox(height: AppSpacing.lg / 2),
 
+          // GROUPS
           Expanded(
               child: OverlayLoader(
             isLoading: false,
@@ -83,7 +84,7 @@ class GroupsList extends ConsumerWidget {
               itemBuilder: (context, index) {
                 return GestureDetector(
                   onTap: () {
-                    context.push('/group-view/${groups[index].id}');
+                    context.push('/group/${groups[index].id}');
                   },
                   child: GroupPanel(
                     group: groups[index],

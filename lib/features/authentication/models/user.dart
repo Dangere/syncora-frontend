@@ -40,7 +40,7 @@ class User {
       firstName: "john",
       lastName: "doe",
       email: "",
-      pfpURL: "");
+      pfpURL: null);
 
   Color userColor() {
     ColorHash colorHash = ColorHash(

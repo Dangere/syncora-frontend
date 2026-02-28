@@ -65,6 +65,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get save => 'Save';
 
   @override
+  String get owner => 'Owner';
+
+  @override
   String get filter_Completed => 'Completed';
 
   @override

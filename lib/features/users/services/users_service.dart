@@ -15,13 +15,17 @@ class UsersService {
   final ImageService _imageService;
   final AuthState _authState;
 
+  final Logger _logger;
+
   UsersService(
       {required LocalUsersRepository localUsersRepository,
       required RemoteUsersRepository remoteUsersRepository,
       required ImageService imageService,
       required ImagePicker picker,
-      required AuthState authState})
-      : _localUsersRepository = localUsersRepository,
+      required AuthState authState,
+      required Logger logger})
+      : _logger = logger,
+        _localUsersRepository = localUsersRepository,
         _remoteUsersRepository = remoteUsersRepository,
         _imageService = imageService,
         _authState = authState;
@@ -79,10 +83,10 @@ class UsersService {
 
       String? imageUrl = await _localUsersRepository.userProfileUrl(id);
 
-      // Logger().i("we got no cache for user $id, loaded Image url: $imageUrl");
+      // _logger.i("we got no cache for user $id, loaded Image url: $imageUrl");
       if (imageUrl == null) {
         _userProfilePictures[id] = null;
-        // Logger().i("saved null for user $id");
+        // _logger.i("saved null for user $id");
 
         return Result.success(null);
       }
@@ -101,7 +105,7 @@ class UsersService {
   }
 
   void clearProfilePictureCache(int id) {
-    Logger().w("Clearing profile picture cache for user $id");
+    _logger.w("Clearing profile picture cache for user $id");
     if (_userProfilePictures.containsKey(id)) {
       _userProfilePictures.remove(id);
     }

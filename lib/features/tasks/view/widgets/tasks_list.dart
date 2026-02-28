@@ -1,0 +1,100 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:syncora_frontend/common/providers/common_providers.dart';
+import 'package:syncora_frontend/common/themes/app_spacing.dart';
+import 'package:syncora_frontend/common/widgets/filter_list.dart';
+import 'package:syncora_frontend/common/widgets/overlay_loader.dart';
+import 'package:syncora_frontend/core/localization/generated/l10n/app_localizations.dart';
+import 'package:syncora_frontend/features/groups/viewmodel/groups_viewmodel.dart';
+import 'package:syncora_frontend/features/tasks/models/task.dart';
+import 'package:syncora_frontend/features/tasks/viewmodel/tasks_providers.dart';
+
+// This will update itself when the group notifier updates
+class TasksList extends ConsumerWidget {
+  const TasksList({super.key, required this.groupId});
+
+  final int groupId;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    AsyncValue<List<Task>> tasks = ref.watch(tasksProvider(groupId));
+
+    Widget tasksList = Expanded(
+      child: Column(
+        children: [
+          // FILTER
+          FilterList<TaskFilter>(
+              onTap: (arg) {},
+              multiSelect: true,
+              disable: false,
+              initialValue: [
+                TaskFilter.completed
+              ],
+              items: [
+                FilterListItem(
+                  title: AppLocalizations.of(context).filter_Completed,
+                  value: TaskFilter.completed,
+                  opposites: [TaskFilter.pending],
+                ),
+                FilterListItem(
+                  title: AppLocalizations.of(context).dashboardPage_CreateGroup,
+                  value: TaskFilter.pending,
+                  opposites: [TaskFilter.completed],
+                ),
+                FilterListItem(
+                  title: AppLocalizations.of(context).dashboardPage_CreateGroup,
+                  value: TaskFilter.assigned,
+                  opposites: [],
+                ),
+                FilterListItem(
+                  title: AppLocalizations.of(context).filter_Newest,
+                  value: TaskFilter.newest,
+                  opposites: [TaskFilter.oldest],
+                ),
+                FilterListItem(
+                  title: AppLocalizations.of(context).filter_Oldest,
+                  value: TaskFilter.oldest,
+                  opposites: [TaskFilter.newest],
+                ),
+              ]),
+          const SizedBox(height: AppSpacing.lg / 2),
+
+          // TASKS
+          Expanded(
+            child: ListView.separated(
+              padding: const EdgeInsets.symmetric(vertical: AppSpacing.lg / 2),
+              itemCount: tasks.hasValue ? tasks.value!.length : 0,
+              itemBuilder: (context, index) {
+                return Text(tasks.value![index].title +
+                    "[${tasks.value![index].completedById != null}]");
+              },
+              separatorBuilder: (context, index) {
+                return const SizedBox(
+                  height: 16,
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+
+    return tasks.when(
+      skipLoadingOnRefresh: true,
+      skipLoadingOnReload: true,
+      skipError: true,
+      data: (data) {
+        ref
+            .read(loggerProvider)
+            .d("TasksList: tasks: ${tasks.asData?.value.length}");
+        return tasksList;
+      },
+      error: (error, stackTrace) {
+        return tasksList;
+      },
+      loading: () {
+        return tasksList;
+      },
+    );
+  }
+}

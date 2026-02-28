@@ -18,6 +18,8 @@ import 'package:syncora_frontend/router.dart';
 
 enum GroupsFilter { inProgress, completed, shared, owned, newest, oldest }
 
+enum TaskFilter { pending, completed, assigned, newest, oldest }
+
 class GroupsNotifier extends AsyncNotifier<List<Group>> {
   List<GroupsFilter> get filters => _filters;
 
@@ -256,6 +258,16 @@ class GroupsNotifier extends AsyncNotifier<List<Group>> {
     ref.read(loggerProvider).w("Groups provider: Searching for $_search");
 
     _reloadGroupsList();
+  }
+
+  // Checks if the current user is the owner of the group, uses in-memory cache
+  bool isGroupOwner({required int groupId, required int userId}) {
+    Group? group =
+        state.value?.where((group) => group.id == groupId).firstOrNull;
+    if (group != null) {
+      return group.ownerUserId == userId;
+    }
+    return false;
   }
 
   Future<int?> getGroupsCount(List<GroupsFilter> groupFilters) async {

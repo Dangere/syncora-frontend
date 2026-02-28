@@ -1,15 +1,9 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:logger/web.dart';
-import 'package:syncora_frontend/common/providers/common_providers.dart';
 import 'package:syncora_frontend/common/themes/app_sizes.dart';
 import 'package:syncora_frontend/common/themes/app_theme.dart';
-import 'package:syncora_frontend/common/widgets/profile_picture.dart';
 import 'package:syncora_frontend/core/localization/generated/l10n/app_localizations.dart';
 import 'package:syncora_frontend/features/groups/models/group.dart';
-import 'package:syncora_frontend/features/users/viewmodel/users_providers.dart';
+import 'package:syncora_frontend/features/groups/view/widgets/compressed_members_display.dart';
 
 class GroupPanel extends StatelessWidget {
   final Group group;
@@ -20,55 +14,6 @@ class GroupPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Logger().w("Building group panel for group ${group.id}");
-
-    // Members, and owner if less than 3
-    Widget membersDisplay() {
-      // Displayed members, is only between 1 and 3
-      List<int> displayedMembers = group.groupMembersIds.sublist(0,
-          group.groupMembersIds.length > 3 ? 3 : group.groupMembersIds.length);
-      if (displayedMembers.length < 3) {
-        displayedMembers.add(group.ownerUserId);
-        displayedMembers = displayedMembers.reversed.toList();
-      }
-      bool flipMembers = Directionality.of(context) == TextDirection.rtl;
-      return Row(
-        children: [
-          Consumer(builder: (context, ref, child) {
-            return Stack(
-              textDirection: TextDirection.ltr,
-              clipBehavior: Clip.none,
-              children: [
-                if (displayedMembers.length > 2)
-                  Positioned(
-                    right: memberIconsSpacing * 2 * (flipMembers ? -1 : 1),
-                    child: ProfilePicture(
-                        userId: displayedMembers[2], radius: memberIconsRadius),
-                  ),
-                if (displayedMembers.length > 1)
-                  Positioned(
-                    right: memberIconsSpacing * (flipMembers ? -1 : 1),
-                    child: ProfilePicture(
-                        userId: displayedMembers[1], radius: memberIconsRadius),
-                  ),
-                ProfilePicture(
-                    userId: displayedMembers[0], radius: memberIconsRadius),
-              ],
-            );
-          }),
-
-          // Text if members over 3
-          if (displayedMembers.length > 3)
-            Text(
-              " +${group.groupMembersIds.length - 2}",
-              style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                    color: Theme.of(context).colorScheme.scrim,
-                  ),
-            ),
-        ],
-      );
-    }
-
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24),
       child: Container(
@@ -83,7 +28,7 @@ class GroupPanel extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              "${group.title}",
+              group.title,
               style: Theme.of(context).textTheme.bodyLarge!.copyWith(
                     fontWeight: FontWeight.w700,
                   ),
@@ -124,64 +69,20 @@ class GroupPanel extends StatelessWidget {
                   ],
                 ),
                 // MEMBERS DISPLAY
-                membersDisplay(),
+                Container(
+                  color: Colors.red,
+                  child: CompressedMembersDisplay(
+                    memberIds: group.groupMembersIds,
+                    ownerId: group.ownerUserId,
+                    radius: memberIconsRadius,
+                    spacing: memberIconsSpacing,
+                  ),
+                ),
               ],
             )
           ],
         ),
       ),
     );
-    // return SizedBox(
-    //   height: 100,
-    //   width: 170,
-    //   child: Container(
-    //     decoration: BoxDecoration(
-    //         boxShadow: [
-    //           BoxShadow(
-    //             color: Colors.grey.withOpacity(0.5),
-    //             spreadRadius: 1,
-    //             blurRadius: 2,
-    //             offset: const Offset(1, 2), // changes position of shadow
-    //           ),
-    //         ],
-    //         color: Colors.grey[200],
-    //         borderRadius: BorderRadius.circular(AppSizes.borderRadius)),
-    //     child: Column(
-    //       children: [
-    //         Center(
-    //             child: ConstrainedBox(
-    //                 constraints:
-    //                     const BoxConstraints(maxWidth: 150, maxHeight: 20),
-    //                 child: MarqueeWidget(
-    //                   child: Text(
-    //                     "${group.title} (${group.id})",
-    //                   ),
-    //                 )
-    //                 // child: Text(
-    //                 //   "${group.title} (${group.id})",
-    //                 //   overflow: TextOverflow.fade,
-    //                 // ),
-    //                 )),
-    //         const Divider(),
-    //         // Maybe make it so if theres no members it shows the top tasks briefly
-    //         Expanded(
-    //             child: Wrap(
-    //           clipBehavior: Clip.antiAlias,
-    //           children: List.generate(
-    //               group.groupMembersIds.length > 10
-    //                   ? 10
-    //                   : group.groupMembersIds.length,
-    //               (index) => const Padding(
-    //                     padding: EdgeInsets.all(2.0),
-    //                     child: Icon(
-    //                       Icons.person,
-    //                       size: 28,
-    //                     ),
-    //                   )),
-    //         ))
-    //       ],
-    //     ),
-    //   ),
-    // );
   }
 }

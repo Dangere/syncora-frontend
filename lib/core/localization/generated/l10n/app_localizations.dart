@@ -206,6 +206,12 @@ abstract class AppLocalizations {
   /// **'Save'**
   String get save;
 
+  /// No description provided for @owner.
+  ///
+  /// In en, this message translates to:
+  /// **'Owner'**
+  String get owner;
+
   /// No description provided for @filter_Completed.
   ///
   /// In en, this message translates to:

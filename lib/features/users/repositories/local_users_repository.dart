@@ -75,6 +75,10 @@ class LocalUsersRepository {
             "SELECT profilePictureURL FROM ${DatabaseTables.users} WHERE id = $userId"))
         .firstOrNull;
     String? url = query?["profilePictureURL"] as String?;
-    return url;
+
+    if (url != null && url.isNotEmpty) {
+      return url;
+    }
+    return null;
   }
 }

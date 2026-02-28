@@ -6,9 +6,11 @@ import 'package:sqflite_common_ffi_web/sqflite_ffi_web.dart';
 import 'package:syncora_frontend/core/data/enums/database_tables.dart';
 
 class DatabaseManager {
+  final Logger _logger;
+
   Database? _db;
   bool _mutex = false;
-  DatabaseManager();
+  DatabaseManager({required Logger logger}) : _logger = logger;
 
   late bool isJson1Supported;
 
@@ -24,7 +26,6 @@ class DatabaseManager {
     String version = await _getSqliteVersion();
     List<int> versionParts = version.split(".").map(int.parse).toList();
 
-    Logger().d(versionParts);
     return versionParts[0] >= 3 && versionParts[1] >= 38;
   }
 
@@ -39,7 +40,7 @@ class DatabaseManager {
     _mutex = true;
     String dbFileName = "syncora_database.db";
 
-    Logger().d("Creating database and caching it");
+    _logger.d("Creating database and caching it");
 
     // If we are on the web we need to use a different factory
     if (kIsWeb) {
@@ -158,7 +159,7 @@ class DatabaseManager {
   }
 
   Future<void> ensureDeleted() async {
-    Logger().d("Deleting database");
+    _logger.d("Deleting database");
     String path = await getDatabasesPath();
     await deleteDatabase(join(path, "syncora_database.db"));
     await _db?.close();

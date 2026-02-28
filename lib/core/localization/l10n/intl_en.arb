@@ -49,6 +49,8 @@
   "@logout": {},
   "save": "Save",
   "@save": {},
+  "owner": "Owner",
+  "@owner": {},
   "filter_Completed": "Completed",
   "@filter_Completed": {},
   "filter_InProgress": "In Progress",

@@ -168,32 +168,36 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                                   ),
                                 )),
                             SizedBox.square(
-                                dimension: 48,
-                                child: Padding(
-                                    padding: const EdgeInsets.all(2.3),
-                                    child: Container(
-                                        decoration: BoxDecoration(
-                                            color: Theme.of(context)
-                                                .colorScheme
-                                                .primary,
-                                            shape: BoxShape.circle),
-                                        child: IconButton(
-                                            padding: const EdgeInsets.all(0),
-                                            onPressed: () => context.pushNamed(
-                                                    "profile-view",
-                                                    pathParameters: {
-                                                      "id": user.id.toString()
-                                                    }),
-                                            icon: ProfilePicture(
-                                                userId: user.id,
-                                                radius: 48 / 2)))))
+                              dimension: 48,
+                              child: Padding(
+                                padding: const EdgeInsets.all(2.3),
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                      color:
+                                          Theme.of(context).colorScheme.primary,
+                                      shape: BoxShape.circle),
+                                  child: IconButton(
+                                    padding: const EdgeInsets.all(0),
+                                    onPressed: () => context.pushNamed(
+                                        "profile-view",
+                                        pathParameters: {
+                                          "id": user.id.toString()
+                                        }),
+                                    icon: ProfilePicture(
+                                      userId: user.id,
+                                      radius: 48 / 2,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            )
                           ],
                         ),
                       ),
                     ],
                   ),
                 ),
-                const SizedBox(height: AppSpacing.lg),
+                AppSpacing.verticalSpaceLg,
                 // Padding(
                 //   padding: AppSpacing.paddingHorizontalLg,
                 //   child: AnimatedSize(
@@ -213,7 +217,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                 //     ),
                 //   ),
                 // ),
-                // const SizedBox(height: AppSpacing.lg),
+                // AppSpacing.verticalSpaceLg,
 
                 // SEARCH BAR
                 GestureDetector(
@@ -232,7 +236,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                     ),
                     child: Column(
                       children: [
-                        const SizedBox(height: AppSpacing.lg),
+                        AppSpacing.verticalSpaceLg,
                         // TITLE AND CREATE GROUP BUTTON
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -277,7 +281,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                                 )),
                           ],
                         ),
-                        const SizedBox(height: AppSpacing.lg),
+                        AppSpacing.verticalSpaceLg,
                         // GROUPS LIST AND FILTER
                         const GroupsList(),
                       ],
