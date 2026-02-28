@@ -9,14 +9,14 @@ import 'package:syncora_frontend/common/widgets/overlay_loader.dart';
 import 'package:syncora_frontend/core/localization/generated/l10n/app_localizations.dart';
 import 'package:syncora_frontend/core/utils/alert_dialogs.dart';
 import 'package:syncora_frontend/core/utils/validators.dart';
-import 'package:syncora_frontend/features/authentication/viewmodel/auth_viewmodel.dart';
+import 'package:syncora_frontend/features/authentication/auth_provider.dart';
 
 class OnboardingPage extends ConsumerWidget {
   const OnboardingPage({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final user = ref.watch(authNotifierProvider);
+    final user = ref.watch(authProvider);
     void guestLogin() {
       if (user.isLoading) return;
       AlertDialogs.showTextFieldDialog(context,
@@ -24,7 +24,7 @@ class OnboardingPage extends ConsumerWidget {
           blurBackground: true,
           message: AppLocalizations.of(context).loginPage_guestPopTitle,
           onContinue: (p0) =>
-              {ref.read(authNotifierProvider.notifier).loginAsGuest(p0)},
+              {ref.read(authProvider.notifier).loginAsGuest(p0)},
           validation: (p0) {
             if (p0.isEmpty) {
               return AppLocalizations.of(context).loginPage_guestPopError_empty;

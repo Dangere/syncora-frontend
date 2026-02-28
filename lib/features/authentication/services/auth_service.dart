@@ -9,7 +9,7 @@ import 'package:syncora_frontend/core/utils/result.dart';
 import 'package:syncora_frontend/features/authentication/models/auth_response_dto.dart';
 import 'package:syncora_frontend/features/authentication/models/google_register_user_info.dart';
 import 'package:syncora_frontend/features/authentication/models/tokens_dto.dart';
-import 'package:syncora_frontend/features/authentication/repositories/auth_repository.dart';
+import 'package:syncora_frontend/features/authentication/auth_repository.dart';
 
 class AuthService {
   final AuthRepository _authRepository;

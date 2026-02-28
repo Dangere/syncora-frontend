@@ -8,11 +8,11 @@ import 'package:syncora_frontend/common/providers/connection_provider.dart';
 import 'package:syncora_frontend/common/themes/app_sizes.dart';
 import 'package:syncora_frontend/common/widgets/outbox_icon.dart';
 import 'package:syncora_frontend/common/widgets/syncing_icon.dart';
-import 'package:syncora_frontend/core/network/syncing/sync_viewmodel.dart';
+import 'package:syncora_frontend/core/network/syncing/sync_provider.dart';
 import 'package:syncora_frontend/core/tests.dart';
 import 'package:syncora_frontend/core/utils/snack_bar_alerts.dart';
 import 'package:syncora_frontend/features/authentication/models/auth_state.dart';
-import 'package:syncora_frontend/features/authentication/viewmodel/auth_viewmodel.dart';
+import 'package:syncora_frontend/features/authentication/auth_provider.dart';
 import 'package:syncora_frontend/features/groups/view/widgets/groups_list.dart';
 import 'package:syncora_frontend/features/home/view/widgets/verify_email_panel.dart';
 
@@ -28,13 +28,13 @@ class HomePage extends ConsumerStatefulWidget {
 class _HomeScreenState extends ConsumerState<HomePage> {
   @override
   Widget build(BuildContext context) {
-    final authState = ref.watch(authNotifierProvider);
+    final authState = ref.watch(authProvider);
     final connection = ref.watch(connectionProvider);
 
     SnackBarAlerts.registerErrorListener(ref, context);
 
     void logout() {
-      ref.read(authNotifierProvider.notifier).logout();
+      ref.read(authProvider.notifier).logout();
     }
 
     void openGroupsPage() {
@@ -117,11 +117,8 @@ class _HomeScreenState extends ConsumerState<HomePage> {
               // Tests.printDb(ref);
               Tests.printDb(await ref.read(localDbProvider).getDatabase());
 
-              Logger().d(ref
-                  .read(authNotifierProvider)
-                  .value
-                  ?.asAuthenticated!
-                  .isVerified);
+              Logger()
+                  .d(ref.read(authProvider).value?.asAuthenticated!.isVerified);
             },
             tooltip: 'PRINT DB',
             icon: const Icon(Icons.data_array),

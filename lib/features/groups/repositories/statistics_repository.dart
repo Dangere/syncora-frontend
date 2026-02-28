@@ -1,6 +1,6 @@
 import 'package:syncora_frontend/core/data/database_manager.dart';
 import 'package:syncora_frontend/core/data/enums/database_tables.dart';
-import 'package:syncora_frontend/features/groups/viewmodel/groups_viewmodel.dart';
+import 'package:syncora_frontend/features/groups/groups_provider.dart';
 
 class StatisticsRepository {
   final DatabaseManager _databaseManager;

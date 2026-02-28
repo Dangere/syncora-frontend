@@ -29,7 +29,7 @@ class MyApp extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     GoRouter router = ref.watch(routeProvider);
     ThemeMode themeMode = ref.watch(themeModeProvider);
-    Locale locale = ref.watch(localeNotifierProvider);
+    Locale locale = ref.watch(localeProvider);
     // Initialize sync notifier
     // registerSyncListeners(ref);
 

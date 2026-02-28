@@ -4,7 +4,7 @@ import 'package:logger/logger.dart';
 import 'package:syncora_frontend/common/providers/common_providers.dart';
 import 'package:syncora_frontend/common/themes/app_spacing.dart';
 import 'package:syncora_frontend/core/localization/generated/l10n/app_localizations.dart';
-import 'package:syncora_frontend/features/groups/viewmodel/groups_viewmodel.dart';
+import 'package:syncora_frontend/features/groups/groups_provider.dart';
 
 class DashboardSearchBar extends ConsumerStatefulWidget {
   const DashboardSearchBar({super.key});
@@ -36,7 +36,7 @@ class _DashboardSearchBarState extends ConsumerState<DashboardSearchBar> {
     void onSearch(String query) {
       dismissedBar = true;
       ref
-          .read(groupsNotifierProvider.notifier)
+          .read(groupsProvider.notifier)
           .searchGroups(query.isEmpty ? null : query);
       if (query.isEmpty) return;
       ref.read(searchBarSuggestionsProvider.notifier).addSuggestion(query);

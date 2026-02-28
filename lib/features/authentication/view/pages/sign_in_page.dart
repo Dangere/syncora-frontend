@@ -10,7 +10,7 @@ import 'package:syncora_frontend/common/widgets/overlay_loader.dart';
 import 'package:syncora_frontend/core/localization/generated/l10n/app_localizations.dart';
 import 'package:syncora_frontend/core/utils/snack_bar_alerts.dart';
 import 'package:syncora_frontend/core/utils/validators.dart';
-import 'package:syncora_frontend/features/authentication/viewmodel/auth_viewmodel.dart';
+import 'package:syncora_frontend/features/authentication/auth_provider.dart';
 
 class SignInPage extends ConsumerStatefulWidget {
   const SignInPage({super.key});
@@ -36,19 +36,19 @@ class _SignInPageState extends ConsumerState<SignInPage> {
 
   @override
   Widget build(BuildContext context) {
-    final user = ref.watch(authNotifierProvider);
+    final user = ref.watch(authProvider);
 
     SnackBarAlerts.registerErrorListener(ref, context);
 
     void signIn() {
       // Check if form is valid before attempting to login
       if (!_formKey.currentState!.validate() || user.isLoading) return;
-      ref.read(authNotifierProvider.notifier).loginWithEmailAndPassword(
+      ref.read(authProvider.notifier).loginWithEmailAndPassword(
           emailController.text.trim(), passwordController.text.trim());
     }
 
     void googleSignIn() {
-      ref.read(authNotifierProvider.notifier).loginUsingGoogle();
+      ref.read(authProvider.notifier).loginUsingGoogle();
     }
 
     return Scaffold(

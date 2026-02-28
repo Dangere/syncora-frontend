@@ -11,12 +11,12 @@ import 'package:syncora_frontend/core/network/outbox/outbox_service.dart';
 import 'package:syncora_frontend/core/network/outbox/processors/groups_processor.dart';
 import 'package:syncora_frontend/core/network/outbox/processors/tasks_processor.dart';
 import 'package:syncora_frontend/core/network/outbox/repository/outbox_repository.dart';
-import 'package:syncora_frontend/core/network/syncing/sync_viewmodel.dart';
+import 'package:syncora_frontend/core/network/syncing/sync_provider.dart';
 import 'package:syncora_frontend/core/utils/error_mapper.dart';
 import 'package:syncora_frontend/core/utils/result.dart';
-import 'package:syncora_frontend/features/authentication/viewmodel/auth_viewmodel.dart';
-import 'package:syncora_frontend/features/groups/viewmodel/groups_viewmodel.dart';
-import 'package:syncora_frontend/features/tasks/viewmodel/tasks_providers.dart';
+import 'package:syncora_frontend/features/authentication/auth_provider.dart';
+import 'package:syncora_frontend/features/groups/groups_provider.dart';
+import 'package:syncora_frontend/features/tasks/tasks_provider.dart';
 
 class OutboxNotifier extends AsyncNotifier<OutboxStatus>
     with WidgetsBindingObserver {
@@ -83,7 +83,7 @@ class OutboxNotifier extends AsyncNotifier<OutboxStatus>
       onGroupModified: (groupId) {
         // TODO: This is being called on each group update to reflect the changes on the UI but relaoding the entire groups each time is a bit expensive...
         // ref.read(groupsNotifierProvider.notifier)._reloadGroups();
-        ref.read(groupsNotifierProvider.notifier).reloadViewedGroup(groupId);
+        ref.read(groupsProvider.notifier).reloadViewedGroup(groupId);
       },
       requireSecondPass: () {
         ref

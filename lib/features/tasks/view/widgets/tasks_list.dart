@@ -5,9 +5,9 @@ import 'package:syncora_frontend/common/themes/app_spacing.dart';
 import 'package:syncora_frontend/common/widgets/filter_list.dart';
 import 'package:syncora_frontend/common/widgets/overlay_loader.dart';
 import 'package:syncora_frontend/core/localization/generated/l10n/app_localizations.dart';
-import 'package:syncora_frontend/features/groups/viewmodel/groups_viewmodel.dart';
+import 'package:syncora_frontend/features/groups/groups_provider.dart';
 import 'package:syncora_frontend/features/tasks/models/task.dart';
-import 'package:syncora_frontend/features/tasks/viewmodel/tasks_providers.dart';
+import 'package:syncora_frontend/features/tasks/tasks_provider.dart';
 
 // This will update itself when the group notifier updates
 class TasksList extends ConsumerWidget {
@@ -18,6 +18,7 @@ class TasksList extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     AsyncValue<List<Task>> tasks = ref.watch(tasksProvider(groupId));
+    ref.read(loggerProvider).d("TasksList: Building tasks list");
 
     Widget tasksList = Expanded(
       child: Column(
@@ -79,22 +80,6 @@ class TasksList extends ConsumerWidget {
       ),
     );
 
-    return tasks.when(
-      skipLoadingOnRefresh: true,
-      skipLoadingOnReload: true,
-      skipError: true,
-      data: (data) {
-        ref
-            .read(loggerProvider)
-            .d("TasksList: tasks: ${tasks.asData?.value.length}");
-        return tasksList;
-      },
-      error: (error, stackTrace) {
-        return tasksList;
-      },
-      loading: () {
-        return tasksList;
-      },
-    );
+    return tasksList;
   }
 }

@@ -10,7 +10,7 @@ import 'package:syncora_frontend/core/localization/generated/l10n/app_localizati
 import 'package:syncora_frontend/core/utils/snack_bar_alerts.dart';
 import 'package:syncora_frontend/core/utils/validators.dart';
 import 'package:syncora_frontend/features/authentication/view/popups/auth_popups.dart';
-import 'package:syncora_frontend/features/authentication/viewmodel/auth_viewmodel.dart';
+import 'package:syncora_frontend/features/authentication/auth_provider.dart';
 
 class SignUpPage extends ConsumerStatefulWidget {
   const SignUpPage({super.key});
@@ -45,20 +45,20 @@ class _SignUpPageState extends ConsumerState<SignUpPage> {
 
   @override
   Widget build(BuildContext context) {
-    final user = ref.watch(authNotifierProvider);
+    final user = ref.watch(authProvider);
 
     SnackBarAlerts.registerErrorListener(ref, context);
 
     void signUp() {
       if (!_formKey.currentState!.validate() || user.isLoading) return;
-      ref.read(authNotifierProvider.notifier).registerWithEmailAndPassword(
+      ref.read(authProvider.notifier).registerWithEmailAndPassword(
           emailController.text.trim(),
           usernameController.text.trim(),
           passwordController.text.trim());
     }
 
     void googleSignUp() {
-      ref.read(authNotifierProvider.notifier).registerUsingGoogle(
+      ref.read(authProvider.notifier).registerUsingGoogle(
             (p0) => AuthPopups.displayRegisterInfoGetter(context, ref),
           );
     }

@@ -9,7 +9,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:syncora_frontend/common/interceptors/auth_interceptor.dart';
 import 'package:syncora_frontend/core/data/database_manager.dart';
 import 'package:syncora_frontend/core/utils/app_error.dart';
-import 'package:syncora_frontend/features/authentication/viewmodel/auth_viewmodel.dart';
+import 'package:syncora_frontend/features/authentication/auth_provider.dart';
 
 final loggerProvider = Provider<Logger>((ref) {
   return Logger(
@@ -71,7 +71,7 @@ class LocaleNotifier extends Notifier<Locale> {
   }
 }
 
-final localeNotifierProvider =
+final localeProvider =
     NotifierProvider<LocaleNotifier, Locale>(LocaleNotifier.new);
 
 class ThemeModeNotifier extends Notifier<ThemeMode> {

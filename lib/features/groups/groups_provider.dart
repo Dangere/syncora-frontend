@@ -2,18 +2,18 @@ import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:syncora_frontend/common/providers/common_providers.dart';
 import 'package:syncora_frontend/common/providers/connection_provider.dart';
-import 'package:syncora_frontend/core/network/outbox/outbox_viewmodel.dart';
+import 'package:syncora_frontend/core/network/outbox/outbox_provider.dart';
 import 'package:syncora_frontend/core/network/syncing/sync_state.dart';
-import 'package:syncora_frontend/core/network/syncing/sync_viewmodel.dart';
+import 'package:syncora_frontend/core/network/syncing/sync_provider.dart';
 import 'package:syncora_frontend/core/utils/result.dart';
 import 'package:syncora_frontend/features/authentication/models/auth_state.dart';
-import 'package:syncora_frontend/features/authentication/viewmodel/auth_viewmodel.dart';
+import 'package:syncora_frontend/features/authentication/auth_provider.dart';
 import 'package:syncora_frontend/features/groups/models/group.dart';
 import 'package:syncora_frontend/features/groups/repositories/local_groups_repository.dart';
 import 'package:syncora_frontend/features/groups/repositories/remote_groups_repository.dart';
 import 'package:syncora_frontend/features/groups/repositories/statistics_repository.dart';
-import 'package:syncora_frontend/features/groups/services/groups_service.dart';
-import 'package:syncora_frontend/features/tasks/viewmodel/tasks_providers.dart';
+import 'package:syncora_frontend/features/groups/groups_service.dart';
+import 'package:syncora_frontend/features/tasks/tasks_provider.dart';
 import 'package:syncora_frontend/router.dart';
 
 enum GroupsFilter { inProgress, completed, shared, owned, newest, oldest }
@@ -300,10 +300,10 @@ class GroupsNotifier extends AsyncNotifier<List<Group>> {
 
   @override
   FutureOr<List<Group>> build() async {
-    var authState = ref.watch(authNotifierProvider);
+    var authState = ref.watch(authProvider);
 
     // Updating the UI on group changes
-    ref.listen(syncBackendNotifierProvider, (previous, next) {
+    ref.listen(syncBackendProvider, (previous, next) {
       // If there is no error and the payload is not null in the next value, then we have a new payload
       if (next.error == null && !next.isLoading && next.value != null) {
         // Checking if the payload is empty or still in progress (loading)
@@ -361,7 +361,7 @@ class GroupsNotifier extends AsyncNotifier<List<Group>> {
   }
 }
 
-final groupsNotifierProvider =
+final groupsProvider =
     AsyncNotifierProvider<GroupsNotifier, List<Group>>(GroupsNotifier.new);
 
 final groupViewGetterProvider =
@@ -408,7 +408,7 @@ final groupStatisticsProvider = Provider<StatisticsRepository>((ref) {
 });
 
 final groupsServiceProvider = Provider<GroupsService>((ref) {
-  var authState = ref.watch(authNotifierProvider).asData!.value;
+  var authState = ref.watch(authProvider).asData!.value;
   ConnectionStatus connectionStatus = ref.watch(connectionProvider);
   var isOnline = connectionStatus == ConnectionStatus.connected ||
       connectionStatus == ConnectionStatus.slow;

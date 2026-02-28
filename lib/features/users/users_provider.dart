@@ -7,15 +7,15 @@ import 'package:syncora_frontend/common/providers/common_providers.dart';
 import 'package:syncora_frontend/common/providers/connection_provider.dart';
 import 'package:syncora_frontend/core/image/image_providers.dart';
 import 'package:syncora_frontend/core/network/syncing/sync_state.dart';
-import 'package:syncora_frontend/core/network/syncing/sync_viewmodel.dart';
+import 'package:syncora_frontend/core/network/syncing/sync_provider.dart';
 import 'package:syncora_frontend/core/typedef.dart';
 import 'package:syncora_frontend/core/utils/app_error.dart';
 import 'package:syncora_frontend/core/utils/result.dart';
 import 'package:syncora_frontend/features/authentication/models/user.dart';
-import 'package:syncora_frontend/features/authentication/viewmodel/auth_viewmodel.dart';
+import 'package:syncora_frontend/features/authentication/auth_provider.dart';
 import 'package:syncora_frontend/features/users/repositories/local_users_repository.dart';
 import 'package:syncora_frontend/features/users/repositories/remote_users_repository.dart';
-import 'package:syncora_frontend/features/users/services/users_service.dart';
+import 'package:syncora_frontend/features/users/users_service.dart';
 
 final userProvider =
     FutureProvider.autoDispose.family<User?, int>((ref, userId) async {
@@ -62,7 +62,7 @@ final usersOrchestratorProvider = Provider<void>((ref) {
   // );
 
   ref.listen(
-    syncBackendNotifierProvider,
+    syncBackendProvider,
     (previous, next) {
       if (next.error == null && !next.isLoading && next.value != null) {
         // Checking if the payload is empty or still in progress (loading)
@@ -171,7 +171,7 @@ class ProfilePageNotifier extends AsyncNotifier<void> {
 
 // final profilePageNotifierProvider = NotifierProvider<ProfilePageNotifier,void >(ProfilePageNotifier.new);
 
-final profilePageNotifierProvider =
+final profilePageProvider =
     AsyncNotifierProvider<ProfilePageNotifier, void>(ProfilePageNotifier.new);
 
 final localUsersRepositoryProvider = Provider<LocalUsersRepository>((ref) {
@@ -183,7 +183,7 @@ final remoteUsersRepositoryProvider = Provider<RemoteUsersRepository>((ref) {
 });
 
 final usersServiceProvider = Provider<UsersService>((ref) {
-  var authState = ref.watch(authNotifierProvider).asData!.value;
+  var authState = ref.watch(authProvider).asData!.value;
   return UsersService(
       logger: ref.watch(loggerProvider),
       localUsersRepository: ref.watch(localUsersRepositoryProvider),

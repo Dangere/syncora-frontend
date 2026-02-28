@@ -2,14 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:logger/web.dart';
 import 'package:syncora_frontend/core/network/syncing/sync_state.dart';
-import 'package:syncora_frontend/core/network/syncing/sync_viewmodel.dart';
+import 'package:syncora_frontend/core/network/syncing/sync_provider.dart';
 
 class SyncingIcon extends ConsumerWidget {
   const SyncingIcon({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final syncState = ref.watch(syncBackendNotifierProvider);
+    final syncState = ref.watch(syncBackendProvider);
     return syncState.when(
         data: (data) {
           if (data is SyncIdle) return const Icon(Icons.cloud_sync_sharp);

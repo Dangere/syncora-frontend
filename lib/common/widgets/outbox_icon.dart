@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:syncora_frontend/core/network/outbox/model/outbox_entry.dart';
-import 'package:syncora_frontend/core/network/outbox/outbox_viewmodel.dart';
+import 'package:syncora_frontend/core/network/outbox/outbox_provider.dart';
 
 class OutboxIcon extends ConsumerWidget {
   const OutboxIcon({super.key});

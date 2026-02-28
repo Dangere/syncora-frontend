@@ -8,12 +8,12 @@ import 'package:syncora_frontend/common/widgets/marquee_widget.dart';
 import 'package:syncora_frontend/core/localization/generated/l10n/app_localizations.dart';
 import 'package:syncora_frontend/core/utils/snack_bar_alerts.dart';
 import 'package:syncora_frontend/features/authentication/models/auth_state.dart';
-import 'package:syncora_frontend/features/authentication/viewmodel/auth_viewmodel.dart';
+import 'package:syncora_frontend/features/authentication/auth_provider.dart';
 import 'package:syncora_frontend/features/groups/models/group.dart';
 import 'package:syncora_frontend/features/groups/view/widgets/group_members_display.dart';
 import 'package:syncora_frontend/features/groups/view/popups/group_popups.dart';
 import 'package:syncora_frontend/features/tasks/view/widgets/tasks_list.dart';
-import 'package:syncora_frontend/features/groups/viewmodel/groups_viewmodel.dart';
+import 'package:syncora_frontend/features/groups/groups_provider.dart';
 
 class GroupPage extends ConsumerStatefulWidget {
   const GroupPage({super.key, required this.groupId});
@@ -27,9 +27,9 @@ class GroupPageState extends ConsumerState<GroupPage> {
 
   @override
   void initState() {
-    isOwner = ref.read(groupsNotifierProvider.notifier).isGroupOwner(
+    isOwner = ref.read(groupsProvider.notifier).isGroupOwner(
         groupId: widget.groupId,
-        userId: ref.read(authNotifierProvider).value!.user!.id);
+        userId: ref.read(authProvider).value!.user!.id);
 
     super.initState();
   }

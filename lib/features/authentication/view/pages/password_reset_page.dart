@@ -8,7 +8,7 @@ import 'package:syncora_frontend/core/localization/generated/l10n/app_localizati
 import 'package:syncora_frontend/core/utils/result.dart';
 import 'package:syncora_frontend/core/utils/snack_bar_alerts.dart';
 import 'package:syncora_frontend/core/utils/validators.dart';
-import 'package:syncora_frontend/features/authentication/viewmodel/auth_viewmodel.dart';
+import 'package:syncora_frontend/features/authentication/auth_provider.dart';
 
 class PasswordResetPage extends ConsumerStatefulWidget {
   const PasswordResetPage({super.key});
@@ -31,15 +31,15 @@ class _PasswordResetPageState extends ConsumerState<PasswordResetPage> {
 
   // TODO: this could be refactored to use a provider instead of manually managing the state (careful of ephemeral state)
   void resetPassword() async {
-    if (isLoading || ref.read(resetPasswordTimerNotifierProvider) != null) {
+    if (isLoading || ref.read(resetPasswordTimerProvider) != null) {
       return;
     }
     setState(() {
       isLoading = true;
-      ref.read(resetPasswordTimerNotifierProvider.notifier).startTimer(30);
+      ref.read(resetPasswordTimerProvider.notifier).startTimer(30);
     });
     Result result = await ref
-        .read(authNotifierProvider.notifier)
+        .read(authProvider.notifier)
         .requestPasswordReset(emailController.text.trim());
 
     if (result.isSuccess) {
@@ -113,7 +113,7 @@ class _PasswordResetPageState extends ConsumerState<PasswordResetPage> {
                     Consumer(
                       builder: (context, ref, child) {
                         int? resendTimer =
-                            ref.watch(resetPasswordTimerNotifierProvider);
+                            ref.watch(resetPasswordTimerProvider);
 
                         return Column(
                           children: [

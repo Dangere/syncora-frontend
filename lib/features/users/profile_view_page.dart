@@ -15,8 +15,8 @@ import 'package:syncora_frontend/core/utils/snack_bar_alerts.dart';
 import 'package:syncora_frontend/core/utils/validators.dart';
 import 'package:syncora_frontend/features/authentication/models/auth_state.dart';
 import 'package:syncora_frontend/features/authentication/models/user.dart';
-import 'package:syncora_frontend/features/authentication/viewmodel/auth_viewmodel.dart';
-import 'package:syncora_frontend/features/users/viewmodel/users_providers.dart';
+import 'package:syncora_frontend/features/authentication/auth_provider.dart';
+import 'package:syncora_frontend/features/users/users_provider.dart';
 
 class ProfileViewPage extends ConsumerStatefulWidget {
   const ProfileViewPage({super.key, required this.userId});
@@ -43,11 +43,10 @@ class _ProfileViewPageState extends ConsumerState<ProfileViewPage> {
   final TextEditingController emailController = TextEditingController();
 
   Future _changeProfilePicture() async {
-    if (ref.read(profilePageNotifierProvider).isLoading) return;
+    if (ref.read(profilePageProvider).isLoading) return;
 
-    String? imageUrl = await ref
-        .read(profilePageNotifierProvider.notifier)
-        .changeProfilePicture(
+    String? imageUrl =
+        await ref.read(profilePageProvider.notifier).changeProfilePicture(
       (arg) async {
         if (mounted) {
           Uint8List? croppedImageBytes =
@@ -104,7 +103,7 @@ class _ProfileViewPageState extends ConsumerState<ProfileViewPage> {
       //         lastNameController.text +
       //         " " +
       //         usernameController.text);
-      await ref.read(profilePageNotifierProvider.notifier).updateUserProfile(
+      await ref.read(profilePageProvider.notifier).updateUserProfile(
             firstName: user!.firstName == firstNameController.text
                 ? null
                 : firstNameController.text,
@@ -123,8 +122,7 @@ class _ProfileViewPageState extends ConsumerState<ProfileViewPage> {
 
   @override
   void initState() {
-    isCurrentUser =
-        ref.read(authNotifierProvider).value!.user!.id == widget.userId;
+    isCurrentUser = ref.read(authProvider).value!.user!.id == widget.userId;
     super.initState();
   }
 
@@ -141,7 +139,7 @@ class _ProfileViewPageState extends ConsumerState<ProfileViewPage> {
   Widget build(BuildContext context) {
     SnackBarAlerts.registerErrorListener(ref, context);
 
-    bool isLoading = ref.watch(profilePageNotifierProvider).isLoading;
+    bool isLoading = ref.watch(profilePageProvider).isLoading;
 
     Future<User?> userFuture = ref.watch(userProvider(widget.userId).future);
     ref.read(loggerProvider).f("Building profile view page");

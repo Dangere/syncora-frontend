@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:syncora_frontend/common/providers/common_providers.dart';
-import 'package:syncora_frontend/features/users/viewmodel/users_providers.dart';
+import 'package:syncora_frontend/features/users/users_provider.dart';
 
 class ProfilePicture extends ConsumerWidget {
   const ProfilePicture(

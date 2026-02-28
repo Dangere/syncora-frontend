@@ -4,7 +4,7 @@ import 'package:syncora_frontend/core/utils/alert_dialogs.dart';
 import 'package:syncora_frontend/core/utils/date_utilities.dart';
 import 'package:syncora_frontend/core/utils/validators.dart';
 import 'package:syncora_frontend/features/groups/models/group.dart';
-import 'package:syncora_frontend/features/groups/viewmodel/groups_viewmodel.dart';
+import 'package:syncora_frontend/features/groups/groups_provider.dart';
 
 class GroupPopups {
   static void displayGroupInfo(BuildContext context, WidgetRef ref, Group group,
@@ -76,9 +76,7 @@ class GroupPopups {
                   style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
                   onPressed: () {
                     Navigator.of(context).pop();
-                    ref
-                        .read(groupsNotifierProvider.notifier)
-                        .deleteGroup(group.id);
+                    ref.read(groupsProvider.notifier).deleteGroup(group.id);
                   },
                   child: const Text("DELETE",
                       style: TextStyle(color: Colors.black))),
@@ -87,9 +85,7 @@ class GroupPopups {
                   style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
                   onPressed: () {
                     Navigator.of(context).pop();
-                    ref
-                        .read(groupsNotifierProvider.notifier)
-                        .leaveGroup(group.id);
+                    ref.read(groupsProvider.notifier).leaveGroup(group.id);
                   },
                   child: const Text("LEAVE",
                       style: TextStyle(color: Colors.black))),
@@ -108,9 +104,7 @@ class GroupPopups {
         barrierDismissible: true,
         blurBackground: false,
         message: "Edit Group title", onContinue: (p0) {
-      ref
-          .read(groupsNotifierProvider.notifier)
-          .updateGroupDetails(p0, null, groupId);
+      ref.read(groupsProvider.notifier).updateGroupDetails(p0, null, groupId);
     }, validation: (p0) {
       if (p0.trim() == defaultText) return "New title is not changed";
       return Validators.validateGroupTitle(p0) ? null : "Invalid title";
@@ -124,9 +118,7 @@ class GroupPopups {
         barrierDismissible: true,
         blurBackground: false,
         message: "Edit Group Description", onContinue: (p0) {
-      ref
-          .read(groupsNotifierProvider.notifier)
-          .updateGroupDetails(null, p0, groupId);
+      ref.read(groupsProvider.notifier).updateGroupDetails(null, p0, groupId);
     }, validation: (p0) {
       if (p0.trim() == defaultText) {
         return "New description is not changed";
@@ -146,7 +138,7 @@ class GroupPopups {
         message: "Add user to group",
         onContinue: (p0) {
           ref
-              .read(groupsNotifierProvider.notifier)
+              .read(groupsProvider.notifier)
               .allowUserAccessToGroup(groupId: groupId, username: p0.trim());
         },
         validation: (p0) =>
@@ -161,7 +153,7 @@ class GroupPopups {
         message: "Are you sure you want to remove user from group?",
         onContinue: (p0) {
           ref
-              .read(groupsNotifierProvider.notifier)
+              .read(groupsProvider.notifier)
               .removeUserAccessToGroup(groupId: groupId, username: username);
         },
         validation: (p0) =>
@@ -176,7 +168,7 @@ class GroupPopups {
         message: "Create new task",
         onContinue: (p0) {
           ref
-              .read(groupsNotifierProvider.notifier)
+              .read(groupsProvider.notifier)
               .createTask(groupId: groupId, title: p0, description: null);
         },
         validation: (p0) =>
@@ -213,7 +205,7 @@ class GroupPopups {
 
     if (title != null && description != null) {
       ref
-          .read(groupsNotifierProvider.notifier)
+          .read(groupsProvider.notifier)
           .createGroup(title: title!, description: description!);
     }
   }

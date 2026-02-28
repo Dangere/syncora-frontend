@@ -9,7 +9,7 @@ import 'package:syncora_frontend/common/widgets/app_button.dart';
 import 'package:syncora_frontend/core/localization/generated/l10n/app_localizations.dart';
 import 'package:syncora_frontend/core/typedef.dart';
 import 'package:syncora_frontend/core/utils/snack_bar_alerts.dart';
-import 'package:syncora_frontend/features/authentication/viewmodel/auth_viewmodel.dart';
+import 'package:syncora_frontend/features/authentication/auth_provider.dart';
 
 class SettingsPage extends ConsumerStatefulWidget {
   const SettingsPage({super.key});
@@ -20,18 +20,18 @@ class SettingsPage extends ConsumerStatefulWidget {
 
 class _SettingsPageState extends ConsumerState<SettingsPage> {
   void logout() {
-    ref.read(authNotifierProvider.notifier).logout();
+    ref.read(authProvider.notifier).logout();
   }
 
   void updateLanguage(Locale locale) {
-    ref.read(localeNotifierProvider.notifier).setLocale(locale);
+    ref.read(localeProvider.notifier).setLocale(locale);
   }
 
   @override
   Widget build(BuildContext context) {
     SnackBarAlerts.registerErrorListener(ref, context);
 
-    Locale currentLocale = ref.watch(localeNotifierProvider);
+    Locale currentLocale = ref.watch(localeProvider);
     // bool isDarkMode = ref.watch(themeModeProvider);7
 
     bool isDarkMode = ref.watch(themeModeProvider) == ThemeMode.dark;

@@ -12,10 +12,10 @@ import 'package:syncora_frontend/core/network/syncing/sync_repository.dart';
 import 'package:syncora_frontend/core/network/syncing/sync_service.dart';
 import 'package:syncora_frontend/core/network/syncing/sync_state.dart';
 import 'package:syncora_frontend/core/utils/result.dart';
-import 'package:syncora_frontend/features/authentication/viewmodel/auth_viewmodel.dart';
-import 'package:syncora_frontend/features/groups/viewmodel/groups_viewmodel.dart';
-import 'package:syncora_frontend/features/tasks/viewmodel/tasks_providers.dart';
-import 'package:syncora_frontend/features/users/viewmodel/users_providers.dart';
+import 'package:syncora_frontend/features/authentication/auth_provider.dart';
+import 'package:syncora_frontend/features/groups/groups_provider.dart';
+import 'package:syncora_frontend/features/tasks/tasks_provider.dart';
+import 'package:syncora_frontend/features/users/users_provider.dart';
 
 // TODO(DONE): this needs needs serious refactoring with heavy focus on separation of concerns
 class SyncBackendNotifier extends AsyncNotifier<SyncState>
@@ -142,9 +142,7 @@ class SyncBackendNotifier extends AsyncNotifier<SyncState>
 
     if (!isVerified) return;
 
-    ref
-        .read(authNotifierProvider.notifier)
-        .updateVerificationStatus(isVerified);
+    ref.read(authProvider.notifier).updateVerificationStatus(isVerified);
   }
 
   // Handling when the app is resumed, recalling the sync just to make sure we are up to date
@@ -157,7 +155,7 @@ class SyncBackendNotifier extends AsyncNotifier<SyncState>
   }
 }
 
-final syncBackendNotifierProvider =
+final syncBackendProvider =
     AsyncNotifierProvider<SyncBackendNotifier, SyncState>(
         SyncBackendNotifier.new);
 
@@ -186,7 +184,7 @@ final signalRClientProvider = Provider<SignalRClient>((ref) {
     serverUrl: Constants.BASE_HUB_URL,
     accessTokenFactory: () async =>
         Future.value(ref.read(sessionStorageProvider).tokens?.accessToken),
-    refreshTokenCallBack: ref.read(authNotifierProvider.notifier).refreshTokens,
+    refreshTokenCallBack: ref.read(authProvider.notifier).refreshTokens,
   );
 
   ref.onDispose(() {

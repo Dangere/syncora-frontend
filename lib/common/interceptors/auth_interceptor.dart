@@ -4,7 +4,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:syncora_frontend/common/providers/common_providers.dart';
 import 'package:syncora_frontend/features/authentication/services/session_storage.dart';
-import 'package:syncora_frontend/features/authentication/viewmodel/auth_viewmodel.dart';
+import 'package:syncora_frontend/features/authentication/auth_provider.dart';
 
 class AuthInterceptor extends Interceptor {
   final SessionStorage _sessionStorage;
@@ -57,7 +57,7 @@ class AuthInterceptor extends Interceptor {
         } else {
           _refreshTokenCompleter = Completer();
           // 1. We get a new access token based on the refresh token
-          await ref.read(authNotifierProvider.notifier).refreshTokens();
+          await ref.read(authProvider.notifier).refreshTokens();
           _refreshTokenCompleter!.complete();
 
           // 2. Retry the failed request

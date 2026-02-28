@@ -9,7 +9,7 @@ class LanguageButton extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return IconButton(
         onPressed: () {
-          ref.read(localeNotifierProvider.notifier).toggleLocale();
+          ref.read(localeProvider.notifier).toggleLocale();
         },
         icon: Row(children: [Text("EN|عربي")]));
   }

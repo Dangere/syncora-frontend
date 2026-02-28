@@ -15,11 +15,11 @@ import 'package:syncora_frontend/core/tests.dart';
 import 'package:syncora_frontend/core/utils/snack_bar_alerts.dart';
 import 'package:syncora_frontend/features/authentication/models/auth_state.dart';
 import 'package:syncora_frontend/features/authentication/models/user.dart';
-import 'package:syncora_frontend/features/authentication/viewmodel/auth_viewmodel.dart';
+import 'package:syncora_frontend/features/authentication/auth_provider.dart';
 import 'package:syncora_frontend/features/dashboard/view/widgets/dashboard_search_bar.dart';
 import 'package:syncora_frontend/features/groups/view/popups/group_popups.dart';
 import 'package:syncora_frontend/features/groups/view/widgets/groups_list.dart';
-import 'package:syncora_frontend/features/users/viewmodel/users_providers.dart';
+import 'package:syncora_frontend/features/users/users_provider.dart';
 
 class DashboardPage extends ConsumerStatefulWidget {
   const DashboardPage({super.key});
@@ -33,7 +33,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
   @override
   Widget build(BuildContext context) {
     // We assume that the user is logged in and there's always a user provided if we are on this page
-    User user = ref.watch(authNotifierProvider).value!.user!;
+    User user = ref.watch(authProvider).value!.user!;
 
     // Warming up the providers
     ref.read(usersOrchestratorProvider);

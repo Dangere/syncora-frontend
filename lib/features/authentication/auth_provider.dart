@@ -11,7 +11,7 @@ import 'package:syncora_frontend/features/authentication/models/google_register_
 import 'package:syncora_frontend/features/authentication/models/session.dart';
 import 'package:syncora_frontend/features/authentication/models/tokens_dto.dart';
 import 'package:syncora_frontend/features/authentication/models/user.dart';
-import 'package:syncora_frontend/features/authentication/repositories/auth_repository.dart';
+import 'package:syncora_frontend/features/authentication/auth_repository.dart';
 import 'package:syncora_frontend/features/authentication/services/auth_service.dart';
 import 'package:syncora_frontend/features/authentication/services/session_storage.dart';
 
@@ -293,7 +293,7 @@ class AuthNotifier extends AsyncNotifier<AuthState> {
   }
 }
 
-final authNotifierProvider =
+final authProvider =
     AsyncNotifierProvider<AuthNotifier, AuthState>(AuthNotifier.new);
 
 final authRepositoryProvider = Provider<AuthRepository>(
@@ -304,7 +304,7 @@ final authServiceProvider = Provider<AuthService>((ref) {
 });
 
 final isLoggedProvider = Provider<bool>((ref) {
-  return ref.watch(authNotifierProvider.select((authState) {
+  return ref.watch(authProvider.select((authState) {
     if (authState.value == null) return false;
 
     return authState.value!.isAuthenticated || authState.value!.isGuest;
@@ -312,7 +312,7 @@ final isLoggedProvider = Provider<bool>((ref) {
 });
 
 final isAuthenticatedProvider = Provider<bool>((ref) {
-  return ref.watch(authNotifierProvider.select((authState) {
+  return ref.watch(authProvider.select((authState) {
     if (authState.value == null) return false;
 
     return authState.value!.isAuthenticated;
@@ -320,7 +320,7 @@ final isAuthenticatedProvider = Provider<bool>((ref) {
 });
 
 final isGuestProvider = Provider<bool>((ref) {
-  return ref.watch(authNotifierProvider.select((authState) {
+  return ref.watch(authProvider.select((authState) {
     if (authState.value == null) return true;
 
     return authState.value!.isGuest;
@@ -336,7 +336,7 @@ final sessionStorageProvider = Provider<SessionStorage>((ref) {
 });
 
 final isVerifiedProvider = Provider.autoDispose<bool>((ref) {
-  AsyncValue<AuthState> authState = ref.watch(authNotifierProvider);
+  AsyncValue<AuthState> authState = ref.watch(authProvider);
 
   if (authState.value == null || !authState.value!.isAuthenticated) {
     return false;
@@ -368,6 +368,6 @@ class ResetPasswordTimerNotifier extends Notifier<int?> {
   }
 }
 
-final resetPasswordTimerNotifierProvider =
+final resetPasswordTimerProvider =
     NotifierProvider<ResetPasswordTimerNotifier, int?>(
         ResetPasswordTimerNotifier.new);

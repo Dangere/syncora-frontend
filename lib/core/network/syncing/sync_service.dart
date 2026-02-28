@@ -4,7 +4,7 @@ import 'package:syncora_frontend/core/utils/result.dart';
 import 'package:syncora_frontend/features/groups/repositories/local_groups_repository.dart';
 import 'package:syncora_frontend/features/tasks/repositories/local_tasks_repository.dart';
 import 'package:syncora_frontend/features/users/repositories/local_users_repository.dart';
-import 'package:syncora_frontend/features/users/services/users_service.dart';
+import 'package:syncora_frontend/features/users/users_service.dart';
 
 class SyncService {
   final SyncRepository _syncRepository;

@@ -2,12 +2,11 @@ import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:syncora_frontend/common/providers/common_providers.dart';
-import 'package:syncora_frontend/core/network/outbox/outbox_viewmodel.dart';
+import 'package:syncora_frontend/core/network/outbox/outbox_provider.dart';
 import 'package:syncora_frontend/core/network/syncing/sync_state.dart';
-import 'package:syncora_frontend/core/network/syncing/sync_viewmodel.dart';
+import 'package:syncora_frontend/core/network/syncing/sync_provider.dart';
 import 'package:syncora_frontend/core/utils/result.dart';
-import 'package:syncora_frontend/features/authentication/viewmodel/auth_viewmodel.dart';
-import 'package:syncora_frontend/features/groups/viewmodel/groups_viewmodel.dart';
+import 'package:syncora_frontend/features/authentication/auth_provider.dart';
 import 'package:syncora_frontend/features/tasks/models/task.dart';
 import 'package:syncora_frontend/features/tasks/repositories/local_tasks_repository.dart';
 import 'package:syncora_frontend/features/tasks/repositories/remote_tasks_repository.dart';
@@ -23,7 +22,7 @@ final remoteTasksRepositoryProvider = Provider<RemoteTasksRepository>((ref) {
 
 final tasksServiceProvider = Provider<TasksService>((ref) {
   return TasksService(
-    authState: ref.watch(authNotifierProvider).asData!.value,
+    authState: ref.watch(authProvider).asData!.value,
     localTasksRepository: ref.watch(localTasksRepositoryProvider),
     remoteTasksRepository: ref.watch(remoteTasksRepositoryProvider),
     enqueueEntry: (enqueueRequest) =>
@@ -51,7 +50,7 @@ class TasksNotifier extends AutoDisposeFamilyAsyncNotifier<List<Task>, int> {
   @override
   FutureOr<List<Task>> build(int groupId) async {
     // Updating the UI on group's tasks changes
-    ref.listen(syncBackendNotifierProvider, (previous, next) {
+    ref.listen(syncBackendProvider, (previous, next) {
       // If there is no error and the payload is not null in the next value, then we have a new payload
       if (next.error == null && !next.isLoading && next.value != null) {
         // Checking if the payload is empty or still in progress (loading)

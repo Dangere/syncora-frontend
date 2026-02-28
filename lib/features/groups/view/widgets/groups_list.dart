@@ -8,7 +8,7 @@ import 'package:syncora_frontend/common/widgets/overlay_loader.dart';
 import 'package:syncora_frontend/core/localization/generated/l10n/app_localizations.dart';
 import 'package:syncora_frontend/features/groups/models/group.dart';
 import 'package:syncora_frontend/features/groups/view/widgets/group_panel.dart';
-import 'package:syncora_frontend/features/groups/viewmodel/groups_viewmodel.dart';
+import 'package:syncora_frontend/features/groups/groups_provider.dart';
 
 class GroupsList extends ConsumerWidget {
   const GroupsList({super.key});
@@ -19,7 +19,7 @@ class GroupsList extends ConsumerWidget {
     // it rebuilds 2 times if loading indicator is disabled
     ref.read(loggerProvider).d("Building groups list");
     List<Group> groups =
-        ref.watch(groupsNotifierProvider.select((state) => state.value)) ??
+        ref.watch(groupsProvider.select((state) => state.value)) ??
             List.empty();
     // List<Group> groupsList = groups ? groups.value! : List.empty();
     return Expanded(
@@ -29,23 +29,21 @@ class GroupsList extends ConsumerWidget {
           FilterList<GroupsFilter>(
             multiSelect: true,
             disable: false,
-            initialValue: ref.read(groupsNotifierProvider.notifier).filters,
+            initialValue: ref.read(groupsProvider.notifier).filters,
             items: [
               FilterListItem(
                 title: AppLocalizations.of(context).filter_Completed,
                 value: GroupsFilter.completed,
                 opposites: [GroupsFilter.inProgress],
-                countFactory: (arg) => ref
-                    .read(groupsNotifierProvider.notifier)
-                    .getGroupsCount([arg]),
+                countFactory: (arg) =>
+                    ref.read(groupsProvider.notifier).getGroupsCount([arg]),
               ),
               FilterListItem(
                 title: AppLocalizations.of(context).filter_InProgress,
                 value: GroupsFilter.inProgress,
                 opposites: [GroupsFilter.completed],
-                countFactory: (arg) => ref
-                    .read(groupsNotifierProvider.notifier)
-                    .getGroupsCount([arg]),
+                countFactory: (arg) =>
+                    ref.read(groupsProvider.notifier).getGroupsCount([arg]),
               ),
               FilterListItem(
                 title: AppLocalizations.of(context).filter_Owned,
@@ -69,7 +67,7 @@ class GroupsList extends ConsumerWidget {
               ),
             ],
             onTap: (arg) {
-              ref.read(groupsNotifierProvider.notifier).filterGroups(arg);
+              ref.read(groupsProvider.notifier).filterGroups(arg);
             },
           ),
           const SizedBox(height: AppSpacing.lg / 2),

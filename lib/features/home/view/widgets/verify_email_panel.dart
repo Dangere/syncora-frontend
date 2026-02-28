@@ -8,7 +8,7 @@ import 'package:syncora_frontend/common/themes/app_sizes.dart';
 import 'package:syncora_frontend/core/utils/result.dart';
 import 'package:syncora_frontend/core/utils/snack_bar_alerts.dart';
 import 'package:syncora_frontend/features/authentication/models/auth_state.dart';
-import 'package:syncora_frontend/features/authentication/viewmodel/auth_viewmodel.dart';
+import 'package:syncora_frontend/features/authentication/auth_provider.dart';
 
 class VerifyEmailPanel extends StatelessWidget {
   const VerifyEmailPanel(
@@ -43,7 +43,7 @@ class VerifyEmailPanel extends StatelessWidget {
                             recognizer: TapGestureRecognizer()
                               ..onTap = () async {
                                 Result result = await ref
-                                    .read(authNotifierProvider.notifier)
+                                    .read(authProvider.notifier)
                                     .sendVerificationEmail();
                                 if (result.isSuccess) {
                                   ref.read(loggerProvider).i("Email sent");

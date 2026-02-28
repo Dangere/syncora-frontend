@@ -2,7 +2,6 @@
 // ignore_for_file: non_constant_identifier_names
 
 import 'dart:convert';
-import 'dart:io';
 import 'dart:math';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
@@ -23,13 +22,13 @@ import 'package:syncora_frontend/core/utils/result.dart';
 import 'package:syncora_frontend/core/utils/snack_bar_alerts.dart';
 import 'package:syncora_frontend/features/authentication/models/auth_state.dart';
 import 'package:syncora_frontend/features/authentication/models/user.dart';
-import 'package:syncora_frontend/features/authentication/viewmodel/auth_viewmodel.dart';
+import 'package:syncora_frontend/features/authentication/auth_provider.dart';
 import 'package:syncora_frontend/features/groups/models/group_dto.dart';
 import 'package:syncora_frontend/features/groups/repositories/statistics_repository.dart';
-import 'package:syncora_frontend/features/groups/viewmodel/groups_viewmodel.dart';
+import 'package:syncora_frontend/features/groups/groups_provider.dart';
 import 'package:syncora_frontend/features/tasks/models/task.dart';
-import 'package:syncora_frontend/features/tasks/viewmodel/tasks_providers.dart';
-import 'package:syncora_frontend/features/users/viewmodel/users_providers.dart';
+import 'package:syncora_frontend/features/tasks/tasks_provider.dart';
+import 'package:syncora_frontend/features/users/users_provider.dart';
 
 class Tests {
   // 2. Turns out it was because of the mapping from the json to the payload, the backend would return the "completed" property as a bool
@@ -76,7 +75,7 @@ class Tests {
   // 1. The problem started here were i was not getting the task completed despite it being set to true
   static void test_Inserting_Tasks_LocalDb(WidgetRef ref) async {
     int userId =
-        ref.read(authNotifierProvider.select((value) => value.value!.user!.id));
+        ref.read(authProvider.select((value) => value.value!.user!.id));
 
     // Creating group
     GroupDTO group = GroupDTO(
@@ -314,7 +313,7 @@ class Tests {
           loremIpsum(paragraphs: 1, words: 10 + Random().nextInt(10));
 
       await ref
-          .read(groupsNotifierProvider.notifier)
+          .read(groupsProvider.notifier)
           .createGroup(title: title, description: description);
     }
   }
@@ -363,9 +362,9 @@ class Tests {
   }
 
   static void update_user_object_state(WidgetRef ref) async {
-    User currentUser = ref.read(authNotifierProvider).value!.user!;
+    User currentUser = ref.read(authProvider).value!.user!;
 
-    ref.read(authNotifierProvider.notifier).updateUser(currentUser.copyWith(
+    ref.read(authProvider.notifier).updateUser(currentUser.copyWith(
         pfpURL:
             "https://wallpapers-clan.com/wp-content/uploads/2023/06/cool-pfp-03.jpg"));
   }
