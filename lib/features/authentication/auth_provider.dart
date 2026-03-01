@@ -200,6 +200,7 @@ class AuthNotifier extends AsyncNotifier<AuthState> {
         // _refreshTokenCompleter?.completeError("failed to refresh tokens");
       }
     } else {
+      ref.read(loggerProvider).d("Tokens refreshed");
       await ref.read(sessionStorageProvider).updateTokens(
           accessToken: result.data!.accessToken,
           refreshToken: result.data!.refreshToken);

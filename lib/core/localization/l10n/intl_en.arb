@@ -15,9 +15,17 @@
   "@loginPage_guestPopError_invalid": {
     "description": "The guest pop up error when text is invalid"
   },
-  "groupsFrontPageTitle": "Groups",
-  "@groupsFrontPageTitle": {
+  "groupsList_Title": "Groups",
+  "@groupsList_Title": {
     "description": "The title of the groups front page"
+  },
+  "groupPage_TasksTitle": "Group Tasks",
+  "@groupPage_TasksTitle": {
+    "description": "The title of the group page tasks"
+  },
+  "groupPage_AddTaskButton": "Add Task",
+  "@groupPage_AddTaskButton": {
+    "description": "The add task button"
   },
   "onboardingPage_Title": "Welcome To CoTask",
   "@onboardingPage_Title": {
@@ -63,6 +71,10 @@
   "@filter_Newest": {},
   "filter_Oldest": "Oldest",
   "@filter_Oldest": {},
+  "filter_Pending": "Pending",
+  "@filter_Pending": {},
+  "filter_Assigned": "Assigned",
+  "@filter_Assigned": {},
   "signInPage_Title": "Sign In Your Account",
   "@signInPage_Title": {},
   "email": "Email",

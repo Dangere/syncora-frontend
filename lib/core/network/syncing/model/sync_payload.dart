@@ -35,7 +35,9 @@ class SyncPayload {
       deletedTasks: List<int>.from(json['deletedTasksIds']),
       kickedGroupsIds: List<int>.from(json['kickedGroupsIds']));
 
-  HashSet<int> groupIds() {
+  // Returns the groups with new data in the payload
+  // (This doesn't include groups related to `deletedTasks`)
+  HashSet<int> modifiedGroupIds() {
     HashSet<int> ids = HashSet<int>();
     for (var element in groups) {
       ids.add(element.id);

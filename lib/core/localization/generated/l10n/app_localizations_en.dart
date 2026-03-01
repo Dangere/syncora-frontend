@@ -21,7 +21,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get loginPage_guestPopError_invalid => 'invalid username format';
 
   @override
-  String get groupsFrontPageTitle => 'Groups';
+  String get groupsList_Title => 'Groups';
+
+  @override
+  String get groupPage_TasksTitle => 'Group Tasks';
+
+  @override
+  String get groupPage_AddTaskButton => 'Add Task';
 
   @override
   String get onboardingPage_Title => 'Welcome To CoTask';
@@ -83,6 +89,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get filter_Oldest => 'Oldest';
+
+  @override
+  String get filter_Pending => 'Pending';
+
+  @override
+  String get filter_Assigned => 'Assigned';
 
   @override
   String get signInPage_Title => 'Sign In Your Account';

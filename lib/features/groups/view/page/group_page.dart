@@ -135,7 +135,7 @@ class GroupPageState extends ConsumerState<GroupPage> {
                               ),
                               // CREATE TASK
                               AppButton(
-                                  width: 152,
+                                  width: 120,
                                   padding: const EdgeInsets.symmetric(
                                       horizontal: AppSpacing.lg),
                                   // variant: AppButtonVariant.wide,
@@ -152,7 +152,7 @@ class GroupPageState extends ConsumerState<GroupPage> {
                                       Icon(Icons.add),
                                       Text(
                                         AppLocalizations.of(context)
-                                            .dashboardPage_CreateGroup,
+                                            .groupPage_AddTaskButton,
                                       ),
                                     ],
                                   )),

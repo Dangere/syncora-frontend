@@ -7,6 +7,7 @@ import 'package:syncora_frontend/features/authentication/models/auth_state.dart'
 import 'package:syncora_frontend/features/tasks/models/task.dart';
 import 'package:syncora_frontend/features/tasks/repositories/local_tasks_repository.dart';
 import 'package:syncora_frontend/features/tasks/repositories/remote_tasks_repository.dart';
+import 'package:syncora_frontend/features/tasks/tasks_provider.dart';
 
 class TasksService {
   final LocalTasksRepository _localTasksRepository;
@@ -24,9 +25,12 @@ class TasksService {
         _remoteTasksRepository = remoteTasksRepository,
         _localTasksRepository = localTasksRepository;
 
-  Future<Result<List<Task>>> getTasksForGroup(int groupId) async {
+  Future<Result<List<Task>>> getTasksForGroup(
+      int groupId, List<TaskFilter> filters) async {
     try {
-      List<Task> tasks = await _localTasksRepository.getTasksForGroup(groupId);
+      // We aren't checking if user is authenticated or not because guests and logged in users can access tasks
+      List<Task> tasks = await _localTasksRepository.getTasksForGroup(
+          groupId, _authState.user!.id, filters);
       return Result.success(tasks);
     } catch (e, stackTrace) {
       return Result.failure(e, stackTrace);

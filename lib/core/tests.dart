@@ -109,7 +109,7 @@ class Tests {
 
     // Getting the tasks for the group
     Result<List<Task>> tasks =
-        await ref.read(tasksServiceProvider).getTasksForGroup(group.id);
+        await ref.read(tasksServiceProvider).getTasksForGroup(group.id, []);
 
     print(tasks.data!.first.completedById);
   }

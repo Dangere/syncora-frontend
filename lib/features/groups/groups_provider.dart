@@ -13,13 +13,15 @@ import 'package:syncora_frontend/features/groups/repositories/local_groups_repos
 import 'package:syncora_frontend/features/groups/repositories/remote_groups_repository.dart';
 import 'package:syncora_frontend/features/groups/repositories/statistics_repository.dart';
 import 'package:syncora_frontend/features/groups/groups_service.dart';
-import 'package:syncora_frontend/features/tasks/tasks_provider.dart';
 import 'package:syncora_frontend/router.dart';
 
 enum GroupsFilter { inProgress, completed, shared, owned, newest, oldest }
 
-enum TaskFilter { pending, completed, assigned, newest, oldest }
-
+// This notifier is used to load groups for the UI
+// The list updates when, local changes happen through methods, or when theres a sync payload available
+// It updates as well through the outbox processor to reflect updates
+// It also updates the current viewed group's notifier if its details change
+// It does NOT update the tasks notifier as it works independently
 class GroupsNotifier extends AsyncNotifier<List<Group>> {
   List<GroupsFilter> get filters => _filters;
 
@@ -60,7 +62,7 @@ class GroupsNotifier extends AsyncNotifier<List<Group>> {
     }
 
     _reloadGroupsList();
-    reloadViewedGroup(groupId);
+    reloadViewedGroups([groupId]);
   }
 
   Future<void> deleteGroup(int groupId) async {
@@ -74,7 +76,7 @@ class GroupsNotifier extends AsyncNotifier<List<Group>> {
 
     // These reflect local changes, the groups are onces referenced in the outbox for online changes
     _reloadGroupsList();
-    reloadViewedGroup(groupId);
+    reloadViewedGroups([groupId]);
   }
 
   Future<void> leaveGroup(int groupId) async {
@@ -85,7 +87,8 @@ class GroupsNotifier extends AsyncNotifier<List<Group>> {
       ref.read(appErrorProvider.notifier).state = leaveResult.error;
       return;
     }
-    reloadViewedGroup(groupId);
+    _reloadGroupsList();
+    reloadViewedGroups([groupId]);
   }
 
   Future<void> allowUserAccessToGroup(
@@ -99,6 +102,7 @@ class GroupsNotifier extends AsyncNotifier<List<Group>> {
       ref.read(appErrorProvider.notifier).state = updateResult.error;
       return;
     }
+    _reloadGroupsList();
   }
 
   Future<void> removeUserAccessToGroup(
@@ -112,95 +116,7 @@ class GroupsNotifier extends AsyncNotifier<List<Group>> {
       ref.read(appErrorProvider.notifier).state = updateResult.error;
       return;
     }
-  }
-
-  Future<void> createTask(
-      {required int groupId,
-      required String title,
-      required String? description}) async {
-    ref.read(loggerProvider).d("Creating task");
-    Result<void> createResult = await ref
-        .read(tasksServiceProvider)
-        .createTask(title: title, description: description, groupId: groupId);
-
-    if (!createResult.isSuccess) {
-      ref.read(appErrorProvider.notifier).state = createResult.error;
-      return;
-    }
-
-    reloadViewedGroup(groupId);
-  }
-
-  Future<void> deleteTask({required int taskId, required int groupId}) async {
-    Result<void> deleteResult = await ref
-        .read(tasksServiceProvider)
-        .deleteTask(groupId: groupId, taskId: taskId);
-
-    if (!deleteResult.isSuccess) {
-      ref.read(appErrorProvider.notifier).state = deleteResult.error;
-      return;
-    }
-    reloadViewedGroup(groupId);
-  }
-
-  Future<void> updateTask(
-      {required int taskId,
-      required int groupId,
-      String? title,
-      String? description}) async {
-    Result<void> updateResult = await ref.read(tasksServiceProvider).updateTask(
-        groupId: groupId,
-        taskId: taskId,
-        title: title,
-        description: description);
-
-    if (!updateResult.isSuccess) {
-      ref.read(appErrorProvider.notifier).state = updateResult.error;
-      return;
-    }
-
-    reloadViewedGroup(groupId);
-  }
-
-  Future<void> assignTask(
-      {required int taskId,
-      required int groupId,
-      required List<int> ids}) async {
-    Result<void> updateResult = await ref
-        .read(tasksServiceProvider)
-        .assignTaskToUsers(groupId: groupId, taskId: taskId, ids: ids);
-
-    if (!updateResult.isSuccess) {
-      ref.read(appErrorProvider.notifier).state = updateResult.error;
-      return;
-    }
-  }
-
-  Future<void> setAssignTask(
-      {required int taskId,
-      required int groupId,
-      required List<int> ids}) async {
-    Result<void> updateResult = await ref
-        .read(tasksServiceProvider)
-        .setAssignedUsersToTask(taskId: taskId, groupId: groupId, ids: ids);
-
-    if (!updateResult.isSuccess) {
-      ref.read(appErrorProvider.notifier).state = updateResult.error;
-      return;
-    }
-  }
-
-  Future<void> markTask(
-      {required int taskId, required int groupId, required bool isDone}) async {
-    Result<void> updateResult = await ref
-        .read(tasksServiceProvider)
-        .markTask(taskId: taskId, groupId: groupId, isDone: isDone);
-
-    if (!updateResult.isSuccess) {
-      ref.read(appErrorProvider.notifier).state = updateResult.error;
-      return;
-    }
-    reloadViewedGroup(groupId);
+    _reloadGroupsList();
   }
 
   void _reloadGroupsList() async {
@@ -282,13 +198,6 @@ class GroupsNotifier extends AsyncNotifier<List<Group>> {
     }
   }
 
-  // Takes in an id of a group that was modified to check if it's currently displayed then refresh the UI corresponding to it
-  void reloadViewedGroup(int groupId) async {
-    if (ref.exists(groupViewGetterProvider(groupId))) {
-      ref.invalidate(groupViewGetterProvider(groupId));
-    }
-  }
-
   // Takes in a list of ids of groups that were modified to check if they're currently displayed then refresh the UI corresponding to them
   void reloadViewedGroups(List<int> groupIds) async {
     for (var id in groupIds) {
@@ -308,10 +217,13 @@ class GroupsNotifier extends AsyncNotifier<List<Group>> {
       if (next.error == null && !next.isLoading && next.value != null) {
         // Checking if the payload is empty or still in progress (loading)
         if (!next.value!.isAvailable || next.value!.payload!.isEmpty()) return;
-        // ref.read(loggerProvider).d("Syncing groups from cloud payload $next");
         _reloadGroupsList();
-        // Updating the UI for current displayed group
-        reloadViewedGroups(next.value!.payload!.groupIds().toList());
+
+        // The `.modifiedGroupIds()` does not include groups with tasks that are deleted
+        // Meaning when a task is deleted, the current view group wont know,
+        // However it will still reflect in the tasks shown in the group by default
+        // Because the tasks notifier listens to the list of deleted tasks in the sync payload and removes it
+        reloadViewedGroups(next.value!.payload!.modifiedGroupIds().toList());
       }
     });
 

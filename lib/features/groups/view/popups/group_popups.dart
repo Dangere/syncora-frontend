@@ -5,6 +5,7 @@ import 'package:syncora_frontend/core/utils/date_utilities.dart';
 import 'package:syncora_frontend/core/utils/validators.dart';
 import 'package:syncora_frontend/features/groups/models/group.dart';
 import 'package:syncora_frontend/features/groups/groups_provider.dart';
+import 'package:syncora_frontend/features/tasks/tasks_provider.dart';
 
 class GroupPopups {
   static void displayGroupInfo(BuildContext context, WidgetRef ref, Group group,
@@ -168,8 +169,8 @@ class GroupPopups {
         message: "Create new task",
         onContinue: (p0) {
           ref
-              .read(groupsProvider.notifier)
-              .createTask(groupId: groupId, title: p0, description: null);
+              .read(tasksProvider(groupId).notifier)
+              .createTask(title: p0, description: null);
         },
         validation: (p0) =>
             Validators.validateGroupTitle(p0) ? null : "Invalid task title");

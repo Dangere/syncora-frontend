@@ -22,7 +22,13 @@ class AppLocalizationsAr extends AppLocalizations {
   String get loginPage_guestPopError_invalid => 'تنسيق اسم المستخدم غير صالح';
 
   @override
-  String get groupsFrontPageTitle => 'المجموعات';
+  String get groupsList_Title => 'Groups';
+
+  @override
+  String get groupPage_TasksTitle => 'Group Tasks';
+
+  @override
+  String get groupPage_AddTaskButton => 'Add Task';
 
   @override
   String get onboardingPage_Title => 'مرحبًا بك في CoTask';
@@ -84,6 +90,12 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get filter_Oldest => 'Oldest';
+
+  @override
+  String get filter_Pending => 'Pending';
+
+  @override
+  String get filter_Assigned => 'Assigned';
 
   @override
   String get signInPage_Title => 'تسجيل الدخول إلى حسابك';

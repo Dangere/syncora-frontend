@@ -126,7 +126,19 @@ abstract class AppLocalizations {
   ///
   /// In en, this message translates to:
   /// **'Groups'**
-  String get groupsFrontPageTitle;
+  String get groupsList_Title;
+
+  /// The title of the group page tasks
+  ///
+  /// In en, this message translates to:
+  /// **'Group Tasks'**
+  String get groupPage_TasksTitle;
+
+  /// The add task button
+  ///
+  /// In en, this message translates to:
+  /// **'Add Task'**
+  String get groupPage_AddTaskButton;
 
   /// The title of the onboarding page
   ///
@@ -247,6 +259,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Oldest'**
   String get filter_Oldest;
+
+  /// No description provided for @filter_Pending.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending'**
+  String get filter_Pending;
+
+  /// No description provided for @filter_Assigned.
+  ///
+  /// In en, this message translates to:
+  /// **'Assigned'**
+  String get filter_Assigned;
 
   /// No description provided for @signInPage_Title.
   ///

@@ -8,6 +8,7 @@ import 'package:syncora_frontend/core/localization/generated/l10n/app_localizati
 import 'package:syncora_frontend/features/groups/groups_provider.dart';
 import 'package:syncora_frontend/features/tasks/models/task.dart';
 import 'package:syncora_frontend/features/tasks/tasks_provider.dart';
+import 'package:syncora_frontend/features/tasks/view/widgets/task_panel.dart';
 
 // This will update itself when the group notifier updates
 class TasksList extends ConsumerWidget {
@@ -25,12 +26,12 @@ class TasksList extends ConsumerWidget {
         children: [
           // FILTER
           FilterList<TaskFilter>(
-              onTap: (arg) {},
+              onTap: (arg) {
+                ref.read(tasksProvider(groupId).notifier).filterTasks(arg);
+              },
               multiSelect: true,
               disable: false,
-              initialValue: [
-                TaskFilter.completed
-              ],
+              initialValue: ref.read(tasksProvider(groupId).notifier).filters,
               items: [
                 FilterListItem(
                   title: AppLocalizations.of(context).filter_Completed,
@@ -38,12 +39,12 @@ class TasksList extends ConsumerWidget {
                   opposites: [TaskFilter.pending],
                 ),
                 FilterListItem(
-                  title: AppLocalizations.of(context).dashboardPage_CreateGroup,
+                  title: AppLocalizations.of(context).filter_Pending,
                   value: TaskFilter.pending,
                   opposites: [TaskFilter.completed],
                 ),
                 FilterListItem(
-                  title: AppLocalizations.of(context).dashboardPage_CreateGroup,
+                  title: AppLocalizations.of(context).filter_Assigned,
                   value: TaskFilter.assigned,
                   opposites: [],
                 ),
@@ -66,8 +67,14 @@ class TasksList extends ConsumerWidget {
               padding: const EdgeInsets.symmetric(vertical: AppSpacing.lg / 2),
               itemCount: tasks.hasValue ? tasks.value!.length : 0,
               itemBuilder: (context, index) {
-                return Text(tasks.value![index].title +
-                    "[${tasks.value![index].completedById != null}]");
+                return TaskPanel(
+                    task: tasks.value![index],
+                    isCompleted: tasks.value![index].completedById != null,
+                    onDelete: () {},
+                    onChange: (arg) {},
+                    onTap: () {},
+                    assignedUsers: tasks.value![index].assignedTo,
+                    isOwner: false);
               },
               separatorBuilder: (context, index) {
                 return const SizedBox(
