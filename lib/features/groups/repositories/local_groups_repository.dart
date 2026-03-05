@@ -176,7 +176,7 @@ class LocalGroupsRepository {
 
         batch.delete(DatabaseTables.groupsMembers,
             where: "groupId = ?", whereArgs: [group.id]);
-        for (final memberId in group.groupMembers) {
+        for (final memberId in group.groupMembersIds) {
           batch.insert(
             DatabaseTables.groupsMembers,
             {

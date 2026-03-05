@@ -91,7 +91,7 @@ class GroupsNotifier extends AsyncNotifier<List<Group>> {
     reloadViewedGroups([groupId]);
   }
 
-  Future<void> allowUserAccessToGroup(
+  Future<bool> allowUserAccessToGroup(
       {required int groupId, required String username}) async {
     Result<void> updateResult = await ref
         .read(groupsServiceProvider)
@@ -100,9 +100,10 @@ class GroupsNotifier extends AsyncNotifier<List<Group>> {
 
     if (!updateResult.isSuccess) {
       ref.read(appErrorProvider.notifier).state = updateResult.error;
-      return;
+      return false;
     }
     _reloadGroupsList();
+    return true;
   }
 
   Future<void> removeUserAccessToGroup(

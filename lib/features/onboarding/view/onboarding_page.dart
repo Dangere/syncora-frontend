@@ -17,24 +17,26 @@ class OnboardingPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final user = ref.watch(authProvider);
-    void guestLogin() {
+    void guestLogin() async {
       if (user.isLoading) return;
-      AlertDialogs.showTextFieldDialog(context,
+      String? username = await AlertDialogs.showTextFieldDialog(context,
           barrierDismissible: true,
           blurBackground: true,
           message: AppLocalizations.of(context).loginPage_guestPopTitle,
-          onContinue: (p0) =>
-              {ref.read(authProvider.notifier).loginAsGuest(p0)},
           validation: (p0) {
-            if (p0.isEmpty) {
-              return AppLocalizations.of(context).loginPage_guestPopError_empty;
-            }
-            if (!Validators.validateUsername(p0)) {
-              return AppLocalizations.of(context)
-                  .loginPage_guestPopError_invalid;
-            }
-            return null;
-          });
+        if (p0 == null || p0.isEmpty) return "Empty Username";
+        if (p0.isEmpty) {
+          return AppLocalizations.of(context).loginPage_guestPopError_empty;
+        }
+        if (!Validators.validateUsername(p0)) {
+          return AppLocalizations.of(context).loginPage_guestPopError_invalid;
+        }
+        return null;
+      });
+
+      if (username != null) {
+        ref.read(authProvider.notifier).loginAsGuest(username);
+      }
     }
 
     return Scaffold(

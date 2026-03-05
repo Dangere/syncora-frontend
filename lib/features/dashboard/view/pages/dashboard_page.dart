@@ -12,11 +12,13 @@ import 'package:syncora_frontend/common/widgets/app_button.dart';
 import 'package:syncora_frontend/common/widgets/profile_picture.dart';
 import 'package:syncora_frontend/core/localization/generated/l10n/app_localizations.dart';
 import 'package:syncora_frontend/core/tests.dart';
+import 'package:syncora_frontend/core/utils/result.dart';
 import 'package:syncora_frontend/core/utils/snack_bar_alerts.dart';
 import 'package:syncora_frontend/features/authentication/models/auth_state.dart';
 import 'package:syncora_frontend/features/authentication/models/user.dart';
 import 'package:syncora_frontend/features/authentication/auth_provider.dart';
 import 'package:syncora_frontend/features/dashboard/view/widgets/dashboard_search_bar.dart';
+import 'package:syncora_frontend/features/groups/groups_provider.dart';
 import 'package:syncora_frontend/features/groups/view/popups/group_popups.dart';
 import 'package:syncora_frontend/features/groups/view/widgets/groups_list.dart';
 import 'package:syncora_frontend/features/users/users_provider.dart';
@@ -40,8 +42,14 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
 
     SnackBarAlerts.registerErrorListener(ref, context);
 
-    void createGroupPopup() {
-      GroupPopups.createGroupPopup(context, ref);
+    void createGroupPopup() async {
+      final result = await GroupPopups.createGroupPopup(context);
+
+      if (result != null) {
+        ref
+            .read(groupsProvider.notifier)
+            .createGroup(title: result.title, description: result.description);
+      }
     }
 
     void shouldFoldProgressCard(bool fold) {

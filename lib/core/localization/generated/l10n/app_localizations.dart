@@ -272,6 +272,12 @@ abstract class AppLocalizations {
   /// **'Assigned'**
   String get filter_Assigned;
 
+  /// No description provided for @filter_All.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get filter_All;
+
   /// No description provided for @signInPage_Title.
   ///
   /// In en, this message translates to:

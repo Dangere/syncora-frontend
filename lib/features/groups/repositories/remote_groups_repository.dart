@@ -25,18 +25,18 @@ class RemoteGroupsRepository {
     }).timeout(const Duration(seconds: 10));
   }
 
-  Future<List<GroupDTO>> getAllGroups() async {
-    final response = await _dio
-        .get(
-          '${Constants.BASE_API_URL}/groups',
-        )
-        .timeout(const Duration(seconds: 10));
+  // Future<List<GroupDTO>> getAllGroups() async {
+  //   final response = await _dio
+  //       .get(
+  //         '${Constants.BASE_API_URL}/groups',
+  //       )
+  //       .timeout(const Duration(seconds: 10));
 
-    List<GroupDTO> groups =
-        (response.data as List).map((e) => GroupDTO.fromJson(e)).toList();
+  //   List<GroupDTO> groups =
+  //       (response.data as List).map((e) => GroupDTO.fromJson(e)).toList();
 
-    return groups;
-  }
+  //   return groups;
+  // }
 
   Future<void> addUserToGroup(
       {required String username, required int groupId}) async {

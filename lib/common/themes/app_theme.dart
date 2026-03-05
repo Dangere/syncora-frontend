@@ -22,7 +22,7 @@ class AppShadow {
   /// Timid shadow
   static BoxShadow shadow0(BuildContext context) {
     return BoxShadow(
-      color: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.20),
+      color: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.12),
       offset: const Offset(0, 4),
       blurRadius: 18.2,
       spreadRadius: 0,
@@ -116,6 +116,7 @@ class AppTheme {
           headerTextStyle:
               TextStyle(fontSize: 16, color: _darkColorScheme.onSurface),
           elevation: 0,
+
           side: BorderSide(
             width: 1,
             color: _darkColorScheme.primary.withValues(alpha: 1),
@@ -144,6 +145,7 @@ class AppTheme {
       // ELEVATED BUTTON
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
+          minimumSize: const Size.square(0),
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
           foregroundColor: colorScheme.onPrimary,
           backgroundColor: colorScheme.primary,

@@ -75,6 +75,8 @@
   "@filter_Pending": {},
   "filter_Assigned": "Assigned",
   "@filter_Assigned": {},
+  "filter_All": "All",
+  "@filter_All": {},
   "signInPage_Title": "Sign In Your Account",
   "@signInPage_Title": {},
   "email": "Email",

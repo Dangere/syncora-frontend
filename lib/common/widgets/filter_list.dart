@@ -77,8 +77,8 @@ class _FilterListState<T extends Enum> extends State<FilterList<T>> {
     return SizedBox(
         height: 30,
         child: ListView.separated(
-          cacheExtent: 30,
-          padding: const EdgeInsets.symmetric(horizontal: 20.0),
+          // cacheExtent: 30,
+          padding: const EdgeInsets.symmetric(horizontal: 24.0),
           scrollDirection: Axis.horizontal,
           itemCount: widget.items.length,
           itemBuilder: (context, index) {

@@ -28,7 +28,7 @@ class Group extends Equatable {
       description: dto.description,
       creationDate: dto.creationDate,
       ownerUserId: dto.ownerUserId,
-      groupMembersIds: dto.groupMembers,
+      groupMembersIds: dto.groupMembersIds,
       tasksIds: taskIds,
     );
   }

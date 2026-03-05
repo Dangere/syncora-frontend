@@ -84,7 +84,7 @@ class Tests {
       description: "Description 1",
       ownerUserId: userId,
       creationDate: DateTime.now(),
-      groupMembers: [],
+      groupMembersIds: [],
     );
 
     // Creating a completed task that belongs to the group
@@ -114,24 +114,24 @@ class Tests {
     print(tasks.data!.first.completedById);
   }
 
-  static void test_negative_id(WidgetRef ref, BuildContext context) async {
-    AlertDialogs.showTextFieldDialog(
-      context,
-      barrierDismissible: true,
-      blurBackground: false,
-      message: "message",
-      onContinue: (p0) async {
-        Database db = await ref.read(localDbProvider).getDatabase();
-        Logger().f(await db.update(
-          DatabaseTables.groups,
-          {"id": 44444444444},
-          where: "id = ?",
-          whereArgs: [p0],
-        ));
-      },
-      validation: (arg) {},
-    );
-  }
+  // static void test_negative_id(WidgetRef ref, BuildContext context) async {
+  //   AlertDialogs.showTextFieldDialog(
+  //     context,
+  //     barrierDismissible: true,
+  //     blurBackground: false,
+  //     message: "message",
+  //     onContinue: (p0) async {
+  //       Database db = await ref.read(localDbProvider).getDatabase();
+  //       Logger().f(await db.update(
+  //         DatabaseTables.groups,
+  //         {"id": 44444444444},
+  //         where: "id = ?",
+  //         whereArgs: [p0],
+  //       ));
+  //     },
+  //     validation: (arg) {},
+  //   );
+  // }
 
   static void test_outbox_sorter() {
     List<OutboxEntry> entries = [

@@ -12,9 +12,11 @@ import 'package:syncora_frontend/features/authentication/auth_provider.dart';
 import 'package:syncora_frontend/features/groups/models/group.dart';
 import 'package:syncora_frontend/features/groups/view/widgets/group_members_display.dart';
 import 'package:syncora_frontend/features/groups/view/popups/group_popups.dart';
+import 'package:syncora_frontend/features/tasks/tasks_provider.dart';
 import 'package:syncora_frontend/features/tasks/view/widgets/tasks_list.dart';
 import 'package:syncora_frontend/features/groups/groups_provider.dart';
 
+// This consumer will update whenever `groupViewProvider` updates BUT excludes `TasksList` because it updates itself internally
 class GroupPage extends ConsumerStatefulWidget {
   const GroupPage({super.key, required this.groupId});
   final int groupId;
@@ -34,9 +36,34 @@ class GroupPageState extends ConsumerState<GroupPage> {
     super.initState();
   }
 
+  void addUserToGroupPopup() async {
+    String? username = await GroupPopups.addUserToGroupPopup(
+      context,
+      users: (ids: [], usernames: []),
+      addUser: ({required username}) {
+        return ref.read(groupsProvider.notifier).allowUserAccessToGroup(
+            groupId: widget.groupId, username: username.trim());
+      },
+    );
+    if (username == null) return;
+
+    ref.read(groupsProvider.notifier).allowUserAccessToGroup(
+        groupId: widget.groupId, username: username.trim());
+  }
+
+  void createTaskPopup() async {
+    String? taskTitle = await GroupPopups.createTaskPopup(context);
+    if (taskTitle == null) return;
+
+    ref
+        .read(tasksProvider(widget.groupId).notifier)
+        .createTask(title: taskTitle.trim(), description: null);
+  }
+
   @override
   Widget build(BuildContext context) {
-    // This consumer will update whenever `groupViewProvider` updates BUT excludes `TasksList` because it updates itself internally
+    SnackBarAlerts.registerErrorListener(ref, context);
+
     return Consumer(
         child: TasksList(
           groupId: widget.groupId,
@@ -62,8 +89,8 @@ class GroupPageState extends ConsumerState<GroupPage> {
                 IconButton(
                     padding: const EdgeInsets.all(AppSpacing.md),
                     onPressed: () {
-                      GroupPopups.displayGroupInfo(
-                          context, ref, group, group.description, isOwner);
+                      // GroupPopups.displayGroupInfo(
+                      //     context, ref, group, group.description, isOwner);
                     },
                     icon: const Icon(Icons.more_horiz_outlined))
               ],
@@ -97,6 +124,7 @@ class GroupPageState extends ConsumerState<GroupPage> {
                     GroupMembersDisplay(
                       group: group,
                       isOwner: isOwner,
+                      onAddingMember: addUserToGroupPopup,
                     ),
                     AppSpacing.verticalSpaceLg,
 
@@ -139,8 +167,7 @@ class GroupPageState extends ConsumerState<GroupPage> {
                                   padding: const EdgeInsets.symmetric(
                                       horizontal: AppSpacing.lg),
                                   // variant: AppButtonVariant.wide,
-                                  onPressed: () => GroupPopups.createTaskPopup(
-                                      context, ref, group.id),
+                                  onPressed: createTaskPopup,
                                   size: AppButtonSize.small,
                                   style: AppButtonStyle.filled,
                                   intent: AppButtonIntent.primary,

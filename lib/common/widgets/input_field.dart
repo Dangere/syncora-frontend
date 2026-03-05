@@ -43,6 +43,7 @@ class InputField extends StatelessWidget {
             ConstrainedBox(
               constraints: const BoxConstraints(minHeight: 45),
               child: TextFormField(
+                maxLines: 1,
                 key: fieldKey,
                 keyboardType: keyboardType,
                 obscureText: obscureText,
@@ -57,6 +58,7 @@ class InputField extends StatelessWidget {
             ),
           ],
         ),
+        // TODO: this is unstable, rework it
         Positioned(
             top: 30,
             right: 0,
@@ -67,7 +69,7 @@ class InputField extends StatelessWidget {
                 }
               },
               child: Container(
-                // color: Colors.red.withOpacity(0.2),
+                color: Colors.red.withOpacity(0.2),
                 child: SizedBox(
                   height: 45,
                   width: 45,

@@ -97,6 +97,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get filter_Assigned => 'Assigned';
 
   @override
+  String get filter_All => 'All';
+
+  @override
   String get signInPage_Title => 'Sign In Your Account';
 
   @override

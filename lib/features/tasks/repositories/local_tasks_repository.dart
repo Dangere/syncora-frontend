@@ -41,7 +41,7 @@ class LocalTasksRepository {
       t.description, 
       t.completedById, 
       t.creationDate,
-      GROUP_CONCAT(ts.userId) AS assignedTo
+      (SELECT GROUP_CONCAT(userId) FROM ${DatabaseTables.tasksAssignees} WHERE taskId = t.id) AS assignedTo
     FROM ${DatabaseTables.tasks} AS t
     LEFT JOIN ${DatabaseTables.tasksAssignees} AS ts ON ts.taskId = t.id
     WHERE t.groupId = ? AND t.isDeleted = 0 $completedFilter $assignedFilter

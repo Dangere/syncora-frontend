@@ -69,14 +69,11 @@ class GroupPanel extends StatelessWidget {
                   ],
                 ),
                 // MEMBERS DISPLAY
-                Container(
-                  color: Colors.red,
-                  child: CompressedMembersDisplay(
-                    memberIds: group.groupMembersIds,
-                    ownerId: group.ownerUserId,
-                    radius: memberIconsRadius,
-                    spacing: memberIconsSpacing,
-                  ),
+                CompressedMembersDisplay(
+                  memberIds: group.groupMembersIds,
+                  ownerId: group.ownerUserId,
+                  radius: memberIconsRadius,
+                  spacing: memberIconsSpacing,
                 ),
               ],
             )

@@ -9,10 +9,14 @@ import 'package:syncora_frontend/features/groups/view/widgets/compressed_members
 
 class GroupMembersDisplay extends ConsumerWidget {
   const GroupMembersDisplay(
-      {super.key, required this.group, required this.isOwner});
+      {super.key,
+      required this.group,
+      required this.isOwner,
+      required this.onAddingMember});
 
   final Group group;
   final bool isOwner;
+  final VoidCallback onAddingMember;
   final double radius = 21.0;
 
   @override
@@ -74,18 +78,15 @@ class GroupMembersDisplay extends ConsumerWidget {
 
               // Compressed members
               Expanded(
-                child: Container(
-                  color: Colors.red,
-                  child: CompressedMembersDisplay(
-                    fontSize: 18,
-                    flipStackOrder: true,
-                    memberIds: group.groupMembersIds,
-                    direction: AxisDirection.left,
-                    // ownerId: group.ownerUserId,
-                    radius: 21,
-                    spacing: (21 * 2) - 10,
-                    maxMembers: 5,
-                  ),
+                child: CompressedMembersDisplay(
+                  fontSize: 18,
+                  flipStackOrder: true,
+                  memberIds: group.groupMembersIds,
+                  direction: AxisDirection.left,
+                  // ownerId: group.ownerUserId,
+                  radius: 21,
+                  spacing: (21 * 2) - 12,
+                  maxMembers: 5,
                 ),
               ),
 
@@ -104,8 +105,7 @@ class GroupMembersDisplay extends ConsumerWidget {
                       children: [
                         IconButton(
                             onPressed: () {
-                              GroupPopups.addUserToGroupPopup(
-                                  context, ref, group.id);
+                              onAddingMember();
                             },
                             icon: Icon(
                               Icons.person_add_alt_1,

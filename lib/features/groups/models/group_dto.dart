@@ -4,7 +4,7 @@ class GroupDTO {
   final String? description;
   final DateTime creationDate;
   final int ownerUserId;
-  final List<int> groupMembers;
+  final List<int> groupMembersIds;
 
   GroupDTO(
       {required this.id,
@@ -12,7 +12,7 @@ class GroupDTO {
       required this.description,
       required this.creationDate,
       required this.ownerUserId,
-      required this.groupMembers});
+      required this.groupMembersIds});
 
   factory GroupDTO.fromJson(Map<String, dynamic> json) => GroupDTO(
       id: json['id'],
@@ -20,7 +20,7 @@ class GroupDTO {
       description: json['description'],
       creationDate: DateTime.parse(json['creationDate']),
       ownerUserId: json['ownerUserId'],
-      groupMembers: List<int>.from(json['groupMembers']));
+      groupMembersIds: List<int>.from(json['groupMembers']));
 
   factory GroupDTO.fromJsonWithMembers(
       Map<String, dynamic> json, List<Map<String, dynamic>> groupMembers) {
@@ -30,7 +30,7 @@ class GroupDTO {
         description: json['description'],
         creationDate: DateTime.parse(json['creationDate']),
         ownerUserId: json['ownerUserId'],
-        groupMembers:
+        groupMembersIds:
             // Currently only storing id of members in group
             groupMembers.map((e) => e["id"] as int).toList());
   }
@@ -41,7 +41,7 @@ class GroupDTO {
         "description": description,
         "creationDate": creationDate.toIso8601String(),
         "ownerUserId": ownerUserId,
-        "groupMembers": groupMembers
+        "groupMembers": groupMembersIds
       };
 
   Map<String, dynamic> toTable() => {
