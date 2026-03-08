@@ -273,7 +273,7 @@ class AppTheme {
         bodySmall: TextStyle(
           fontSize: 12,
           height: 1.1,
-          color: AppGrays.gray500,
+          color: AppGrays.gray700,
         ),
       ));
 }

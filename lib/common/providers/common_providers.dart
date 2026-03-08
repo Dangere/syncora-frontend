@@ -27,7 +27,10 @@ final loggerProvider = Provider<Logger>((ref) {
 final dioProvider = Provider<Dio>((ref) {
   Dio dio = Dio();
   dio.interceptors.add(AuthInterceptor(
-      sessionStorage: ref.read(sessionStorageProvider), ref: ref, dio: dio));
+      sessionStorage: ref.read(sessionStorageProvider),
+      refreshTokens: () async =>
+          ref.read(authProvider.notifier).refreshTokens(),
+      dio: dio));
 
   return dio;
 });
@@ -92,6 +95,7 @@ class ThemeModeNotifier extends Notifier<ThemeMode> {
 final themeModeProvider =
     NotifierProvider<ThemeModeNotifier, ThemeMode>(ThemeModeNotifier.new);
 
+// TODO: Refactor this into a notifier that fires events at the root screen to display errors
 final appErrorProvider = StateProvider<AppError?>((ref) {
   return null;
 });

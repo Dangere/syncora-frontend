@@ -3,11 +3,20 @@ import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:logger/logger.dart';
 import 'package:syncora_frontend/core/constants/constants.dart';
+import 'package:syncora_frontend/features/authentication/models/user.dart';
 
 class RemoteUsersRepository {
   final Dio _dio;
 
   RemoteUsersRepository({required Dio dio}) : _dio = dio;
+
+  Future<User> getUser(String username) async {
+    final response = await _dio
+        .get('${Constants.BASE_API_URL}/users/$username')
+        .timeout(const Duration(seconds: 10));
+
+    return User.fromJson(response.data);
+  }
 
   Future<void> updateUserProfilePicture(String url) async {
     await _dio

@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:logger/logger.dart';
 import 'package:syncora_frontend/common/providers/common_providers.dart';
 import 'package:syncora_frontend/common/providers/connection_provider.dart';
 import 'package:syncora_frontend/core/network/outbox/outbox_provider.dart';
@@ -8,11 +9,13 @@ import 'package:syncora_frontend/core/network/syncing/sync_provider.dart';
 import 'package:syncora_frontend/core/utils/result.dart';
 import 'package:syncora_frontend/features/authentication/models/auth_state.dart';
 import 'package:syncora_frontend/features/authentication/auth_provider.dart';
+import 'package:syncora_frontend/features/authentication/models/user.dart';
 import 'package:syncora_frontend/features/groups/models/group.dart';
 import 'package:syncora_frontend/features/groups/repositories/local_groups_repository.dart';
 import 'package:syncora_frontend/features/groups/repositories/remote_groups_repository.dart';
 import 'package:syncora_frontend/features/groups/repositories/statistics_repository.dart';
 import 'package:syncora_frontend/features/groups/groups_service.dart';
+import 'package:syncora_frontend/features/users/providers/users_provider.dart';
 import 'package:syncora_frontend/router.dart';
 
 enum GroupsFilter { inProgress, completed, shared, owned, newest, oldest }
@@ -91,12 +94,55 @@ class GroupsNotifier extends AsyncNotifier<List<Group>> {
     reloadViewedGroups([groupId]);
   }
 
-  Future<bool> allowUserAccessToGroup(
+  Future<User?> allowUserAccessToGroup(
+      {required int groupId, required String username}) async {
+    Result<User?> updateResult = await ref
+        .read(groupsServiceProvider)
+        .grantAccessToGroup(
+            allowAccess: true, groupId: groupId, username: username);
+
+    ref.read(loggerProvider).d(updateResult);
+
+    if (!updateResult.isSuccess) {
+      ref.read(appErrorProvider.notifier).state = updateResult.error;
+      return null;
+    }
+    _reloadGroupsList();
+    return updateResult.data;
+  }
+
+  Future<void> allowUsersAccessToGroup(
+      {required int groupId, required List<String> usernames}) async {
+    List<Result> failedResults = List.empty(growable: true);
+
+    for (var i = 0; i < usernames.length; i++) {
+      ref.read(loggerProvider).d("Groups provider: Adding ${usernames[i]}");
+      Result<User?> updateResult = await ref
+          .read(groupsServiceProvider)
+          .grantAccessToGroup(
+              allowAccess: true, groupId: groupId, username: usernames[i]);
+
+      if (!updateResult.isSuccess) {
+        failedResults.add(updateResult);
+      }
+    }
+
+    if (failedResults.isNotEmpty) {
+      failedResults.forEach((e) async {
+        ref.read(appErrorProvider.notifier).state = e.error;
+        await Future.delayed(const Duration(seconds: 3));
+      });
+    }
+    _reloadGroupsList();
+  }
+
+  Future<bool> removeUserAccessToGroup(
       {required int groupId, required String username}) async {
     Result<void> updateResult = await ref
         .read(groupsServiceProvider)
         .grantAccessToGroup(
-            allowAccess: true, groupId: groupId, username: username);
+            allowAccess: false, groupId: groupId, username: username);
+    ref.read(loggerProvider).d(updateResult);
 
     if (!updateResult.isSuccess) {
       ref.read(appErrorProvider.notifier).state = updateResult.error;
@@ -106,18 +152,14 @@ class GroupsNotifier extends AsyncNotifier<List<Group>> {
     return true;
   }
 
-  Future<void> removeUserAccessToGroup(
-      {required int groupId, required String username}) async {
-    Result<void> updateResult = await ref
-        .read(groupsServiceProvider)
-        .grantAccessToGroup(
-            allowAccess: false, groupId: groupId, username: username);
-
-    if (!updateResult.isSuccess) {
-      ref.read(appErrorProvider.notifier).state = updateResult.error;
-      return;
+  Future<List<User>> getGroupMembers(int groupId) async {
+    Result<List<User>> result =
+        await ref.read(usersServiceProvider).getGroupMembers(groupId);
+    if (!result.isSuccess) {
+      ref.read(appErrorProvider.notifier).state = result.error;
+      return [];
     }
-    _reloadGroupsList();
+    return result.data!;
   }
 
   void _reloadGroupsList() async {

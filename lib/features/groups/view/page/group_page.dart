@@ -1,22 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import 'package:syncora_frontend/common/providers/common_providers.dart';
 import 'package:syncora_frontend/common/themes/app_spacing.dart';
 import 'package:syncora_frontend/common/widgets/app_button.dart';
 import 'package:syncora_frontend/common/widgets/marquee_widget.dart';
 import 'package:syncora_frontend/core/localization/generated/l10n/app_localizations.dart';
+import 'package:syncora_frontend/core/utils/result.dart';
 import 'package:syncora_frontend/core/utils/snack_bar_alerts.dart';
 import 'package:syncora_frontend/features/authentication/models/auth_state.dart';
 import 'package:syncora_frontend/features/authentication/auth_provider.dart';
+import 'package:syncora_frontend/features/authentication/models/user.dart';
 import 'package:syncora_frontend/features/groups/models/group.dart';
 import 'package:syncora_frontend/features/groups/view/widgets/group_members_display.dart';
 import 'package:syncora_frontend/features/groups/view/popups/group_popups.dart';
 import 'package:syncora_frontend/features/tasks/tasks_provider.dart';
 import 'package:syncora_frontend/features/tasks/view/widgets/tasks_list.dart';
 import 'package:syncora_frontend/features/groups/groups_provider.dart';
+import 'package:syncora_frontend/features/users/providers/users_provider.dart';
 
-// This consumer will update whenever `groupViewProvider` updates BUT excludes `TasksList` because it updates itself internally
 class GroupPage extends ConsumerStatefulWidget {
   const GroupPage({super.key, required this.groupId});
   final int groupId;
@@ -36,19 +37,22 @@ class GroupPageState extends ConsumerState<GroupPage> {
     super.initState();
   }
 
-  void addUserToGroupPopup() async {
-    String? username = await GroupPopups.addUserToGroupPopup(
-      context,
-      users: (ids: [], usernames: []),
-      addUser: ({required username}) {
-        return ref.read(groupsProvider.notifier).allowUserAccessToGroup(
-            groupId: widget.groupId, username: username.trim());
-      },
-    );
-    if (username == null) return;
+  void addUserToGroupPopup(List<int> membersIds, int ownerId) async {
+    // Selecting the users to add
+    List<User>? users = await GroupPopups.selectUsersForAddingPopup(context,
+        ownerId: ownerId,
+        findUser: ref.read(userProvider.notifier).findUser,
+        currentMembers: () =>
+            ref.read(groupsProvider.notifier).getGroupMembers(widget.groupId));
 
-    ref.read(groupsProvider.notifier).allowUserAccessToGroup(
-        groupId: widget.groupId, username: username.trim());
+    ref
+        .read(loggerProvider)
+        .d("Selected users: ${users?.map((e) => e.username)}");
+    if (users == null) return;
+
+    await ref.read(groupsProvider.notifier).allowUsersAccessToGroup(
+        groupId: widget.groupId,
+        usernames: users.map((e) => e.username).toList());
   }
 
   void createTaskPopup() async {
@@ -63,6 +67,7 @@ class GroupPageState extends ConsumerState<GroupPage> {
   @override
   Widget build(BuildContext context) {
     SnackBarAlerts.registerErrorListener(ref, context);
+    // This consumer will update whenever `groupViewProvider` updates BUT excludes `TasksList` because it updates itself internally
 
     return Consumer(
         child: TasksList(
@@ -124,7 +129,8 @@ class GroupPageState extends ConsumerState<GroupPage> {
                     GroupMembersDisplay(
                       group: group,
                       isOwner: isOwner,
-                      onAddingMember: addUserToGroupPopup,
+                      onAddingMember: () => addUserToGroupPopup(
+                          group.groupMembersIds, group.ownerUserId),
                     ),
                     AppSpacing.verticalSpaceLg,
 
@@ -168,7 +174,7 @@ class GroupPageState extends ConsumerState<GroupPage> {
                                       horizontal: AppSpacing.lg),
                                   // variant: AppButtonVariant.wide,
                                   onPressed: createTaskPopup,
-                                  size: AppButtonSize.small,
+                                  size: AppButtonSize.mini,
                                   style: AppButtonStyle.filled,
                                   intent: AppButtonIntent.primary,
                                   fontSize: 16,

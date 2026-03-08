@@ -56,7 +56,7 @@ class ImageService {
 
     try {
       // Attempt to instantiate an image codec
-      final ui.Codec codec = await ui.instantiateImageCodec(bytes);
+      await ui.instantiateImageCodec(bytes);
       // If successful, the bytes are a valid image format
       return true;
     } catch (e) {

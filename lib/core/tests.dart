@@ -28,7 +28,7 @@ import 'package:syncora_frontend/features/groups/repositories/statistics_reposit
 import 'package:syncora_frontend/features/groups/groups_provider.dart';
 import 'package:syncora_frontend/features/tasks/models/task.dart';
 import 'package:syncora_frontend/features/tasks/tasks_provider.dart';
-import 'package:syncora_frontend/features/users/users_provider.dart';
+import 'package:syncora_frontend/features/users/providers/users_provider.dart';
 
 class Tests {
   // 2. Turns out it was because of the mapping from the json to the payload, the backend would return the "completed" property as a bool

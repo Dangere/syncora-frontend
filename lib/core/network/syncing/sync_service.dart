@@ -32,21 +32,13 @@ class SyncService {
     }
   }
 
-  Future<Result<SyncPayload>> refreshFromServer() async {
-    Result<SyncPayload> result = await fetchPayload();
-
-    if (!result.isSuccess) {
-      return result;
+  Future<Result<SyncPayload>> mapPayload(Map<String, dynamic> raw) async {
+    try {
+      SyncPayload payload = SyncPayload.fromJson(raw);
+      return Result.success(payload);
+    } catch (e, stackTrace) {
+      return Result.failure(e, stackTrace);
     }
-
-    Result<void> processResult = await processPayload(result.data!);
-
-    if (!processResult.isSuccess) {
-      return Result.failure(processResult.error!.errorObject,
-          processResult.error!.stackTrace ?? StackTrace.current);
-    }
-
-    return Result.success(result.data!);
   }
 
   Future<Result<void>> processPayload(SyncPayload payload) async {

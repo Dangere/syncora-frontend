@@ -25,7 +25,7 @@ enum AppButtonSize {
   small,
 
   /// 42.0 height
-  icon,
+  mini,
 }
 
 enum AppButtonStyle {
@@ -81,8 +81,8 @@ class AppButton extends StatelessWidget {
       AppButtonSize.huge => 20.0,
       AppButtonSize.large => 17.0,
       AppButtonSize.medium => 20.0,
-      AppButtonSize.small => 60.0,
-      AppButtonSize.icon => 8.0,
+      AppButtonSize.small => 16.0,
+      AppButtonSize.mini => 20.0,
     };
 
     final double contentHorizontalPadding = ignoreContentPadding
@@ -92,7 +92,7 @@ class AppButton extends StatelessWidget {
             AppButtonSize.large => 16.0,
             AppButtonSize.medium => 16.0,
             AppButtonSize.small => 14.0,
-            AppButtonSize.icon => 16.0,
+            AppButtonSize.mini => 14.0,
           };
 
     final double height = switch (size) {
@@ -100,11 +100,11 @@ class AppButton extends StatelessWidget {
       AppButtonSize.large => 56.0,
       AppButtonSize.medium => 52.0,
       AppButtonSize.small => 40.0,
-      AppButtonSize.icon => 42,
+      AppButtonSize.mini => 39.0,
     };
 
     // Controls the shape
-    final ButtonStyle buttonShape = switch (style) {
+    final ButtonStyle buttonStyle = switch (style) {
       AppButtonStyle.filled => ElevatedButton.styleFrom(
           // This applied to texts nested but not color wise
           textStyle: TextStyle(
@@ -158,33 +158,31 @@ class AppButton extends StatelessWidget {
         )
     };
 
-    final ButtonStyle buttonStyle = switch (intent) {
-      AppButtonIntent.primary => buttonShape,
-      AppButtonIntent.normal => buttonShape.copyWith(
+    final ButtonStyle buttonColor = switch (intent) {
+      AppButtonIntent.primary => buttonStyle,
+      AppButtonIntent.normal => buttonStyle.copyWith(
           backgroundColor:
               WidgetStateProperty.all(theme.colorScheme.surfaceContainer),
           foregroundColor:
               WidgetStateProperty.all(theme.colorScheme.onSurfaceVariant),
           // elevation: WidgetStateProperty.all(0),
         ),
-      AppButtonIntent.destructive => buttonShape.copyWith(
+      AppButtonIntent.destructive => buttonStyle.copyWith(
           backgroundColor: WidgetStateProperty.all(theme.colorScheme.error),
           foregroundColor: WidgetStateProperty.all(theme.colorScheme.onError),
         ),
-      AppButtonIntent.warning => buttonShape.copyWith(
+      AppButtonIntent.warning => buttonStyle.copyWith(
           backgroundColor: WidgetStateProperty.all(theme.colorScheme.error),
           foregroundColor: WidgetStateProperty.all(theme.colorScheme.onError),
         ),
-      // TODO: Handle this case.
-      AppButtonIntent.secondary => buttonShape.copyWith(
+      AppButtonIntent.secondary => buttonStyle.copyWith(
           backgroundColor: WidgetStateProperty.all(theme.colorScheme.secondary),
           foregroundColor:
               WidgetStateProperty.all(theme.colorScheme.onSecondary),
-          // elevation: WidgetStateProperty.all(0),
         ),
     };
 
-    final ButtonStyle disabledStyle = buttonShape.copyWith(
+    final ButtonStyle disabledStyle = buttonStyle.copyWith(
       backgroundColor: WidgetStateProperty.all(theme.colorScheme.onSurface),
       foregroundColor: WidgetStateProperty.all(theme.colorScheme.outline),
       elevation: WidgetStateProperty.all(0),
@@ -219,7 +217,7 @@ class AppButton extends StatelessWidget {
         child: AbsorbPointer(
           absorbing: disabled,
           child: ElevatedButton(
-            style: disabled ? disabledStyle : buttonStyle,
+            style: disabled ? disabledStyle : buttonColor,
             onPressed: onPressed,
             child: child,
           ),

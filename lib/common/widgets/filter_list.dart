@@ -91,7 +91,7 @@ class _FilterListState<T extends Enum> extends State<FilterList<T>> {
               intent: isSelected
                   ? AppButtonIntent.secondary
                   : AppButtonIntent.normal,
-              size: AppButtonSize.small,
+              size: AppButtonSize.mini,
               style: AppButtonStyle.dropdown,
               onPressed: () => _onSelect(widget.items[index]),
               child: Row(

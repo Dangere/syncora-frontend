@@ -31,6 +31,16 @@ class SnackBarAlerts {
     ));
   }
 
+  static void showAlertSnackBar(String message, BuildContext context) {
+    if (!context.mounted) return;
+
+    ScaffoldMessenger.of(context).clearSnackBars();
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: Text(message),
+      backgroundColor: Colors.yellowAccent.shade400,
+    ));
+  }
+
   /// Registers a listener to the error message provider
   /// and shows an error snackbar when the error message is not null
   static void registerErrorListener(WidgetRef ref, BuildContext context) {

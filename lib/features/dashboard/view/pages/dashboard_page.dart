@@ -21,7 +21,7 @@ import 'package:syncora_frontend/features/dashboard/view/widgets/dashboard_searc
 import 'package:syncora_frontend/features/groups/groups_provider.dart';
 import 'package:syncora_frontend/features/groups/view/popups/group_popups.dart';
 import 'package:syncora_frontend/features/groups/view/widgets/groups_list.dart';
-import 'package:syncora_frontend/features/users/users_provider.dart';
+import 'package:syncora_frontend/features/users/providers/users_provider.dart';
 
 class DashboardPage extends ConsumerStatefulWidget {
   const DashboardPage({super.key});
@@ -37,8 +37,8 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
     // We assume that the user is logged in and there's always a user provided if we are on this page
     User user = ref.watch(authProvider).value!.user!;
 
-    // Warming up the providers
-    ref.read(usersOrchestratorProvider);
+    // Warming user provider for the first time
+    ref.read(userProvider);
 
     SnackBarAlerts.registerErrorListener(ref, context);
 
@@ -69,7 +69,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
               Tests.test_profile_picture(ref, context);
               // ref.read(loggerProvider).w(ref.read(connectionProvider));
             },
-            size: AppButtonSize.icon,
+            size: AppButtonSize.mini,
             style: AppButtonStyle.filled,
             intent: AppButtonIntent.warning,
             child: const Icon(Icons.picture_as_pdf),
@@ -81,7 +81,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                   .read(debug_fakeBeingOnlineProvider.notifier)
                   .update((state) => !state);
             },
-            size: AppButtonSize.icon,
+            size: AppButtonSize.mini,
             style: AppButtonStyle.filled,
             intent: AppButtonIntent.warning,
             child: const Icon(Icons.add),
@@ -272,7 +272,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                                     horizontal: AppSpacing.lg),
                                 // variant: AppButtonVariant.wide,
                                 onPressed: createGroupPopup,
-                                size: AppButtonSize.small,
+                                size: AppButtonSize.mini,
                                 style: AppButtonStyle.filled,
                                 intent: AppButtonIntent.primary,
                                 fontSize: 16,

@@ -61,6 +61,27 @@ class LocalUsersRepository {
     return User.fromJson(user);
   }
 
+  Future<List<User>> getUsers(List<int> ids) async {
+    final db = await _databaseManager.getDatabase();
+    List<Map<String, dynamic>> users = await db.query(DatabaseTables.users,
+        where: "id IN (${ids.map((id) => "?").join(",")})", whereArgs: ids);
+    return users.isEmpty ? [] : users.map((e) => User.fromJson(e)).toList();
+  }
+
+  Future<List<User>> getGroupMembers(int groupId) async {
+    final db = await _databaseManager.getDatabase();
+    List<Map<String, dynamic>> users = await db.rawQuery('''
+    SELECT u.id, u.username, u.firstName, u.lastName, u.email, u.profilePictureURL FROM ${DatabaseTables.users} u
+    INNER JOIN ${DatabaseTables.groups} g ON u.id = g.ownerUserId WHERE g.id = ?
+
+    UNION
+
+    SELECT u.id, u.username, u.firstName, u.lastName, u.email, u.profilePictureURL FROM ${DatabaseTables.users} u
+    INNER JOIN ${DatabaseTables.groupsMembers} gm ON u.id = gm.userId WHERE gm.groupId = ?
+    ''', [groupId, groupId]);
+    return users.isEmpty ? [] : users.map((e) => User.fromJson(e)).toList();
+  }
+
   // Removes users that dont belong to any group, except for the actual device user
   Future<void> purgeOrphanedUsers() async {
     final db = await _databaseManager.getDatabase();

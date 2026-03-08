@@ -12,7 +12,9 @@ class InputField extends StatelessWidget {
       this.obscureText = false,
       this.suffixIcon,
       this.onSuffixIconPressed,
-      this.fieldKey});
+      this.onChanged,
+      this.fieldKey,
+      this.autoFocus = false});
   final String labelText;
   final String hintText;
   final bool obscureText;
@@ -20,11 +22,15 @@ class InputField extends StatelessWidget {
   final TextEditingController controller;
   final String? Function(String?)? validator;
   final VoidCallback? onSuffixIconPressed;
+  final void Function(String)? onChanged;
+
   final GlobalKey? fieldKey;
 
   final IconData? suffixIcon;
 
   final TextInputType keyboardType;
+
+  final bool autoFocus;
 
   @override
   Widget build(BuildContext context) {
@@ -43,6 +49,8 @@ class InputField extends StatelessWidget {
             ConstrainedBox(
               constraints: const BoxConstraints(minHeight: 45),
               child: TextFormField(
+                autofocus: autoFocus,
+                onChanged: onChanged,
                 maxLines: 1,
                 key: fieldKey,
                 keyboardType: keyboardType,

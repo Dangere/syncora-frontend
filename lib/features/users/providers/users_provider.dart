@@ -11,77 +11,14 @@ import 'package:syncora_frontend/core/network/syncing/sync_provider.dart';
 import 'package:syncora_frontend/core/typedef.dart';
 import 'package:syncora_frontend/core/utils/app_error.dart';
 import 'package:syncora_frontend/core/utils/result.dart';
+import 'package:syncora_frontend/features/authentication/models/auth_state.dart';
 import 'package:syncora_frontend/features/authentication/models/user.dart';
 import 'package:syncora_frontend/features/authentication/auth_provider.dart';
 import 'package:syncora_frontend/features/users/repositories/local_users_repository.dart';
 import 'package:syncora_frontend/features/users/repositories/remote_users_repository.dart';
 import 'package:syncora_frontend/features/users/users_service.dart';
 
-final userProvider =
-    FutureProvider.autoDispose.family<User?, int>((ref, userId) async {
-  Result<User?> result = await ref.read(usersServiceProvider).getUser(userId);
-
-  ref.read(loggerProvider).d("Created user provider for $userId");
-
-  ref.onDispose(() =>
-      ref.read(loggerProvider).d("Auto disposing user provider of $userId"));
-
-  if (!result.isSuccess) {
-    throw result.error!.errorObject;
-  }
-
-  return result.data;
-});
-
-final userProfileImageProvider =
-    FutureProvider.family.autoDispose<Uint8List?, int>((ref, userId) async {
-  Result<Uint8List?> result =
-      await ref.read(usersServiceProvider).getUserProfilePicture(userId);
-
-  if (!result.isSuccess) {
-    throw result.error!.errorObject;
-  }
-
-  return result.data;
-});
-
-final usersOrchestratorProvider = Provider<void>((ref) {
-  // ref.listen(
-  //   authNotifierProvider,
-  //   (previous, next) {
-  //     if (next.value == null || !next.value!.isAuthenticated) {
-  //       if (ref.exists(userProfileImage(next.value!.user!.id))) {
-  //         ref
-  //             .read(usersServiceProvider)
-  //             .clearProfilePictureCache(next.value!.user!.id);
-  //         ref.read(loggerProvider).f("Invalidating user profile image");
-  //         ref.invalidate(userProfileImage(next.value!.user!.id));
-  //       }
-  //     }
-  //   },
-  // );
-
-  ref.listen(
-    syncBackendProvider,
-    (previous, next) {
-      if (next.error == null && !next.isLoading && next.value != null) {
-        // Checking if the payload is empty or still in progress (loading)
-        if (!next.value!.isAvailable || next.value!.payload!.isEmpty()) return;
-
-        for (var user in next.value!.payload!.users) {
-          ref.read(loggerProvider).f("Invalidating user providers");
-          ref.read(usersServiceProvider).clearProfilePictureCache(user.id);
-
-          ref.invalidate(userProfileImageProvider(user.id));
-
-          ref.invalidate(userProvider(user.id));
-        }
-      }
-    },
-  );
-});
-
-class ProfilePageNotifier extends AsyncNotifier<void> {
+class UserNotifier extends AsyncNotifier<void> {
   Future<void> updateUserProfile({
     String? username,
     String? firstName,
@@ -94,7 +31,6 @@ class ProfilePageNotifier extends AsyncNotifier<void> {
       ref.read(loggerProvider).w("No changes detected");
       return;
     }
-    ;
 
     state = const AsyncValue.loading();
     ref.read(loggerProvider).i("Updating user profile");
@@ -109,13 +45,14 @@ class ProfilePageNotifier extends AsyncNotifier<void> {
   }
 
   Future<String?> changeProfilePicture(
-      AsyncFunc<XFile, Uint8List?> afterImageCropped) async {
+      AsyncFunc<XFile, Uint8List?> cropImageScreen) async {
     if (ref.read(connectionProvider) == ConnectionStatus.disconnected) {
       return null;
     }
 
     state = const AsyncValue.loading();
 
+    // Picking image
     Result<XFile?> imagePicked =
         await ref.read(imageServiceProvider).pickImage(ImageSource.gallery);
 
@@ -134,7 +71,8 @@ class ProfilePageNotifier extends AsyncNotifier<void> {
       return null;
     }
 
-    Uint8List? imageBytes = await afterImageCropped(imagePicked.data!);
+    // Cropping the image using the
+    Uint8List? imageBytes = await cropImageScreen(imagePicked.data!);
 
     if (imageBytes == null) {
       ref.read(appErrorProvider.notifier).state =
@@ -144,14 +82,18 @@ class ProfilePageNotifier extends AsyncNotifier<void> {
       return null;
     }
 
-    ref.read(loggerProvider).d("Uploading image");
+    // Uploading image an getting the url
     Result<String> uploadedImageUrl =
         await ref.read(imageServiceProvider).uploadImage(imageBytes);
 
     if (!uploadedImageUrl.isSuccess) {
       ref.read(appErrorProvider.notifier).state = uploadedImageUrl.error;
+
+      state = const AsyncValue.data(null);
+      return null;
     }
 
+    // Updating profile picture using the url
     Result profilePictureUpdateResult = await ref
         .read(usersServiceProvider)
         .updateProfilePicture(uploadedImageUrl.data!);
@@ -159,20 +101,111 @@ class ProfilePageNotifier extends AsyncNotifier<void> {
     if (!profilePictureUpdateResult.isSuccess) {
       ref.read(appErrorProvider.notifier).state =
           profilePictureUpdateResult.error;
+
+      return null;
     }
+
+    // Invalidating profile picture providers
+    ref.invalidate(userProfileImageProvider(
+        (userId: ref.read(authProvider).value!.user!.id, imageUrl: null)));
+    ref.invalidate(userProfileImageProvider((
+      userId: ref.read(authProvider).value!.user!.id,
+      imageUrl: uploadedImageUrl.data!
+    )));
 
     state = const AsyncValue.data(null);
     return uploadedImageUrl.data;
   }
 
+  Future<User?> findUser(String username) async {
+    Result<User?> result =
+        await ref.read(usersServiceProvider).findUser(username);
+
+    if (!result.isSuccess) {
+      ref.read(appErrorProvider.notifier).state = result.error;
+      return null;
+    }
+
+    return result.data;
+  }
+
   @override
-  FutureOr<void> build() {}
+  FutureOr<void> build() async {
+    // Updating the UI on remote user changes
+    ref.listen(syncBackendProvider, (previous, next) {
+      // If there is no error and the payload is not null in the next value, then we have a new payload
+      if (next.error == null && !next.isLoading && next.value != null) {
+        // Checking if the payload is empty or still in progress (loading)
+        if (!next.value!.isAvailable || next.value!.payload!.isEmpty()) return;
+
+        ref.read(loggerProvider).f("Invalidating user providers");
+        for (var user in next.value!.payload!.users) {
+          // ref.read(usersServiceProvider).clearProfilePictureCache(user.id);
+
+          // Invalidating profile picture providers
+          ref.invalidate(userProfileImageProvider(
+              (imageUrl: user.pfpURL, userId: user.id)));
+          ref.invalidate(
+              userProfileImageProvider((imageUrl: null, userId: user.id)));
+
+          ref.invalidate(userLocalProvider(user.id));
+        }
+      }
+    });
+  }
 }
 
-// final profilePageNotifierProvider = NotifierProvider<ProfilePageNotifier,void >(ProfilePageNotifier.new);
+final userProvider =
+    AsyncNotifierProvider<UserNotifier, void>(UserNotifier.new);
 
-final profilePageProvider =
-    AsyncNotifierProvider<ProfilePageNotifier, void>(ProfilePageNotifier.new);
+final userLocalProvider =
+    FutureProvider.autoDispose.family<User?, int>((ref, userId) async {
+  Result<User?> result =
+      await ref.read(usersServiceProvider).getCachedUser(userId);
+
+  ref.read(loggerProvider).d("Created user provider for $userId");
+
+  ref.onDispose(() =>
+      ref.read(loggerProvider).d("Auto disposing user provider of $userId"));
+
+  if (!result.isSuccess) {
+    ref.read(appErrorProvider.notifier).state = result.error;
+
+    throw result.error!.errorObject;
+  }
+
+  return result.data;
+});
+
+// This provider is used to get the profile picture of a user, either from the cache or from a url
+// One thing to note, when getting the image with imageUrl or without it, two different providers are used but reference the same image in cache
+final userProfileImageProvider =
+    FutureProvider.family<Uint8List?, ({int userId, String? imageUrl})>(
+        (ref, user) async {
+  String? url;
+  // If there is not imageUrl provided, we look locally for one with the userId
+  if (user.imageUrl == null) {
+    url = await ref
+        .read(localUsersRepositoryProvider)
+        .userProfileUrl(user.userId);
+
+    if (url == null) {
+      return null;
+    }
+  } else {
+    url = user.imageUrl!;
+  }
+
+  Result<Uint8List?> result =
+      await ref.read(imageServiceProvider).getImageFromUrl(url);
+
+  if (!result.isSuccess) {
+    ref.read(appErrorProvider.notifier).state = result.error;
+    return null;
+  }
+
+  return result.data;
+});
 
 final localUsersRepositoryProvider = Provider<LocalUsersRepository>((ref) {
   return LocalUsersRepository(ref.watch(localDbProvider));

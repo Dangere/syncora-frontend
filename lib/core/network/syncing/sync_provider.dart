@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:collection';
 import 'dart:convert';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -15,14 +16,16 @@ import 'package:syncora_frontend/core/utils/result.dart';
 import 'package:syncora_frontend/features/authentication/auth_provider.dart';
 import 'package:syncora_frontend/features/groups/groups_provider.dart';
 import 'package:syncora_frontend/features/tasks/tasks_provider.dart';
-import 'package:syncora_frontend/features/users/users_provider.dart';
+import 'package:syncora_frontend/features/users/providers/users_provider.dart';
 
 // TODO(DONE): this needs needs serious refactoring with heavy focus on separation of concerns
 class SyncBackendNotifier extends AsyncNotifier<SyncState>
     with WidgetsBindingObserver {
   // When this is enabled, on each time the event payload is received from signalR
   // A fetch call to the state payload will be called to compare both event vs state data, which should be almost the same
-  final bool debugEventPayloadCheck = false;
+  final bool _debugEventPayloadCheck = false;
+  bool _isProcessing = false;
+  Queue<SyncPayload> _payloadQueue = Queue<SyncPayload>();
 
   @override
   FutureOr<SyncState> build() async {
@@ -85,56 +88,65 @@ class SyncBackendNotifier extends AsyncNotifier<SyncState>
     return const SyncIdle();
   }
 
-  // TODO: A throttle needs to be implemented
   void _receiveData(Object? parameter) async {
     if (parameter == null || parameter is! Map<String, dynamic>) return;
     if (ref.read(connectionProvider) == ConnectionStatus.disconnected) return;
     if (ref.read(isAuthenticatedProvider) == false) return;
-    state = const AsyncValue.loading();
 
-    SyncPayload eventPayload = SyncPayload.fromJson(parameter);
+    Result<SyncPayload> result =
+        await ref.read(syncServiceProvider).mapPayload(parameter);
 
-    ref
-        .read(loggerProvider)
-        .d("Sync Notifier: event payload, ${eventPayload.toString()}");
-
-    if (debugEventPayloadCheck) {
-      SyncPayload statePayload =
-          (await ref.read(syncServiceProvider).fetchPayload()).data!;
-
-      ref
-          .read(loggerProvider)
-          .d("Sync Notifier: state payload, ${statePayload.toString()}");
-    }
-
-    Result<void> result =
-        await ref.read(syncServiceProvider).processPayload(eventPayload);
     if (!result.isSuccess) {
       state = AsyncValue.error(result.error!.errorObject,
           result.error!.stackTrace ?? StackTrace.current);
       return;
     }
-
-    state = AsyncValue.data(SyncAvailable(eventPayload));
+    _payloadQueue.add(result.data!);
+    _processQueue();
   }
 
   Future<void> _refreshData() async {
-    if (state.isLoading) return;
-
     if (ref.read(connectionProvider) == ConnectionStatus.disconnected) return;
     if (ref.read(isAuthenticatedProvider) == false) return;
 
-    state = const AsyncValue.loading();
     Result<SyncPayload> result =
-        await ref.read(syncServiceProvider).refreshFromServer();
+        await ref.read(syncServiceProvider).fetchPayload();
 
     if (!result.isSuccess) {
       state = AsyncValue.error(result.error!.errorObject,
           result.error!.stackTrace ?? StackTrace.current);
       return;
     }
+    _payloadQueue.add(result.data!);
+    _processQueue();
+  }
 
-    state = AsyncValue.data(SyncAvailable(result.data!));
+  Future<void> _processQueue() async {
+    // TODO: A queue merge could be done here
+    if (_isProcessing) return Future.value();
+    _isProcessing = true;
+
+    while (_payloadQueue.isNotEmpty) {
+      SyncPayload payload = _payloadQueue.removeFirst();
+
+      Result<void> result =
+          await ref.read(syncServiceProvider).processPayload(payload);
+
+      if (!result.isSuccess) {
+        state = AsyncValue.error(result.error!.errorObject,
+            result.error!.stackTrace ?? StackTrace.current);
+
+        ref.read(appErrorProvider.notifier).state = result.error;
+        return;
+      }
+      ref
+          .read(loggerProvider)
+          .d("Sync Notifier: processed payload, ${payload.toString()}");
+      state = AsyncValue.data(SyncAvailable(payload));
+    }
+    _isProcessing = false;
+
+    return Future.value();
   }
 
   void _receiveVerification(List<Object?>? parameters) {

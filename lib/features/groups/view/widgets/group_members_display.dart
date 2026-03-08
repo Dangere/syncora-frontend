@@ -6,6 +6,7 @@ import 'package:syncora_frontend/core/localization/generated/l10n/app_localizati
 import 'package:syncora_frontend/features/groups/models/group.dart';
 import 'package:syncora_frontend/features/groups/view/popups/group_popups.dart';
 import 'package:syncora_frontend/features/groups/view/widgets/compressed_members_display.dart';
+import 'package:syncora_frontend/features/groups/view/widgets/group_members.dart';
 
 class GroupMembersDisplay extends ConsumerWidget {
   const GroupMembersDisplay(
@@ -89,7 +90,6 @@ class GroupMembersDisplay extends ConsumerWidget {
                   maxMembers: 5,
                 ),
               ),
-
               // Add member
               if (isOwner)
                 Container(

@@ -16,7 +16,7 @@ import 'package:syncora_frontend/core/utils/validators.dart';
 import 'package:syncora_frontend/features/authentication/models/auth_state.dart';
 import 'package:syncora_frontend/features/authentication/models/user.dart';
 import 'package:syncora_frontend/features/authentication/auth_provider.dart';
-import 'package:syncora_frontend/features/users/users_provider.dart';
+import 'package:syncora_frontend/features/users/providers/users_provider.dart';
 
 class ProfileViewPage extends ConsumerStatefulWidget {
   const ProfileViewPage({super.key, required this.userId});
@@ -43,10 +43,10 @@ class _ProfileViewPageState extends ConsumerState<ProfileViewPage> {
   final TextEditingController emailController = TextEditingController();
 
   Future _changeProfilePicture() async {
-    if (ref.read(profilePageProvider).isLoading) return;
+    if (ref.read(userProvider).isLoading) return;
 
     String? imageUrl =
-        await ref.read(profilePageProvider.notifier).changeProfilePicture(
+        await ref.read(userProvider.notifier).changeProfilePicture(
       (arg) async {
         if (mounted) {
           Uint8List? croppedImageBytes =
@@ -103,7 +103,7 @@ class _ProfileViewPageState extends ConsumerState<ProfileViewPage> {
       //         lastNameController.text +
       //         " " +
       //         usernameController.text);
-      await ref.read(profilePageProvider.notifier).updateUserProfile(
+      await ref.read(userProvider.notifier).updateUserProfile(
             firstName: user!.firstName == firstNameController.text
                 ? null
                 : firstNameController.text,
@@ -139,9 +139,10 @@ class _ProfileViewPageState extends ConsumerState<ProfileViewPage> {
   Widget build(BuildContext context) {
     SnackBarAlerts.registerErrorListener(ref, context);
 
-    bool isLoading = ref.watch(profilePageProvider).isLoading;
+    bool isLoading = ref.watch(userProvider).isLoading;
 
-    Future<User?> userFuture = ref.watch(userProvider(widget.userId).future);
+    Future<User?> userFuture =
+        ref.watch(userLocalProvider(widget.userId).future);
     ref.read(loggerProvider).f("Building profile view page");
 
     return Scaffold(
@@ -150,7 +151,7 @@ class _ProfileViewPageState extends ConsumerState<ProfileViewPage> {
           onPressed: () {
             for (var i = 0; i < 10; i++) {
               print("resetting provider");
-              ref.invalidate(userProvider(widget.userId));
+              ref.invalidate(userLocalProvider(widget.userId));
             }
           },
           icon: Icon(Icons.restart_alt)),

@@ -4,6 +4,7 @@ import 'package:syncora_frontend/core/network/outbox/model/outbox_payload.dart';
 import 'package:syncora_frontend/core/typedef.dart';
 import 'package:syncora_frontend/core/utils/result.dart';
 import 'package:syncora_frontend/features/authentication/models/auth_state.dart';
+import 'package:syncora_frontend/features/authentication/models/user.dart';
 import 'package:syncora_frontend/features/groups/models/group.dart';
 import 'package:syncora_frontend/features/groups/repositories/local_groups_repository.dart';
 import 'package:syncora_frontend/features/groups/repositories/remote_groups_repository.dart';
@@ -115,7 +116,7 @@ class GroupsService {
     return Result.success();
   }
 
-  Future<Result<void>> grantAccessToGroup(
+  Future<Result<User?>> grantAccessToGroup(
       {required bool allowAccess,
       required String username,
       required int groupId}) async {
@@ -125,15 +126,16 @@ class GroupsService {
     }
 
     try {
+      User? user;
       if (allowAccess) {
-        await _remoteGroupsRepository.addUserToGroup(
+        user = await _remoteGroupsRepository.addUserToGroup(
             username: username, groupId: groupId);
       } else {
         await _remoteGroupsRepository.removeUserFromGroup(
             username: username, groupId: groupId);
       }
 
-      return Result.success();
+      return Result.success(user);
     } catch (e, stackTrace) {
       return Result.failure(e, stackTrace);
     }
