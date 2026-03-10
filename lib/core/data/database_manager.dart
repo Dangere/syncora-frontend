@@ -90,7 +90,7 @@ class DatabaseManager {
     await db.execute('''
       CREATE TABLE ${DatabaseTables.groups}  (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        clientGeneratedId INTEGER,
+        clientGeneratedId INTEGER UNIQUE,
         ownerUserId INTEGER NOT NULL,
         title TEXT NOT NULL,
         description TEXT,
@@ -114,7 +114,7 @@ class DatabaseManager {
     await db.execute('''
       CREATE TABLE ${DatabaseTables.tasks} (
         id INTEGER PRIMARY KEY,
-        clientGeneratedId INTEGER,
+        clientGeneratedId INTEGER UNIQUE,
         title TEXT NOT NULL,
         description TEXT,
         completedById INTEGER,

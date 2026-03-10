@@ -5,7 +5,6 @@ import 'package:syncora_frontend/common/themes/app_spacing.dart';
 import 'package:syncora_frontend/common/widgets/app_button.dart';
 import 'package:syncora_frontend/common/widgets/marquee_widget.dart';
 import 'package:syncora_frontend/core/localization/generated/l10n/app_localizations.dart';
-import 'package:syncora_frontend/core/utils/result.dart';
 import 'package:syncora_frontend/core/utils/snack_bar_alerts.dart';
 import 'package:syncora_frontend/features/authentication/models/auth_state.dart';
 import 'package:syncora_frontend/features/authentication/auth_provider.dart';
@@ -19,31 +18,35 @@ import 'package:syncora_frontend/features/groups/groups_provider.dart';
 import 'package:syncora_frontend/features/users/providers/users_provider.dart';
 
 class GroupPage extends ConsumerStatefulWidget {
-  const GroupPage({super.key, required this.groupId});
-  final int groupId;
+  const GroupPage({super.key, required this.initialGroupId});
+  final int initialGroupId;
   @override
   ConsumerState<ConsumerStatefulWidget> createState() => GroupPageState();
 }
 
 class GroupPageState extends ConsumerState<GroupPage> {
   late bool isOwner;
+  // Initially set to groupId, but when the group id is updated this will update to reflect it
 
   @override
   void initState() {
     isOwner = ref.read(groupsProvider.notifier).isGroupOwner(
-        groupId: widget.groupId,
+        groupId: widget.initialGroupId,
         userId: ref.read(authProvider).value!.user!.id);
 
     super.initState();
   }
 
-  void addUserToGroupPopup(List<int> membersIds, int ownerId) async {
+  void addUserToGroupPopup(
+      {required List<int> membersIds,
+      required int ownerId,
+      required int groupId}) async {
     // Selecting the users to add
     List<User>? users = await GroupPopups.selectUsersForAddingPopup(context,
         ownerId: ownerId,
         findUser: ref.read(userProvider.notifier).findUser,
         currentMembers: () =>
-            ref.read(groupsProvider.notifier).getGroupMembers(widget.groupId));
+            ref.read(groupsProvider.notifier).getGroupMembers(groupId));
 
     ref
         .read(loggerProvider)
@@ -51,16 +54,15 @@ class GroupPageState extends ConsumerState<GroupPage> {
     if (users == null) return;
 
     await ref.read(groupsProvider.notifier).allowUsersAccessToGroup(
-        groupId: widget.groupId,
-        usernames: users.map((e) => e.username).toList());
+        groupId: groupId, usernames: users.map((e) => e.username).toList());
   }
 
-  void createTaskPopup() async {
+  void createTaskPopup(int groupId) async {
     String? taskTitle = await GroupPopups.createTaskPopup(context);
     if (taskTitle == null) return;
 
     ref
-        .read(tasksProvider(widget.groupId).notifier)
+        .read(tasksProvider(groupId).notifier)
         .createTask(title: taskTitle.trim(), description: null);
   }
 
@@ -71,11 +73,11 @@ class GroupPageState extends ConsumerState<GroupPage> {
 
     return Consumer(
         child: TasksList(
-          groupId: widget.groupId,
+          initialGroupId: widget.initialGroupId,
         ),
         builder: (context, ref, tasksList) {
           AsyncValue<Group> groupAsync =
-              ref.watch(groupViewProvider(widget.groupId));
+              ref.watch(groupViewProvider(widget.initialGroupId));
           ref.read(loggerProvider).i("Building group view page, $groupAsync ");
 
           if (!groupAsync.hasValue) {
@@ -87,7 +89,17 @@ class GroupPageState extends ConsumerState<GroupPage> {
             extendBodyBehindAppBar: true,
             appBar: AppBar(
               // foregroundColor: Colors.transparent,
-              title: MarqueeWidget(child: Text(group.title)),
+              title: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  MarqueeWidget(child: Text(group.title)),
+                  if (group.isInLocalState())
+                    Icon(
+                      Icons.sync,
+                      color: Theme.of(context).colorScheme.secondary,
+                    )
+                ],
+              ),
               centerTitle: true,
               actions: [
                 // GROUP EXTRA/INFO
@@ -130,11 +142,13 @@ class GroupPageState extends ConsumerState<GroupPage> {
                       group: group,
                       isOwner: isOwner,
                       onAddingMember: () => addUserToGroupPopup(
-                          group.groupMembersIds, group.ownerUserId),
+                          membersIds: group.groupMembersIds,
+                          ownerId: group.ownerUserId,
+                          groupId: group.id),
                     ),
                     AppSpacing.verticalSpaceLg,
 
-                    // FILTER AND GROUPS
+                    // FILTER AND TASKS
                     Expanded(
                         child: Container(
                       decoration: BoxDecoration(
@@ -173,7 +187,7 @@ class GroupPageState extends ConsumerState<GroupPage> {
                                   padding: const EdgeInsets.symmetric(
                                       horizontal: AppSpacing.lg),
                                   // variant: AppButtonVariant.wide,
-                                  onPressed: createTaskPopup,
+                                  onPressed: () => createTaskPopup(group.id),
                                   size: AppButtonSize.mini,
                                   style: AppButtonStyle.filled,
                                   intent: AppButtonIntent.primary,

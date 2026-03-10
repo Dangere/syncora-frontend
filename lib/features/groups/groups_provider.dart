@@ -94,45 +94,36 @@ class GroupsNotifier extends AsyncNotifier<List<Group>> {
     reloadViewedGroups([groupId]);
   }
 
-  Future<User?> allowUserAccessToGroup(
+  Future<bool> allowUserAccessToGroup(
       {required int groupId, required String username}) async {
-    Result<User?> updateResult = await ref
+    Result updateResult = await ref
         .read(groupsServiceProvider)
         .grantAccessToGroup(
-            allowAccess: true, groupId: groupId, username: username);
+            allowAccess: true, groupId: groupId, usernames: [username]);
 
     ref.read(loggerProvider).d(updateResult);
 
     if (!updateResult.isSuccess) {
       ref.read(appErrorProvider.notifier).state = updateResult.error;
-      return null;
+      return false;
     }
     _reloadGroupsList();
-    return updateResult.data;
+    return true;
   }
 
   Future<void> allowUsersAccessToGroup(
       {required int groupId, required List<String> usernames}) async {
-    List<Result> failedResults = List.empty(growable: true);
+    ref.read(loggerProvider).d("Groups provider: Adding $usernames");
+    Result<void> updateResult = await ref
+        .read(groupsServiceProvider)
+        .grantAccessToGroup(
+            allowAccess: true, groupId: groupId, usernames: usernames);
 
-    for (var i = 0; i < usernames.length; i++) {
-      ref.read(loggerProvider).d("Groups provider: Adding ${usernames[i]}");
-      Result<User?> updateResult = await ref
-          .read(groupsServiceProvider)
-          .grantAccessToGroup(
-              allowAccess: true, groupId: groupId, username: usernames[i]);
-
-      if (!updateResult.isSuccess) {
-        failedResults.add(updateResult);
-      }
+    if (!updateResult.isSuccess) {
+      ref.read(appErrorProvider.notifier).state = updateResult.error;
+      return;
     }
 
-    if (failedResults.isNotEmpty) {
-      failedResults.forEach((e) async {
-        ref.read(appErrorProvider.notifier).state = e.error;
-        await Future.delayed(const Duration(seconds: 3));
-      });
-    }
     _reloadGroupsList();
   }
 
@@ -141,7 +132,7 @@ class GroupsNotifier extends AsyncNotifier<List<Group>> {
     Result<void> updateResult = await ref
         .read(groupsServiceProvider)
         .grantAccessToGroup(
-            allowAccess: false, groupId: groupId, username: username);
+            allowAccess: false, groupId: groupId, usernames: [username]);
     ref.read(loggerProvider).d(updateResult);
 
     if (!updateResult.isSuccess) {
@@ -244,9 +235,8 @@ class GroupsNotifier extends AsyncNotifier<List<Group>> {
   // Takes in a list of ids of groups that were modified to check if they're currently displayed then refresh the UI corresponding to them
   void reloadViewedGroups(List<int> groupIds) async {
     for (var id in groupIds) {
-      if (ref.exists(groupViewGetterProvider(id))) {
-        ref.invalidate(groupViewGetterProvider(id));
-      }
+      ref.read(outboxIdMapperProvider).getServerId(id);
+      ref.invalidate(groupViewGetterProvider(id));
     }
   }
 
@@ -331,14 +321,19 @@ final groupViewGetterProvider =
 // UI calls groupViewProvider with a temp or a server id, groupViewProvider tries to map the temp id to a server id then calls groupViewGetterProvider to get the group.
 // If groupViewGetterProvider is invalidated (To refresh UI) then groupViewProvider is invalidated and tries to map the temp id to a server id then calls groupViewGetterProvider with the resolved Id
 // Ultimately groupViewGetterProvider is updated to respond to a new Id when invalidated
+// TODO: Note down this pattern in a note
 final groupViewProvider =
     FutureProvider.family.autoDispose<Group, int>((ref, id) async {
   int resolvedId;
 
-  Result<int> serverId = await ref.read(outboxIdMapperProvider).getServerId(id);
+  Result<int?> serverId =
+      await ref.read(outboxIdMapperProvider).getServerId(id);
+  if (!serverId.isSuccess) {
+    ref.read(appErrorProvider.notifier).state = serverId.error;
+  }
 
   // If id doesn't have a server id, use the temp id
-  if (!serverId.isSuccess) {
+  if (serverId.data == null) {
     resolvedId = id;
   } else {
     resolvedId = serverId.data!;

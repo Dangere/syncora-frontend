@@ -66,6 +66,11 @@ class OutboxService {
 
   // TODO: One thing to consider is if the refresh token runs out and the user get a 401 response which kicks them, however in the process it will revert the changes made offline and stored in outbox.
 
+  /// When syncing a local group to the cloud, `onGroupModified` gets called with that group's temp id
+  ///
+  /// `onFail` gets called with the error
+  ///
+  /// `requireSecondPass` gets called when the queue is done processing and possibly some new entries were undeleted so a second pass
   Future<Result<void>> processQueue(
       {required Func<int, void> onGroupModified,
       required Func<Exception, void> onFail,
@@ -112,7 +117,7 @@ class OutboxService {
           await _outboxRepository.markEntryInProcess(entry.id!);
 
           // TODO: remove artificial delay
-          // await Future.delayed(const Duration(seconds: 3));
+          await Future.delayed(const Duration(seconds: 3));
 
           int processResult =
               await _processors[entry.entityType]!.processToBackend(entry);

@@ -116,9 +116,9 @@ class GroupsService {
     return Result.success();
   }
 
-  Future<Result<User?>> grantAccessToGroup(
+  Future<Result> grantAccessToGroup(
       {required bool allowAccess,
-      required String username,
+      required List<String> usernames,
       required int groupId}) async {
     if (!_isOnline) {
       return Result.failureMessage(
@@ -126,16 +126,15 @@ class GroupsService {
     }
 
     try {
-      User? user;
       if (allowAccess) {
-        user = await _remoteGroupsRepository.addUserToGroup(
-            username: username, groupId: groupId);
+        await _remoteGroupsRepository.addUsersToGroup(
+            usernames: usernames, groupId: groupId);
       } else {
-        await _remoteGroupsRepository.removeUserFromGroup(
-            username: username, groupId: groupId);
+        await _remoteGroupsRepository.removeUsersFromGroup(
+            usernames: usernames, groupId: groupId);
       }
 
-      return Result.success(user);
+      return Result.success();
     } catch (e, stackTrace) {
       return Result.failure(e, stackTrace);
     }

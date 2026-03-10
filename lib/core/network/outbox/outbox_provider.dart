@@ -83,8 +83,10 @@ class OutboxNotifier extends AsyncNotifier<OutboxStatus>
       onGroupModified: (groupId) {
         // TODO: This is being called on each group update to reflect the changes on the UI but relaoding the entire groups each time is a bit expensive...
         // ref.read(groupsNotifierProvider.notifier)._reloadGroups();
+
         ref.read(groupsProvider.notifier).reloadViewedGroups([groupId]);
-        ref.read(tasksProvider(groupId).notifier).reloadTasks();
+        if (ref.exists(tasksProvider(groupId)))
+          ref.read(tasksProvider(groupId).notifier).reloadTasks();
       },
       requireSecondPass: () {
         ref

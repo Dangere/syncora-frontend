@@ -83,14 +83,15 @@ class AuthNotifier extends AsyncNotifier<AuthState> {
     }
   }
 
-  void loginWithEmailAndPassword(String email, String password) async {
+  void loginWithEmailAndPassword(
+      {required String email, required String password}) async {
     if (state.isLoading || _isLoggedIn) return;
 
     state = const AsyncValue.loading();
 
     Result<AuthResponseDTO> result = await ref
         .read(authServiceProvider)
-        .loginWithEmailAndPassword(email, password);
+        .loginWithEmailAndPassword(email: email, password: password);
 
     if (result.isSuccess) {
       // Save session
@@ -109,14 +110,23 @@ class AuthNotifier extends AsyncNotifier<AuthState> {
   }
 
   void registerWithEmailAndPassword(
-      String email, String username, String password) async {
+      {required String email,
+      required String username,
+      required String firstName,
+      required String lastName,
+      required String password}) async {
     if (state.isLoading || _isLoggedIn) return;
 
     state = const AsyncValue.loading();
 
     Result<AuthResponseDTO> result = await ref
         .read(authServiceProvider)
-        .registerWithEmailAndPassword(email, username, password);
+        .registerWithEmailAndPassword(
+            email: email,
+            username: username,
+            password: password,
+            firstName: firstName,
+            lastName: lastName);
 
     if (result.isSuccess) {
       // Save session

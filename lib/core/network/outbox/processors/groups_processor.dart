@@ -32,7 +32,7 @@ class GroupsProcessor extends OutboxProcessor {
     int? groupId;
     if (entry.actionType != OutboxActionType.create) {
       Result result = await idMapper.getServerId(entry.entityId);
-      if (!result.isSuccess) {
+      if (!result.isSuccess || result.data == null) {
         throw OutboxDependencyFailureException(
             "Group dependency failed to get, entry: ${entry.toTable()}");
       }
@@ -99,7 +99,7 @@ class GroupsProcessor extends OutboxProcessor {
     if (entry.actionType != OutboxActionType.create) {
       // Every time we call getServerId, we are SURE that temp id is already synced to server
       Result result = await idMapper.getServerId(entry.entityId);
-      if (!result.isSuccess) {
+      if (!result.isSuccess || result.data == null) {
         throw OutboxDependencyFailureException(
             "Group dependency failed to get, entry: ${entry.toTable()}");
       }

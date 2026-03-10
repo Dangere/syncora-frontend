@@ -16,69 +16,83 @@ class GroupPanel extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-        height: 126,
-        decoration: BoxDecoration(
-          boxShadow: [AppShadow.shadow0(context)],
-          color: Theme.of(context).colorScheme.surfaceContainer,
-          borderRadius: BorderRadius.circular(AppSizes.borderRadius0),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              group.title,
-              style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                    fontWeight: FontWeight.w700,
-                  ),
+      child: Stack(
+        children: [
+          // if (group.id < 0)
+
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            height: 126,
+            decoration: BoxDecoration(
+              boxShadow: [AppShadow.shadow0(context)],
+              color: Theme.of(context).colorScheme.surfaceContainer,
+              borderRadius: BorderRadius.circular(AppSizes.borderRadius0),
             ),
-            const SizedBox(height: 10),
-            Text(
-              "${group.description}",
-              style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                  height: 1.2,
-                  color: Theme.of(context).colorScheme.outlineVariant),
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-            ),
-            Expanded(child: Container()),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // TASKS COUNT
+                Text(
+                  group.title,
+                  style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                        fontWeight: FontWeight.w700,
+                      ),
+                ),
+                const SizedBox(height: 10),
+                Text(
+                  "${group.description}",
+                  style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                      height: 1.2,
+                      color: Theme.of(context).colorScheme.outlineVariant),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                Expanded(child: Container()),
                 Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Icon(
-                      Icons.my_library_books_outlined,
-                      size: 20,
-                      color: Theme.of(context).colorScheme.outline,
+                    // TASKS COUNT
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.my_library_books_outlined,
+                          size: 20,
+                          color: Theme.of(context).colorScheme.outline,
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          "${group.tasksIds.length}",
+                          style: Theme.of(context)
+                              .textTheme
+                              .bodyMedium!
+                              .copyWith(fontWeight: FontWeight.w700),
+                        ),
+                        Text(
+                          " ${AppLocalizations.of(context).tasks}",
+                          style: Theme.of(context).textTheme.bodyMedium,
+                        )
+                      ],
                     ),
-                    const SizedBox(width: 4),
-                    Text(
-                      "${group.tasksIds.length}",
-                      style: Theme.of(context)
-                          .textTheme
-                          .bodyMedium!
-                          .copyWith(fontWeight: FontWeight.w700),
+                    // MEMBERS DISPLAY
+                    CompressedMembersDisplay(
+                      memberIds: group.groupMembersIds,
+                      ownerId: group.ownerUserId,
+                      radius: memberIconsRadius,
+                      spacing: memberIconsSpacing,
                     ),
-                    Text(
-                      " ${AppLocalizations.of(context).tasks}",
-                      style: Theme.of(context).textTheme.bodyMedium,
-                    )
                   ],
-                ),
-                // MEMBERS DISPLAY
-                CompressedMembersDisplay(
-                  memberIds: group.groupMembersIds,
-                  ownerId: group.ownerUserId,
-                  radius: memberIconsRadius,
-                  spacing: memberIconsSpacing,
-                ),
+                )
               ],
-            )
-          ],
-        ),
+            ),
+          ),
+          if (group.isInLocalState())
+            Positioned(
+                top: 10,
+                right: 10,
+                child: Icon(
+                  Icons.sync,
+                  color: Theme.of(context).colorScheme.secondary,
+                )),
+        ],
       ),
     );
   }

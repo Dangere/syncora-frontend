@@ -52,9 +52,11 @@ class _SignUpPageState extends ConsumerState<SignUpPage> {
     void signUp() {
       if (!_formKey.currentState!.validate() || user.isLoading) return;
       ref.read(authProvider.notifier).registerWithEmailAndPassword(
-          emailController.text.trim(),
-          usernameController.text.trim(),
-          passwordController.text.trim());
+          email: emailController.text.trim(),
+          username: usernameController.text.trim(),
+          firstName: firstNameController.text.trim(),
+          lastName: lastNameController.text.trim(),
+          password: passwordController.text.trim());
     }
 
     void googleSignUp() {

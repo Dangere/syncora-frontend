@@ -160,10 +160,10 @@ class SyncBackendNotifier extends AsyncNotifier<SyncState>
   // Handling when the app is resumed, recalling the sync just to make sure we are up to date
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.resumed) {
-      ref.read(loggerProvider).d("Sync Notifier: syncing on resume");
-      _refreshData();
-    }
+    // if (state == AppLifecycleState.resumed) {
+    //   ref.read(loggerProvider).d("Sync Notifier: syncing on resume");
+    //   _refreshData();
+    // }
   }
 }
 

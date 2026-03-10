@@ -28,7 +28,7 @@ class TasksProcessor extends OutboxProcessor {
   Future<int> processToBackend(OutboxEntry entry) async {
     // Getting our mandatory group id dependency
     Result groupIdResult = await idMapper.getServerId(entry.dependencyId!);
-    if (!groupIdResult.isSuccess) {
+    if (!groupIdResult.isSuccess || groupIdResult.data == null) {
       throw OutboxDependencyFailureException(
           "Group dependency failed to get, entry: ${entry.toTable()}");
     }
@@ -38,7 +38,7 @@ class TasksProcessor extends OutboxProcessor {
     int? taskId;
     if (entry.actionType != OutboxActionType.create) {
       Result taskIdResult = await idMapper.getServerId(entry.entityId);
-      if (!groupIdResult.isSuccess) {
+      if (!groupIdResult.isSuccess || groupIdResult.data == null) {
         throw OutboxDependencyFailureException(
             "Task dependency failed to get, entry: ${entry.toTable()}");
       }
@@ -94,7 +94,7 @@ class TasksProcessor extends OutboxProcessor {
   @override
   Future<int> revertLocalChange(OutboxEntry entry) async {
     Result groupIdResult = await idMapper.getServerId(entry.dependencyId!);
-    if (!groupIdResult.isSuccess) {
+    if (!groupIdResult.isSuccess || groupIdResult.data == null) {
       throw OutboxDependencyFailureException(
           "Group dependency failed to get, entry: ${entry.toTable()}");
     }
@@ -105,7 +105,7 @@ class TasksProcessor extends OutboxProcessor {
     int? taskId;
     if (entry.actionType != OutboxActionType.create) {
       Result taskIdResult = await idMapper.getServerId(entry.entityId);
-      if (!groupIdResult.isSuccess) {
+      if (!groupIdResult.isSuccess || groupIdResult.data == null) {
         throw OutboxDependencyFailureException(
             "Task dependency failed to get, entry: ${entry.toTable()}");
       }

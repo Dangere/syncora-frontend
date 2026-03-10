@@ -39,21 +39,25 @@ class RemoteGroupsRepository {
   //   return groups;
   // }
 
-  Future<User> addUserToGroup(
-      {required String username, required int groupId}) async {
-    final response = await _dio
-        .post(
-            '${Constants.BASE_API_URL}/groups/$groupId/grant-access/$username')
+  Future<void> addUsersToGroup(
+      {required List<String> usernames, required int groupId}) async {
+    await _dio
+        .post('${Constants.BASE_API_URL}/groups/$groupId/grant-access',
+            options: Options(
+              contentType: 'application/json',
+            ),
+            data: usernames)
         .timeout(const Duration(seconds: 10));
-
-    return User.fromJson(response.data);
   }
 
-  Future<void> removeUserFromGroup(
-      {required String username, required int groupId}) async {
+  Future<void> removeUsersFromGroup(
+      {required List<String> usernames, required int groupId}) async {
     await _dio
-        .post(
-            '${Constants.BASE_API_URL}/groups/$groupId/revoke-access/$username')
+        .post('${Constants.BASE_API_URL}/groups/$groupId/revoke-access',
+            options: Options(
+              contentType: 'application/json',
+            ),
+            data: usernames)
         .timeout(const Duration(seconds: 10));
   }
 

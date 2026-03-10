@@ -33,6 +33,15 @@ final tasksServiceProvider = Provider<TasksService>((ref) {
   );
 });
 
+// final tasksViewGetterProvider =
+//     FutureProvider.family.autoDispose<List<Task>?, int>((ref, id) async {
+//   try {
+//     return await ref.read(localGroupsRepositoryProvider).getGroup(id);
+//   } catch (e) {
+//     return null;
+//   }
+// });
+
 // This notifier is used to load tasks for a specific group
 // It updates the UI when a method to modify tasks is called
 // Or when the sync state changes

@@ -297,20 +297,39 @@ class OutboxRepository {
   }
 
   // Returns the server id of a row in tasks or group tables using temp ids
-  Future<int> getServerId(int tempId) async {
+  /// Returns `null` when task/group isn't synced
+  Future<int?> getServerId(int tempId) async {
     Database db = await _databaseManager.getDatabase();
 
-    var result = await db.query(DatabaseTables.groups,
-        where: "clientGeneratedId = ?", whereArgs: [tempId]);
-    if (result.isEmpty) {
-      result = await db.query(DatabaseTables.tasks,
-          where: "clientGeneratedId = ?", whereArgs: [tempId]);
-    }
+    var result = await db.rawQuery("""
+      SELECT id FROM ${DatabaseTables.groups} WHERE clientGeneratedId = ?
+      UNION ALL
+      SELECT id FROM ${DatabaseTables.tasks}  WHERE clientGeneratedId = ?
+      LIMIT 1
+    """, [tempId, tempId]);
 
     if (result.isEmpty) {
-      throw Exception("Group or task with temp id $tempId was not found");
+      return null;
     }
 
     return result.first["id"] as int;
+  }
+
+  /// Returns `null` when task/group doesn't have a temp id meaning it was fetched from the server
+  Future<int?> getTempId(int serverId) async {
+    Database db = await _databaseManager.getDatabase();
+
+    var result = await db.rawQuery("""
+      SELECT clientGeneratedId FROM ${DatabaseTables.groups} WHERE id = ?
+      UNION ALL
+      SELECT clientGeneratedId FROM ${DatabaseTables.tasks}  WHERE id = ?
+      LIMIT 1
+    """, [serverId, serverId]);
+
+    if (result.isEmpty) {
+      return null;
+    }
+
+    return result.first["clientGeneratedId"] as int?;
   }
 }

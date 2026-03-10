@@ -131,7 +131,7 @@ class RouteNotifier extends Notifier<GoRouter> {
             int groupId = int.parse(state.pathParameters['groupId']!);
 
             return GroupPage(
-              groupId: groupId,
+              initialGroupId: groupId,
             );
           },
         ),

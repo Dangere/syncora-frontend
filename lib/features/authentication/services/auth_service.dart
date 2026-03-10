@@ -26,10 +26,10 @@ class AuthService {
       : _authRepository = authRepository;
 
   Future<Result<AuthResponseDTO>> loginWithEmailAndPassword(
-      String email, String password) async {
+      {required String email, required String password}) async {
     try {
-      AuthResponseDTO loginResponse =
-          await _authRepository.loginWithEmailAndPassword(email, password);
+      AuthResponseDTO loginResponse = await _authRepository
+          .loginWithEmailAndPassword(email: email, password: password);
       return Result.success(loginResponse);
     } catch (e, stackTrace) {
       return Result.failure(e, stackTrace);
@@ -37,10 +37,19 @@ class AuthService {
   }
 
   Future<Result<AuthResponseDTO>> registerWithEmailAndPassword(
-      String email, String username, String password) async {
+      {required String email,
+      required String username,
+      required String firstName,
+      required String lastName,
+      required String password}) async {
     try {
-      AuthResponseDTO registerResponse = await _authRepository
-          .registerWithEmailAndPassword(email, username, password);
+      AuthResponseDTO registerResponse =
+          await _authRepository.registerWithEmailAndPassword(
+              email: email,
+              username: username,
+              firstName: firstName,
+              lastName: lastName,
+              password: password);
 
       return Result.success(registerResponse);
     } catch (e, stackTrace) {

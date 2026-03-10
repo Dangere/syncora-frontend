@@ -21,6 +21,8 @@ class Group extends Equatable {
     required this.tasksIds,
   });
 
+  bool isInLocalState() => id < 0;
+
   factory Group.fromDto(GroupDTO dto, List<int> taskIds) {
     return Group(
       id: dto.id,

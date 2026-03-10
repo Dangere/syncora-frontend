@@ -10,7 +10,7 @@ class AuthRepository {
   AuthRepository({required Dio dio}) : _dio = dio;
 
   Future<AuthResponseDTO> loginWithEmailAndPassword(
-      String email, String password) async {
+      {required String email, required String password}) async {
     // Getting the login response
     final response = await _dio
         .post("${Constants.BASE_API_URL}/authentication/login", data: {
@@ -25,13 +25,19 @@ class AuthRepository {
   }
 
   Future<AuthResponseDTO> registerWithEmailAndPassword(
-      String email, String username, String password) async {
+      {required String email,
+      required String username,
+      required String firstName,
+      required String lastName,
+      required String password}) async {
     // Getting the register response
     final response = await _dio
         .post("${Constants.BASE_API_URL}/authentication/register", data: {
       "Email": email,
       "Username": username,
-      "Password": password
+      "Password": password,
+      "FirstName": firstName,
+      "LastName": lastName
     }).timeout(const Duration(seconds: 20));
 
     AuthResponseDTO authResponse = AuthResponseDTO.fromJson(response.data);

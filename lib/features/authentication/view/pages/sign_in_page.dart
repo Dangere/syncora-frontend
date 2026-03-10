@@ -44,7 +44,8 @@ class _SignInPageState extends ConsumerState<SignInPage> {
       // Check if form is valid before attempting to login
       if (!_formKey.currentState!.validate() || user.isLoading) return;
       ref.read(authProvider.notifier).loginWithEmailAndPassword(
-          emailController.text.trim(), passwordController.text.trim());
+          email: emailController.text.trim(),
+          password: passwordController.text.trim());
     }
 
     void googleSignIn() {
