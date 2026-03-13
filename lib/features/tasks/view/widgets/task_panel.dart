@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:path/path.dart';
 import 'package:syncora_frontend/common/themes/app_theme.dart';
 import 'package:syncora_frontend/common/widgets/marquee_widget.dart';
 import 'package:syncora_frontend/features/groups/view/widgets/compressed_members_display.dart';
@@ -12,17 +11,20 @@ class TaskPanel extends StatelessWidget {
       required this.isCompleted,
       required this.onDelete,
       required this.onTap,
+      required this.onHold,
       required this.assignedUsers,
       required this.isOwner});
   final Task task;
   final VoidCallback onDelete;
   final VoidCallback onTap;
+  final VoidCallback onHold;
   final List<int> assignedUsers;
   final bool isOwner;
   final bool isCompleted;
 
   Widget _body(BuildContext context) => GestureDetector(
         onTap: onTap,
+        onLongPress: onHold,
         child: SizedBox(
           // height: 66,
           child: Container(
@@ -33,7 +35,7 @@ class TaskPanel extends StatelessWidget {
               borderRadius: BorderRadius.circular(20),
             ),
             child: Row(mainAxisAlignment: MainAxisAlignment.start, children: [
-              _ToggleButton(value: isCompleted),
+              _CheckButton(value: isCompleted),
               const SizedBox(
                 width: 13,
               ),
@@ -97,8 +99,8 @@ class TaskPanel extends StatelessWidget {
   }
 }
 
-class _ToggleButton extends StatelessWidget {
-  const _ToggleButton({required this.value});
+class _CheckButton extends StatelessWidget {
+  const _CheckButton({required this.value});
   final bool value;
 
   @override

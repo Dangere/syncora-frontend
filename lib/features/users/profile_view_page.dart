@@ -96,6 +96,7 @@ class _ProfileViewPageState extends ConsumerState<ProfileViewPage> {
 
   void _saveChanges() async {
     if (!isCurrentUser) return;
+    // TODO: This validation does not work on the second time?
     if (_formKey.currentState!.validate()) {
       // ref.read(loggerProvider).i(user!.firstName ==
       //     firstNameController.text +
@@ -114,10 +115,9 @@ class _ProfileViewPageState extends ConsumerState<ProfileViewPage> {
                 ? null
                 : usernameController.text,
           );
+      FocusScope.of(context).unfocus();
+      _setEditMode(false);
     }
-
-    FocusScope.of(context).unfocus();
-    _setEditMode(false);
   }
 
   @override

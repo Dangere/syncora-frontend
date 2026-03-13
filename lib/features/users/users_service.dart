@@ -51,10 +51,11 @@ class UsersService {
     }
   }
 
-  Future<Result<List<User>>> getGroupMembers(int groupId) async {
+  Future<Result<List<User>>> getGroupMembers(
+      int groupId, bool includeOwner) async {
     try {
       return Result.success<List<User>>(
-          await _localUsersRepository.getGroupMembers(groupId));
+          await _localUsersRepository.getGroupMembers(groupId, includeOwner));
     } catch (e, stackTrace) {
       return Result.failure(e, stackTrace);
     }

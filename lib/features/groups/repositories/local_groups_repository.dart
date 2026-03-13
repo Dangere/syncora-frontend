@@ -93,7 +93,7 @@ class LocalGroupsRepository {
     return groupList;
   }
 
-  Future<Group> getGroup(int groupId) async {
+  Future<Group?> getGroup(int groupId) async {
     final db = await _databaseManager.getDatabase();
     final bool isJson1Supported = _databaseManager.isJson1Supported;
 
@@ -113,7 +113,7 @@ class LocalGroupsRepository {
         WHERE isDeleted = 0 AND id = $groupId''');
 
     if (groupRow.isEmpty) {
-      throw Exception("Group with id $groupId not found");
+      return null;
     }
 
     Group group = Group.fromJson(groupRow[0], isJson1Supported);

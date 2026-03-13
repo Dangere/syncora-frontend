@@ -22,7 +22,7 @@ class AppShadow {
   /// Timid shadow
   static BoxShadow shadow0(BuildContext context) {
     return BoxShadow(
-      color: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.12),
+      color: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.2),
       offset: const Offset(0, 4),
       blurRadius: 18.2,
       spreadRadius: 0,
@@ -206,8 +206,8 @@ class AppTheme {
       // INPUT DECORATION
       inputDecorationTheme: InputDecorationTheme(
           floatingLabelBehavior: FloatingLabelBehavior.never,
-          contentPadding:
-              const EdgeInsets.symmetric(horizontal: 20, vertical: 0),
+          // contentPadding:
+          //     const EdgeInsets.symmetric(horizontal: 20, vertical: 0),
           constraints: const BoxConstraints(
               // minHeight: 45,
               // maxHeight: 45,

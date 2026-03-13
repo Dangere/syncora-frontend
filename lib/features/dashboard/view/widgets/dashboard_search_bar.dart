@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:logger/logger.dart';
 import 'package:syncora_frontend/common/providers/common_providers.dart';
 import 'package:syncora_frontend/common/themes/app_spacing.dart';
 import 'package:syncora_frontend/core/localization/generated/l10n/app_localizations.dart';
@@ -32,14 +31,16 @@ class _DashboardSearchBarState extends ConsumerState<DashboardSearchBar> {
   Widget build(BuildContext context) {
     ref.read(loggerProvider).d("DashboardSearchBar build");
 
-    List<String> suggestions = ref.read(searchBarSuggestionsProvider);
+    List<String> suggestions = ref.read(searchBarSuggestionsProvider("groups"));
     void onSearch(String query) {
       dismissedBar = true;
       ref
           .read(groupsProvider.notifier)
           .searchGroups(query.isEmpty ? null : query);
       if (query.isEmpty) return;
-      ref.read(searchBarSuggestionsProvider.notifier).addSuggestion(query);
+      ref
+          .read(searchBarSuggestionsProvider("groups").notifier)
+          .addSuggestion(query);
       // controller.(query);
     }
 

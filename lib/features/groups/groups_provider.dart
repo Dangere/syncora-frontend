@@ -6,6 +6,8 @@ import 'package:syncora_frontend/common/providers/connection_provider.dart';
 import 'package:syncora_frontend/core/network/outbox/outbox_provider.dart';
 import 'package:syncora_frontend/core/network/syncing/sync_state.dart';
 import 'package:syncora_frontend/core/network/syncing/sync_provider.dart';
+import 'package:syncora_frontend/core/utils/app_error.dart';
+import 'package:syncora_frontend/core/utils/error_mapper.dart';
 import 'package:syncora_frontend/core/utils/result.dart';
 import 'package:syncora_frontend/features/authentication/models/auth_state.dart';
 import 'package:syncora_frontend/features/authentication/auth_provider.dart';
@@ -15,6 +17,7 @@ import 'package:syncora_frontend/features/groups/repositories/local_groups_repos
 import 'package:syncora_frontend/features/groups/repositories/remote_groups_repository.dart';
 import 'package:syncora_frontend/features/groups/repositories/statistics_repository.dart';
 import 'package:syncora_frontend/features/groups/groups_service.dart';
+import 'package:syncora_frontend/features/tasks/tasks_provider.dart';
 import 'package:syncora_frontend/features/users/providers/users_provider.dart';
 import 'package:syncora_frontend/router.dart';
 
@@ -34,6 +37,57 @@ class GroupsNotifier extends AsyncNotifier<List<Group>> {
   // A bool that gets set to true when the groups list needs to be reloaded but the user is not viewing it yet
   bool _waitingToReloadGroupList = false;
 
+  // This gets called when the outbox processor updates a group, it returns a serverId
+  // This gets called after onOutboxGroupIdUpdate
+  void onOutboxGroupUpdate(int groupId) {
+    ref.read(loggerProvider).d("Groups provider: Outbox update received");
+
+    reloadViewedGroups([groupId]);
+
+    // TODO:This is temporary
+    if (ref.exists(tasksProvider(groupId)))
+      ref.invalidate(tasksProvider(groupId));
+
+    // TODO: reloading all groups might be too much when one entry is updated,
+    // Could be called instead when the outbox queue is done processing all entires
+    _reloadGroupsList();
+  }
+
+  // This gets called when a group updates its temp id to a server id
+  // Used to update the viewed group and tasks to use the new id
+  // This gets called before onOutboxGroupUpdate
+  void onOutboxGroupSynced({required int tempId, required int serverId}) async {
+    // ref
+    //     .read(loggerProvider)
+    //     .d("Groups provider: Group id updated, invalidating tasks notifiers");
+    // Result<int?> serverId =
+    //     await ref.read(outboxIdMapperProvider).getServerId(tempId);
+
+    // if (!serverId.isSuccess) {
+    //   ref.read(appErrorProvider.notifier).state = serverId.error;
+    //   return;
+    // }
+    // if (serverId.data == null) {
+    //   ref.read(appErrorProvider.notifier).state = ErrorMapper.map(
+    //       "Groups provider: Group id not found when calling onOutboxGroupIdUpdate",
+    //       null);
+    //   return;
+    // }
+
+    // // When updating group id, we invalidate the tasksProvider to start listening to new id
+    // if (serverId.data != null) {
+    //   if (ref.exists(tasksProvider(serverId.data!)))
+    //     ref.invalidate(tasksProvider(serverId.data!));
+    // }
+
+    // if (ref.exists(tasksProvider(tempId)))
+    //   ref.invalidate(tasksProvider(tempId));
+
+    // TODO: reloading all groups might be too much when one entry is updated,
+    // Could be called instead when the outbox queue is done processing all entires
+    _reloadGroupsList();
+  }
+
   Future<void> createGroup(
       {required String title, required String description}) async {
     // state = const AsyncValue.loading();
@@ -50,7 +104,7 @@ class GroupsNotifier extends AsyncNotifier<List<Group>> {
   }
 
   Future<void> updateGroupDetails(
-      String? title, String? description, int groupId) async {
+      {String? title, String? description, required int groupId}) async {
     if (title == null && description == null) return;
 
     ref.read(loggerProvider).d("Groups provider: Updating group details");
@@ -143,9 +197,10 @@ class GroupsNotifier extends AsyncNotifier<List<Group>> {
     return true;
   }
 
-  Future<List<User>> getGroupMembers(int groupId) async {
-    Result<List<User>> result =
-        await ref.read(usersServiceProvider).getGroupMembers(groupId);
+  Future<List<User>> getGroupMembers(int groupId, bool includeOwner) async {
+    Result<List<User>> result = await ref
+        .read(usersServiceProvider)
+        .getGroupMembers(groupId, includeOwner);
     if (!result.isSuccess) {
       ref.read(appErrorProvider.notifier).state = result.error;
       return [];
@@ -232,11 +287,41 @@ class GroupsNotifier extends AsyncNotifier<List<Group>> {
     }
   }
 
-  // Takes in a list of ids of groups that were modified to check if they're currently displayed then refresh the UI corresponding to them
+  /// Updates the widgets that are displaying a group using its tempId or serverId
   void reloadViewedGroups(List<int> groupIds) async {
+    ref.read(loggerProvider).d("Groups provider: Reloading group view");
+
+    // Invalidate the group view provider for the given id, and its secondary id (tempId, or serverId)
     for (var id in groupIds) {
-      ref.read(outboxIdMapperProvider).getServerId(id);
-      ref.invalidate(groupViewGetterProvider(id));
+      if (ref.exists(groupViewProvider(id))) {
+        ref.invalidate(groupViewProvider(id));
+      }
+
+      late int? secondaryId;
+      // If id is negative, then it's a temp id, we get the server id if its synced
+      if (id < 0) {
+        Result<int?> serverIdResult =
+            await ref.read(outboxIdMapperProvider).getServerId(id);
+
+        if (serverIdResult.isSuccess) {
+          secondaryId = serverIdResult.data;
+        }
+      }
+      // If id is positive, then it's a server id, we get the temp id if its there
+      else {
+        Result<int?> tempId =
+            await ref.read(outboxIdMapperProvider).getTempId(id);
+
+        if (tempId.isSuccess) {
+          secondaryId = tempId.data;
+        }
+      }
+      if (secondaryId != null) {
+        if (ref.exists(groupViewProvider(secondaryId))) {
+          ref.invalidate(groupViewProvider(secondaryId));
+        }
+      }
+      ;
     }
   }
 
@@ -309,39 +394,39 @@ class GroupsNotifier extends AsyncNotifier<List<Group>> {
 final groupsProvider =
     AsyncNotifierProvider<GroupsNotifier, List<Group>>(GroupsNotifier.new);
 
-final groupViewGetterProvider =
-    FutureProvider.family.autoDispose<Group?, int>((ref, id) async {
-  try {
-    return await ref.read(localGroupsRepositoryProvider).getGroup(id);
-  } catch (e) {
-    return null;
-  }
-});
-
-// UI calls groupViewProvider with a temp or a server id, groupViewProvider tries to map the temp id to a server id then calls groupViewGetterProvider to get the group.
-// If groupViewGetterProvider is invalidated (To refresh UI) then groupViewProvider is invalidated and tries to map the temp id to a server id then calls groupViewGetterProvider with the resolved Id
-// Ultimately groupViewGetterProvider is updated to respond to a new Id when invalidated
-// TODO: Note down this pattern in a note
 final groupViewProvider =
     FutureProvider.family.autoDispose<Group, int>((ref, id) async {
-  int resolvedId;
+  late int resolvedId;
 
-  Result<int?> serverId =
-      await ref.read(outboxIdMapperProvider).getServerId(id);
-  if (!serverId.isSuccess) {
-    ref.read(appErrorProvider.notifier).state = serverId.error;
-  }
+  // If id is negative, then it's a temp id, we get the server id if possible
+  if (id < 0) {
+    Result<int?> serverIdResult =
+        await ref.read(outboxIdMapperProvider).getServerId(id);
+    if (!serverIdResult.isSuccess) {
+      ref.read(appErrorProvider.notifier).state = serverIdResult.error;
+    }
 
-  // If id doesn't have a server id, use the temp id
-  if (serverId.data == null) {
-    resolvedId = id;
+    // If id doesn't have a server id, use the temp id
+    if (serverIdResult.data == null) {
+      resolvedId = id;
+    } else {
+      resolvedId = serverIdResult.data!;
+    }
   } else {
-    resolvedId = serverId.data!;
+    resolvedId = id;
+  }
+  ref
+      .read(loggerProvider)
+      .d("Group provider: Getting group with id $resolvedId");
+  Group? group;
+  try {
+    group = await ref.read(localGroupsRepositoryProvider).getGroup(resolvedId);
+  } catch (e, stacktrace) {
+    ref.read(appErrorProvider.notifier).state = ErrorMapper.map(e, stacktrace);
+    rethrow;
   }
 
-  Group? group = await ref.watch(groupViewGetterProvider(resolvedId).future);
-  if (group == null) throw Exception("Group is not found");
-
+  if (group == null) throw Exception("Group not found");
   return group;
 });
 

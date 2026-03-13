@@ -106,12 +106,12 @@ class UserNotifier extends AsyncNotifier<void> {
     }
 
     // Invalidating profile picture providers
-    ref.invalidate(userProfileImageProvider(
-        (userId: ref.read(authProvider).value!.user!.id, imageUrl: null)));
-    ref.invalidate(userProfileImageProvider((
-      userId: ref.read(authProvider).value!.user!.id,
-      imageUrl: uploadedImageUrl.data!
-    )));
+    _invalidateProfileImageProvider(
+        imageUrl: null, userId: ref.read(authProvider).value!.user!.id);
+
+    _invalidateProfileImageProvider(
+        imageUrl: uploadedImageUrl.data!,
+        userId: ref.read(authProvider).value!.user!.id);
 
     state = const AsyncValue.data(null);
     return uploadedImageUrl.data;
@@ -129,6 +129,15 @@ class UserNotifier extends AsyncNotifier<void> {
     return result.data;
   }
 
+  void _invalidateProfileImageProvider(
+      {String? imageUrl, required int userId}) {
+    if (ref.exists(
+        userProfileImageProvider((userId: userId, imageUrl: imageUrl)))) {
+      ref.invalidate(
+          userProfileImageProvider((userId: userId, imageUrl: imageUrl)));
+    }
+  }
+
   @override
   FutureOr<void> build() async {
     // Updating the UI on remote user changes
@@ -143,12 +152,13 @@ class UserNotifier extends AsyncNotifier<void> {
           // ref.read(usersServiceProvider).clearProfilePictureCache(user.id);
 
           // Invalidating profile picture providers
-          ref.invalidate(userProfileImageProvider(
-              (imageUrl: user.pfpURL, userId: user.id)));
-          ref.invalidate(
-              userProfileImageProvider((imageUrl: null, userId: user.id)));
 
-          ref.invalidate(userLocalProvider(user.id));
+          _invalidateProfileImageProvider(imageUrl: null, userId: user.id);
+          _invalidateProfileImageProvider(
+              imageUrl: user.pfpURL, userId: user.id);
+
+          if (ref.exists(userLocalProvider(user.id)))
+            ref.invalidate(userLocalProvider(user.id));
         }
       }
     });

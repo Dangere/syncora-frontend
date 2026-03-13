@@ -1,24 +1,48 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:syncora_frontend/common/providers/common_providers.dart';
 import 'package:syncora_frontend/common/themes/app_spacing.dart';
 import 'package:syncora_frontend/common/widgets/filter_list.dart';
 import 'package:syncora_frontend/core/localization/generated/l10n/app_localizations.dart';
+import 'package:syncora_frontend/core/utils/alert_dialogs.dart';
+import 'package:syncora_frontend/features/authentication/models/user.dart';
+import 'package:syncora_frontend/features/groups/groups_provider.dart';
 import 'package:syncora_frontend/features/tasks/models/task.dart';
 import 'package:syncora_frontend/features/tasks/tasks_provider.dart';
+import 'package:syncora_frontend/features/tasks/view/tasks_popups.dart';
 import 'package:syncora_frontend/features/tasks/view/widgets/task_panel.dart';
 
 // This will update itself when the group notifier updates
 class TasksList extends ConsumerWidget {
-  const TasksList({super.key, required this.initialGroupId});
+  const TasksList({super.key, required this.groupId, required this.isOwner});
 
-  final int initialGroupId;
+  final int groupId;
+  final bool isOwner;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    AsyncValue<List<Task>> tasks = ref.watch(tasksProvider(initialGroupId));
+    AsyncValue<List<Task>> tasks = ref.watch(tasksProvider(groupId));
 
-    bool isOwner = ref.read(tasksProvider(initialGroupId).notifier).isOwner();
+    void assignUsersPopup(Task task) async {
+      List<int> newAssigneesSet = await TasksPopups.assignedUsersPopUp(
+        context,
+        task: task,
+        groupMembers: () {
+          return ref
+              .read(groupsProvider.notifier)
+              .getGroupMembers(groupId, false);
+        },
+      );
+      newAssigneesSet.sort((a, b) => a.compareTo(b));
+      List<int> oldAssigneesSet = List.from(task.assignedTo);
+      oldAssigneesSet.sort((a, b) => a.compareTo(b));
+      if (listEquals(newAssigneesSet, oldAssigneesSet)) return;
+
+      ref
+          .read(tasksProvider(groupId).notifier)
+          .setAssignTask(taskId: task.id, ids: newAssigneesSet);
+    }
 
     Widget tasksList(List<Task> tasks) => Expanded(
           child: Column(
@@ -26,14 +50,12 @@ class TasksList extends ConsumerWidget {
               // FILTER
               FilterList<TaskFilter>(
                   onTap: (arg) {
-                    ref
-                        .read(tasksProvider(initialGroupId).notifier)
-                        .filterTasks(arg);
+                    ref.read(tasksProvider(groupId).notifier).filterTasks(arg);
                   },
                   multiSelect: true,
                   disable: false,
                   initialValue:
-                      ref.read(tasksProvider(initialGroupId).notifier).filters,
+                      ref.read(tasksProvider(groupId).notifier).filters,
                   items: [
                     FilterListItem(
                       title: AppLocalizations.of(context).filter_All,
@@ -84,15 +106,16 @@ class TasksList extends ConsumerWidget {
                       return TaskPanel(
                           onDelete: () {
                             ref
-                                .read(tasksProvider(initialGroupId).notifier)
+                                .read(tasksProvider(groupId).notifier)
                                 .deleteTask(taskId: tasks[index].id);
                           },
                           onTap: () {
                             bool isDone = tasks[index].completedById != null;
                             ref
-                                .read(tasksProvider(initialGroupId).notifier)
+                                .read(tasksProvider(groupId).notifier)
                                 .markTask(task: tasks[index], isDone: !isDone);
                           },
+                          onHold: () => assignUsersPopup(tasks[index]),
                           task: tasks[index],
                           isCompleted: tasks[index].completedById != null,
                           assignedUsers: tasks[index].assignedTo,
@@ -114,9 +137,8 @@ class TasksList extends ConsumerWidget {
         skipLoadingOnRefresh: true,
         skipLoadingOnReload: true,
         data: (data) {
-          ref
-              .read(loggerProvider)
-              .i("Tasks Widget: building, groupId: $initialGroupId");
+          ref.read(loggerProvider).i(
+              "Tasks Widget: building, groupId: ${data.isEmpty ? "empty" : data[0].groupId}");
           return tasksList(data);
         },
         error: (error, stackTrace) {

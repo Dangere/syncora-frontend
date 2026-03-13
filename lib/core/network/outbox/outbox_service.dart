@@ -73,6 +73,8 @@ class OutboxService {
   /// `requireSecondPass` gets called when the queue is done processing and possibly some new entries were undeleted so a second pass
   Future<Result<void>> processQueue(
       {required Func<int, void> onGroupModified,
+      required void Function({required int tempId, required int serverId})
+          onGroupSync,
       required Func<Exception, void> onFail,
       required VoidCallback requireSecondPass}) async {
     _cancelationToken = CancellationToken();
@@ -117,22 +119,22 @@ class OutboxService {
           await _outboxRepository.markEntryInProcess(entry.id!);
 
           // TODO: remove artificial delay
-          await Future.delayed(const Duration(seconds: 3));
+          // await Future.delayed(const Duration(seconds: 3));
 
           int processResult =
               await _processors[entry.entityType]!.processToBackend(entry);
 
           await _outboxRepository.completeEntry(entry.id!);
 
-          // We call the onGroupModified callback To update the UI
-          onGroupModified(processResult);
-
           // And if its a group creation, we use the old temp group id for UI updates
           if (entry.actionType == OutboxActionType.create &&
               entry.entityType == OutboxEntityType.group) {
-            // We call the onGroupModified callback To update the UI
-            onGroupModified(entry.entityId);
+            // We call the onGroupIdUpdate callback to tell the UI we updated from a temp id to a server synced id
+            onGroupSync(tempId: entry.entityId, serverId: processResult);
           }
+
+          // We call the onGroupModified callback To update the UI
+          onGroupModified(processResult);
         } on OutboxDependencyFailureException catch (e) {
           await _outboxRepository.failEntry(entry.id!);
           onFail(e);

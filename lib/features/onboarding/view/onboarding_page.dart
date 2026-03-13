@@ -19,23 +19,29 @@ class OnboardingPage extends ConsumerWidget {
     final user = ref.watch(authProvider);
     void guestLogin() async {
       if (user.isLoading) return;
-      String? username = await AlertDialogs.showTextFieldDialog(context,
-          barrierDismissible: true,
-          blurBackground: true,
-          message: AppLocalizations.of(context).loginPage_guestPopTitle,
-          validation: (p0) {
-        if (p0 == null || p0.isEmpty) return "Empty Username";
-        if (p0.isEmpty) {
-          return AppLocalizations.of(context).loginPage_guestPopError_empty;
-        }
-        if (!Validators.validateUsername(p0)) {
-          return AppLocalizations.of(context).loginPage_guestPopError_invalid;
-        }
-        return null;
-      });
+      List<String> data = await AlertDialogs.showTextFieldDialog(
+        context,
+        fields: [
+          DialogFieldData(validation: (p0) {
+            if (p0 == null || p0.isEmpty) return "Empty Username";
+            if (p0.isEmpty) {
+              return AppLocalizations.of(context).loginPage_guestPopError_empty;
+            }
+            if (!Validators.validateUsername(p0)) {
+              return AppLocalizations.of(context)
+                  .loginPage_guestPopError_invalid;
+            }
+            return null;
+          })
+        ],
+        barrierDismissible: true,
+        blurBackground: true,
+        title: AppLocalizations.of(context).loginPage_guestPopTitle,
+        confirmText: AppLocalizations.of(context).confirm,
+      );
 
-      if (username != null) {
-        ref.read(authProvider.notifier).loginAsGuest(username);
+      if (data.isEmpty) {
+        ref.read(authProvider.notifier).loginAsGuest(data[0]);
       }
     }
 

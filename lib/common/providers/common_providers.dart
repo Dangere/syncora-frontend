@@ -14,8 +14,8 @@ import 'package:syncora_frontend/features/authentication/auth_provider.dart';
 final loggerProvider = Provider<Logger>((ref) {
   return Logger(
     printer: PrettyPrinter(
-      methodCount: 0, // Number of method calls to be displayed
-      errorMethodCount: 0, // Number of method calls if stacktrace is provided
+      // methodCount: 0, // Number of method calls to be displayed
+      // errorMethodCount: 0, // Number of method calls if stacktrace is provided
       lineLength: 40, // Width of the output (minimal)
       colors: true, // Colorful log messages
       printEmojis: true, // Print an emoji for each log message
@@ -105,21 +105,38 @@ final localDbProvider = Provider<DatabaseManager>((ref) {
   return DatabaseManager(logger: ref.read(loggerProvider));
 });
 
-class SearchBarSuggestionsNotifier extends Notifier<List<String>> {
+// class SearchBarSuggestionsNotifier extends Notifier<List<String>, String> {
+//   void addSuggestion(String suggestion) {
+//     state.remove(suggestion);
+//     state = [suggestion, ...state];
+//   }
+
+//   @override
+//   List<String> build() {
+//     return [];
+//   }
+// }
+
+class SearchBarSuggestionsNotifier
+    extends FamilyNotifier<List<String>, String> {
   void addSuggestion(String suggestion) {
     state.remove(suggestion);
     state = [suggestion, ...state];
   }
 
   @override
-  List<String> build() {
+  List<String> build(String id) {
     return [];
   }
 }
 
 final searchBarSuggestionsProvider =
-    NotifierProvider<SearchBarSuggestionsNotifier, List<String>>(
+    NotifierProvider.family<SearchBarSuggestionsNotifier, List<String>, String>(
         SearchBarSuggestionsNotifier.new);
+
+// final searchBarSuggestionsProvider =
+//     NotifierProvider<SearchBarSuggestionsNotifier, List<String>>(
+//         SearchBarSuggestionsNotifier.new);
 
 // final localDbProvider = Provider<DatabaseManager>((ref) {
 //   bool isGuest = ref.watch(isGuestProvider);

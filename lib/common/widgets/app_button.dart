@@ -24,7 +24,7 @@ enum AppButtonSize {
   /// 40.0 height
   small,
 
-  /// 42.0 height
+  /// 39.0 height
   mini,
 }
 
@@ -55,6 +55,7 @@ class AppButton extends StatelessWidget {
   final bool highlighted;
   final double? width;
   final double fontSize;
+  final FontWeight fontWeight;
   final VoidCallback onPressed;
   final Widget child;
 
@@ -69,6 +70,7 @@ class AppButton extends StatelessWidget {
     this.disabled = false,
     this.highlighted = false,
     this.fontSize = 20.0,
+    this.fontWeight = FontWeight.w700,
     required this.onPressed,
     required this.child,
   });
@@ -110,7 +112,7 @@ class AppButton extends StatelessWidget {
           textStyle: TextStyle(
               fontFamily: fontFamily,
               fontSize: fontSize,
-              fontWeight: FontWeight.w700),
+              fontWeight: fontWeight),
           elevation: 0,
           padding: EdgeInsets.symmetric(horizontal: contentHorizontalPadding),
           shape: RoundedRectangleBorder(
@@ -120,7 +122,7 @@ class AppButton extends StatelessWidget {
           textStyle: TextStyle(
               fontFamily: fontFamily,
               fontSize: fontSize,
-              fontWeight: FontWeight.w700),
+              fontWeight: fontWeight),
           side: BorderSide(color: theme.colorScheme.primary),
           elevation: 0,
           padding: EdgeInsets.symmetric(horizontal: contentHorizontalPadding),
@@ -131,7 +133,7 @@ class AppButton extends StatelessWidget {
           textStyle: TextStyle(
               fontFamily: fontFamily,
               fontSize: fontSize,
-              fontWeight: FontWeight.w700),
+              fontWeight: fontWeight),
           backgroundColor: theme.colorScheme.surfaceContainer,
           foregroundColor: theme.colorScheme.primary,
           elevation: 0,
@@ -144,7 +146,7 @@ class AppButton extends StatelessWidget {
           textStyle: TextStyle(
               fontFamily: fontFamily,
               fontSize: fontSize,
-              fontWeight: FontWeight.w700),
+              fontWeight: fontWeight),
           foregroundColor: theme.colorScheme.outline,
           side: BorderSide(
               width: 0.8,

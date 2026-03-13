@@ -87,7 +87,17 @@ class GroupsService {
 
   Future<Result<void>> updateGroupDetails(
       String? title, String? description, int groupId) async {
-    Group group = await _localGroupsRepository.getGroup(groupId);
+    late Group group;
+    try {
+      Group? fetchedGroup = await _localGroupsRepository.getGroup(groupId);
+      if (fetchedGroup != null) {
+        group = fetchedGroup;
+      } else {
+        return Result.failureMessage("Group not found");
+      }
+    } catch (e) {
+      return Result.failure(e, StackTrace.current);
+    }
 
     Result enqueueResult = await _enqueueEntry(EnqueueRequest(
       entry: OutboxEntry.entry(

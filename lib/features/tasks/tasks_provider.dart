@@ -9,11 +9,13 @@ import 'package:syncora_frontend/core/utils/app_error.dart';
 import 'package:syncora_frontend/core/utils/result.dart';
 import 'package:syncora_frontend/features/authentication/auth_provider.dart';
 import 'package:syncora_frontend/features/authentication/models/auth_state.dart';
+import 'package:syncora_frontend/features/authentication/models/user.dart';
 import 'package:syncora_frontend/features/groups/groups_provider.dart';
 import 'package:syncora_frontend/features/tasks/models/task.dart';
 import 'package:syncora_frontend/features/tasks/repositories/local_tasks_repository.dart';
 import 'package:syncora_frontend/features/tasks/repositories/remote_tasks_repository.dart';
 import 'package:syncora_frontend/features/tasks/services/tasks_service.dart';
+import 'package:syncora_frontend/features/users/providers/users_provider.dart';
 
 final localTasksRepositoryProvider = Provider<LocalTasksRepository>((ref) {
   return LocalTasksRepository(ref.watch(localDbProvider));
@@ -113,6 +115,22 @@ class TasksNotifier extends AutoDisposeFamilyAsyncNotifier<List<Task>, int> {
       return;
     }
     reloadTasks();
+  }
+
+  Future<List<User>> assignedUsers(int taskId) async {
+    List<int> assignedUsersIds = !state.hasValue
+        ? []
+        : state.value!.where((t) => taskId == t.id).first.assignedTo;
+
+    Result<List<User>> usersResult =
+        await ref.read(usersServiceProvider).getCachedUsers(assignedUsersIds);
+
+    if (!usersResult.isSuccess) {
+      ref.read(appErrorProvider.notifier).state = usersResult.error;
+      return [];
+    }
+
+    return usersResult.data!;
   }
 
   Future<void> setAssignTask(

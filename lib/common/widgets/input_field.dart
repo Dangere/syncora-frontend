@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class InputField extends StatelessWidget {
@@ -14,7 +13,8 @@ class InputField extends StatelessWidget {
       this.onSuffixIconPressed,
       this.onChanged,
       this.fieldKey,
-      this.autoFocus = false});
+      this.autoFocus = false,
+      this.multiline = false});
   final String labelText;
   final String hintText;
   final bool obscureText;
@@ -22,15 +22,14 @@ class InputField extends StatelessWidget {
   final TextEditingController controller;
   final String? Function(String?)? validator;
   final VoidCallback? onSuffixIconPressed;
-  final void Function(String)? onChanged;
+  final void Function(String text)? onChanged;
 
   final GlobalKey? fieldKey;
 
   final IconData? suffixIcon;
-
   final TextInputType keyboardType;
-
   final bool autoFocus;
+  final bool multiline;
 
   @override
   Widget build(BuildContext context) {
@@ -51,7 +50,7 @@ class InputField extends StatelessWidget {
               child: TextFormField(
                 autofocus: autoFocus,
                 onChanged: onChanged,
-                maxLines: 1,
+                maxLines: multiline ? 4 : 1,
                 key: fieldKey,
                 keyboardType: keyboardType,
                 obscureText: obscureText,

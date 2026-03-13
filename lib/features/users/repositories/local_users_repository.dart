@@ -68,17 +68,25 @@ class LocalUsersRepository {
     return users.isEmpty ? [] : users.map((e) => User.fromJson(e)).toList();
   }
 
-  Future<List<User>> getGroupMembers(int groupId) async {
+  Future<List<User>> getGroupMembers(int groupId, bool includeOwner) async {
     final db = await _databaseManager.getDatabase();
-    List<Map<String, dynamic>> users = await db.rawQuery('''
+
+    String includeOwnerQuery = includeOwner
+        ? '''
     SELECT u.id, u.username, u.firstName, u.lastName, u.email, u.profilePictureURL FROM ${DatabaseTables.users} u
     INNER JOIN ${DatabaseTables.groups} g ON u.id = g.ownerUserId WHERE g.id = ?
-
+    
     UNION
+    '''
+        : '';
+
+    List<Map<String, dynamic>> users = await db.rawQuery('''
+
+    $includeOwnerQuery
 
     SELECT u.id, u.username, u.firstName, u.lastName, u.email, u.profilePictureURL FROM ${DatabaseTables.users} u
     INNER JOIN ${DatabaseTables.groupsMembers} gm ON u.id = gm.userId WHERE gm.groupId = ?
-    ''', [groupId, groupId]);
+    ''', [if (includeOwner) groupId, groupId]);
     return users.isEmpty ? [] : users.map((e) => User.fromJson(e)).toList();
   }
 
