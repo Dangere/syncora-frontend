@@ -17,7 +17,6 @@ import 'package:syncora_frontend/core/image/image_providers.dart';
 import 'package:syncora_frontend/core/network/outbox/model/outbox_entry.dart';
 import 'package:syncora_frontend/core/network/outbox/outbox_sorter.dart';
 import 'package:syncora_frontend/core/network/syncing/model/sync_payload.dart';
-import 'package:syncora_frontend/core/utils/alert_dialogs.dart';
 import 'package:syncora_frontend/core/utils/result.dart';
 import 'package:syncora_frontend/core/utils/snack_bar_alerts.dart';
 import 'package:syncora_frontend/features/authentication/models/auth_state.dart';

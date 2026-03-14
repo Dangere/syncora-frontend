@@ -5,8 +5,6 @@ import 'package:syncora_frontend/common/providers/common_providers.dart';
 import 'package:syncora_frontend/common/themes/app_spacing.dart';
 import 'package:syncora_frontend/common/widgets/filter_list.dart';
 import 'package:syncora_frontend/core/localization/generated/l10n/app_localizations.dart';
-import 'package:syncora_frontend/core/utils/alert_dialogs.dart';
-import 'package:syncora_frontend/features/authentication/models/user.dart';
 import 'package:syncora_frontend/features/groups/groups_provider.dart';
 import 'package:syncora_frontend/features/tasks/models/task.dart';
 import 'package:syncora_frontend/features/tasks/tasks_provider.dart';

@@ -7,9 +7,8 @@ import 'package:syncora_frontend/common/widgets/app_button.dart';
 import 'package:syncora_frontend/common/widgets/language_button.dart';
 import 'package:syncora_frontend/common/widgets/overlay_loader.dart';
 import 'package:syncora_frontend/core/localization/generated/l10n/app_localizations.dart';
-import 'package:syncora_frontend/core/utils/alert_dialogs.dart';
-import 'package:syncora_frontend/core/utils/validators.dart';
 import 'package:syncora_frontend/features/authentication/auth_provider.dart';
+import 'package:syncora_frontend/features/onboarding/view/onboarding_popups.dart';
 
 class OnboardingPage extends ConsumerWidget {
   const OnboardingPage({super.key});
@@ -19,29 +18,10 @@ class OnboardingPage extends ConsumerWidget {
     final user = ref.watch(authProvider);
     void guestLogin() async {
       if (user.isLoading) return;
-      List<String> data = await AlertDialogs.showTextFieldDialog(
-        context,
-        fields: [
-          DialogFieldData(validation: (p0) {
-            if (p0 == null || p0.isEmpty) return "Empty Username";
-            if (p0.isEmpty) {
-              return AppLocalizations.of(context).loginPage_guestPopError_empty;
-            }
-            if (!Validators.validateUsername(p0)) {
-              return AppLocalizations.of(context)
-                  .loginPage_guestPopError_invalid;
-            }
-            return null;
-          })
-        ],
-        barrierDismissible: true,
-        blurBackground: true,
-        title: AppLocalizations.of(context).loginPage_guestPopTitle,
-        confirmText: AppLocalizations.of(context).confirm,
-      );
+      String? username = await OnboardingPopups.guestPopup(context);
 
-      if (data.isEmpty) {
-        ref.read(authProvider.notifier).loginAsGuest(data[0]);
+      if (username != null) {
+        ref.read(authProvider.notifier).loginAsGuest(username);
       }
     }
 

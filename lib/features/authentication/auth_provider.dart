@@ -355,7 +355,7 @@ final isVerifiedProvider = Provider.autoDispose<bool>((ref) {
   return authState.value!.asAuthenticated!.isVerified;
 });
 
-// A simple persistent countdown timer that counts from 0 to seconds and then completes
+// A simple persistent countdown timer that counts from seconds to 0 and then completes to null
 class ResetPasswordTimerNotifier extends Notifier<int?> {
   void startTimer(int seconds) {
     if (state != null) return;

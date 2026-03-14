@@ -5,7 +5,7 @@ import 'package:syncora_frontend/common/themes/app_spacing.dart';
 import 'package:syncora_frontend/common/widgets/app_button.dart';
 import 'package:syncora_frontend/common/widgets/marquee_widget.dart';
 import 'package:syncora_frontend/core/localization/generated/l10n/app_localizations.dart';
-import 'package:syncora_frontend/core/utils/alert_dialogs.dart';
+import 'package:syncora_frontend/core/utils/dialogs.dart';
 import 'package:syncora_frontend/core/utils/snack_bar_alerts.dart';
 import 'package:syncora_frontend/features/authentication/models/auth_state.dart';
 import 'package:syncora_frontend/features/authentication/auth_provider.dart';
@@ -40,7 +40,7 @@ class GroupPageState extends ConsumerState<GroupPage> {
   void addUserToGroupPopup(
       {required List<int> membersIds, required int ownerId}) async {
     // TODO: When selecting users and the group is in temp state and it syncs, it might cause issues
-    List<User>? users = await AlertDialogs.selectUsersPopup(context,
+    List<User>? users = await GroupPopups.selectUsersPopup(context,
         ownerId: ownerId,
         findUser: ref.read(userProvider.notifier).findUser,
         currentUsers: () => ref
@@ -83,7 +83,7 @@ class GroupPageState extends ConsumerState<GroupPage> {
       },
       onLeaveGroup: () {},
       onDeleteGroup: () async {
-        bool confirmDeletion = await AlertDialogs.showConfirmationPopup(context,
+        bool confirmDeletion = await Dialogs.showConfirmationDialog(context,
             message: "Are you sure you want to delete this group?",
             confirmText: "Yes, Delete");
 

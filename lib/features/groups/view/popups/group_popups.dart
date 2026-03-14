@@ -1,12 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:syncora_frontend/common/widgets/app_button.dart';
-import 'package:syncora_frontend/core/utils/alert_dialogs.dart';
+import 'package:syncora_frontend/common/widgets/input_field.dart';
+import 'package:syncora_frontend/common/widgets/profile_picture.dart';
+import 'package:syncora_frontend/core/localization/generated/l10n/app_localizations.dart';
+import 'package:syncora_frontend/core/utils/dialogs.dart';
+import 'package:syncora_frontend/core/utils/snack_bar_alerts.dart';
 import 'package:syncora_frontend/core/utils/validators.dart';
+import 'package:syncora_frontend/features/authentication/models/user.dart';
 
 class GroupPopups {
   static Future<String?> groupTitleEditPopup(
       BuildContext context, String defaultText) async {
-    List<String> data = await AlertDialogs.showTextFieldDialog(
+    List<String> data = await Dialogs.showTextFieldDialog(
       context,
       fields: [
         DialogFieldData(
@@ -29,7 +34,7 @@ class GroupPopups {
 
   static Future<String?> groupDescriptionEditPopup(
       BuildContext context, String defaultText) async {
-    List<String> data = await AlertDialogs.showTextFieldDialog(
+    List<String> data = await Dialogs.showTextFieldDialog(
       context,
       fields: [
         DialogFieldData(
@@ -57,7 +62,7 @@ class GroupPopups {
 
   static Future<String?> removeUserFromGroupPopup(
       BuildContext context, String username) async {
-    List<String> data = await AlertDialogs.showTextFieldDialog(
+    List<String> data = await Dialogs.showTextFieldDialog(
       context,
       fields: [
         DialogFieldData(
@@ -81,7 +86,7 @@ class GroupPopups {
   }
 
   static Future<String?> createTaskPopup(BuildContext context) async {
-    List<String> data = await AlertDialogs.showTextFieldDialog(
+    List<String> data = await Dialogs.showTextFieldDialog(
       context,
       fields: [
         DialogFieldData(
@@ -106,7 +111,7 @@ class GroupPopups {
 
   static Future<({String title, String description})?> createGroupPopup(
       BuildContext context) async {
-    List<String> data = await AlertDialogs.showTextFieldDialog(
+    List<String> data = await Dialogs.showTextFieldDialog(
       context,
       fields: [
         DialogFieldData(
@@ -150,7 +155,7 @@ class GroupPopups {
       required VoidCallback onDeleteGroup,
       required VoidCallback onLeaveGroup,
       required bool isOwner}) async {
-    await AlertDialogs.showContentDialog(
+    await Dialogs.showContentDialog(
       context,
       barrierDismissible: true,
       blurBackground: false,
@@ -243,5 +248,192 @@ class GroupPopups {
         ],
       ),
     );
+  }
+
+  static Future<List<User>?> selectUsersPopup(BuildContext context,
+      {required Future<User?> Function(String username) findUser,
+      required Future<List<User>> Function() currentUsers,
+      required int ownerId}) async {
+    List<User> users = [];
+    TextEditingController textEditingController = TextEditingController();
+    final fieldKey = GlobalKey<FormFieldState>();
+
+    bool isLoading = false;
+
+    Future onConfirm(
+        String username, void Function(void Function()) setState) async {
+      isLoading = true;
+      // If the text field is empty, we confirm selection and return it
+      if (textEditingController.text.isEmpty) {
+        Navigator.of(context).pop(users);
+        return;
+      }
+
+      // If the text field is not empty, we validate it
+      if (!fieldKey.currentState!.validate()) return;
+
+      List<User> members = await currentUsers();
+      // If the user is the owner, we show a warning
+      if (members.where((user) => user.username == username).firstOrNull?.id ==
+          ownerId) {
+        if (!context.mounted) return;
+        SnackBarAlerts.showAlertSnackBar("You can't add yourself", context);
+        return;
+      }
+
+      // If the user is already in the list or a member of the group, we show a warning
+      if (users
+              .where((user) =>
+                  user.username.toLowerCase() == username.toLowerCase())
+              .isNotEmpty ||
+          members
+              .where((user) =>
+                  user.username.toLowerCase() == username.toLowerCase())
+              .isNotEmpty) {
+        if (!context.mounted) return;
+        SnackBarAlerts.showAlertSnackBar("User already added", context);
+        return;
+      }
+
+      // If the text field is valid, we add the user
+      User? addedUser = await findUser(textEditingController.text);
+
+      // If the user was not found, we show an error
+      if (addedUser == null) {
+        if (!context.mounted) return;
+        SnackBarAlerts.showErrorSnackBar("User not found", context);
+        return;
+      }
+      // If the user was found, we add it to the list
+      setState(() {
+        users.add(addedUser);
+        textEditingController.clear();
+      });
+    }
+
+    void onRemoveUser(int id, void Function(void Function()) setState) async {
+      // We remove the user from the list
+      setState(() {
+        users.removeWhere((user) => user.id == id);
+      });
+    }
+
+    return await Dialogs.showContentDialog<List<User>?>(context,
+        barrierDismissible: true,
+        blurBackground: false,
+        title: "Add a New Member",
+        content: StatefulBuilder(builder: (context, setState) {
+      return Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // FIELD
+          InputField(
+              autoFocus: true,
+              fieldKey: fieldKey,
+              controller: textEditingController,
+              validator: (arg) {
+                if (arg == null || arg.trim().isEmpty) {
+                  return "Empty username";
+                }
+                return Validators.validateUsername(arg)
+                    ? null
+                    : "Invalid username";
+              },
+              labelText: "Member Username",
+              hintText: AppLocalizations.of(context).signUpPage_Username_Field,
+              suffixIcon:
+                  textEditingController.text.isEmpty ? null : Icons.close,
+              onSuffixIconPressed: () {
+                setState(() {
+                  textEditingController.clear();
+                });
+              },
+              onChanged: (arg) {
+                setState(() {});
+              },
+              keyboardType: TextInputType.none),
+          const SizedBox(
+            height: 24,
+          ),
+          // USERS
+          ConstrainedBox(
+            constraints: const BoxConstraints(maxHeight: 100),
+            child: SingleChildScrollView(
+              child: SizedBox(
+                width: double.infinity,
+                child: Wrap(
+                  alignment: WrapAlignment.start,
+                  crossAxisAlignment: WrapCrossAlignment.start,
+                  spacing: 12,
+                  runSpacing: 10,
+                  children: users
+                      .map((user) => Container(
+                            height: 35,
+                            decoration: BoxDecoration(
+                              color: Theme.of(context).colorScheme.secondary,
+                              borderRadius: BorderRadius.circular(90),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.all(3.0),
+                                  child: ProfilePicture(
+                                    userId: user.id,
+                                    imageUrl: user.pfpURL,
+                                  ),
+                                ),
+                                const SizedBox(width: 3),
+                                Text(
+                                  user.username,
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .bodySmall!
+                                      .copyWith(fontWeight: FontWeight.w600),
+                                ),
+                                const SizedBox(width: 2),
+                                Padding(
+                                  padding: const EdgeInsets.all(4.0),
+                                  child: GestureDetector(
+                                    onTap: () =>
+                                        onRemoveUser(user.id, setState),
+                                    child: Icon(
+                                      Icons.close,
+                                      size: 24,
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .surfaceContainer,
+                                    ),
+                                  ),
+                                )
+                              ],
+                            ),
+                          ))
+                      .toList(),
+                ),
+              ),
+            ),
+          ),
+          if (users.isNotEmpty)
+            const SizedBox(
+              height: 24,
+            ),
+          // ADD
+          AppButton(
+              size: AppButtonSize.small,
+              style: AppButtonStyle.filled,
+              intent: AppButtonIntent.primary,
+              fontSize: 20,
+              onPressed: () async {
+                if (!isLoading) {
+                  await onConfirm(textEditingController.text, setState);
+                  isLoading = false;
+                }
+              },
+              child:
+                  Text(textEditingController.text.isEmpty ? "Confirm" : "Add"))
+        ],
+      );
+    }));
   }
 }

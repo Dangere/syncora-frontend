@@ -10,6 +10,7 @@ import 'package:syncora_frontend/core/localization/generated/l10n/app_localizati
 import 'package:syncora_frontend/core/typedef.dart';
 import 'package:syncora_frontend/core/utils/snack_bar_alerts.dart';
 import 'package:syncora_frontend/features/authentication/auth_provider.dart';
+import 'package:syncora_frontend/features/settings/view/settings_popups.dart';
 
 class SettingsPage extends ConsumerStatefulWidget {
   const SettingsPage({super.key});
@@ -35,6 +36,9 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     // bool isDarkMode = ref.watch(themeModeProvider);7
 
     bool isDarkMode = ref.watch(themeModeProvider) == ThemeMode.dark;
+
+    passwordResetPopup(BuildContext context) =>
+        SettingsPopups.passwordResetPopup(context);
 
     // TODO: Language card gets grayed out when held unlike other buttons
     return Scaffold(
@@ -105,7 +109,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                     fontSize: 16,
                     size: AppButtonSize.huge,
                     style: AppButtonStyle.filled,
-                    onPressed: () {},
+                    onPressed: () => passwordResetPopup(context),
                     child: Row(
                       children: [
                         const Icon(Icons.lock, size: 24),

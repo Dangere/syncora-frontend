@@ -30,7 +30,7 @@ class _PasswordResetPageState extends ConsumerState<PasswordResetPage> {
   }
 
   // TODO: this could be refactored to use a provider instead of manually managing the state (careful of ephemeral state)
-  void resetPassword() async {
+  void sendEmail() async {
     if (isLoading || ref.read(resetPasswordTimerProvider) != null) {
       return;
     }
@@ -157,7 +157,7 @@ class _PasswordResetPageState extends ConsumerState<PasswordResetPage> {
                                 intent: AppButtonIntent.primary,
                                 onPressed: () {
                                   if (_emailFieldKey.currentState!.validate()) {
-                                    resetPassword();
+                                    sendEmail();
                                   }
                                 },
                                 child:
