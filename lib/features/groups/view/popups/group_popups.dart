@@ -170,7 +170,7 @@ class GroupPopups {
               size: AppButtonSize.mini,
               style: AppButtonStyle.filled,
               onPressed: () {
-                Navigator.pop(context);
+                Navigator.of(context).pop();
                 onGroupInfo();
               },
               child: Row(
@@ -201,7 +201,7 @@ class GroupPopups {
                   size: AppButtonSize.mini,
                   style: AppButtonStyle.filled,
                   onPressed: () {
-                    Navigator.pop(context);
+                    Navigator.of(context).pop();
                     onRenameGroup();
                   },
                   child: Row(
@@ -229,7 +229,7 @@ class GroupPopups {
               style: AppButtonStyle.filled,
               intent: AppButtonIntent.destructive,
               onPressed: () {
-                Navigator.pop(context);
+                Navigator.of(context).pop();
                 if (isOwner) {
                   onDeleteGroup();
                 } else {
@@ -364,7 +364,7 @@ class GroupPopups {
                 child: Wrap(
                   alignment: WrapAlignment.start,
                   crossAxisAlignment: WrapCrossAlignment.start,
-                  spacing: 12,
+                  spacing: 5,
                   runSpacing: 10,
                   children: users
                       .map((user) => Container(

@@ -16,7 +16,7 @@ import 'package:syncora_frontend/features/groups/view/page/group_page.dart';
 import 'package:syncora_frontend/features/onboarding/view/onboarding_page.dart';
 import 'package:syncora_frontend/features/settings/view/settings_page.dart';
 import 'package:syncora_frontend/core/image/crop_image_page.dart';
-import 'package:syncora_frontend/features/users/profile_view_page.dart';
+import 'package:syncora_frontend/features/users/view/profile_view_page.dart';
 
 class MyNavObserver extends NavigatorObserver {
   MyNavObserver({required this.ref, required this.onPush, required this.onPop});

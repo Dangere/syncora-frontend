@@ -127,17 +127,7 @@ class GroupPageState extends ConsumerState<GroupPage> {
             extendBodyBehindAppBar: true,
             appBar: AppBar(
               // foregroundColor: Colors.transparent,
-              title: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  MarqueeWidget(child: Text(group.title)),
-                  if (group.isInLocalState())
-                    Icon(
-                      Icons.sync,
-                      color: Theme.of(context).colorScheme.secondary,
-                    )
-                ],
-              ),
+              title: MarqueeWidget(child: Text(group.title)),
               centerTitle: true,
               actions: [
                 // GROUP EXTRA/INFO

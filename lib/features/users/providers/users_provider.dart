@@ -45,7 +45,7 @@ class UserNotifier extends AsyncNotifier<void> {
   }
 
   Future<String?> changeProfilePicture(
-      AsyncFunc<XFile, Uint8List?> cropImageScreen) async {
+      AsyncFunc<XFile, Uint8List?> cropImageScreen, ImageSource source) async {
     if (ref.read(connectionProvider) == ConnectionStatus.disconnected) {
       return null;
     }
@@ -54,7 +54,7 @@ class UserNotifier extends AsyncNotifier<void> {
 
     // Picking image
     Result<XFile?> imagePicked =
-        await ref.read(imageServiceProvider).pickImage(ImageSource.gallery);
+        await ref.read(imageServiceProvider).pickImage(source);
 
     if (!imagePicked.isSuccess) {
       ref.read(appErrorProvider.notifier).state = imagePicked.error;

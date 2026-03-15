@@ -29,8 +29,6 @@ class PasswordResetPopup extends ConsumerStatefulWidget {
 class _PasswordResetPopupState extends ConsumerState<PasswordResetPopup> {
   @override
   void initState() {
-    ref.read(loggerProvider).d("Password reset popup opened");
-
     WidgetsBinding.instance.addPostFrameCallback((_) {
       sendEmail();
     });
@@ -38,19 +36,16 @@ class _PasswordResetPopupState extends ConsumerState<PasswordResetPopup> {
     super.initState();
   }
 
-  bool isLoading = false;
-
   String formatTwoDigits(int n) => n.toString().padLeft(2, '0');
 
   void sendEmail() async {
-    if (isLoading) {
+    if (ref.read(resetPasswordTimerProvider) != null) {
       return;
     }
 
     ref.read(resetPasswordTimerProvider.notifier).startTimer(30);
 
     if (!ref.read(isAuthenticatedProvider)) {
-      isLoading = false;
       return;
     }
     String email = ref.read(authProvider).value?.user?.email ?? "";
@@ -61,8 +56,6 @@ class _PasswordResetPopupState extends ConsumerState<PasswordResetPopup> {
     if (result.isSuccess && mounted) {
       SnackBarAlerts.showSuccessSnackBar("Password reset email sent", context);
     }
-
-    isLoading = false;
   }
 
   @override

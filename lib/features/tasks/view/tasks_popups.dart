@@ -70,63 +70,59 @@ class TasksPopups {
           // ASSIGNED USERS
           ConstrainedBox(
             constraints: const BoxConstraints(maxHeight: 100),
-            child: Expanded(
-              child: SingleChildScrollView(
-                child: SizedBox(
-                  width: double.infinity,
-                  child: Wrap(
-                    alignment: WrapAlignment.start,
-                    crossAxisAlignment: WrapCrossAlignment.start,
-                    spacing: 5,
-                    runSpacing: 10,
-                    children: members.map((member) {
-                      bool selected = selectedUsers
-                          .where((user) => user.id == member.id)
-                          .isNotEmpty;
-                      return GestureDetector(
-                        onTap: () => onUserToggle(member.id, setState),
-                        child: Container(
-                          height: 35,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(20),
-                            border: Border.all(
-                              width: 0.8,
-                              color: Theme.of(context)
-                                  .colorScheme
-                                  .scrim
-                                  .withValues(alpha: 0.4),
-                            ),
-                            color: selected
-                                ? Theme.of(context).colorScheme.secondary
-                                : Theme.of(context)
-                                    .colorScheme
-                                    .surfaceContainer,
+            child: SingleChildScrollView(
+              child: SizedBox(
+                width: double.infinity,
+                child: Wrap(
+                  alignment: WrapAlignment.start,
+                  crossAxisAlignment: WrapCrossAlignment.start,
+                  spacing: 5,
+                  runSpacing: 10,
+                  children: members.map((member) {
+                    bool selected = selectedUsers
+                        .where((user) => user.id == member.id)
+                        .isNotEmpty;
+                    return GestureDetector(
+                      onTap: () => onUserToggle(member.id, setState),
+                      child: Container(
+                        height: 35,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(
+                            width: 0.8,
+                            color: Theme.of(context)
+                                .colorScheme
+                                .scrim
+                                .withValues(alpha: 0.4),
                           ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Padding(
-                                padding: const EdgeInsets.all(3.0),
-                                child: ProfilePicture(
-                                  userId: member.id,
-                                  imageUrl: member.pfpURL,
-                                ),
-                              ),
-                              const SizedBox(width: 3),
-                              Text(
-                                member.username,
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .bodySmall!
-                                    .copyWith(fontWeight: FontWeight.w600),
-                              ),
-                              const SizedBox(width: 12),
-                            ],
-                          ),
+                          color: selected
+                              ? Theme.of(context).colorScheme.secondary
+                              : Theme.of(context).colorScheme.surfaceContainer,
                         ),
-                      );
-                    }).toList(),
-                  ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.all(3.0),
+                              child: ProfilePicture(
+                                userId: member.id,
+                                imageUrl: member.pfpURL,
+                              ),
+                            ),
+                            const SizedBox(width: 3),
+                            Text(
+                              member.username,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodySmall!
+                                  .copyWith(fontWeight: FontWeight.w600),
+                            ),
+                            const SizedBox(width: 12),
+                          ],
+                        ),
+                      ),
+                    );
+                  }).toList(),
                 ),
               ),
             ),

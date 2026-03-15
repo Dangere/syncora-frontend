@@ -1,7 +1,9 @@
 import 'dart:typed_data';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:syncora_frontend/common/providers/common_providers.dart';
 import 'package:syncora_frontend/common/themes/app_sizes.dart';
 import 'package:syncora_frontend/common/themes/app_spacing.dart';
@@ -17,6 +19,7 @@ import 'package:syncora_frontend/features/authentication/models/auth_state.dart'
 import 'package:syncora_frontend/features/authentication/models/user.dart';
 import 'package:syncora_frontend/features/authentication/auth_provider.dart';
 import 'package:syncora_frontend/features/users/providers/users_provider.dart';
+import 'package:syncora_frontend/features/users/view/profile_popups.dart';
 
 class ProfileViewPage extends ConsumerStatefulWidget {
   const ProfileViewPage({super.key, required this.userId});
@@ -45,18 +48,20 @@ class _ProfileViewPageState extends ConsumerState<ProfileViewPage> {
   Future _changeProfilePicture() async {
     if (ref.read(userProvider).isLoading) return;
 
-    String? imageUrl =
-        await ref.read(userProvider.notifier).changeProfilePicture(
-      (arg) async {
-        if (mounted) {
-          Uint8List? croppedImageBytes =
-              await context.push<Uint8List>('/crop-image', extra: arg);
+    ImageSource? source = await ProfilePopups.chooseImageSource(context);
 
-          return croppedImageBytes;
-        }
-        return null;
-      },
-    );
+    if (source == null) return;
+
+    String? imageUrl =
+        await ref.read(userProvider.notifier).changeProfilePicture((arg) async {
+      if (mounted) {
+        Uint8List? croppedImageBytes =
+            await context.push<Uint8List>('/crop-image', extra: arg);
+
+        return croppedImageBytes;
+      }
+      return null;
+    }, source);
 
     if (mounted && imageUrl != null) {
       SnackBarAlerts.showSuccessSnackBar(
