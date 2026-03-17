@@ -12,13 +12,17 @@ class DialogFieldData {
   final String? defaultHintText;
   final String? defaultText;
   final bool multiLine;
+  final TextInputType keyboardType;
+  final bool autofocus;
 
   DialogFieldData(
       {required this.validation,
       this.label,
       this.defaultHintText,
       this.defaultText,
-      this.multiLine = false});
+      this.multiLine = false,
+      this.keyboardType = TextInputType.text,
+      this.autofocus = false});
 }
 
 class Dialogs {
@@ -26,7 +30,8 @@ class Dialogs {
       {required bool barrierDismissible,
       required bool blurBackground,
       required String title,
-      required Widget content}) async {
+      required Widget content,
+      bool disableKeyboardAdjustment = false}) async {
     return await showDialog<T?>(
       barrierDismissible: barrierDismissible,
       context: context,
@@ -35,52 +40,57 @@ class Dialogs {
         return StatefulBuilder(builder: (context, setState) {
           return BackdropFilter(
             filter: ImageFilter.blur(sigmaX: blurAmount, sigmaY: blurAmount),
-            child: AlertDialog(
-              contentPadding: const EdgeInsets.all(0),
-              content: Padding(
-                padding: const EdgeInsets.all(20.0),
-                child: SizedBox(
-                  width: 300,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      // TITLE AND CLOSE
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          const Expanded(child: SizedBox()),
-                          Expanded(
-                            flex: 5,
-                            child: Text(
-                              title,
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .titleSmall!
-                                  .copyWith(
-                                      fontWeight: FontWeight.bold,
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .onSurfaceVariant),
-                              textAlign: TextAlign.center,
+            child: MediaQuery(
+              data: MediaQuery.of(context).removeViewInsets(
+                removeBottom: disableKeyboardAdjustment,
+              ),
+              child: AlertDialog(
+                contentPadding: const EdgeInsets.all(0),
+                content: Padding(
+                  padding: const EdgeInsets.all(20.0),
+                  child: SizedBox(
+                    width: 300,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        // TITLE AND CLOSE
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            const Expanded(child: SizedBox()),
+                            Expanded(
+                              flex: 5,
+                              child: Text(
+                                title,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .titleSmall!
+                                    .copyWith(
+                                        fontWeight: FontWeight.bold,
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .onSurfaceVariant),
+                                textAlign: TextAlign.center,
+                              ),
                             ),
-                          ),
-                          Expanded(
-                              child: IconButton(
-                            onPressed: () => Navigator.of(context).pop(),
-                            icon: const Icon(
-                              size: 24,
-                              Icons.close,
-                            ),
-                          ))
-                        ],
-                      ),
-                      const SizedBox(
-                        height: 16,
-                      ),
+                            Expanded(
+                                child: IconButton(
+                              onPressed: () => Navigator.of(context).pop(),
+                              icon: const Icon(
+                                size: 24,
+                                Icons.close,
+                              ),
+                            ))
+                          ],
+                        ),
+                        const SizedBox(
+                          height: 16,
+                        ),
 
-                      // CONTENT
-                      content
-                    ],
+                        // CONTENT
+                        content
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -254,7 +264,8 @@ class Dialogs {
                       const SizedBox(
                         height: 24,
                       ),
-                      Form(
+                      Flexible(
+                        child: Form(
                           key: formKey,
                           child: ListView.separated(
                               shrinkWrap: true,
@@ -265,7 +276,8 @@ class Dialogs {
                                   labelText: fields[index].label ?? "",
                                   hintText: fields[index].defaultHintText ?? "",
                                   multiline: fields[index].multiLine,
-                                  keyboardType: TextInputType.none,
+                                  keyboardType: fields[index].keyboardType,
+                                  autoFocus: fields[index].autofocus,
                                 );
                               },
                               separatorBuilder: (context, index) {
@@ -273,7 +285,9 @@ class Dialogs {
                                   height: 24,
                                 );
                               },
-                              itemCount: fields.length)),
+                              itemCount: fields.length),
+                        ),
+                      ),
                       const SizedBox(
                         height: 24,
                       ),

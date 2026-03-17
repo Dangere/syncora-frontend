@@ -72,10 +72,11 @@ class OutboxService {
   ///
   /// `requireSecondPass` gets called when the queue is done processing and possibly some new entries were undeleted so a second pass
   Future<Result<void>> processQueue(
-      {required Func<int, void> onGroupModified,
-      required void Function({required int tempId, required int serverId})
+      {required void Function({required int tempId, required int serverId})
           onGroupSync,
-      required Func<Exception, void> onFail,
+      required void Function(Exception e, StackTrace stackTrace) onFail,
+      required void Function(int groupId) onRevert,
+      required void Function(int groupId) onSync,
       required VoidCallback requireSecondPass}) async {
     _cancelationToken = CancellationToken();
 
@@ -113,7 +114,7 @@ class OutboxService {
       // We process the entry, it runs a while loop until it succeeds and returns the group that was modified or returns an error that we handle here
       while (_cancelationToken!.isCancelled == false) {
         // Gets set if an entry fails and we need to revert local changes
-        Exception? failedEntryException;
+        ({Exception e, StackTrace stackTrace})? failedEntryException;
 
         try {
           await _outboxRepository.markEntryInProcess(entry.id!);
@@ -121,7 +122,7 @@ class OutboxService {
           // TODO: remove artificial delay
           // await Future.delayed(const Duration(seconds: 3));
 
-          int processResult =
+          int processedGroupId =
               await _processors[entry.entityType]!.processToBackend(entry);
 
           await _outboxRepository.completeEntry(entry.id!);
@@ -130,14 +131,14 @@ class OutboxService {
           if (entry.actionType == OutboxActionType.create &&
               entry.entityType == OutboxEntityType.group) {
             // We call the onGroupIdUpdate callback to tell the UI we updated from a temp id to a server synced id
-            onGroupSync(tempId: entry.entityId, serverId: processResult);
+            onGroupSync(tempId: entry.entityId, serverId: processedGroupId);
           }
 
-          // We call the onGroupModified callback To update the UI
-          onGroupModified(processResult);
-        } on OutboxDependencyFailureException catch (e) {
+          // We call the onSync To update the UI
+          onSync(processedGroupId);
+        } on OutboxDependencyFailureException catch (e, stackTrace) {
           await _outboxRepository.failEntry(entry.id!);
-          onFail(e);
+          onFail(e, stackTrace);
         }
         // If its a timeout error we stop the queue
         on TimeoutException {
@@ -149,7 +150,7 @@ class OutboxService {
           return Result.canceled('Timeout error');
         }
         // If its a network error we process it
-        on DioException catch (e) {
+        on DioException catch (e, stackTrace) {
           if (e.type == DioExceptionType.connectionError) {
             await _outboxRepository.markEntryPending(entry.id!);
             _logger.d('Outbox debug: unable to reach server, stopping queue');
@@ -159,7 +160,7 @@ class OutboxService {
 
           // If we get a 403 error (forbidden), we fail the entry (which will revert it)
           if (e.response?.statusCode == 403) {
-            failedEntryException = e;
+            failedEntryException = (e: e, stackTrace: stackTrace);
           }
           // If we get a 429 error (too many requests), we delay and try again
           // We extract the retry-after header and wait for that many seconds
@@ -182,17 +183,17 @@ class OutboxService {
           }
           // TODO: Other status codes could be handled here, beacuse if the error is not 403 or 429
           else {
-            failedEntryException = e;
+            failedEntryException = (e: e, stackTrace: stackTrace);
           }
         }
         // If its an exception, we fail the entry (which will revert it)
-        on Exception catch (e) {
-          failedEntryException = e;
+        on Exception catch (e, stackTrace) {
+          failedEntryException = (e: e, stackTrace: stackTrace);
         }
 
         // If we got a failed error, we revert the local changes
         if (failedEntryException != null) {
-          onFail(failedEntryException);
+          onFail(failedEntryException.e, failedEntryException.stackTrace);
           _logger.d('Outbox debug: Reverting local for ${entry.toString()}');
 
           Result<int> revertResult = await Result.wrapAsync(() async =>
@@ -206,8 +207,8 @@ class OutboxService {
 
           await _outboxRepository.failEntry(entry.id!);
 
-          // We call the onGroupModified callback To update the UI
-          onGroupModified(revertResult.data!);
+          // We call the onRevert callback To update the UI
+          onRevert(revertResult.data!);
 
           // If its a deletion fail, means it could've marked other entires as ignored, so we unignore them and call for a second pass
           if (entry.actionType == OutboxActionType.delete) {

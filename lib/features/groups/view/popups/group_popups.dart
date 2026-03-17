@@ -15,6 +15,7 @@ class GroupPopups {
       context,
       fields: [
         DialogFieldData(
+            autofocus: true,
             validation: (p0) {
               if (p0 == null || p0.trim().isEmpty) return "Empty title";
               if (p0.trim() == defaultText) return "New title is not changed";
@@ -38,6 +39,7 @@ class GroupPopups {
       context,
       fields: [
         DialogFieldData(
+          autofocus: true,
           multiLine: true,
           validation: (p0) {
             if (p0 == null || p0.trim().isEmpty) return "Empty Description";
@@ -90,6 +92,7 @@ class GroupPopups {
       context,
       fields: [
         DialogFieldData(
+            autofocus: true,
             label: "Task Title",
             defaultHintText: "Enter the title",
             validation: (p0) {
@@ -115,6 +118,7 @@ class GroupPopups {
       context,
       fields: [
         DialogFieldData(
+            autofocus: true,
             label: "Group Title",
             defaultHintText: "Enter the title",
             validation: (p0) {
@@ -265,6 +269,10 @@ class GroupPopups {
       isLoading = true;
       // If the text field is empty, we confirm selection and return it
       if (textEditingController.text.isEmpty) {
+        if (users.isEmpty) {
+          if (!context.mounted) return;
+          SnackBarAlerts.showAlertSnackBar("No users selected", context);
+        }
         Navigator.of(context).pop(users);
         return;
       }
@@ -351,7 +359,7 @@ class GroupPopups {
               onChanged: (arg) {
                 setState(() {});
               },
-              keyboardType: TextInputType.none),
+              keyboardType: TextInputType.name),
           const SizedBox(
             height: 24,
           ),

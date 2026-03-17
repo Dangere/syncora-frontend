@@ -52,6 +52,7 @@ class TasksPopups {
 
     if (!context.mounted) return [];
     await Dialogs.showContentDialog(context,
+        disableKeyboardAdjustment: true,
         barrierDismissible: true,
         blurBackground: false,
         title: "Assigned users",

@@ -1,12 +1,10 @@
 import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:logger/logger.dart';
 import 'package:syncora_frontend/common/providers/common_providers.dart';
 import 'package:syncora_frontend/common/providers/connection_provider.dart';
 import 'package:syncora_frontend/core/network/outbox/outbox_provider.dart';
 import 'package:syncora_frontend/core/network/syncing/sync_state.dart';
 import 'package:syncora_frontend/core/network/syncing/sync_provider.dart';
-import 'package:syncora_frontend/core/utils/app_error.dart';
 import 'package:syncora_frontend/core/utils/error_mapper.dart';
 import 'package:syncora_frontend/core/utils/result.dart';
 import 'package:syncora_frontend/features/authentication/models/auth_state.dart';
@@ -37,19 +35,32 @@ class GroupsNotifier extends AsyncNotifier<List<Group>> {
   // A bool that gets set to true when the groups list needs to be reloaded but the user is not viewing it yet
   bool _waitingToReloadGroupList = false;
 
-  // This gets called when the outbox processor updates a group, it returns a serverId
+  // This gets called when the outbox processor updates an entity within a group or the group itself
+  // It provides the group synced id
   // This gets called after onOutboxGroupIdUpdate
-  void onOutboxGroupUpdate(int groupId) {
+  void onOutboxSync(int groupId) {
     ref.read(loggerProvider).d("Groups provider: Outbox update received");
 
+    // We dont update anything in here because it was already updated by the user action
+    // However there could be a slight mismatch from returned data to the one currently
+    // supposedly displayed, but this should be a minimal edge case
+  }
+
+  // This gets called when the outbox reverts an entity within a group or the group itself
+  // It provides the group synced id
+  // This gets called after onOutboxGroupIdUpdate
+  void onOutboxRevert(int groupId) {
+    ref.read(loggerProvider).d("Groups provider: Outbox revert received");
+
+    // We update the viewed group to reflect the revert
     reloadViewedGroups([groupId]);
 
-    // TODO:This is temporary
+    // We update the viewed tasks to reflect the revert
     if (ref.exists(tasksProvider(groupId)))
       ref.invalidate(tasksProvider(groupId));
 
-    // TODO: reloading all groups might be too much when one entry is updated,
-    // Could be called instead when the outbox queue is done processing all entires
+    // When an entity updates within a group and is reverted
+    // We update the groups list
     _reloadGroupsList();
   }
 
@@ -57,6 +68,7 @@ class GroupsNotifier extends AsyncNotifier<List<Group>> {
   // Used to update the viewed group and tasks to use the new id
   // This gets called before onOutboxGroupUpdate
   void onOutboxGroupSynced({required int tempId, required int serverId}) async {
+    // TODO: This needs work
     // ref
     //     .read(loggerProvider)
     //     .d("Groups provider: Group id updated, invalidating tasks notifiers");
@@ -395,7 +407,7 @@ final groupsProvider =
     AsyncNotifierProvider<GroupsNotifier, List<Group>>(GroupsNotifier.new);
 
 final groupViewProvider =
-    FutureProvider.family.autoDispose<Group, int>((ref, id) async {
+    FutureProvider.family.autoDispose<Group?, int>((ref, id) async {
   late int resolvedId;
 
   // If id is negative, then it's a temp id, we get the server id if possible
@@ -418,16 +430,12 @@ final groupViewProvider =
   ref
       .read(loggerProvider)
       .d("Group provider: Getting group with id $resolvedId");
-  Group? group;
   try {
-    group = await ref.read(localGroupsRepositoryProvider).getGroup(resolvedId);
+    return await ref.read(localGroupsRepositoryProvider).getGroup(resolvedId);
   } catch (e, stacktrace) {
     ref.read(appErrorProvider.notifier).state = ErrorMapper.map(e, stacktrace);
     rethrow;
   }
-
-  if (group == null) throw Exception("Group not found");
-  return group;
 });
 
 final localGroupsRepositoryProvider = Provider<LocalGroupsRepository>((ref) {

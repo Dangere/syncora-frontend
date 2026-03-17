@@ -12,6 +12,6 @@ abstract class OutboxProcessor {
   // Creation process should ALWAYS cache the server id when successful for future processing
   Future<int> processToBackend(OutboxEntry entry);
 
-  // Reverts the outbox local changes and returns the modified group server id
+  // Reverts the outbox local changes and returns the modified group server id or temp id on group creation failure
   Future<int> revertLocalChange(OutboxEntry entry);
 }

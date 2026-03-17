@@ -65,7 +65,7 @@ class UserNotifier extends AsyncNotifier<void> {
 
     if (imagePicked.data == null) {
       ref.read(appErrorProvider.notifier).state =
-          AppError(message: "No image picked");
+          AppError(message: "No image picked", stackTrace: StackTrace.current);
       state = const AsyncValue.data(null);
 
       return null;
@@ -76,7 +76,7 @@ class UserNotifier extends AsyncNotifier<void> {
 
     if (imageBytes == null) {
       ref.read(appErrorProvider.notifier).state =
-          AppError(message: "No image picked");
+          AppError(message: "No image picked", stackTrace: StackTrace.current);
 
       state = const AsyncValue.data(null);
       return null;
@@ -147,7 +147,9 @@ class UserNotifier extends AsyncNotifier<void> {
         // Checking if the payload is empty or still in progress (loading)
         if (!next.value!.isAvailable || next.value!.payload!.isEmpty()) return;
 
-        ref.read(loggerProvider).f("Invalidating user providers");
+        if (next.value!.payload!.users.isNotEmpty) {
+          ref.read(loggerProvider).f("Invalidating user providers");
+        }
         for (var user in next.value!.payload!.users) {
           // ref.read(usersServiceProvider).clearProfilePictureCache(user.id);
 

@@ -3,9 +3,9 @@ import 'package:signalr_netcore/errors.dart';
 
 class AppError<T extends Exception> {
   final String message;
-  final StackTrace? stackTrace;
+  final StackTrace stackTrace;
   final T errorObject;
-  AppError({required this.message, T? errorObject, this.stackTrace})
+  AppError({required this.message, T? errorObject, required this.stackTrace})
       : errorObject = (errorObject ?? Exception(message) as T);
 
   bool is401UnAuthorizedError() {

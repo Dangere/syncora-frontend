@@ -13,6 +13,7 @@ import 'package:syncora_frontend/common/widgets/input_field.dart';
 import 'package:syncora_frontend/common/widgets/overlay_loader.dart';
 import 'package:syncora_frontend/common/widgets/profile_picture.dart';
 import 'package:syncora_frontend/core/localization/generated/l10n/app_localizations.dart';
+import 'package:syncora_frontend/core/utils/error_mapper.dart';
 import 'package:syncora_frontend/core/utils/snack_bar_alerts.dart';
 import 'package:syncora_frontend/core/utils/validators.dart';
 import 'package:syncora_frontend/features/authentication/models/auth_state.dart';
@@ -32,11 +33,12 @@ class ProfileViewPage extends ConsumerStatefulWidget {
 
 class _ProfileViewPageState extends ConsumerState<ProfileViewPage> {
   final _formKey = GlobalKey<FormState>();
+  final FocusScopeNode focusScopeNode = FocusScopeNode();
 
   bool editMode = false;
-
   User? user;
-  late bool isCurrentUser;
+
+  late bool isAccountOwner;
 
   // Result<User?> user =  ref.watch(usersServiceProvider).getUser(widget.userId).then(onValue);
 
@@ -45,7 +47,7 @@ class _ProfileViewPageState extends ConsumerState<ProfileViewPage> {
   final TextEditingController usernameController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
 
-  Future _changeProfilePicture() async {
+  Future changeProfilePicture() async {
     if (ref.read(userProvider).isLoading) return;
 
     ImageSource? source = await ProfilePopups.chooseImageSource(context);
@@ -69,46 +71,34 @@ class _ProfileViewPageState extends ConsumerState<ProfileViewPage> {
     }
   }
 
-  void _setEditMode(bool enabled) {
-    if (!isCurrentUser) return;
+  void setEditMode(bool enabled, void Function(void Function()) setState) {
+    focusScopeNode.unfocus();
+    _formKey.currentState?.reset();
+    if (!isAccountOwner) return;
     setState(() {
       editMode = enabled;
-      if (!editMode) {
-        _resetFields();
-      }
     });
   }
 
-  void _resetFields() {
+  void resetFields() {
     ref.read(loggerProvider).i("Resetting fields");
-    firstNameController.text = user!.firstName;
-    lastNameController.text = user!.lastName;
-    usernameController.text = user!.username;
-    emailController.text = user!.email;
+    firstNameController.text = user == null ? "" : user!.firstName;
+    lastNameController.text = user == null ? "" : user!.lastName;
+    usernameController.text = user == null ? "" : user!.username;
+    emailController.text = user == null ? "" : user!.email;
   }
 
-  void _onSnapshot(AsyncSnapshot<User?> snapshot) {
-    ref.read(loggerProvider).i("snapshot: ${snapshot.data}");
-    if (snapshot.hasError) {
-      SnackBarAlerts.showErrorSnackBar(snapshot.error.toString(), context);
-    }
-
-    if (snapshot.data != null) {
-      user = snapshot.data!;
-      _resetFields();
-    }
+  void onEditButton(void Function(void Function()) setState) {
+    if (editMode) resetFields();
+    setEditMode(!editMode, setState);
   }
 
-  void _saveChanges() async {
-    if (!isCurrentUser) return;
+  void onSaveButton(void Function(void Function()) setState) async {
+    if (!isAccountOwner || user == null) return;
     // TODO: This validation does not work on the second time?
     if (_formKey.currentState!.validate()) {
-      // ref.read(loggerProvider).i(user!.firstName ==
-      //     firstNameController.text +
-      //         " " +
-      //         lastNameController.text +
-      //         " " +
-      //         usernameController.text);
+      ref.read(loggerProvider).i("Profile page: Updating user info!");
+
       await ref.read(userProvider.notifier).updateUserProfile(
             firstName: user!.firstName == firstNameController.text
                 ? null
@@ -120,14 +110,17 @@ class _ProfileViewPageState extends ConsumerState<ProfileViewPage> {
                 ? null
                 : usernameController.text,
           );
-      FocusScope.of(context).unfocus();
-      _setEditMode(false);
+
+      //TODO: Having this line of code to unfocus from the inputfield literally breaks things
+      // It makes every interaction with the input feild trigger a rebuild??
+      // if (mounted) FocusScope.of(context).unfocus();
+      setEditMode(false, setState);
     }
   }
 
   @override
   void initState() {
-    isCurrentUser = ref.read(authProvider).value!.user!.id == widget.userId;
+    isAccountOwner = ref.read(authProvider).value!.user!.id == widget.userId;
     super.initState();
   }
 
@@ -144,311 +137,304 @@ class _ProfileViewPageState extends ConsumerState<ProfileViewPage> {
   Widget build(BuildContext context) {
     SnackBarAlerts.registerErrorListener(ref, context);
 
-    bool isLoading = ref.watch(userProvider).isLoading;
+    AsyncValue<User?> userAsync = ref.watch(userLocalProvider(widget.userId));
+    bool isLoading = false;
 
-    Future<User?> userFuture =
-        ref.watch(userLocalProvider(widget.userId).future);
-    ref.read(loggerProvider).f("Building profile view page");
+    return userAsync.when(
+      skipLoadingOnRefresh: true,
+      skipLoadingOnReload: true,
+      data: (data) {
+        if (data == null) {
+          ref.read(loggerProvider).i("Building profile view page");
 
-    return Scaffold(
-      extendBodyBehindAppBar: true,
-      floatingActionButton: IconButton(
-          onPressed: () {
-            for (var i = 0; i < 10; i++) {
-              print("resetting provider");
-              ref.invalidate(userLocalProvider(widget.userId));
-            }
-          },
-          icon: Icon(Icons.restart_alt)),
-      appBar: AppBar(
-        centerTitle: true,
-        title: Text(isCurrentUser
-            ? AppLocalizations.of(context).profileViewPage_TitleMyProfile
-            : AppLocalizations.of(context).profileViewPage_TitleProfile),
-      ),
-      body: OverlayLoader(
-        isLoading: isLoading,
-        body: SingleChildScrollView(
-          child: Padding(
-            padding: AppSpacing.paddingHorizontalLg +
-                AppSpacing.paddingVerticalXl +
-                const EdgeInsets.only(top: 80),
-            child: Column(
-              children: [
-                AppSpacing.verticalSpaceMd,
-                // PROFILE PICTURE
-                Stack(
+          return const Center(
+            // TODO: Localize strings in this widget
+            child: Text("User doesn't exist"),
+          );
+        }
+
+        ref
+            .read(loggerProvider)
+            .i("Building profile view page and updating displayed data");
+
+        // Updating the user data (if its updated from the backend)
+        user = data;
+        // Resetting the fields every time the user data is updated
+        resetFields();
+
+        return Scaffold(
+          extendBodyBehindAppBar: true,
+          appBar: AppBar(
+            centerTitle: true,
+            title: Text(isAccountOwner
+                ? AppLocalizations.of(context).profileViewPage_TitleMyProfile
+                : AppLocalizations.of(context).profileViewPage_TitleProfile),
+          ),
+          body: OverlayLoader(
+            isLoading: isLoading,
+            body: SingleChildScrollView(
+              child: Padding(
+                padding: AppSpacing.paddingHorizontalLg +
+                    AppSpacing.paddingVerticalXl +
+                    const EdgeInsets.only(top: 80),
+                child: Column(
                   children: [
-                    ProfilePicture(userId: widget.userId, radius: 60),
-                    if (isCurrentUser)
-                      Positioned(
-                        bottom: 0,
-                        right: 0,
-                        child: Container(
-                          decoration: BoxDecoration(
-                              color: Theme.of(context).colorScheme.error,
-                              shape: BoxShape.circle),
-                          child: CircleAvatar(
-                            radius: 18,
-                            backgroundColor:
-                                Theme.of(context).colorScheme.surface,
-                            child: CircleAvatar(
-                              radius: 14,
-                              child: IconButton(
-                                onPressed: _changeProfilePicture,
-                                padding: const EdgeInsets.all(0),
-                                icon: Icon(
-                                  size: 18,
-                                  Icons.edit,
-                                  color: Theme.of(context)
-                                      .colorScheme
-                                      .surfaceContainer,
+                    AppSpacing.verticalSpaceMd,
+                    // PROFILE PICTURE
+                    Stack(
+                      children: [
+                        ProfilePicture(userId: widget.userId, radius: 60),
+                        if (isAccountOwner)
+                          Positioned(
+                            bottom: 0,
+                            right: 0,
+                            child: Container(
+                              decoration: BoxDecoration(
+                                  color: Theme.of(context).colorScheme.error,
+                                  shape: BoxShape.circle),
+                              child: CircleAvatar(
+                                radius: 18,
+                                backgroundColor:
+                                    Theme.of(context).colorScheme.surface,
+                                child: CircleAvatar(
+                                  radius: 14,
+                                  child: IconButton(
+                                    onPressed: changeProfilePicture,
+                                    padding: const EdgeInsets.all(0),
+                                    icon: Icon(
+                                      size: 18,
+                                      Icons.edit,
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .surfaceContainer,
+                                    ),
+                                  ),
                                 ),
                               ),
                             ),
                           ),
-                        ),
-                      ),
+                      ],
+                    ),
+                    const SizedBox(
+                      height: 42,
+                    ),
+                    // INFO
+                    infoCard(data)
                   ],
                 ),
-                const SizedBox(
-                  height: 42,
-                ),
-                // INFO
-                Container(
-                  decoration: BoxDecoration(
-                    boxShadow: [AppShadow.shadow0(context)],
-                    color: Theme.of(context).colorScheme.surfaceContainer,
-                    borderRadius: BorderRadius.circular(AppSizes.borderRadius0),
-                  ),
-                  child: AnimatedSize(
-                    alignment: Alignment.topCenter,
-                    duration: const Duration(milliseconds: 300),
-                    curve: Curves.easeInOutBack,
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                      child: Column(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: [
-                            const SizedBox(
-                              height: 15,
-                            ),
-
-                            // TITLE AND EDIT BUTTON
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  isCurrentUser
-                                      ? AppLocalizations.of(context)
-                                          .profileViewPage_MyInfoTitle
-                                      : AppLocalizations.of(context)
-                                          .profileViewPage_InfoTitle,
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .titleSmall!
-                                      .copyWith(
-                                          color: Theme.of(context)
-                                              .colorScheme
-                                              .onSurfaceVariant,
-                                          fontWeight: FontWeight.bold),
-                                ),
-                                SizedBox.square(
-                                  dimension: 40,
-                                  child: editMode || !isCurrentUser
-                                      ? null
-                                      : CircleAvatar(
-                                          radius: 20,
-                                          child: IconButton(
-                                            onPressed: () => _setEditMode(true),
-                                            padding: const EdgeInsets.all(0),
-                                            icon: Icon(
-                                              size: 22,
-                                              Icons.edit,
-                                              color: Theme.of(context)
-                                                  .colorScheme
-                                                  .surfaceContainer,
-                                            ),
-                                          ),
-                                        ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(
-                              height: 26,
-                            ),
-
-                            FutureBuilder(
-                                future: userFuture,
-                                builder: (context, asyncSnapshot) {
-                                  _onSnapshot(asyncSnapshot);
-
-                                  return AbsorbPointer(
-                                    absorbing: !editMode,
-                                    child: Form(
-                                      key: _formKey,
-                                      child: Column(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.start,
-                                        children: [
-                                          Row(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              // FIRST NAME
-                                              Expanded(
-                                                child: InputField(
-                                                  keyboardType:
-                                                      TextInputType.name,
-                                                  hintText: AppLocalizations.of(
-                                                          context)
-                                                      .signUpPage_Name_Field,
-                                                  labelText:
-                                                      AppLocalizations.of(
-                                                              context)
-                                                          .signUpPage_FirstName,
-                                                  controller:
-                                                      firstNameController,
-                                                  validator: (value) {
-                                                    if (value == null ||
-                                                        value.isEmpty) {
-                                                      return 'First name cannot be empty';
-                                                    }
-
-                                                    if (Validators
-                                                            .validateUsername(
-                                                                value.trim()) ==
-                                                        false) {
-                                                      return 'Invalid first name';
-                                                    }
-                                                    return null;
-                                                  },
-                                                ),
-                                              ),
-                                              AppSpacing.horizontalSpaceMd,
-
-                                              // LAST NAME
-                                              Expanded(
-                                                child: InputField(
-                                                  keyboardType:
-                                                      TextInputType.name,
-                                                  hintText: AppLocalizations.of(
-                                                          context)
-                                                      .signUpPage_Name_Field,
-                                                  labelText:
-                                                      AppLocalizations.of(
-                                                              context)
-                                                          .signUpPage_LastName,
-                                                  controller:
-                                                      lastNameController,
-                                                  validator: (value) {
-                                                    if (value == null ||
-                                                        value.isEmpty) {
-                                                      return 'Last name cannot be empty';
-                                                    }
-
-                                                    if (Validators
-                                                            .validateUsername(
-                                                                value.trim()) ==
-                                                        false) {
-                                                      return 'Invalid last name';
-                                                    }
-                                                    return null;
-                                                  },
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                          const SizedBox(height: 12),
-                                          // USERNAME
-                                          InputField(
-                                            suffixIcon:
-                                                Icons.person_outline_rounded,
-                                            keyboardType: TextInputType.name,
-                                            labelText:
-                                                AppLocalizations.of(context)
-                                                    .signUpPage_Username,
-                                            hintText:
-                                                AppLocalizations.of(context)
-                                                    .signUpPage_Username_Field,
-                                            controller: usernameController,
-                                            validator: (value) {
-                                              if (value == null ||
-                                                  value.isEmpty) {
-                                                return 'Username cannot be empty';
-                                              }
-
-                                              if (Validators.validateUsername(
-                                                      value.trim()) ==
-                                                  false) {
-                                                return 'Invalid username';
-                                              }
-                                              return null;
-                                            },
-                                          ),
-                                          const SizedBox(height: 12),
-                                          // EMAIL
-                                          AbsorbPointer(
-                                            absorbing: true,
-                                            child: InputField(
-                                              suffixIcon: Icons.email_outlined,
-                                              labelText:
-                                                  AppLocalizations.of(context)
-                                                      .email,
-                                              hintText:
-                                                  AppLocalizations.of(context)
-                                                      .email_Field,
-                                              keyboardType:
-                                                  TextInputType.emailAddress,
-                                              controller: emailController,
-                                              validator: (value) {
-                                                if (value == null ||
-                                                    value.isEmpty) {
-                                                  return 'Email cannot be empty';
-                                                }
-
-                                                if (Validators.validateEmail(
-                                                        value.trim()) ==
-                                                    false) {
-                                                  return 'Invalid email';
-                                                }
-                                                return null;
-                                              },
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  );
-                                }),
-                            const SizedBox(height: 30),
-
-                            AnimatedSwitcher(
-                              duration: const Duration(milliseconds: 300),
-                              child: editMode
-                                  ? Padding(
-                                      padding:
-                                          const EdgeInsets.only(bottom: 30.0),
-                                      child: AppButton(
-                                          size: AppButtonSize.large,
-                                          style: AppButtonStyle.filled,
-                                          intent: AppButtonIntent.primary,
-                                          onPressed: _saveChanges,
-                                          child: Text(
-                                              AppLocalizations.of(context)
-                                                  .save)),
-                                    )
-                                  : const SizedBox.shrink(),
-                            ),
-                          ]),
-                    ),
-                  ),
-                )
-              ],
+              ),
             ),
           ),
-        ),
-      ),
+        );
+      },
+      error: (error, stackTrace) {
+        return Center(
+          child: Text(ErrorMapper.map(error, stackTrace).message),
+        );
+      },
+      loading: () {
+        return const Center(
+          child: CircularProgressIndicator(),
+        );
+      },
     );
+  }
+
+  Widget infoCard(User user) {
+    return StatefulBuilder(builder: (context, setState) {
+      return Container(
+        decoration: BoxDecoration(
+          boxShadow: [AppShadow.shadow0(context)],
+          color: Theme.of(context).colorScheme.surfaceContainer,
+          borderRadius: BorderRadius.circular(AppSizes.borderRadius0),
+        ),
+        child: AnimatedSize(
+          alignment: Alignment.topCenter,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeInOutBack,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            child:
+                Column(mainAxisAlignment: MainAxisAlignment.start, children: [
+              const SizedBox(
+                height: 15,
+              ),
+              // TITLE AND EDIT BUTTON
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  // TITLE
+                  Text(
+                    isAccountOwner
+                        ? AppLocalizations.of(context)
+                            .profileViewPage_MyInfoTitle
+                        : AppLocalizations.of(context)
+                            .profileViewPage_InfoTitle,
+                    style: Theme.of(context).textTheme.titleSmall!.copyWith(
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        fontWeight: FontWeight.bold),
+                  ),
+                  // EDIT BUTTON
+                  SizedBox.square(
+                    dimension: 40,
+                    child: !isAccountOwner
+                        ? null
+                        : CircleAvatar(
+                            radius: 20,
+                            child: IconButton(
+                              onPressed: () => onEditButton(setState),
+                              padding: const EdgeInsets.all(0),
+                              icon: Icon(
+                                size: 22,
+                                Icons.edit,
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .surfaceContainer,
+                              ),
+                            ),
+                          ),
+                  ),
+                ],
+              ),
+              const SizedBox(
+                height: 26,
+              ),
+              // FORM
+              AbsorbPointer(
+                absorbing: !editMode,
+                child: FocusScope(
+                  node: focusScopeNode,
+                  child: Form(
+                    key: _formKey,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        // FIRST AND LAST NAME
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            // FIRST NAME
+                            Expanded(
+                              child: InputField(
+                                keyboardType: TextInputType.name,
+                                hintText: AppLocalizations.of(context)
+                                    .signUpPage_Name_Field,
+                                labelText: AppLocalizations.of(context)
+                                    .signUpPage_FirstName,
+                                controller: firstNameController,
+                                validator: (value) {
+                                  if (value == null || value.isEmpty) {
+                                    return 'First name cannot be empty';
+                                  }
+
+                                  if (Validators.validateUsername(
+                                          value.trim()) ==
+                                      false) {
+                                    return 'Invalid first name';
+                                  }
+                                  return null;
+                                },
+                              ),
+                            ),
+                            AppSpacing.horizontalSpaceMd,
+
+                            // LAST NAME
+                            Expanded(
+                              child: InputField(
+                                keyboardType: TextInputType.name,
+                                hintText: AppLocalizations.of(context)
+                                    .signUpPage_Name_Field,
+                                labelText: AppLocalizations.of(context)
+                                    .signUpPage_LastName,
+                                controller: lastNameController,
+                                validator: (value) {
+                                  if (value == null || value.isEmpty) {
+                                    return 'Last name cannot be empty';
+                                  }
+
+                                  if (Validators.validateUsername(
+                                          value.trim()) ==
+                                      false) {
+                                    return 'Invalid last name';
+                                  }
+                                  return null;
+                                },
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 12),
+                        // USERNAME
+                        InputField(
+                          suffixIcon: Icons.person_outline_rounded,
+                          keyboardType: TextInputType.name,
+                          labelText:
+                              AppLocalizations.of(context).signUpPage_Username,
+                          hintText: AppLocalizations.of(context)
+                              .signUpPage_Username_Field,
+                          controller: usernameController,
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Username cannot be empty';
+                            }
+
+                            if (Validators.validateUsername(value.trim()) ==
+                                false) {
+                              return 'Invalid username';
+                            }
+                            return null;
+                          },
+                        ),
+                        const SizedBox(height: 12),
+                        // EMAIL
+                        AbsorbPointer(
+                          absorbing: true,
+                          child: InputField(
+                            suffixIcon: Icons.email_outlined,
+                            labelText: AppLocalizations.of(context).email,
+                            hintText: AppLocalizations.of(context).email_Field,
+                            keyboardType: TextInputType.emailAddress,
+                            controller: emailController,
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Email cannot be empty';
+                              }
+
+                              if (Validators.validateEmail(value.trim()) ==
+                                  false) {
+                                return 'Invalid email';
+                              }
+                              return null;
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 30),
+
+              // SAVE BUTTON
+              AnimatedSwitcher(
+                duration: const Duration(milliseconds: 300),
+                child: editMode
+                    ? Padding(
+                        padding: const EdgeInsets.only(bottom: 30.0),
+                        child: AppButton(
+                            size: AppButtonSize.large,
+                            style: AppButtonStyle.filled,
+                            intent: AppButtonIntent.primary,
+                            onPressed: () => onSaveButton(setState),
+                            child: Text(AppLocalizations.of(context).save)),
+                      )
+                    : const SizedBox.shrink(),
+              ),
+            ]),
+          ),
+        ),
+      );
+    });
   }
 }

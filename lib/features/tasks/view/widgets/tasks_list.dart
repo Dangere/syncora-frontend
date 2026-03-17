@@ -94,37 +94,34 @@ class TasksList extends ConsumerWidget {
 
               // TASKS
               Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                  child: ListView.separated(
-                    padding:
-                        const EdgeInsets.symmetric(vertical: AppSpacing.md / 2),
-                    itemCount: tasks.length,
-                    itemBuilder: (context, index) {
-                      return TaskPanel(
-                          onDelete: () {
-                            ref
-                                .read(tasksProvider(groupId).notifier)
-                                .deleteTask(taskId: tasks[index].id);
-                          },
-                          onTap: () {
-                            bool isDone = tasks[index].completedById != null;
-                            ref
-                                .read(tasksProvider(groupId).notifier)
-                                .markTask(task: tasks[index], isDone: !isDone);
-                          },
-                          onHold: () => assignUsersPopup(tasks[index]),
-                          task: tasks[index],
-                          isCompleted: tasks[index].completedById != null,
-                          assignedUsers: tasks[index].assignedTo,
-                          isOwner: isOwner);
-                    },
-                    separatorBuilder: (context, index) {
-                      return const SizedBox(
-                        height: 8,
-                      );
-                    },
-                  ),
+                child: ListView.separated(
+                  padding: const EdgeInsets.symmetric(
+                      vertical: AppSpacing.md / 2, horizontal: 24.0),
+                  itemCount: tasks.length,
+                  itemBuilder: (context, index) {
+                    return TaskPanel(
+                        onDelete: () {
+                          ref
+                              .read(tasksProvider(groupId).notifier)
+                              .deleteTask(taskId: tasks[index].id);
+                        },
+                        onTap: () {
+                          bool isDone = tasks[index].completedById != null;
+                          ref
+                              .read(tasksProvider(groupId).notifier)
+                              .markTask(task: tasks[index], isDone: !isDone);
+                        },
+                        onHold: () => assignUsersPopup(tasks[index]),
+                        task: tasks[index],
+                        isCompleted: tasks[index].completedById != null,
+                        assignedUsers: tasks[index].assignedTo,
+                        isOwner: isOwner);
+                  },
+                  separatorBuilder: (context, index) {
+                    return const SizedBox(
+                      height: 8,
+                    );
+                  },
                 ),
               ),
             ],

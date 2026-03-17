@@ -51,6 +51,10 @@ class SyncPayload {
       ids.add(element);
     }
 
+    for (var element in deletedGroups) {
+      ids.add(element);
+    }
+
     return ids;
   }
 

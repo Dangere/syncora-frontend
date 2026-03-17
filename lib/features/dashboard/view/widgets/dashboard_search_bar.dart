@@ -14,8 +14,8 @@ class DashboardSearchBar extends ConsumerStatefulWidget {
 }
 
 class _DashboardSearchBarState extends ConsumerState<DashboardSearchBar> {
-  SearchController controller = SearchController();
-  FocusScopeNode focusScopeNode = FocusScopeNode();
+  final SearchController controller = SearchController();
+  final FocusScopeNode focusScopeNode = FocusScopeNode();
   bool dismissedBar = false;
 
   @override

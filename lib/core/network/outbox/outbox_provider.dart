@@ -76,24 +76,23 @@ class OutboxNotifier extends AsyncNotifier<OutboxStatus>
     state = const AsyncValue.loading();
 
     Result<void> result = await ref.read(outboxServiceProvider).processQueue(
-          onFail: (error) {
-            ref.read(appErrorProvider.notifier).state = ErrorMapper.map(error);
-          },
-          onGroupSync: ref.read(groupsProvider.notifier).onOutboxGroupSynced,
-          onGroupModified:
-              ref.read(groupsProvider.notifier).onOutboxGroupUpdate,
-          requireSecondPass: () {
-            ref
-                .read(loggerProvider)
-                .w("Outbox Queue: We are calling for a second pass!");
-            _isAwaiting = true;
-          },
-        );
+        onFail: (error, stackTrace) {
+          ref.read(appErrorProvider.notifier).state =
+              ErrorMapper.map(error, stackTrace);
+        },
+        requireSecondPass: () {
+          ref
+              .read(loggerProvider)
+              .w("Outbox Queue: We are calling for a second pass!");
+          _isAwaiting = true;
+        },
+        onGroupSync: ref.read(groupsProvider.notifier).onOutboxGroupSynced,
+        onRevert: ref.read(groupsProvider.notifier).onOutboxRevert,
+        onSync: ref.read(groupsProvider.notifier).onOutboxSync);
 
     if (!result.isSuccess && !result.isCancelled) {
       ref.read(appErrorProvider.notifier).state = result.error;
-      state = AsyncValue.error(result.error!.message,
-          result.error!.stackTrace ?? StackTrace.current);
+      state = AsyncValue.error(result.error!.message, result.error!.stackTrace);
     } else if (result.isCancelled) {
       state = const AsyncValue.data(OutboxStatus.pending);
     }

@@ -170,7 +170,8 @@ class AuthNotifier extends AsyncNotifier<AuthState> {
     // TODO: in the future make it so you can differentiate between a revoked refresh token or an expired, and give different messages
     ref.read(appErrorProvider.notifier).state = AppError(
         message:
-            "Your session was either expired or revoked, please login again");
+            "Your session was either expired or revoked, please login again",
+        stackTrace: StackTrace.current);
   }
 
   Future<Result> refreshTokens([CancellationToken? cancellationToken]) async {

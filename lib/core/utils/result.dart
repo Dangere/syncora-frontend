@@ -19,11 +19,13 @@ class Result<T> {
       Result<T>(error: ErrorMapper.map(exception, stackTrace));
 
   static Result<T> canceled<T>(String message) => Result<T>(
-      error:
-          AppError(message: message, errorObject: const CancelledException()));
+      error: AppError(
+          message: message,
+          errorObject: const CancelledException(),
+          stackTrace: StackTrace.current));
 
-  static Result<T> failureMessage<T>(String message) =>
-      Result<T>(error: AppError(message: message));
+  static Result<T> failureMessage<T>(String message) => Result<T>(
+      error: AppError(message: message, stackTrace: StackTrace.current));
 
   static Result<void> wrap(VoidCallback callback) {
     try {

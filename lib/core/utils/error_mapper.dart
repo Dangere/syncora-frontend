@@ -6,30 +6,39 @@ import 'package:stack_trace/stack_trace.dart';
 import 'package:syncora_frontend/core/utils/app_error.dart';
 
 class ErrorMapper {
-  static AppError map(Object e, [StackTrace? stackTrace]) {
+  static AppError map(Object e, StackTrace stackTrace) {
     if (e is DioException) {
-      return AppError(message: _mapDioErrorToMessage(e), errorObject: e);
+      return AppError(
+          message: _mapDioErrorToMessage(e),
+          errorObject: e,
+          stackTrace: _parseStackTrace(stackTrace));
     }
 
     if (e is TimeoutException) {
       return AppError(
           message:
               "Time out error occurred, no response for ${e.duration?.inSeconds ?? "few"} seconds",
-          errorObject: e);
+          errorObject: e,
+          stackTrace: _parseStackTrace(stackTrace));
     }
 
     if (e is HttpError) {
-      return AppError(message: "HTTP error: ${e.toString()}", errorObject: e);
+      return AppError(
+          message: "HTTP error: ${e.toString()}",
+          errorObject: e,
+          stackTrace: _parseStackTrace(stackTrace));
     }
 
     if (e is Exception) {
       return AppError(
-          message: "Internal error: ${e.toString()}", errorObject: e);
+          message: "Internal error: ${e.toString()}",
+          errorObject: e,
+          stackTrace: _parseStackTrace(stackTrace));
     }
 
     return AppError(
         message: "Undefined error: ${e.toString()}",
-        stackTrace: stackTrace != null ? _parseStackTrace(stackTrace) : null);
+        stackTrace: _parseStackTrace(stackTrace));
   }
 
   static StackTrace _parseStackTrace(StackTrace stackTrace) {

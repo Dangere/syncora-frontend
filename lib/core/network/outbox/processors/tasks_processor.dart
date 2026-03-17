@@ -135,7 +135,6 @@ class TasksProcessor extends OutboxProcessor {
             taskId: taskId!,
             userId: entry.payload!.asMarkTaskPayload!.completedById,
             isDone: !entry.payload!.asMarkTaskPayload!.isCompleted);
-        // TODO: Handle this case.
         break;
 
       case OutboxActionType.leave:

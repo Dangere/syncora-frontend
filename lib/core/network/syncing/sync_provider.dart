@@ -88,6 +88,7 @@ class SyncBackendNotifier extends AsyncNotifier<SyncState>
     return const SyncIdle();
   }
 
+  // TODO: We could potentially ignore events coming from this device and only process events from other devices
   void _receiveData(Object? parameter) async {
     if (parameter == null || parameter is! Map<String, dynamic>) return;
     if (ref.read(connectionProvider) == ConnectionStatus.disconnected) return;
