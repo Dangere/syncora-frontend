@@ -69,18 +69,18 @@ class LocalGroupsRepository {
         search != null ? "AND title LIKE '%$search%'" : "";
 
     final String tasksSubQuery = isJson1Supported
-        ? "(SELECT json_group_array(id) FROM ${DatabaseTables.tasks} WHERE groupId = g.id AND isDeleted = 0)"
+        ? "(SELECT JSON_GROUP_ARRAY(id) FROM ${DatabaseTables.tasks} WHERE groupId = g.id AND isDeleted = 0)"
         : "(SELECT GROUP_CONCAT(id) FROM ${DatabaseTables.tasks} WHERE groupId = g.id AND isDeleted = 0)";
 
     final String membersSubQuery = isJson1Supported
-        ? "(SELECT json_group_array(userId) FROM ${DatabaseTables.groupsMembers} WHERE groupId = g.id)"
+        ? "(SELECT JSON_GROUP_ARRAY(userId) FROM ${DatabaseTables.groupsMembers} WHERE groupId = g.id)"
         : "(SELECT GROUP_CONCAT(userId) FROM ${DatabaseTables.groupsMembers} WHERE groupId = g.id)";
 
     String query = '''
         SELECT
         id, clientGeneratedId, ownerUserId, title, description, creationDate,
         $membersSubQuery AS members, 
-        $tasksSubQuery as tasks 
+        $tasksSubQuery AS tasks 
         $completedSubQuery 
         FROM ${DatabaseTables.groups} g
         WHERE isDeleted = 0 $ownershipFilter $completedFilter $searchQuery $orderingFilter''';
@@ -98,11 +98,11 @@ class LocalGroupsRepository {
     final bool isJson1Supported = _databaseManager.isJson1Supported;
 
     final String tasksSubQuery = isJson1Supported
-        ? "(SELECT json_group_array(id) FROM ${DatabaseTables.tasks} WHERE groupId = g.id AND isDeleted = 0)"
+        ? "(SELECT JSON_GROUP_ARRAY(id) FROM ${DatabaseTables.tasks} WHERE groupId = g.id AND isDeleted = 0)"
         : "(SELECT GROUP_CONCAT(id) FROM ${DatabaseTables.tasks} WHERE groupId = g.id AND isDeleted = 0)";
 
     final String membersSubQuery = isJson1Supported
-        ? "(SELECT json_group_array(userId) FROM ${DatabaseTables.groupsMembers} WHERE groupId = g.id)"
+        ? "(SELECT JSON_GROUP_ARRAY(userId) FROM ${DatabaseTables.groupsMembers} WHERE groupId = g.id)"
         : "(SELECT GROUP_CONCAT(userId) FROM ${DatabaseTables.groupsMembers} WHERE groupId = g.id)";
 
     List<Map<String, dynamic>> groupRow = await db.rawQuery('''SELECT

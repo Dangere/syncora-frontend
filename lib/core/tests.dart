@@ -23,6 +23,7 @@ import 'package:syncora_frontend/features/authentication/models/auth_state.dart'
 import 'package:syncora_frontend/features/authentication/models/user.dart';
 import 'package:syncora_frontend/features/authentication/auth_provider.dart';
 import 'package:syncora_frontend/features/groups/models/group_dto.dart';
+import 'package:syncora_frontend/features/groups/models/group_progress.dart';
 import 'package:syncora_frontend/features/groups/repositories/statistics_repository.dart';
 import 'package:syncora_frontend/features/groups/groups_provider.dart';
 import 'package:syncora_frontend/features/tasks/models/task.dart';
@@ -32,6 +33,17 @@ import 'package:syncora_frontend/features/users/providers/users_provider.dart';
 class Tests {
   // 2. Turns out it was because of the mapping from the json to the payload, the backend would return the "completed" property as a bool
   // But i was expecting it as an int like how the local db handles bools
+
+  static void test_print_user_progress(WidgetRef ref) async {
+    int userId = ref.read(authProvider).value!.user!.id;
+
+    List<GroupProgress> progress = await ref
+        .read(groupStatisticsProvider)
+        .getProgressSince(userId, 30, true);
+
+    progress.forEach((p) => Logger().d(p.toString()));
+  }
+
   static void test_Json_To_SyncPayload(WidgetRef ref) async {
     String jsonString = """
     {
@@ -247,7 +259,7 @@ class Tests {
 
     String groupFilteredQuery = '''SELECT
         id, clientGeneratedId, ownerUserId, title, description, creationDate,
-        (SELECT json_group_array(completedById) FROM ${DatabaseTables.tasks} WHERE groupId = g.id AND isDeleted = 0)
+        (SELECT JSON_GROUP_ARRAY(completedById) FROM ${DatabaseTables.tasks} WHERE groupId = g.id AND isDeleted = 0)
         as tasks,
         (EXISTS (
         SELECT 1

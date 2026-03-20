@@ -33,6 +33,7 @@ class LocalTasksRepository {
         ? "AND ts.userId = $userId"
         : "";
 
+    // TODO: Theres a double call of `DatabaseTables.tasksAssignees`
     List<Map<String, dynamic>> tasks = await db.rawQuery('''
     SELECT 
       t.id, 

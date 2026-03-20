@@ -1,6 +1,7 @@
 import 'package:syncora_frontend/core/data/database_manager.dart';
 import 'package:syncora_frontend/core/data/enums/database_tables.dart';
 import 'package:syncora_frontend/features/groups/groups_provider.dart';
+import 'package:syncora_frontend/features/groups/models/group_progress.dart';
 
 class StatisticsRepository {
   final DatabaseManager _databaseManager;
@@ -49,5 +50,72 @@ class StatisticsRepository {
 
     final result = await db.rawQuery(query);
     return result.first['count'] as int;
+  }
+
+  Future<GroupProgress?> getTotalProgressSince(
+      int userId, int sinceDays, bool includeAssignedTasks) async {
+    final db = await _databaseManager.getDatabase();
+
+    final String includeAssignedTasksSubQuery = includeAssignedTasks
+        ? '''OR EXISTS (
+            SELECT 1 FROM ${DatabaseTables.tasksAssignees} ta WHERE ta.taskId = t.id AND ta.userId = $userId
+          )'''
+        : "";
+
+    // Query to get group ids and two columns for completed tasks and total tasks in the last `sinceDays` days
+    // The EXISTS clause is an index look up to improve performance
+    final query = '''
+        SELECT 0 AS groupId, TotalProgress AS groupTitle
+        COUNT(DISTINCT CASE WHEN t.completedById = $userId THEN t.id END) AS completedTasks,
+        COUNT(DISTINCT CASE
+          WHEN t.completedById IS NULL
+          AND (g.ownerUserId = $userId $includeAssignedTasksSubQuery)
+          THEN t.id
+        END) AS incompleteTasks
+      FROM ${DatabaseTables.groups} g
+      LEFT JOIN ${DatabaseTables.tasks} t ON t.groupId = g.id AND t.isDeleted = 0 AND t.creationDate >= datetime('now', '-$sinceDays days')
+      WHERE g.isDeleted = 0
+    ''';
+
+    final result = await db.rawQuery(query);
+    if (result.isEmpty) {
+      return null;
+    }
+
+    return GroupProgress.fromJson(result.first);
+  }
+
+  // Returns a group ids and their completion status in terms of tasks
+  Future<List<GroupProgress>> getProgressSince(
+      int userId, int sinceDays, bool includeAssignedTasks) async {
+    final db = await _databaseManager.getDatabase();
+
+    final String includeAssignedTasksSubQuery = includeAssignedTasks
+        ? '''OR EXISTS (
+            SELECT 1 FROM ${DatabaseTables.tasksAssignees} ta WHERE ta.taskId = t.id AND ta.userId = $userId
+          )'''
+        : "";
+
+    // Query to get group ids and two columns for completed tasks and total tasks in the last `sinceDays` days
+    // The EXISTS clause is an index look up to improve performance
+    final query = '''
+        SELECT
+        g.id AS groupId, g.title AS groupTitle,
+        COUNT(DISTINCT CASE WHEN t.completedById = $userId THEN t.id END) AS completedTasks,
+        COUNT(DISTINCT CASE
+          WHEN t.completedById IS NULL
+          AND (g.ownerUserId = $userId $includeAssignedTasksSubQuery)
+          THEN t.id
+        END) AS incompleteTasks
+      FROM ${DatabaseTables.groups} g
+      LEFT JOIN ${DatabaseTables.tasks} t ON t.groupId = g.id AND t.isDeleted = 0  AND t.creationDate >= datetime('now', '-$sinceDays days')
+      WHERE g.isDeleted = 0
+      GROUP BY g.id
+      HAVING completedTasks > 0 OR incompleteTasks > 0
+      ORDER BY g.creationDate DESC
+          ''';
+
+    final result = await db.rawQuery(query);
+    return result.map((e) => GroupProgress.fromJson(e)).toList();
   }
 }

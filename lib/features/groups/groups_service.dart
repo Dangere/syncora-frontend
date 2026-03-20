@@ -6,6 +6,7 @@ import 'package:syncora_frontend/core/utils/result.dart';
 import 'package:syncora_frontend/features/authentication/models/auth_state.dart';
 import 'package:syncora_frontend/features/authentication/models/user.dart';
 import 'package:syncora_frontend/features/groups/models/group.dart';
+import 'package:syncora_frontend/features/groups/models/group_progress.dart';
 import 'package:syncora_frontend/features/groups/repositories/local_groups_repository.dart';
 import 'package:syncora_frontend/features/groups/repositories/remote_groups_repository.dart';
 import 'package:syncora_frontend/features/groups/repositories/statistics_repository.dart';
@@ -205,6 +206,18 @@ class GroupsService {
 
       return Result.success(await _groupStatisticsRepository.getGroupsCount(
           filters, _authState.user!.id));
+    } catch (e, stackTrace) {
+      return Result.failure(e, stackTrace);
+    }
+  }
+
+  Future<Result<List<GroupProgress>>> getGroupsProgress(
+      bool includeAssignedTasks, int sinceDays) async {
+    try {
+      if (_authState.user == null) return Result.failureMessage("User is null");
+
+      return Result.success(await _groupStatisticsRepository.getProgressSince(
+          _authState.user!.id, sinceDays, includeAssignedTasks));
     } catch (e, stackTrace) {
       return Result.failure(e, stackTrace);
     }

@@ -106,23 +106,6 @@ class GroupPageState extends ConsumerState<GroupPage> {
           isOwner: isOwner,
         ),
         builder: (context, innerRef, tasksList) {
-          // Group? group = ref.watch(groupViewProvider(widget.groupId).select(
-          //   (value) {
-          //     return value.hasValue ? value.value : null;
-          //   },
-          // ));
-          // ref.read(loggerProvider).i("Building group view page");
-          // if (!ref.watch(groupViewProvider(widget.groupId)).isLoading &&
-          //     ref.watch(groupViewProvider(widget.groupId)).value == null) {
-          //   Navigator.pop(context);
-          //   return const Scaffold(body: Center(child: Text("Group not found")));
-          // }
-
-          // if (group == null) {
-          //   return const Scaffold(
-          //       body: Center(child: CircularProgressIndicator()));
-          // }
-
           return innerRef.watch(groupViewProvider(widget.groupId)).when(
                 skipLoadingOnRefresh: true,
                 skipLoadingOnReload: true,

@@ -31,7 +31,7 @@ class DashboardPage extends ConsumerStatefulWidget {
 }
 
 class _DashboardPageState extends ConsumerState<DashboardPage> {
-  bool foldProgressCard = false;
+  bool foldProgressCard = true;
   @override
   Widget build(BuildContext context) {
     // We assume that the user is logged in and there's always a user provided if we are on this page
@@ -53,9 +53,13 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
     }
 
     void shouldFoldProgressCard(bool fold) {
-      // setState(() {
-      //   foldProgressCard = fold;
-      // });
+      setState(() {
+        foldProgressCard = fold;
+      });
+    }
+
+    void onProgressCardClick() {
+      context.push('/groups-progress');
     }
 
     ref.read(loggerProvider).d("Building dashboard page");
@@ -85,6 +89,16 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
             style: AppButtonStyle.filled,
             intent: AppButtonIntent.warning,
             child: const Icon(Icons.add),
+          ),
+          AppButton(
+            width: 80,
+            onPressed: () {
+              Tests.test_print_user_progress(ref);
+            },
+            size: AppButtonSize.mini,
+            style: AppButtonStyle.filled,
+            intent: AppButtonIntent.warning,
+            child: const Icon(Icons.price_change_outlined),
           )
         ],
       ),
@@ -206,26 +220,27 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                   ),
                 ),
                 AppSpacing.verticalSpaceLg,
-                // Padding(
-                //   padding: AppSpacing.paddingHorizontalLg,
-                //   child: AnimatedSize(
-                //     duration: const Duration(milliseconds: 500),
-                //     curve: Curves.easeOutCirc,
-                //     child: SizedBox(
-                //       height: foldProgressCard ? 50 : 182,
-                //       child: GestureDetector(
-                //         onTap: () => shouldFoldProgressCard(false),
-                //         child: Container(
-                //           color: Colors.amber,
-                //           child: const Center(
-                //             child: Icon(Icons.group),
-                //           ),
-                //         ),
-                //       ),
-                //     ),
-                //   ),
-                // ),
-                // AppSpacing.verticalSpaceLg,
+                Padding(
+                  padding: AppSpacing.paddingHorizontalLg,
+                  child: AnimatedSize(
+                    alignment: Alignment.topCenter,
+                    duration: const Duration(milliseconds: 500),
+                    curve: Curves.easeOutCirc,
+                    child: SizedBox(
+                      height: foldProgressCard ? 50 : 182,
+                      child: GestureDetector(
+                        onTap: onProgressCardClick,
+                        child: Container(
+                          color: Colors.amber,
+                          child: const Center(
+                            child: Icon(Icons.group),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                AppSpacing.verticalSpaceLg,
 
                 // SEARCH BAR
                 GestureDetector(

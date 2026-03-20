@@ -156,6 +156,20 @@ class DatabaseManager {
         creationDate TEXT NOT NULL
       )
     ''');
+
+    // INDEXES
+    await db.execute('''
+      CREATE INDEX idx_tasks_group_completion 
+      ON ${DatabaseTables.tasks}(groupId, isDeleted, creationDate);
+    ''');
+
+    await db.execute('''
+      CREATE INDEX IF NOT EXISTS idx_tasksAssignees_taskId_userId ON ${DatabaseTables.tasksAssignees}(taskId, userId);
+    ''');
+
+    await db.execute('''
+      CREATE INDEX IF NOT EXISTS idx_groupsMembers_groupId ON ${DatabaseTables.groupsMembers}(groupId);
+    ''');
   }
 
   Future<void> ensureDeleted() async {

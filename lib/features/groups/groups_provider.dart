@@ -11,6 +11,7 @@ import 'package:syncora_frontend/features/authentication/models/auth_state.dart'
 import 'package:syncora_frontend/features/authentication/auth_provider.dart';
 import 'package:syncora_frontend/features/authentication/models/user.dart';
 import 'package:syncora_frontend/features/groups/models/group.dart';
+import 'package:syncora_frontend/features/groups/models/group_progress.dart';
 import 'package:syncora_frontend/features/groups/repositories/local_groups_repository.dart';
 import 'package:syncora_frontend/features/groups/repositories/remote_groups_repository.dart';
 import 'package:syncora_frontend/features/groups/repositories/statistics_repository.dart';
@@ -294,6 +295,20 @@ class GroupsNotifier extends AsyncNotifier<List<Group>> {
     if (!fetchResult.isSuccess) {
       ref.read(appErrorProvider.notifier).state = fetchResult.error;
       return null;
+    } else {
+      return fetchResult.data!;
+    }
+  }
+
+  Future<List<GroupProgress>> getGroupsProgress(
+      bool includeAssignedTasks, int sinceDays) async {
+    Result<List<GroupProgress>> fetchResult = await ref
+        .read(groupsServiceProvider)
+        .getGroupsProgress(includeAssignedTasks, sinceDays);
+
+    if (!fetchResult.isSuccess) {
+      ref.read(appErrorProvider.notifier).state = fetchResult.error;
+      return [];
     } else {
       return fetchResult.data!;
     }

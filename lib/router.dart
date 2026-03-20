@@ -12,7 +12,8 @@ import 'package:syncora_frontend/features/authentication/view/pages/sign_in_page
 import 'package:syncora_frontend/features/authentication/view/pages/sign_up_page.dart';
 import 'package:syncora_frontend/features/authentication/auth_provider.dart';
 import 'package:syncora_frontend/features/dashboard/view/pages/dashboard_page.dart';
-import 'package:syncora_frontend/features/groups/view/page/group_page.dart';
+import 'package:syncora_frontend/features/groups/view/pages/group_page.dart';
+import 'package:syncora_frontend/features/groups/view/pages/groups_progress_page.dart';
 import 'package:syncora_frontend/features/onboarding/view/onboarding_page.dart';
 import 'package:syncora_frontend/features/settings/view/settings_page.dart';
 import 'package:syncora_frontend/core/image/crop_image_page.dart';
@@ -81,6 +82,13 @@ class RouteNotifier extends Notifier<GoRouter> {
                 path: 'settings',
                 builder: (context, state) {
                   return const SettingsPage();
+                },
+              ),
+              GoRoute(
+                name: 'groups-progress',
+                path: 'groups-progress',
+                builder: (context, state) {
+                  return const GroupsProgressPage();
                 },
               ),
               GoRoute(
