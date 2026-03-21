@@ -19,6 +19,9 @@ class GroupProgress {
         incompleteTasks: json['incompleteTasks']);
   }
 
+  double get percentage =>
+      (completedTasks / (completedTasks + incompleteTasks)) * 100;
+
   @override
   String toString() {
     return 'GroupProgress{groupId: $groupId, groupTitle: $groupTitle, completedTasks: $completedTasks, incompleteTasks: $incompleteTasks}';

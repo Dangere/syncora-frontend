@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:syncora_frontend/common/themes/app_theme.dart';
 import 'package:syncora_frontend/common/widgets/marquee_widget.dart';
+import 'package:syncora_frontend/common/widgets/profile_picture.dart';
 import 'package:syncora_frontend/features/groups/view/widgets/compressed_members_display.dart';
 import 'package:syncora_frontend/features/tasks/models/task.dart';
 
@@ -8,7 +9,7 @@ class TaskPanel extends StatelessWidget {
   const TaskPanel(
       {super.key,
       required this.task,
-      required this.isCompleted,
+      required this.isCompletedBy,
       required this.onDelete,
       required this.onTap,
       required this.onHold,
@@ -20,7 +21,23 @@ class TaskPanel extends StatelessWidget {
   final VoidCallback onHold;
   final List<int> assignedUsers;
   final bool isOwner;
-  final bool isCompleted;
+  final int? isCompletedBy;
+
+  Widget? completerIcon() {
+    if (isCompletedBy == null) return null;
+
+    if (assignedUsers.isEmpty) return null;
+
+    if (assignedUsers.length == 1) return null;
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+      child: ProfilePicture(
+        userId: isCompletedBy!,
+        radius: 15,
+      ),
+    );
+  }
 
   Widget _body(BuildContext context) => GestureDetector(
         onTap: onTap,
@@ -35,10 +52,8 @@ class TaskPanel extends StatelessWidget {
               borderRadius: BorderRadius.circular(20),
             ),
             child: Row(mainAxisAlignment: MainAxisAlignment.start, children: [
-              _CheckButton(value: isCompleted),
-              const SizedBox(
-                width: 13,
-              ),
+              _CheckButton(value: isCompletedBy != null),
+              completerIcon() ?? SizedBox(width: 13),
               Expanded(
                   child: MarqueeWidget(
                 direction: Axis.vertical,
@@ -46,8 +61,9 @@ class TaskPanel extends StatelessWidget {
                   // maxLines: 2,
                   task.title,
                   style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                      decoration:
-                          isCompleted ? TextDecoration.lineThrough : null,
+                      decoration: isCompletedBy != null
+                          ? TextDecoration.lineThrough
+                          : null,
                       decorationThickness: 1, // Set the desired thickness
                       decorationColor:
                           Theme.of(context).colorScheme.outline, // Optional

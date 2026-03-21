@@ -222,4 +222,17 @@ class GroupsService {
       return Result.failure(e, stackTrace);
     }
   }
+
+  Future<Result<GroupProgress?>> getGroupsTotalProgress(
+      bool includeAssignedTasks, int sinceDays) async {
+    try {
+      if (_authState.user == null) return Result.failureMessage("User is null");
+
+      return Result.success(
+          await _groupStatisticsRepository.getTotalProgressSince(
+              _authState.user!.id, sinceDays, includeAssignedTasks));
+    } catch (e, stackTrace) {
+      return Result.failure(e, stackTrace);
+    }
+  }
 }

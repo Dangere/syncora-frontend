@@ -314,6 +314,20 @@ class GroupsNotifier extends AsyncNotifier<List<Group>> {
     }
   }
 
+  Future<GroupProgress?> getGroupsTotalProgress(
+      bool includeAssignedTasks, int sinceDays) async {
+    Result<GroupProgress?> fetchResult = await ref
+        .read(groupsServiceProvider)
+        .getGroupsTotalProgress(includeAssignedTasks, sinceDays);
+
+    if (!fetchResult.isSuccess) {
+      ref.read(appErrorProvider.notifier).state = fetchResult.error;
+      return null;
+    } else {
+      return fetchResult.data!;
+    }
+  }
+
   /// Updates the widgets that are displaying a group using its tempId or serverId
   void reloadViewedGroups(List<int> groupIds) async {
     ref.read(loggerProvider).d("Groups provider: Reloading group view");

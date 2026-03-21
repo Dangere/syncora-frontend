@@ -113,7 +113,7 @@ class TasksList extends ConsumerWidget {
                         },
                         onHold: () => assignUsersPopup(tasks[index]),
                         task: tasks[index],
-                        isCompleted: tasks[index].completedById != null,
+                        isCompletedBy: tasks[index].completedById,
                         assignedUsers: tasks[index].assignedTo,
                         isOwner: isOwner);
                   },

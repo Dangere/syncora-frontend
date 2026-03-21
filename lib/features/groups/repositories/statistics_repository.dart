@@ -65,7 +65,7 @@ class StatisticsRepository {
     // Query to get group ids and two columns for completed tasks and total tasks in the last `sinceDays` days
     // The EXISTS clause is an index look up to improve performance
     final query = '''
-        SELECT 0 AS groupId, TotalProgress AS groupTitle
+        SELECT 0 AS groupId, 'TotalProgress' AS groupTitle,
         COUNT(DISTINCT CASE WHEN t.completedById = $userId THEN t.id END) AS completedTasks,
         COUNT(DISTINCT CASE
           WHEN t.completedById IS NULL
@@ -75,6 +75,7 @@ class StatisticsRepository {
       FROM ${DatabaseTables.groups} g
       LEFT JOIN ${DatabaseTables.tasks} t ON t.groupId = g.id AND t.isDeleted = 0 AND t.creationDate >= datetime('now', '-$sinceDays days')
       WHERE g.isDeleted = 0
+
     ''';
 
     final result = await db.rawQuery(query);

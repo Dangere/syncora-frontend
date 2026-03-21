@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:syncora_frontend/common/themes/app_spacing.dart';
 import 'package:syncora_frontend/common/widgets/marquee_widget.dart';
+import 'package:syncora_frontend/common/widgets/progress_bar.dart';
 import 'package:syncora_frontend/features/groups/groups_provider.dart';
 import 'package:syncora_frontend/features/groups/models/group_progress.dart';
 
@@ -52,16 +53,21 @@ class _GroupsProgressPageState extends ConsumerState<GroupsProgressPage> {
                         borderRadius:
                             const BorderRadius.all(Radius.circular(5)),
                       ),
-                      child: Row(children: [
-                        Expanded(
-                            child: MarqueeWidget(
-                                child: Text(groupProgress.groupTitle))),
-                        SizedBox(
-                          width: 20,
-                        ),
-                        Text(
-                            "Completed: ${groupProgress.completedTasks.toString()}   -   In Progress: ${groupProgress.incompleteTasks.toString()}")
-                      ]),
+                      child: Column(
+                        children: [
+                          Row(children: [
+                            Expanded(
+                                child: MarqueeWidget(
+                                    child: Text(groupProgress.groupTitle))),
+                            SizedBox(
+                              width: 20,
+                            ),
+                            Text(
+                                "Completed: ${groupProgress.completedTasks.toString()}   -   In Progress: ${groupProgress.incompleteTasks.toString()}")
+                          ]),
+                          ProgressBar(percentage: groupProgress.percentage),
+                        ],
+                      ),
                     ),
                   );
                 },
