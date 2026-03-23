@@ -19,6 +19,17 @@ class GroupProgress {
         incompleteTasks: json['incompleteTasks']);
   }
 
+  GroupProgress copyWith({
+    String? groupTitle,
+  }) {
+    return GroupProgress(
+      groupId: groupId,
+      completedTasks: completedTasks,
+      incompleteTasks: incompleteTasks,
+      groupTitle: groupTitle ?? this.groupTitle,
+    );
+  }
+
   double get percentage =>
       (completedTasks / (completedTasks + incompleteTasks)) * 100;
 
