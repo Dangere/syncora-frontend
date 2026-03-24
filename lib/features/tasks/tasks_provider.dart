@@ -68,6 +68,7 @@ class TasksNotifier extends AutoDisposeFamilyAsyncNotifier<List<Task>, int> {
       return;
     }
     reloadTasks();
+    ref.read(groupsProvider.notifier).onTasksModification(arg);
 
     // _reloadGroupsList();
     // reloadViewedGroups([groupId]);
@@ -87,6 +88,8 @@ class TasksNotifier extends AutoDisposeFamilyAsyncNotifier<List<Task>, int> {
     }
     reloadTasks();
 
+    ref.read(groupsProvider.notifier).onTasksModification(arg);
+
     // _reloadGroupsList();
     // reloadViewedGroups([groupId]);
   }
@@ -101,6 +104,8 @@ class TasksNotifier extends AutoDisposeFamilyAsyncNotifier<List<Task>, int> {
       return;
     }
     reloadTasks();
+
+    ref.read(groupsProvider.notifier).onTasksModification(arg);
 
     // reloadViewedGroups([groupId]);
   }
@@ -186,8 +191,8 @@ class TasksNotifier extends AutoDisposeFamilyAsyncNotifier<List<Task>, int> {
     if (result.isSuccess) {
       state = AsyncValue.data(result.data!);
     } else {
-      state = AsyncValue.error(result.error!.errorObject,
-          result.error!.stackTrace ?? StackTrace.current);
+      state =
+          AsyncValue.error(result.error!.errorObject, result.error!.stackTrace);
     }
   }
 

@@ -65,7 +65,7 @@ class GroupProgressCard extends StatelessWidget {
               Expanded(
                 child: MarqueeWidget(
                     child: Text(
-                  groupProgress!.groupTitle,
+                  groupProgress.groupTitle,
                   style: _titleStyle(context),
                 )),
               ),
@@ -101,7 +101,7 @@ class GroupProgressCard extends StatelessWidget {
           ),
 
           ProgressBar(
-            percentage: groupProgress!.percentage,
+            percentage: groupProgress.percentage,
             gradient: false,
           ),
 
@@ -127,7 +127,7 @@ class GroupProgressCard extends StatelessWidget {
                   ),
                   RichText(
                     text: TextSpan(
-                      text: "${groupProgress!.completedTasks.toString()} ",
+                      text: "${groupProgress.completedTasks.toString()} ",
                       style: Theme.of(context).textTheme.titleSmall!.copyWith(
                           fontWeight: FontWeight.w600,
                           color: Theme.of(context)
@@ -160,7 +160,7 @@ class GroupProgressCard extends StatelessWidget {
                   ),
                   RichText(
                     text: TextSpan(
-                      text: "${groupProgress!.incompleteTasks.toString()} ",
+                      text: "${groupProgress.incompleteTasks.toString()} ",
                       style: Theme.of(context).textTheme.titleSmall!.copyWith(
                           fontWeight: FontWeight.w600,
                           color: Theme.of(context)

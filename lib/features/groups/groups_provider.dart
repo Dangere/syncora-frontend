@@ -36,6 +36,11 @@ class GroupsNotifier extends AsyncNotifier<List<Group>> {
   // A bool that gets set to true when the groups list needs to be reloaded but the user is not viewing it yet
   bool _waitingToReloadGroupList = false;
 
+  /// Gets called when the task provider modifies a task (create/modify/delete) to update the displayed list of groups
+  void onTasksModification(int groupId) {
+    _reloadGroupsList();
+  }
+
   // This gets called when the outbox processor updates an entity within a group or the group itself
   // It provides the group synced id
   // This gets called after onOutboxGroupIdUpdate
@@ -386,7 +391,7 @@ class GroupsNotifier extends AsyncNotifier<List<Group>> {
       }
     });
 
-    // Updating the UI on viewing the groups list in the home page if we had changes
+    // Updating the UI on viewing the groups list in the home page if we had changes marked by `_waitingToReloadGroupList`
     ref.read(routeProvider.notifier).dataStream.listen(
       (event) {
         if (event == "home" && _waitingToReloadGroupList) {

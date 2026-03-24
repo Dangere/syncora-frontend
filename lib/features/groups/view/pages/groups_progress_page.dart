@@ -84,41 +84,6 @@ class _GroupsProgressPageState extends ConsumerState<GroupsProgressPage> {
                               },
                             ),
                           );
-
-                          return GestureDetector(
-                            onTap: () => context
-                                .push("/group/${groupProgress.groupId}")
-                                .whenComplete(
-                              () {
-                                setState(() {});
-                              },
-                            ),
-                            child: Container(
-                              padding: const EdgeInsets.all(10),
-                              decoration: BoxDecoration(
-                                border: Border.all(color: Colors.grey),
-                                borderRadius:
-                                    const BorderRadius.all(Radius.circular(5)),
-                              ),
-                              child: Column(
-                                children: [
-                                  Row(children: [
-                                    Expanded(
-                                        child: MarqueeWidget(
-                                            child: Text(
-                                                groupProgress.groupTitle))),
-                                    SizedBox(
-                                      width: 20,
-                                    ),
-                                    Text(
-                                        "Completed: ${groupProgress.completedTasks.toString()}   -   In Progress: ${groupProgress.incompleteTasks.toString()}")
-                                  ]),
-                                  ProgressBar(
-                                      percentage: groupProgress.percentage),
-                                ],
-                              ),
-                            ),
-                          );
                         },
                       ),
                     ),

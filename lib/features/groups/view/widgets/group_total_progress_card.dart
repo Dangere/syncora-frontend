@@ -41,12 +41,14 @@ class _GroupTotalProgressCardState
           if (asyncSnapshot.hasData && asyncSnapshot.requireData == null)
             return Container();
 
-          ref.read(loggerProvider).d(groupProgress.toString());
+          ref.read(loggerProvider).f(groupProgress.toString());
 
           return GroupProgressCard(
               groupProgress: groupProgress!.copyWith(
                   groupTitle: AppLocalizations.of(context)!.filter_InProgress),
-              onExpand: () => context.push('/groups-progress'));
+              onExpand: () => context.push('/groups-progress').whenComplete(
+                    () => setState(() {}),
+                  ));
         });
   }
 }

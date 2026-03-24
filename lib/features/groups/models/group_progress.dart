@@ -30,8 +30,9 @@ class GroupProgress {
     );
   }
 
-  double get percentage =>
-      (completedTasks / (completedTasks + incompleteTasks)) * 100;
+  double get percentage => completedTasks + incompleteTasks == 0
+      ? 0
+      : (completedTasks / (completedTasks + incompleteTasks)) * 100;
 
   @override
   String toString() {
