@@ -69,7 +69,7 @@ class GroupProgressCard extends StatelessWidget {
                   style: _titleStyle(context),
                 )),
               ),
-              SizedBox(
+              const SizedBox(
                 width: 10,
               ),
               // EXPAND BUTTON
@@ -112,7 +112,7 @@ class GroupProgressCard extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              Spacer(
+              const Spacer(
                 flex: 1,
               ),
               Row(
@@ -122,7 +122,7 @@ class GroupProgressCard extends StatelessWidget {
                     color: Theme.of(context).colorScheme.onSurfaceVariant,
                     size: 23,
                   ),
-                  SizedBox(
+                  const SizedBox(
                     width: 10,
                   ),
                   RichText(
@@ -145,7 +145,7 @@ class GroupProgressCard extends StatelessWidget {
                   ),
                 ],
               ),
-              Spacer(
+              const Spacer(
                 flex: 4,
               ),
               Row(
@@ -155,7 +155,7 @@ class GroupProgressCard extends StatelessWidget {
                     color: Theme.of(context).colorScheme.onSurfaceVariant,
                     size: 23,
                   ),
-                  SizedBox(
+                  const SizedBox(
                     width: 10,
                   ),
                   RichText(
@@ -179,7 +179,7 @@ class GroupProgressCard extends StatelessWidget {
                   ),
                 ],
               ),
-              Spacer(
+              const Spacer(
                 flex: 1,
               ),
             ],

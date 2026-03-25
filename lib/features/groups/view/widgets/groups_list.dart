@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:sliver_tools/sliver_tools.dart';
 import 'package:syncora_frontend/common/providers/common_providers.dart';
 import 'package:syncora_frontend/common/themes/app_spacing.dart';
 import 'package:syncora_frontend/common/widgets/filter_list.dart';
@@ -22,81 +23,79 @@ class GroupsList extends ConsumerWidget {
         ref.watch(groupsProvider.select((state) => state.value)) ??
             List.empty();
     // List<Group> groupsList = groups ? groups.value! : List.empty();
-    return Expanded(
-      child: Column(
-        children: [
-          // FILTER
-          FilterList<GroupsFilter>(
-            multiSelect: true,
-            disable: false,
-            initialValue: ref.read(groupsProvider.notifier).filters,
-            items: [
-              FilterListItem(
-                title: AppLocalizations.of(context).filter_Completed,
-                value: GroupsFilter.completed,
-                opposites: [GroupsFilter.inProgress],
-                countFactory: (arg) =>
-                    ref.read(groupsProvider.notifier).getGroupsCount([arg]),
+
+    return MultiSliver(
+      children: [
+        SliverClip(
+          child: SliverStack(
+            children: [
+              // BACKGROUND BEHIND THE GROUPS
+              SliverPositioned.fill(
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.surface,
+                  ),
+                ),
               ),
-              FilterListItem(
-                title: AppLocalizations.of(context).filter_InProgress,
-                value: GroupsFilter.inProgress,
-                opposites: [GroupsFilter.completed],
-                countFactory: (arg) =>
-                    ref.read(groupsProvider.notifier).getGroupsCount([arg]),
-              ),
-              FilterListItem(
-                title: AppLocalizations.of(context).filter_Owned,
-                value: GroupsFilter.owned,
-                opposites: [GroupsFilter.shared],
-              ),
-              FilterListItem(
-                title: AppLocalizations.of(context).filter_Shared,
-                value: GroupsFilter.shared,
-                opposites: [GroupsFilter.owned],
-              ),
-              FilterListItem(
-                title: AppLocalizations.of(context).filter_Newest,
-                value: GroupsFilter.newest,
-                opposites: [GroupsFilter.oldest],
-              ),
-              FilterListItem(
-                title: AppLocalizations.of(context).filter_Oldest,
-                value: GroupsFilter.oldest,
-                opposites: [GroupsFilter.newest],
+              // GROUPS
+              SliverPadding(
+                padding: const EdgeInsets.only(
+                    bottom: AppSpacing.lg, top: AppSpacing.md),
+                sliver: SliverList.separated(
+                  itemCount: groups.length,
+                  itemBuilder: (context, index) {
+                    return GestureDetector(
+                      onTap: () {
+                        context.push('/group/${groups[index].id}');
+                      },
+                      child: GroupPanel(
+                        group: groups[index],
+                      ),
+                    );
+                  },
+                  separatorBuilder: (context, index) {
+                    return const SizedBox(
+                      height: 16,
+                    );
+                  },
+                ),
               ),
             ],
-            onTap: (arg) {
-              ref.read(groupsProvider.notifier).filterGroups(arg);
-            },
           ),
-          const SizedBox(height: AppSpacing.lg / 2),
+        ),
 
-          // GROUPS
-          Expanded(
-              child: OverlayLoader(
-            isLoading: false,
-            body: ListView.separated(
-              padding: const EdgeInsets.symmetric(vertical: AppSpacing.lg / 2),
-              itemCount: groups.length,
-              itemBuilder: (context, index) {
-                return GestureDetector(
-                  onTap: () {
-                    context.push('/group/${groups[index].id}');
-                  },
-                  child: GroupPanel(
-                    group: groups[index],
-                  ),
-                );
-              },
-              separatorBuilder: (context, index) {
-                return const SizedBox(
-                  height: 16,
-                );
-              },
+        // BACKGROUND TO FILL ANY REMAINING SPACE UNDER THE GROUPS (when theres no groups or few that dont fill the entire space)
+        SliverFillRemaining(
+          fillOverscroll: false,
+          hasScrollBody: false,
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.surface,
             ),
-          )),
-        ],
+          ),
+        ),
+      ],
+    );
+    return OverlayLoader(
+      isLoading: false,
+      body: ListView.separated(
+        padding: const EdgeInsets.symmetric(vertical: AppSpacing.lg / 2),
+        itemCount: groups.length,
+        itemBuilder: (context, index) {
+          return GestureDetector(
+            onTap: () {
+              context.push('/group/${groups[index].id}');
+            },
+            child: GroupPanel(
+              group: groups[index],
+            ),
+          );
+        },
+        separatorBuilder: (context, index) {
+          return const SizedBox(
+            height: 16,
+          );
+        },
       ),
     );
   }

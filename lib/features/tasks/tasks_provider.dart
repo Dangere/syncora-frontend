@@ -169,6 +169,8 @@ class TasksNotifier extends AutoDisposeFamilyAsyncNotifier<List<Task>, int> {
       return;
     }
     reloadTasks();
+    ref.read(groupsProvider.notifier).onTasksModification(arg);
+
     // reloadViewedGroups([groupId]);
   }
 

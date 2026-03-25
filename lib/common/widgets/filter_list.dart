@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:syncora_frontend/common/themes/app_spacing.dart';
 import 'package:syncora_frontend/common/widgets/app_button.dart';
 import 'package:syncora_frontend/core/typedef.dart';
@@ -16,13 +17,14 @@ class FilterListItem<T extends Enum> {
 }
 
 // A widget that displays a list of filters that can be single or multi selected
-class FilterList<T extends Enum> extends StatefulWidget {
+class FilterList<T extends Enum> extends ConsumerStatefulWidget {
   final List<T>? initialValue;
   final bool disable;
   final bool multiSelect;
   final List<FilterListItem<T>> items;
   final double horizontalPadding;
   final Func<List<T>, void> onTap;
+  final ProviderListenable<dynamic>? providerListenable;
   const FilterList(
       {super.key,
       this.initialValue,
@@ -30,13 +32,14 @@ class FilterList<T extends Enum> extends StatefulWidget {
       this.multiSelect = false,
       required this.items,
       this.horizontalPadding = AppSpacing.lg,
+      this.providerListenable,
       required this.onTap});
 
   @override
-  State<FilterList<T>> createState() => _FilterListState<T>();
+  ConsumerState<FilterList<T>> createState() => _FilterListState<T>();
 }
 
-class _FilterListState<T extends Enum> extends State<FilterList<T>> {
+class _FilterListState<T extends Enum> extends ConsumerState<FilterList<T>> {
   // int selectedIndex = 0;
 
   List<T> selectedValues = List.empty(growable: true);
@@ -46,6 +49,7 @@ class _FilterListState<T extends Enum> extends State<FilterList<T>> {
     if (widget.initialValue != null) {
       selectedValues = widget.initialValue!;
     }
+
     super.initState();
   }
 
@@ -74,6 +78,8 @@ class _FilterListState<T extends Enum> extends State<FilterList<T>> {
 
   @override
   Widget build(BuildContext context) {
+    if (widget.providerListenable != null)
+      ref.watch(widget.providerListenable!);
     return SizedBox(
         height: 30,
         child: ListView.separated(

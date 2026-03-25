@@ -19,7 +19,7 @@ class _GroupTotalProgressCardState
     extends ConsumerState<GroupTotalProgressCard> {
   GroupProgress? groupProgress;
 
-  double tempProgress = 0;
+  bool minimized = false;
 
   @override
   Widget build(BuildContext context) {
