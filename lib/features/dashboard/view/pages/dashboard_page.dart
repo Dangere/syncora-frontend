@@ -53,7 +53,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
 
     SnackBarAlerts.registerErrorListener(ref, context);
 
-    void createGroupPopup() async {
+    void onCreateGroup() async {
       final result = await GroupPopups.createGroupPopup(context);
 
       if (result != null) {
@@ -286,7 +286,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                                       padding: const EdgeInsets.symmetric(
                                           horizontal: AppSpacing.lg),
                                       // variant: AppButtonVariant.wide,
-                                      onPressed: createGroupPopup,
+                                      onPressed: onCreateGroup,
                                       size: AppButtonSize.mini,
                                       style: AppButtonStyle.filled,
                                       intent: AppButtonIntent.primary,
@@ -367,7 +367,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                               ],
                             ),
                           ),
-                          height: 120),
+                          height: 130),
                       pinned: true),
 
                   // GROUPS LIST

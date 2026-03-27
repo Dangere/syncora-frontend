@@ -1,8 +1,23 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:syncora_frontend/common/themes/app_sizes.dart';
+import 'package:syncora_frontend/common/themes/app_spacing.dart';
+import 'package:syncora_frontend/common/themes/app_theme.dart';
+import 'package:syncora_frontend/common/widgets/profile_picture.dart';
 import 'package:syncora_frontend/core/localization/generated/l10n/app_localizations.dart';
+import 'package:syncora_frontend/core/utils/date_utilities.dart';
+import 'package:syncora_frontend/core/utils/error_mapper.dart';
+import 'package:syncora_frontend/core/utils/snack_bar_alerts.dart';
+import 'package:syncora_frontend/features/authentication/auth_provider.dart';
+import 'package:syncora_frontend/features/authentication/models/auth_state.dart';
+import 'package:syncora_frontend/features/authentication/models/user.dart';
+import 'package:syncora_frontend/features/groups/groups_provider.dart';
+import 'package:syncora_frontend/features/groups/models/group.dart';
+import 'package:syncora_frontend/features/groups/view/popups/group_popups.dart';
 
+// TODO: Seperate the members update trigger from the groups tasks updates
 class GroupInfoPage extends ConsumerStatefulWidget {
   const GroupInfoPage({super.key, required this.groupId});
   final int groupId;
@@ -11,15 +26,349 @@ class GroupInfoPage extends ConsumerStatefulWidget {
 }
 
 class _GroupInfoPageState extends ConsumerState<GroupInfoPage> {
+  late bool isOwner;
+  bool isEditingMembers = false;
+
+  @override
+  void initState() {
+    isOwner = ref.read(groupsProvider.notifier).isGroupOwner(
+        groupId: widget.groupId,
+        userId: ref.read(authProvider).value!.user!.id);
+
+    super.initState();
+  }
+
+  void onGroupDescriptionEdit(String? defaultDescription) async {
+    String? newDescription = await GroupPopups.groupDescriptionEditPopup(
+        context, defaultDescription ?? "");
+
+    if (newDescription == null) {
+      return;
+    }
+
+    await ref.read(groupsProvider.notifier).updateGroupDetails(
+        groupId: widget.groupId, description: newDescription);
+  }
+
+  void onMembersEdit() async {
+    if (displayedMembers.length <= 1) {
+      SnackBarAlerts.showAlertSnackBar("Group has no members", context);
+      isEditingMembers = false;
+      return;
+    }
+    ;
+    setState(() {
+      isEditingMembers = !isEditingMembers;
+    });
+  }
+
+  void onDeleteMember(String username) {
+    ref
+        .read(groupsProvider.notifier)
+        .removeUserAccessToGroup(groupId: widget.groupId, username: username);
+  }
+
+  // Returns the members with the group owner being the first element
+  Future<List<User>> getMembers() =>
+      ref.read(groupsProvider.notifier).getGroupMembers(widget.groupId, true);
+
+  void onMemberClick(int id) =>
+      context.pushNamed("profile-view", pathParameters: {"id": id.toString()});
+
+  List<User> displayedMembers = List.empty(growable: true);
+
   @override
   Widget build(BuildContext context) {
+    SnackBarAlerts.registerErrorListener(ref, context);
+
     return Scaffold(
       appBar: AppBar(
-        title: Text(AppLocalizations.of(context).groupPage_TasksTitle),
+        centerTitle: true,
+        title: const Text("Group Info"),
       ),
-      body: Column(
-        children: [],
-      ),
+      body: ref.watch(groupViewProvider(widget.groupId)).when(
+            skipLoadingOnRefresh: true,
+            skipLoadingOnReload: true,
+            data: (data) {
+              if (data == null) {
+                return const Center(child: Text("Group not found"));
+              }
+
+              return Padding(
+                padding: AppSpacing.paddingHorizontalLg +
+                    AppSpacing.paddingVerticalMd +
+                    EdgeInsets.only(bottom: 60),
+                child: Column(
+                  children: [
+                    // GROUP INFO
+                    Container(
+                      decoration: BoxDecoration(
+                        boxShadow: [
+                          AppShadow.shadow0(context),
+                        ],
+                        color: Theme.of(context).colorScheme.surfaceContainer,
+                        borderRadius:
+                            BorderRadius.circular(AppSizes.borderRadius0),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.only(
+                            left: 24.0, right: 24.0, top: 20.0, bottom: 24.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Text(
+                                  "General",
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .titleSmall!
+                                      .copyWith(
+                                          fontWeight: FontWeight.w700,
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .onSurfaceVariant),
+                                ),
+                              ],
+                            ),
+                            AppSpacing.verticalSpaceLg,
+                            RichText(
+                                text: TextSpan(children: [
+                              TextSpan(
+                                  text: 'Name: ',
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .bodyLarge!
+                                      .copyWith(fontWeight: FontWeight.w600)),
+                              TextSpan(
+                                  text: data.title,
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .bodyLarge!
+                                      .copyWith(
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .outline)),
+                            ])),
+                            const SizedBox(
+                              height: 12,
+                            ),
+                            RichText(
+                                text: TextSpan(children: [
+                              TextSpan(
+                                  text: 'Description: ',
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .bodyLarge!
+                                      .copyWith(fontWeight: FontWeight.w600)),
+                              TextSpan(
+                                  text: data.description ?? "No description",
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .bodyLarge!
+                                      .copyWith(
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .outline)),
+                              if (isOwner)
+                                TextSpan(
+                                    recognizer: TapGestureRecognizer()
+                                      ..onTap = () => onGroupDescriptionEdit(
+                                          data.description),
+                                    text: " Edit",
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodyLarge!
+                                        .copyWith(
+                                            fontWeight: FontWeight.w400,
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .primary)),
+                            ])),
+                            const SizedBox(
+                              height: 12,
+                            ),
+                            RichText(
+                                text: TextSpan(children: [
+                              TextSpan(
+                                  text: 'Created in: ',
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .bodyLarge!
+                                      .copyWith(fontWeight: FontWeight.w600)),
+                              TextSpan(
+                                  text: DateUtilities.getFormattedDate(
+                                      data.creationDate),
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .bodyLarge!
+                                      .copyWith(
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .outline)),
+                            ])),
+                            // Text(
+                            //   "Name: ${data.title}",
+                            //   style: Theme.of(context)
+                            //       .textTheme
+                            //       .titleSmall!
+                            //       .copyWith(
+                            //           fontWeight: FontWeight.w700,
+                            //           color: Theme.of(context)
+                            //               .colorScheme
+                            //               .onSurfaceVariant),
+                            // ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    AppSpacing.verticalSpaceLg,
+                    // MEMBERS
+                    Expanded(
+                      child: Container(
+                        decoration: BoxDecoration(
+                          boxShadow: [
+                            AppShadow.shadow0(context),
+                          ],
+                          color: Theme.of(context).colorScheme.surfaceContainer,
+                          borderRadius:
+                              BorderRadius.circular(AppSizes.borderRadius0),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.only(
+                              left: 24.0, right: 24.0, top: 20.0, bottom: 24.0),
+                          child: Column(
+                            children: [
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    "Members",
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .titleSmall!
+                                        .copyWith(
+                                            fontWeight: FontWeight.w700,
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .onSurfaceVariant),
+                                  ),
+                                  if (isOwner)
+                                    RichText(
+                                      text: TextSpan(
+                                          recognizer: TapGestureRecognizer()
+                                            ..onTap = () => onMembersEdit(),
+                                          text: "Edit",
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .bodyLarge!
+                                              .copyWith(
+                                                  fontWeight: FontWeight.w400,
+                                                  color: Theme.of(context)
+                                                      .colorScheme
+                                                      .primary)),
+                                    )
+                                ],
+                              ),
+                              const SizedBox(
+                                height: 20,
+                              ),
+                              Expanded(
+                                child: FutureBuilder(
+                                    future: getMembers(),
+                                    builder: (context, asyncSnapshot) {
+                                      if (asyncSnapshot.connectionState ==
+                                              ConnectionState.waiting &&
+                                          displayedMembers.isEmpty) {
+                                        return const Center(
+                                            child: CircularProgressIndicator());
+                                      }
+
+                                      displayedMembers =
+                                          asyncSnapshot.data ?? [];
+
+                                      return ListView.separated(
+                                        itemCount: displayedMembers.length,
+                                        itemBuilder: (context, index) {
+                                          return Row(
+                                            children: [
+                                              ProfilePicture(
+                                                onClick: () => onMemberClick(
+                                                    displayedMembers[index].id),
+                                                userId:
+                                                    displayedMembers[index].id,
+                                                radius: 22,
+                                              ),
+                                              const SizedBox(
+                                                width: 16,
+                                              ),
+                                              Text(
+                                                displayedMembers[index]
+                                                    .username,
+                                                style: Theme.of(context)
+                                                    .textTheme
+                                                    .bodyLarge!
+                                                    .copyWith(
+                                                        fontWeight:
+                                                            FontWeight.w500,
+                                                        color: Theme.of(context)
+                                                            .colorScheme
+                                                            .outline),
+                                              ),
+                                              Spacer(),
+                                              // If its the first element (the owner)
+                                              if (index == 0)
+                                                Text(
+                                                  "OWNER",
+                                                  style: Theme.of(context)
+                                                      .textTheme
+                                                      .bodyMedium!
+                                                      .copyWith(
+                                                          fontWeight:
+                                                              FontWeight.w700,
+                                                          color:
+                                                              Theme.of(context)
+                                                                  .colorScheme
+                                                                  .primary),
+                                                ),
+                                              if (index != 0 &&
+                                                  isEditingMembers)
+                                                IconButton(
+                                                    onPressed: () =>
+                                                        onDeleteMember(
+                                                            displayedMembers[
+                                                                    index]
+                                                                .username),
+                                                    icon: Icon(Icons.delete))
+                                            ],
+                                          );
+                                        },
+                                        separatorBuilder: (context, index) {
+                                          return const SizedBox(
+                                            height: 16,
+                                          );
+                                        },
+                                      );
+                                    }),
+                              )
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            },
+            error: (error, stackTrace) {
+              return Center(
+                  child: Text(ErrorMapper.map(error, stackTrace).message));
+            },
+            loading: () {
+              return const Center(child: CircularProgressIndicator());
+            },
+          ),
     );
   }
 }

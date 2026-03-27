@@ -73,7 +73,7 @@ class LocalUsersRepository {
 
     String includeOwnerQuery = includeOwner
         ? '''
-    SELECT u.id, u.username, u.firstName, u.lastName, u.email, u.profilePictureURL FROM ${DatabaseTables.users} u
+    SELECT u.id, u.username, u.firstName, u.lastName, u.email, u.profilePictureURL, 0 AS sort_order FROM ${DatabaseTables.users} u
     INNER JOIN ${DatabaseTables.groups} g ON u.id = g.ownerUserId WHERE g.id = ?
     
     UNION
@@ -84,8 +84,9 @@ class LocalUsersRepository {
 
     $includeOwnerQuery
 
-    SELECT u.id, u.username, u.firstName, u.lastName, u.email, u.profilePictureURL FROM ${DatabaseTables.users} u
+    SELECT u.id, u.username, u.firstName, u.lastName, u.email, u.profilePictureURL, 1 AS sort_order FROM ${DatabaseTables.users} u
     INNER JOIN ${DatabaseTables.groupsMembers} gm ON u.id = gm.userId WHERE gm.groupId = ?
+    ORDER BY sort_order
     ''', [if (includeOwner) groupId, groupId]);
     return users.isEmpty ? [] : users.map((e) => User.fromJson(e)).toList();
   }

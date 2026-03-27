@@ -50,7 +50,7 @@ class GroupPopups {
                 : "Invalid description";
           },
           label: "Group Description",
-          defaultHintText: defaultText,
+          defaultText: defaultText,
         )
       ],
       barrierDismissible: true,

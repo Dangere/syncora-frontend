@@ -12,6 +12,7 @@ import 'package:syncora_frontend/features/authentication/view/pages/sign_in_page
 import 'package:syncora_frontend/features/authentication/view/pages/sign_up_page.dart';
 import 'package:syncora_frontend/features/authentication/auth_provider.dart';
 import 'package:syncora_frontend/features/dashboard/view/pages/dashboard_page.dart';
+import 'package:syncora_frontend/features/groups/view/pages/group_info_page.dart';
 import 'package:syncora_frontend/features/groups/view/pages/group_page.dart';
 import 'package:syncora_frontend/features/groups/view/pages/groups_progress_page.dart';
 import 'package:syncora_frontend/features/onboarding/view/onboarding_page.dart';
@@ -94,8 +95,17 @@ class RouteNotifier extends Notifier<GoRouter> {
               GoRoute(
                 name: 'profile-view',
                 path: 'profile-view/:id',
+                redirect: (context, state) {
+                  int? userId = int.tryParse(state.pathParameters['id'] ?? "");
+
+                  if (userId == null) {
+                    return '/';
+                  }
+                  return null;
+                },
                 builder: (context, state) {
                   int userId = int.parse(state.pathParameters['id']!);
+
                   return ProfileViewPage(
                     userId: userId,
                   );
@@ -133,16 +143,44 @@ class RouteNotifier extends Notifier<GoRouter> {
                   ]),
             ]),
         GoRoute(
-          name: 'group',
-          path: '/group/:groupId',
-          builder: (context, state) {
-            int groupId = int.parse(state.pathParameters['groupId']!);
+            name: 'group',
+            path: '/group/:groupId',
+            redirect: (context, state) {
+              int? groupId =
+                  int.tryParse(state.pathParameters['groupId'] ?? "");
+              if (groupId == null) {
+                return '/';
+              }
+              return null;
+            },
+            builder: (context, state) {
+              int groupId = int.parse(state.pathParameters['groupId']!);
 
-            return GroupPage(
-              groupId: groupId,
-            );
-          },
-        ),
+              return GroupPage(
+                groupId: groupId,
+              );
+            },
+            routes: [
+              GoRoute(
+                name: 'info',
+                path: 'info',
+                redirect: (context, state) {
+                  int? groupId =
+                      int.tryParse(state.pathParameters['groupId'] ?? "");
+                  if (groupId == null) {
+                    return '/';
+                  }
+                  return null;
+                },
+                builder: (context, state) {
+                  int groupId = int.parse(state.pathParameters['groupId']!);
+
+                  return GroupInfoPage(
+                    groupId: groupId,
+                  );
+                },
+              )
+            ]),
         GoRoute(
           name: 'crop-image',
           path: '/crop-image',
