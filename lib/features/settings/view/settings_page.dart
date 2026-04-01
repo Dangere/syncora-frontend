@@ -8,6 +8,7 @@ import 'package:syncora_frontend/common/themes/app_theme.dart';
 import 'package:syncora_frontend/common/widgets/app_button.dart';
 import 'package:syncora_frontend/core/localization/generated/l10n/app_localizations.dart';
 import 'package:syncora_frontend/core/typedef.dart';
+import 'package:syncora_frontend/core/utils/dialogs.dart';
 import 'package:syncora_frontend/core/utils/snack_bar_alerts.dart';
 import 'package:syncora_frontend/features/authentication/auth_provider.dart';
 import 'package:syncora_frontend/features/settings/view/settings_popups.dart';
@@ -20,7 +21,21 @@ class SettingsPage extends ConsumerStatefulWidget {
 }
 
 class _SettingsPageState extends ConsumerState<SettingsPage> {
-  void logout() {
+  void logout() async {
+    bool confirm = await Dialogs.showConfirmationDialog(context,
+        message: AppLocalizations.of(context).settingsPage_ConfirmLogout,
+        confirmText: AppLocalizations.of(context).confirm);
+
+    if (!confirm) return;
+
+    if (ref.read(isGuestProvider) && mounted) {
+      bool confirmGuest = await Dialogs.showConfirmationDialog(context,
+          message: AppLocalizations.of(context).settingsPage_ConfirmGuestLogout,
+          confirmText: AppLocalizations.of(context).confirm);
+
+      if (!confirmGuest) return;
+    }
+
     ref.read(authProvider.notifier).logout();
   }
 
@@ -104,32 +119,34 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  // CHANGE PASSWORD
-                  AppButton(
-                    fontSize: 16,
-                    size: AppButtonSize.huge,
-                    style: AppButtonStyle.filled,
-                    onPressed: () => passwordResetPopup(context),
-                    child: Row(
-                      children: [
-                        const Icon(Icons.lock, size: 24),
 
-                        // Icon(Icons.dark_mode_sharp, size: 24),
-                        // Icon(Icons.dark_mode_sharp, size: 24),
+                  if (ref.read(isAuthenticatedProvider))
+                    // CHANGE PASSWORD
+                    AppButton(
+                      fontSize: 16,
+                      size: AppButtonSize.huge,
+                      style: AppButtonStyle.filled,
+                      onPressed: () => passwordResetPopup(context),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.lock, size: 24),
 
-                        const SizedBox(width: 17),
-                        Text(
-                          AppLocalizations.of(context)
-                              .settingsPage_ChangeMyPassword,
-                        ),
+                          // Icon(Icons.dark_mode_sharp, size: 24),
+                          // Icon(Icons.dark_mode_sharp, size: 24),
 
-                        const Spacer(),
-                        Transform.rotate(
-                            angle: 3.14 * (3 / 2),
-                            child: const Icon(Icons.expand_more, size: 24)),
-                      ],
+                          const SizedBox(width: 17),
+                          Text(
+                            AppLocalizations.of(context)
+                                .settingsPage_ChangeMyPassword,
+                          ),
+
+                          const Spacer(),
+                          Transform.rotate(
+                              angle: 3.14 * (3 / 2),
+                              child: const Icon(Icons.expand_more, size: 24)),
+                        ],
+                      ),
                     ),
-                  ),
                   const Spacer(),
                   // LOGOUT BUTTON
                   AppButton(

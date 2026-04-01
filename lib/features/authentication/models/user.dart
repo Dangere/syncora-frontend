@@ -42,18 +42,6 @@ class User {
       email: "",
       pfpURL: null);
 
-  Color userColor() {
-    ColorHash colorHash = ColorHash(
-      username,
-      saturation: 0.5,
-      lightness: 0.5,
-      hue: (0, 360),
-    );
-    Color color = colorHash.toColor();
-
-    return color;
-  }
-
   User copyWith(
           {String? username,
           String? firstName,

@@ -15,22 +15,15 @@ class TasksService {
   final AsyncFunc<EnqueueRequest, Result<void>> _enqueueEntry;
 
   final AuthState _authState;
-  TasksService(
-      {required AuthState authState,
-      required LocalTasksRepository localTasksRepository,
-      required RemoteTasksRepository remoteTasksRepository,
-      required AsyncFunc<EnqueueRequest, Result<void>> enqueueEntry})
-      : _authState = authState,
-        _enqueueEntry = enqueueEntry,
-        _remoteTasksRepository = remoteTasksRepository,
-        _localTasksRepository = localTasksRepository;
+  TasksService(this._localTasksRepository, this._remoteTasksRepository,
+      this._enqueueEntry, this._authState);
 
   Future<Result<List<Task>>> getTasksForGroup(
       int groupId, List<TaskFilter> filters) async {
     try {
       // We aren't checking if user is authenticated or not because guests and logged in users can access tasks
       List<Task> tasks = await _localTasksRepository.getTasksForGroup(
-          groupId, _authState.user!.id, filters);
+          groupId, _authState.userId!, filters);
       return Result.success(tasks);
     } catch (e, stackTrace) {
       return Result.failure(e, stackTrace);
@@ -73,7 +66,7 @@ class TasksService {
       entry: OutboxEntry.entry(
         entityId: taskId,
         dependencyId: groupId,
-        entityType: OutboxEntityType.group,
+        entityType: OutboxEntityType.task,
         actionType: OutboxActionType.update,
         payload: UpdateTaskPayload(
             title: title,
@@ -177,12 +170,12 @@ class TasksService {
         entityType: OutboxEntityType.task,
         actionType: OutboxActionType.mark,
         payload: MarkTaskPayload(
-            completedById: _authState.user!.id, isCompleted: isDone),
+            completedById: _authState.userId!, isCompleted: isDone),
       ),
       onAfterEnqueue: () async {
         try {
           await _localTasksRepository.markTaskCompletion(
-              taskId: taskId, userId: _authState.user!.id, isDone: isDone);
+              taskId: taskId, userId: _authState.userId!, isDone: isDone);
           return Result.success();
         } catch (e, stackTrace) {
           return Result.failure(e, stackTrace);

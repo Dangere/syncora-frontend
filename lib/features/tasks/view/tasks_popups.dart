@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:logger/logger.dart';
 import 'package:syncora_frontend/common/widgets/app_button.dart';
 import 'package:syncora_frontend/common/widgets/profile_picture.dart';
+import 'package:syncora_frontend/core/localization/generated/l10n/app_localizations.dart';
 import 'package:syncora_frontend/core/utils/dialogs.dart';
+import 'package:syncora_frontend/core/utils/validators.dart';
 import 'package:syncora_frontend/features/authentication/models/user.dart';
 import 'package:syncora_frontend/features/tasks/models/task.dart';
 import 'package:syncora_frontend/features/tasks/view/widgets/task_search_bar.dart';
@@ -10,6 +11,7 @@ import 'package:syncora_frontend/features/tasks/view/widgets/task_search_bar.dar
 class TasksPopups {
   static Future<List<int>> assignedUsersPopUp(
     BuildContext context, {
+    required bool isOwner,
     required Task task,
     required Future<List<User>> Function() groupMembers,
   }) async {
@@ -22,7 +24,7 @@ class TasksPopups {
     ).toList();
 
     void onUserToggle(int userId, void Function(void Function()) setState) {
-      Logger().d(userId);
+      if (!isOwner) return;
       bool isSelected =
           selectedUsers.where((user) => user.id == userId).isNotEmpty;
 
@@ -133,17 +135,67 @@ class TasksPopups {
               height: 24,
             ),
           // CONFIRM
-          AppButton(
-              size: AppButtonSize.small,
-              style: AppButtonStyle.filled,
-              intent: AppButtonIntent.primary,
-              fontSize: 20,
-              onPressed: () => onConfirmSelection(),
-              child: Text("Confirm"))
+          if (isOwner)
+            AppButton(
+                size: AppButtonSize.small,
+                style: AppButtonStyle.filled,
+                intent: AppButtonIntent.primary,
+                fontSize: 20,
+                onPressed: () => onConfirmSelection(),
+                child: Text(AppLocalizations.of(context).confirm))
         ],
       );
     }));
 
     return selectedUsers.map((e) => e.id).toList();
+  }
+
+  static Future<String?> taskTitleEditPopup(
+      BuildContext context, String defaultText) async {
+    List<String> data = await Dialogs.showTextFieldDialog(
+      context,
+      fields: [
+        DialogFieldData(
+            autofocus: true,
+            validation: (p0) {
+              if (p0 == null || p0.trim().isEmpty) return "Empty title";
+              if (p0.trim() == defaultText) return "New title is not changed";
+              return Validators.validateGroupTitle(p0) ? null : "Invalid title";
+            },
+            label: "Task Title",
+            defaultText: defaultText)
+      ],
+      barrierDismissible: true,
+      blurBackground: false,
+      title: "Edit task title",
+      confirmText: "Rename",
+    );
+
+    return data.isEmpty ? null : data[0];
+  }
+
+  static Future<String?> createTaskPopup(BuildContext context) async {
+    List<String> data = await Dialogs.showTextFieldDialog(
+      context,
+      fields: [
+        DialogFieldData(
+            autofocus: true,
+            label: "Task Title",
+            defaultHintText: "Enter the title",
+            validation: (p0) {
+              if (p0 == null || p0.trim().isEmpty) return "Empty task title";
+
+              return Validators.validateGroupTitle(p0)
+                  ? null
+                  : "Invalid task title";
+            })
+      ],
+      barrierDismissible: true,
+      blurBackground: false,
+      title: "Add a New Task",
+      confirmText: "Add",
+    );
+
+    return data.isEmpty ? null : data[0];
   }
 }

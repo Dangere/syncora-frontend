@@ -75,7 +75,7 @@ class _HomeScreenState extends ConsumerState<HomePage> {
                     'Connection status: ${connection.name}',
                   ),
                   Text(
-                    'Welcome back ${authState.value!.user!.username}',
+                    'Welcome back ${authState.value!.userId!}',
                   ),
                 ],
               ),

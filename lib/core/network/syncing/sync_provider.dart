@@ -178,7 +178,7 @@ final syncServiceProvider = Provider<SyncService>((ref) {
       ref.watch(localGroupsRepositoryProvider),
       ref.watch(localTasksRepositoryProvider),
       ref.watch(localUsersRepositoryProvider),
-      ref.watch(usersServiceProvider));
+      ref.watch(authStateProvider));
 });
 
 final syncRepositoryProvider = Provider<SyncRepository>((ref) {

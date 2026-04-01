@@ -125,16 +125,12 @@ class LocalGroupsRepository {
       String? title, String? description, int groupId) async {
     final db = await _databaseManager.getDatabase();
 
-    if (title == null && description == null) return 0;
+    Map<String, Object?> values = {
+      if (title != null) "title": title,
+      if (description != null) "description": description
+    };
 
-    Map<String, Object?> values = {};
-    if (title != null) {
-      values["title"] = title;
-    }
-
-    if (description != null) {
-      values["description"] = description;
-    }
+    if (values.isEmpty) return 0;
 
     return await db.update(
       DatabaseTables.groups,

@@ -4,9 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:syncora_frontend/common/widgets/profile_picture.dart';
 import 'package:syncora_frontend/core/localization/generated/l10n/app_localizations.dart';
 import 'package:syncora_frontend/features/groups/models/group.dart';
-import 'package:syncora_frontend/features/groups/view/popups/group_popups.dart';
 import 'package:syncora_frontend/features/groups/view/widgets/compressed_members_display.dart';
-import 'package:syncora_frontend/features/groups/view/widgets/group_members.dart';
 
 class GroupMembersDisplay extends ConsumerWidget {
   const GroupMembersDisplay(

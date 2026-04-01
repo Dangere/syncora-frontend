@@ -119,7 +119,7 @@ abstract class AppLocalizations {
   /// The guest pop up error when text is invalid
   ///
   /// In en, this message translates to:
-  /// **'invalid username format'**
+  /// **'Invalid username format'**
   String get loginPage_guestPopError_invalid;
 
   /// The title of the groups front page
@@ -149,7 +149,7 @@ abstract class AppLocalizations {
   /// The description of the onboarding page
   ///
   /// In en, this message translates to:
-  /// **'Create personal or collaborative tasks with others in real-time '**
+  /// **'Create personal or collaborative tasks with others in real-time'**
   String get onboardingPage_Description;
 
   /// No description provided for @onboardingPage_CreateAccount.
@@ -182,7 +182,7 @@ abstract class AppLocalizations {
   /// **'Sign Up'**
   String get signUp;
 
-  /// No description provided for @confirm.
+  /// Generic confirm action label
   ///
   /// In en, this message translates to:
   /// **'Confirm'**
@@ -212,7 +212,7 @@ abstract class AppLocalizations {
   /// **'Logout'**
   String get logout;
 
-  /// No description provided for @save.
+  /// Generic save action label
   ///
   /// In en, this message translates to:
   /// **'Save'**
@@ -223,6 +223,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Owner'**
   String get owner;
+
+  /// Generic rename action label
+  ///
+  /// In en, this message translates to:
+  /// **'Rename'**
+  String get rename;
+
+  /// Generic remove action label
+  ///
+  /// In en, this message translates to:
+  /// **'Remove'**
+  String get remove;
+
+  /// Generic add action label
+  ///
+  /// In en, this message translates to:
+  /// **'Add'**
+  String get add;
+
+  /// Generic create action label
+  ///
+  /// In en, this message translates to:
+  /// **'Create'**
+  String get create;
+
+  /// Generic more options label
+  ///
+  /// In en, this message translates to:
+  /// **'More Options'**
+  String get moreOptions;
 
   /// No description provided for @filter_Completed.
   ///
@@ -416,6 +446,18 @@ abstract class AppLocalizations {
   /// **'Change My Password'**
   String get settingsPage_ChangeMyPassword;
 
+  /// No description provided for @settingsPage_ConfirmLogout.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to logout?'**
+  String get settingsPage_ConfirmLogout;
+
+  /// No description provided for @settingsPage_ConfirmGuestLogout.
+  ///
+  /// In en, this message translates to:
+  /// **'If you log out as a guest your data will be deleted'**
+  String get settingsPage_ConfirmGuestLogout;
+
   /// No description provided for @dashboardPage_MyGroups.
   ///
   /// In en, this message translates to:
@@ -481,6 +523,180 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No image picked'**
   String get image_NoImagePicked;
+
+  /// Dialog title for editing a group's title
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Group Title'**
+  String get groupPopup_EditTitle;
+
+  /// Dialog title for editing a group's description
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Group Description'**
+  String get groupPopup_EditDescription;
+
+  /// Confirmation dialog title when removing a user from a group
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to remove this user from the group?'**
+  String get groupPopup_RemoveUser_Title;
+
+  /// Dialog title for creating a new group
+  ///
+  /// In en, this message translates to:
+  /// **'New Group'**
+  String get groupPopup_CreateGroup_Title;
+
+  /// Dialog title for adding a new member to a group
+  ///
+  /// In en, this message translates to:
+  /// **'Add a New Member'**
+  String get groupPopup_AddMember_Title;
+
+  /// Label for the group title input field
+  ///
+  /// In en, this message translates to:
+  /// **'Group Title'**
+  String get groupPopup_GroupTitle_Label;
+
+  /// Hint text for the group title input field
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the title'**
+  String get groupPopup_GroupTitle_Hint;
+
+  /// Label for the group description input field
+  ///
+  /// In en, this message translates to:
+  /// **'Group Description'**
+  String get groupPopup_GroupDescription_Label;
+
+  /// Hint text for the group description input field
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the description'**
+  String get groupPopup_GroupDescription_Hint;
+
+  /// Button label to view more info about a group
+  ///
+  /// In en, this message translates to:
+  /// **'More Info About This Group'**
+  String get groupPopup_MoreInfo;
+
+  /// Button label to rename a group
+  ///
+  /// In en, this message translates to:
+  /// **'Rename Group'**
+  String get groupPopup_RenameGroup;
+
+  /// Button label to delete a group (shown to owners)
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Group'**
+  String get groupPopup_DeleteGroup;
+
+  /// Button label to leave a group (shown to non-owners)
+  ///
+  /// In en, this message translates to:
+  /// **'Leave Group'**
+  String get groupPopup_LeaveGroup;
+
+  /// Alert shown when confirming with no users selected
+  ///
+  /// In en, this message translates to:
+  /// **'No users selected'**
+  String get groupPopup_Alert_NoUsersSelected;
+
+  /// Alert shown when the user tries to add themselves
+  ///
+  /// In en, this message translates to:
+  /// **'You can\'t add yourself'**
+  String get groupPopup_Alert_CantAddSelf;
+
+  /// Alert shown when a user is already in the selection or group
+  ///
+  /// In en, this message translates to:
+  /// **'User already added'**
+  String get groupPopup_Alert_UserAlreadyAdded;
+
+  /// Error shown when a searched user does not exist
+  ///
+  /// In en, this message translates to:
+  /// **'User not found'**
+  String get groupPopup_Error_UserNotFound;
+
+  /// Validation error when the group title field is empty
+  ///
+  /// In en, this message translates to:
+  /// **'Empty title'**
+  String get validation_GroupTitle_Empty;
+
+  /// Validation error when the new group title matches the old one
+  ///
+  /// In en, this message translates to:
+  /// **'Title is not changed'**
+  String get validation_GroupTitle_Unchanged;
+
+  /// Validation error when the group title format is invalid
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid title'**
+  String get validation_GroupTitle_Invalid;
+
+  /// Validation error when the group title is empty during creation
+  ///
+  /// In en, this message translates to:
+  /// **'Empty group title'**
+  String get validation_GroupTitle_Create_Empty;
+
+  /// Validation error when the group title format is invalid during creation
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid group title'**
+  String get validation_GroupTitle_Create_Invalid;
+
+  /// Validation error when the group description field is empty
+  ///
+  /// In en, this message translates to:
+  /// **'Empty description'**
+  String get validation_GroupDescription_Empty;
+
+  /// Validation error when the new description matches the old one
+  ///
+  /// In en, this message translates to:
+  /// **'Description is not changed'**
+  String get validation_GroupDescription_Unchanged;
+
+  /// Validation error when the group description format is invalid
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid description'**
+  String get validation_GroupDescription_Invalid;
+
+  /// Validation error when the group description is empty during creation
+  ///
+  /// In en, this message translates to:
+  /// **'Empty group description'**
+  String get validation_GroupDescription_Create_Empty;
+
+  /// Validation error when the group description format is invalid during creation
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid group description'**
+  String get validation_GroupDescription_Create_Invalid;
+
+  /// Validation error when the username field is empty
+  ///
+  /// In en, this message translates to:
+  /// **'Empty username'**
+  String get validation_Username_Empty;
+
+  /// Validation error when the username format is invalid
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid username'**
+  String get validation_Username_Invalid;
 }
 
 class _AppLocalizationsDelegate

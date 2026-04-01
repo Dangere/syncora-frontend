@@ -1,6 +1,7 @@
 import 'package:syncora_frontend/core/network/syncing/model/sync_payload.dart';
 import 'package:syncora_frontend/core/network/syncing/sync_repository.dart';
 import 'package:syncora_frontend/core/utils/result.dart';
+import 'package:syncora_frontend/features/authentication/models/auth_state.dart';
 import 'package:syncora_frontend/features/groups/repositories/local_groups_repository.dart';
 import 'package:syncora_frontend/features/tasks/repositories/local_tasks_repository.dart';
 import 'package:syncora_frontend/features/users/repositories/local_users_repository.dart';
@@ -9,16 +10,12 @@ import 'package:syncora_frontend/features/users/users_service.dart';
 class SyncService {
   final SyncRepository _syncRepository;
   final LocalUsersRepository _localUsersRepository;
-  final UsersService _usersService;
   final LocalGroupsRepository _localGroupsRepository;
   final LocalTasksRepository _localTasksRepository;
+  final AuthState _authState;
 
-  SyncService(
-      this._syncRepository,
-      this._localGroupsRepository,
-      this._localTasksRepository,
-      this._localUsersRepository,
-      this._usersService);
+  SyncService(this._syncRepository, this._localGroupsRepository,
+      this._localTasksRepository, this._localUsersRepository, this._authState);
 
   Future<Result<SyncPayload>> fetchPayload() async {
     try {
@@ -42,6 +39,9 @@ class SyncService {
   }
 
   Future<Result<void>> processPayload(SyncPayload payload) async {
+    if (_authState.isUnauthenticated)
+      return Result.failureMessage("User is unauthenticated");
+
     // Handling added users from payload
     try {
       await _localUsersRepository.upsertUsers(payload.users);
@@ -94,7 +94,7 @@ class SyncService {
     }
 
     try {
-      await _localUsersRepository.purgeOrphanedUsers();
+      await _localUsersRepository.purgeOrphanedUsers(_authState.userId!);
     } catch (e, stackTrace) {
       return Result.failure(e, stackTrace);
     }

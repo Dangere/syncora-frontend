@@ -6,7 +6,7 @@ import 'package:syncora_frontend/core/utils/dialogs.dart';
 import 'package:syncora_frontend/core/utils/result.dart';
 import 'package:syncora_frontend/core/utils/snack_bar_alerts.dart';
 import 'package:syncora_frontend/features/authentication/auth_provider.dart';
-import 'package:syncora_frontend/features/authentication/models/auth_state.dart';
+import 'package:syncora_frontend/features/users/providers/users_provider.dart';
 
 class SettingsPopups {
   static void passwordResetPopup(BuildContext context) {
@@ -43,12 +43,12 @@ class _PasswordResetPopupState extends ConsumerState<PasswordResetPopup> {
       return;
     }
 
-    ref.read(resetPasswordTimerProvider.notifier).startTimer(30);
+    ref.read(resetPasswordTimerProvider.notifier).startTimer(3);
 
     if (!ref.read(isAuthenticatedProvider)) {
       return;
     }
-    String email = ref.read(authProvider).value?.user?.email ?? "";
+    String email = (await ref.read(userProvider.notifier).getMainUser()).email;
 
     Result result =
         await ref.read(authProvider.notifier).requestPasswordReset(email);
@@ -60,6 +60,8 @@ class _PasswordResetPopupState extends ConsumerState<PasswordResetPopup> {
 
   @override
   Widget build(BuildContext context) {
+    SnackBarAlerts.registerErrorListener(ref, context);
+
     int? resendTimer = ref.watch(resetPasswordTimerProvider);
     ref.read(loggerProvider).d("Building password pop up");
 

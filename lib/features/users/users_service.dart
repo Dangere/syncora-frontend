@@ -13,15 +13,7 @@ class UsersService {
   final AuthState _authState;
 
   UsersService(
-      {required LocalUsersRepository localUsersRepository,
-      required RemoteUsersRepository remoteUsersRepository,
-      required ImageService imageService,
-      required ImagePicker picker,
-      required AuthState authState,
-      required Logger logger})
-      : _localUsersRepository = localUsersRepository,
-        _remoteUsersRepository = remoteUsersRepository,
-        _authState = authState;
+      this._localUsersRepository, this._remoteUsersRepository, this._authState);
 
   // final Map<int, Uint8List?> _userProfilePictures = {};
 
@@ -62,13 +54,16 @@ class UsersService {
   }
 
   Future<Result<void>> updateProfilePicture(String url) async {
-    if (_authState.user == null || _authState.isGuest) {
+    if (!_authState.isAuthenticated && !_authState.isGuest) {
       return Result.failureMessage(
           "Can't upload profile picture when not logged in");
     }
     try {
       // Updating the user profile picture using the url
       await _remoteUsersRepository.updateUserProfilePicture(url);
+
+      await _localUsersRepository.updateUserDetails(_authState.userId!,
+          pfpUrl: url);
 
       return Result.success();
     } catch (e, stacktrace) {
@@ -81,6 +76,10 @@ class UsersService {
     try {
       await _remoteUsersRepository.updateUserProfile(
           username: username, firstName: firstName, lastName: lastName);
+
+      await _localUsersRepository.updateUserDetails(_authState.userId!,
+          username: username, firstName: firstName, lastName: lastName);
+
       return Result.success();
     } catch (e, stackTrace) {
       return Result.failure(e, stackTrace);

@@ -14,26 +14,27 @@ import 'package:syncora_frontend/features/authentication/models/user.dart';
 import 'package:syncora_frontend/features/authentication/auth_repository.dart';
 import 'package:syncora_frontend/features/authentication/services/auth_service.dart';
 import 'package:syncora_frontend/features/authentication/services/session_storage.dart';
+import 'package:syncora_frontend/features/users/providers/users_provider.dart';
 
 // TODO: Implement guard for connection checking before methods
 
 class AuthNotifier extends AsyncNotifier<AuthState> {
   Completer? _refreshTokenCompleter;
 
-  void updateUser(User newData) {
-    if (!state.hasValue &&
-        (!state.value!.isAuthenticated || !state.value!.isGuest)) {
-      return;
-    }
+  // void updateUser(User newData) {
+  //   if (!state.hasValue &&
+  //       (!state.value!.isAuthenticated || !state.value!.isGuest)) {
+  //     return;
+  //   }
 
-    if (state.asData!.value.isGuest) {
-      state = AsyncValue.data(AuthGuest(newData));
-      return;
-    }
+  //   if (state.asData!.value.isGuest) {
+  //     state = AsyncValue.data(AuthGuest());
+  //     return;
+  //   }
 
-    state = AsyncValue.data(
-        state.asData!.value.asAuthenticated!.copyWith(user: newData));
-  }
+  //   state = AsyncValue.data(
+  //       state.asData!.value.asAuthenticated!.copyWith(user: newData));
+  // }
 
   void loginUsingGoogle() async {
     if (state.isLoading || _isLoggedIn) return;
@@ -49,9 +50,10 @@ class AuthNotifier extends AsyncNotifier<AuthState> {
           user: result.data!.user,
           tokens: result.data!.tokens,
           isVerified: result.data!.isVerified);
+
       // Update state
       state = AsyncValue.data(
-          AuthAuthenticated(result.data!.user, result.data!.isVerified));
+          AuthAuthenticated(result.data!.user.id, result.data!.isVerified));
     } else {
       ref.read(appErrorProvider.notifier).state = result.error!;
       state = const AsyncValue.data(AuthUnauthenticated());
@@ -74,9 +76,10 @@ class AuthNotifier extends AsyncNotifier<AuthState> {
           user: result.data!.user,
           tokens: result.data!.tokens,
           isVerified: result.data!.isVerified);
+
       // Update state
       state = AsyncValue.data(
-          AuthAuthenticated(result.data!.user, result.data!.isVerified));
+          AuthAuthenticated(result.data!.user.id, result.data!.isVerified));
     } else {
       ref.read(appErrorProvider.notifier).state = result.error!;
       state = const AsyncValue.data(AuthUnauthenticated());
@@ -102,7 +105,7 @@ class AuthNotifier extends AsyncNotifier<AuthState> {
 
       // Update state
       state = AsyncValue.data(
-          AuthAuthenticated(result.data!.user, result.data!.isVerified));
+          AuthAuthenticated(result.data!.user.id, result.data!.isVerified));
     } else {
       ref.read(appErrorProvider.notifier).state = result.error!;
       state = const AsyncValue.data(AuthUnauthenticated());
@@ -136,7 +139,7 @@ class AuthNotifier extends AsyncNotifier<AuthState> {
           isVerified: result.data!.isVerified);
       // Update state
       state = AsyncValue.data(
-          AuthAuthenticated(result.data!.user, result.data!.isVerified));
+          AuthAuthenticated(result.data!.user.id, result.data!.isVerified));
     } else {
       ref.read(appErrorProvider.notifier).state = result.error;
       state = const AsyncValue.data(AuthUnauthenticated());
@@ -151,11 +154,13 @@ class AuthNotifier extends AsyncNotifier<AuthState> {
         .read(sessionStorageProvider)
         .saveSession(user: User.guest(username), isVerified: false);
 
-    state = AsyncValue.data(AuthGuest(User.guest(username)));
+    state = const AsyncValue.data(AuthGuest());
   }
 
   void logout() async {
     ref.read(loggerProvider).f("Logging out!");
+
+    // TODO: This should tell the user if theres unsynced data that will be lost/deleted if they log out
 
     await ref.read(sessionStorageProvider).clearSession();
     await ref.read(authServiceProvider).googleSignOut();
@@ -254,7 +259,7 @@ class AuthNotifier extends AsyncNotifier<AuthState> {
       if (result.data!) {
         // we update the verification status on our state
         state = AsyncValue.data(
-            AuthAuthenticated(state.value!.asAuthenticated!.user, true));
+            AuthAuthenticated(state.value!.asAuthenticated!.userId, true));
       }
     }
   }
@@ -265,7 +270,7 @@ class AuthNotifier extends AsyncNotifier<AuthState> {
       return;
     }
     state = AsyncValue.data(
-        AuthAuthenticated(state.value!.asAuthenticated!.user, isVerified));
+        AuthAuthenticated(state.value!.asAuthenticated!.userId, isVerified));
   }
 
   Future<Result> requestPasswordReset(String email) async {
@@ -299,9 +304,9 @@ class AuthNotifier extends AsyncNotifier<AuthState> {
 
     if (session == null) return const AuthUnauthenticated();
 
-    if (session.user.id == -1) return AuthGuest(session.user);
+    if (session.userId == -1) return const AuthGuest();
 
-    return AuthAuthenticated(session.user, session.isVerified);
+    return AuthAuthenticated(session.userId, session.isVerified);
   }
 }
 
@@ -313,6 +318,15 @@ final authRepositoryProvider = Provider<AuthRepository>(
 
 final authServiceProvider = Provider<AuthService>((ref) {
   return AuthService(authRepository: ref.watch(authRepositoryProvider));
+});
+
+final authStateProvider = Provider.autoDispose<AuthState>((ref) {
+  var authState = ref.watch(authProvider);
+  if (authState.asData != null) {
+    return authState.value!;
+  }
+
+  return const AuthUnauthenticated();
 });
 
 final isLoggedProvider = Provider<bool>((ref) {
@@ -344,7 +358,8 @@ final sessionStorageProvider = Provider<SessionStorage>((ref) {
   return SessionStorage(
       secureStorage: ref.watch(secureStorageProvider),
       sharedPreferences: ref.watch(sharedPreferencesProvider),
-      databaseManager: ref.watch(localDbProvider));
+      databaseManager: ref.watch(localDbProvider),
+      usersRepository: ref.watch(localUsersRepositoryProvider));
 });
 
 final isVerifiedProvider = Provider.autoDispose<bool>((ref) {

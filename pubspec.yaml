@@ -63,6 +63,7 @@ dependencies:
   flutter_cache_manager: ^3.4.1
   crop_image: ^1.0.17
   sliver_tools: ^0.2.12
+  flutter_slidable: ^4.0.3
 
 dev_dependencies:
   flutter_test:

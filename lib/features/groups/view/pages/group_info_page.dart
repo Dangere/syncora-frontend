@@ -32,8 +32,7 @@ class _GroupInfoPageState extends ConsumerState<GroupInfoPage> {
   @override
   void initState() {
     isOwner = ref.read(groupsProvider.notifier).isGroupOwner(
-        groupId: widget.groupId,
-        userId: ref.read(authProvider).value!.user!.id);
+        groupId: widget.groupId, userId: ref.read(authProvider).value!.userId!);
 
     super.initState();
   }

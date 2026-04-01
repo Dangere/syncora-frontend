@@ -46,7 +46,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
   @override
   Widget build(BuildContext context) {
     // We assume that the user is logged in and there's always a user provided if we are on this page
-    User user = ref.watch(authProvider).value!.user!;
+    int userId = ref.watch(authProvider).value!.userId!;
 
     // Warming user provider for the first time
     ref.read(userProvider);
@@ -71,17 +71,6 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
           AppButton(
             width: 80,
             onPressed: () {
-              Tests.test_profile_picture(ref, context);
-              // ref.read(loggerProvider).w(ref.read(connectionProvider));
-            },
-            size: AppButtonSize.mini,
-            style: AppButtonStyle.filled,
-            intent: AppButtonIntent.warning,
-            child: const Icon(Icons.picture_as_pdf),
-          ),
-          AppButton(
-            width: 80,
-            onPressed: () {
               ref
                   .read(debug_fakeBeingOnlineProvider.notifier)
                   .update((state) => !state);
@@ -91,16 +80,19 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
             intent: AppButtonIntent.warning,
             child: const Icon(Icons.add),
           ),
-          AppButton(
-            width: 80,
-            onPressed: () {
-              Tests.test_print_user_progress(ref);
-            },
-            size: AppButtonSize.mini,
-            style: AppButtonStyle.filled,
-            intent: AppButtonIntent.warning,
-            child: const Icon(Icons.price_change_outlined),
-          )
+          // AppButton(
+          //   width: 80,
+          //   onPressed: () {
+          //     setState(() {
+          //       TEMPPPPPPPPPPPPP = true;
+          //     });
+          //     Tests.populate_groups_and_tasks(ref);
+          //   },
+          //   size: AppButtonSize.mini,
+          //   style: AppButtonStyle.filled,
+          //   intent: AppButtonIntent.warning,
+          //   child: const Icon(Icons.price_change_outlined),
+          // )
         ],
       ),
       body: Stack(
@@ -131,6 +123,14 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
               child: CustomScrollView(
                 clipBehavior: Clip.hardEdge,
                 slivers: [
+                  SliverPersistentHeader(
+                    delegate: MySliverPersistentHeaderDelegate(
+                        child: Center(
+                            child:
+                                Text(ref.watch(connectionProvider).toString())),
+                        height: 30),
+                    pinned: true,
+                  ),
                   // PROFILE AND SETTINGS HEADER
                   SliverToBoxAdapter(
                     child: Padding(
@@ -205,10 +205,10 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                                         onPressed: () => context.pushNamed(
                                             "profile-view",
                                             pathParameters: {
-                                              "id": user.id.toString()
+                                              "id": userId.toString()
                                             }),
                                         icon: ProfilePicture(
-                                          userId: user.id,
+                                          userId: userId,
                                           radius: 48 / 2,
                                         ),
                                       ),

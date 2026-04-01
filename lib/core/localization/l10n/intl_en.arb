@@ -11,7 +11,7 @@
   "@loginPage_guestPopError_empty": {
     "description": "The guest pop up error when text is empty"
   },
-  "loginPage_guestPopError_invalid": "invalid username format",
+  "loginPage_guestPopError_invalid": "Invalid username format",
   "@loginPage_guestPopError_invalid": {
     "description": "The guest pop up error when text is invalid"
   },
@@ -31,7 +31,7 @@
   "@onboardingPage_Title": {
     "description": "The title of the onboarding page"
   },
-  "onboardingPage_Description": "Create personal or collaborative tasks with others in real-time ",
+  "onboardingPage_Description": "Create personal or collaborative tasks with others in real-time",
   "@onboardingPage_Description": {
     "description": "The description of the onboarding page"
   },
@@ -46,7 +46,9 @@
   "signUp": "Sign Up",
   "@signUp": {},
   "confirm": "Confirm",
-  "@confirm": {},
+  "@confirm": {
+    "description": "Generic confirm action label"
+  },
   "tasks": "Tasks",
   "@tasks": {},
   "language": "Language",
@@ -56,9 +58,31 @@
   "logout": "Logout",
   "@logout": {},
   "save": "Save",
-  "@save": {},
+  "@save": {
+    "description": "Generic save action label"
+  },
   "owner": "Owner",
   "@owner": {},
+  "rename": "Rename",
+  "@rename": {
+    "description": "Generic rename action label"
+  },
+  "remove": "Remove",
+  "@remove": {
+    "description": "Generic remove action label"
+  },
+  "add": "Add",
+  "@add": {
+    "description": "Generic add action label"
+  },
+  "create": "Create",
+  "@create": {
+    "description": "Generic create action label"
+  },
+  "moreOptions": "More Options",
+  "@moreOptions": {
+    "description": "Generic more options label"
+  },
   "filter_Completed": "Completed",
   "@filter_Completed": {},
   "filter_InProgress": "In Progress",
@@ -123,6 +147,10 @@
   "@settingsPage_Title": {},
   "settingsPage_ChangeMyPassword": "Change My Password",
   "@settingsPage_ChangeMyPassword": {},
+  "settingsPage_ConfirmLogout": "Are you sure you want to logout?",
+  "@settingsPage_ConfirmLogout": {},
+  "settingsPage_ConfirmGuestLogout": "If you log out as a guest your data will be deleted",
+  "@settingsPage_ConfirmGuestLogout": {},
   "dashboardPage_MyGroups": "My Groups",
   "@dashboardPage_MyGroups": {},
   "dashboardPage_CreateGroup": "Create Group",
@@ -144,5 +172,121 @@
   "profileViewPage_ProfileChange": "Your profile has been updated",
   "@profileViewPage_ProfileChange": {},
   "image_NoImagePicked": "No image picked",
-  "@image_NoImagePicked": {}
+  "@image_NoImagePicked": {},
+  "groupPopup_EditTitle": "Edit Group Title",
+  "@groupPopup_EditTitle": {
+    "description": "Dialog title for editing a group's title"
+  },
+  "groupPopup_EditDescription": "Edit Group Description",
+  "@groupPopup_EditDescription": {
+    "description": "Dialog title for editing a group's description"
+  },
+  "groupPopup_RemoveUser_Title": "Are you sure you want to remove this user from the group?",
+  "@groupPopup_RemoveUser_Title": {
+    "description": "Confirmation dialog title when removing a user from a group"
+  },
+  "groupPopup_CreateGroup_Title": "New Group",
+  "@groupPopup_CreateGroup_Title": {
+    "description": "Dialog title for creating a new group"
+  },
+  "groupPopup_AddMember_Title": "Add a New Member",
+  "@groupPopup_AddMember_Title": {
+    "description": "Dialog title for adding a new member to a group"
+  },
+  "groupPopup_GroupTitle_Label": "Group Title",
+  "@groupPopup_GroupTitle_Label": {
+    "description": "Label for the group title input field"
+  },
+  "groupPopup_GroupTitle_Hint": "Enter the title",
+  "@groupPopup_GroupTitle_Hint": {
+    "description": "Hint text for the group title input field"
+  },
+  "groupPopup_GroupDescription_Label": "Group Description",
+  "@groupPopup_GroupDescription_Label": {
+    "description": "Label for the group description input field"
+  },
+  "groupPopup_GroupDescription_Hint": "Enter the description",
+  "@groupPopup_GroupDescription_Hint": {
+    "description": "Hint text for the group description input field"
+  },
+  "groupPopup_MoreInfo": "More Info About This Group",
+  "@groupPopup_MoreInfo": {
+    "description": "Button label to view more info about a group"
+  },
+  "groupPopup_RenameGroup": "Rename Group",
+  "@groupPopup_RenameGroup": {
+    "description": "Button label to rename a group"
+  },
+  "groupPopup_DeleteGroup": "Delete Group",
+  "@groupPopup_DeleteGroup": {
+    "description": "Button label to delete a group (shown to owners)"
+  },
+  "groupPopup_LeaveGroup": "Leave Group",
+  "@groupPopup_LeaveGroup": {
+    "description": "Button label to leave a group (shown to non-owners)"
+  },
+  "groupPopup_Alert_NoUsersSelected": "No users selected",
+  "@groupPopup_Alert_NoUsersSelected": {
+    "description": "Alert shown when confirming with no users selected"
+  },
+  "groupPopup_Alert_CantAddSelf": "You can't add yourself",
+  "@groupPopup_Alert_CantAddSelf": {
+    "description": "Alert shown when the user tries to add themselves"
+  },
+  "groupPopup_Alert_UserAlreadyAdded": "User already added",
+  "@groupPopup_Alert_UserAlreadyAdded": {
+    "description": "Alert shown when a user is already in the selection or group"
+  },
+  "groupPopup_Error_UserNotFound": "User not found",
+  "@groupPopup_Error_UserNotFound": {
+    "description": "Error shown when a searched user does not exist"
+  },
+  "validation_GroupTitle_Empty": "Empty title",
+  "@validation_GroupTitle_Empty": {
+    "description": "Validation error when the group title field is empty"
+  },
+  "validation_GroupTitle_Unchanged": "Title is not changed",
+  "@validation_GroupTitle_Unchanged": {
+    "description": "Validation error when the new group title matches the old one"
+  },
+  "validation_GroupTitle_Invalid": "Invalid title",
+  "@validation_GroupTitle_Invalid": {
+    "description": "Validation error when the group title format is invalid"
+  },
+  "validation_GroupTitle_Create_Empty": "Empty group title",
+  "@validation_GroupTitle_Create_Empty": {
+    "description": "Validation error when the group title is empty during creation"
+  },
+  "validation_GroupTitle_Create_Invalid": "Invalid group title",
+  "@validation_GroupTitle_Create_Invalid": {
+    "description": "Validation error when the group title format is invalid during creation"
+  },
+  "validation_GroupDescription_Empty": "Empty description",
+  "@validation_GroupDescription_Empty": {
+    "description": "Validation error when the group description field is empty"
+  },
+  "validation_GroupDescription_Unchanged": "Description is not changed",
+  "@validation_GroupDescription_Unchanged": {
+    "description": "Validation error when the new description matches the old one"
+  },
+  "validation_GroupDescription_Invalid": "Invalid description",
+  "@validation_GroupDescription_Invalid": {
+    "description": "Validation error when the group description format is invalid"
+  },
+  "validation_GroupDescription_Create_Empty": "Empty group description",
+  "@validation_GroupDescription_Create_Empty": {
+    "description": "Validation error when the group description is empty during creation"
+  },
+  "validation_GroupDescription_Create_Invalid": "Invalid group description",
+  "@validation_GroupDescription_Create_Invalid": {
+    "description": "Validation error when the group description format is invalid during creation"
+  },
+  "validation_Username_Empty": "Empty username",
+  "@validation_Username_Empty": {
+    "description": "Validation error when the username field is empty"
+  },
+  "validation_Username_Invalid": "Invalid username",
+  "@validation_Username_Invalid": {
+    "description": "Validation error when the username format is invalid"
+  }
 }

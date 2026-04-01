@@ -27,7 +27,7 @@ enum GroupsFilter { inProgress, completed, shared, owned, newest, oldest }
 // It updates as well through the outbox processor to reflect updates
 // It also updates the current viewed group's notifier if its details change
 // It does NOT update the tasks notifier as it works independently
-class GroupsNotifier extends AsyncNotifier<List<Group>> {
+class GroupsNotifier extends AutoDisposeAsyncNotifier<List<Group>> {
   List<GroupsFilter> get filters => _filters;
 
   List<GroupsFilter> _filters = [GroupsFilter.inProgress];
@@ -373,6 +373,13 @@ class GroupsNotifier extends AsyncNotifier<List<Group>> {
 
   @override
   FutureOr<List<Group>> build() async {
+    ref.onDispose(
+      () {
+        print("Groups provider: Disposing");
+      },
+    );
+    ref.read(loggerProvider).d("Groups provider: Building");
+
     var authState = ref.watch(authProvider);
 
     // Updating the UI on group changes
@@ -438,7 +445,8 @@ class GroupsNotifier extends AsyncNotifier<List<Group>> {
 }
 
 final groupsProvider =
-    AsyncNotifierProvider<GroupsNotifier, List<Group>>(GroupsNotifier.new);
+    AutoDisposeAsyncNotifierProvider<GroupsNotifier, List<Group>>(
+        GroupsNotifier.new);
 
 final groupViewProvider =
     FutureProvider.family.autoDispose<Group?, int>((ref, id) async {
@@ -485,20 +493,17 @@ final groupStatisticsProvider = Provider<StatisticsRepository>((ref) {
 });
 
 final groupsServiceProvider = Provider<GroupsService>((ref) {
-  var authState = ref.watch(authProvider).asData!.value;
   ConnectionStatus connectionStatus = ref.watch(connectionProvider);
   var isOnline = connectionStatus == ConnectionStatus.connected ||
       connectionStatus == ConnectionStatus.slow;
 
   return GroupsService(
-    authState: authState,
-    isOnline: isOnline,
-    localGroupsRepository: ref.watch(
-      localGroupsRepositoryProvider,
-    ),
-    remoteGroupsRepository: ref.watch(remoteGroupsRepositoryProvider),
-    groupStatisticsRepository: ref.watch(groupStatisticsProvider),
-    enqueueEntry: (enqueueRequest) =>
+    ref.watch(localGroupsRepositoryProvider),
+    ref.watch(remoteGroupsRepositoryProvider),
+    ref.watch(groupStatisticsProvider),
+    (enqueueRequest) =>
         ref.read(outboxProvider.notifier).enqueue(enqueueRequest),
+    ref.watch(authStateProvider),
+    isOnline,
   );
 });

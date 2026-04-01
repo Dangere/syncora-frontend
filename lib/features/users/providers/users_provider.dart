@@ -42,6 +42,8 @@ class UserNotifier extends AsyncNotifier<void> {
       ref.read(appErrorProvider.notifier).state = result.error;
     }
     state = const AsyncValue.data(null);
+
+    ref.invalidate(userLocalProvider(ref.read(authProvider).value!.userId!));
   }
 
   Future<String?> changeProfilePicture(
@@ -107,11 +109,11 @@ class UserNotifier extends AsyncNotifier<void> {
 
     // Invalidating profile picture providers
     _invalidateProfileImageProvider(
-        imageUrl: null, userId: ref.read(authProvider).value!.user!.id);
+        imageUrl: null, userId: ref.read(authProvider).value!.userId!);
 
     _invalidateProfileImageProvider(
         imageUrl: uploadedImageUrl.data!,
-        userId: ref.read(authProvider).value!.user!.id);
+        userId: ref.read(authProvider).value!.userId!);
 
     state = const AsyncValue.data(null);
     return uploadedImageUrl.data;
@@ -127,6 +129,27 @@ class UserNotifier extends AsyncNotifier<void> {
     }
 
     return result.data;
+  }
+
+  Future<User> getMainUser() async {
+    int? userId = ref.read(authStateProvider).userId;
+
+    if (userId == null) {
+      ref.read(appErrorProvider.notifier).state =
+          AppError(message: "User id is null", stackTrace: StackTrace.current);
+
+      throw Exception("User id is null");
+    }
+
+    Result<User?> result =
+        await ref.read(usersServiceProvider).getCachedUser(userId);
+
+    if (!result.isSuccess || result.data == null) {
+      ref.read(appErrorProvider.notifier).state = result.error;
+      throw result.error!.errorObject;
+    }
+
+    return result.data!;
   }
 
   void _invalidateProfileImageProvider(
@@ -228,12 +251,9 @@ final remoteUsersRepositoryProvider = Provider<RemoteUsersRepository>((ref) {
 });
 
 final usersServiceProvider = Provider<UsersService>((ref) {
-  var authState = ref.watch(authProvider).asData!.value;
   return UsersService(
-      logger: ref.watch(loggerProvider),
-      localUsersRepository: ref.watch(localUsersRepositoryProvider),
-      remoteUsersRepository: ref.watch(remoteUsersRepositoryProvider),
-      imageService: ref.watch(imageServiceProvider),
-      picker: ref.watch(imagePickerProvider),
-      authState: authState);
+    ref.watch(localUsersRepositoryProvider),
+    ref.watch(remoteUsersRepositoryProvider),
+    ref.watch(authStateProvider),
+  );
 });

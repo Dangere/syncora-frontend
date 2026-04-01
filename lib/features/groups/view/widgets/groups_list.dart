@@ -20,8 +20,7 @@ class GroupsList extends ConsumerWidget {
     // it rebuilds 2 times if loading indicator is disabled
     ref.read(loggerProvider).d("Building groups list");
     List<Group> groups =
-        ref.watch(groupsProvider.select((state) => state.value)) ??
-            List.empty();
+        ref.watch(groupsProvider).asData?.value ?? List.empty();
     // List<Group> groupsList = groups ? groups.value! : List.empty();
 
     return MultiSliver(

@@ -23,9 +23,7 @@ class _GroupTotalProgressCardState
 
   @override
   Widget build(BuildContext context) {
-    ref.watch(groupsProvider.select((groupState) {
-      return groupState.value;
-    }));
+    ref.watch(groupsProvider);
     return FutureBuilder(
         future:
             ref.read(groupsProvider.notifier).getGroupsTotalProgress(true, 30),

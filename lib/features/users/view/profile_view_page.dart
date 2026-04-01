@@ -95,7 +95,6 @@ class _ProfileViewPageState extends ConsumerState<ProfileViewPage> {
 
   void onSaveButton(void Function(void Function()) setState) async {
     if (!isAccountOwner || user == null) return;
-    // TODO: This validation does not work on the second time?
     if (_formKey.currentState!.validate()) {
       ref.read(loggerProvider).i("Profile page: Updating user info!");
 
@@ -120,7 +119,7 @@ class _ProfileViewPageState extends ConsumerState<ProfileViewPage> {
 
   @override
   void initState() {
-    isAccountOwner = ref.read(authProvider).value!.user!.id == widget.userId;
+    isAccountOwner = ref.read(authProvider).value!.userId! == widget.userId;
     super.initState();
   }
 
@@ -138,7 +137,7 @@ class _ProfileViewPageState extends ConsumerState<ProfileViewPage> {
     SnackBarAlerts.registerErrorListener(ref, context);
 
     AsyncValue<User?> userAsync = ref.watch(userLocalProvider(widget.userId));
-    bool isLoading = false;
+    // bool isLoading = READ.read(userProvider).isLoading;
 
     return userAsync.when(
       skipLoadingOnRefresh: true,
@@ -171,7 +170,7 @@ class _ProfileViewPageState extends ConsumerState<ProfileViewPage> {
                 : AppLocalizations.of(context).profileViewPage_TitleProfile),
           ),
           body: OverlayLoader(
-            isLoading: isLoading,
+            isLoading: ref.watch(userProvider).isLoading,
             body: SingleChildScrollView(
               child: Padding(
                 padding: AppSpacing.paddingHorizontalLg +

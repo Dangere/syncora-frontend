@@ -143,6 +143,7 @@ class Dialogs {
                                 .textTheme
                                 .titleSmall!
                                 .copyWith(
+                                    fontSize: 18,
                                     fontWeight: FontWeight.normal,
                                     color: Theme.of(context)
                                         .colorScheme
@@ -157,30 +158,36 @@ class Dialogs {
                     ),
                     // CONFIRM BUTTON
                     AppButton(
-                        size: AppButtonSize.mini,
-                        style: AppButtonStyle.filled,
-                        intent: AppButtonIntent.destructive,
-                        fontSize: 18,
-                        fontWeight: FontWeight.normal,
-                        onPressed: () {
-                          Navigator.of(context).pop(true);
-                        },
-                        child: Text(confirmText)),
+                      size: AppButtonSize.mini,
+                      style: AppButtonStyle.filled,
+                      intent: AppButtonIntent.destructive,
+                      fontSize: 18,
+                      fontWeight: FontWeight.normal,
+                      onPressed: () {
+                        Navigator.of(context).pop(true);
+                      },
+                      child: Text(
+                        confirmText,
+                      ),
+                    ),
                     const SizedBox(
                       height: 16,
                     ),
 
                     // CANCEL BUTTON
                     AppButton(
-                        size: AppButtonSize.mini,
-                        style: AppButtonStyle.outlined,
-                        // intent: AppButtonIntent.secondary,
-                        fontSize: 18,
-                        fontWeight: FontWeight.normal,
-                        onPressed: () {
-                          Navigator.of(context).pop();
-                        },
-                        child: const Text("Cancel"))
+                      size: AppButtonSize.mini,
+                      style: AppButtonStyle.outlined,
+                      // intent: AppButtonIntent.secondary,
+                      fontSize: 18,
+                      fontWeight: FontWeight.normal,
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                      child: Text(
+                        "Cancel",
+                      ),
+                    )
                   ],
                 ),
               ),

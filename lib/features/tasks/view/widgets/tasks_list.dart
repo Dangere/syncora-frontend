@@ -5,6 +5,7 @@ import 'package:syncora_frontend/common/providers/common_providers.dart';
 import 'package:syncora_frontend/common/themes/app_spacing.dart';
 import 'package:syncora_frontend/common/widgets/filter_list.dart';
 import 'package:syncora_frontend/core/localization/generated/l10n/app_localizations.dart';
+import 'package:syncora_frontend/core/utils/dialogs.dart';
 import 'package:syncora_frontend/features/groups/groups_provider.dart';
 import 'package:syncora_frontend/features/tasks/models/task.dart';
 import 'package:syncora_frontend/features/tasks/tasks_provider.dart';
@@ -25,6 +26,7 @@ class TasksList extends ConsumerWidget {
     void assignUsersPopup(Task task) async {
       List<int> newAssigneesSet = await TasksPopups.assignedUsersPopUp(
         context,
+        isOwner: isOwner,
         task: task,
         groupMembers: () {
           return ref
@@ -100,10 +102,26 @@ class TasksList extends ConsumerWidget {
                   itemCount: tasks.length,
                   itemBuilder: (context, index) {
                     return TaskPanel(
-                        onDelete: () {
-                          ref
-                              .read(tasksProvider(groupId).notifier)
-                              .deleteTask(taskId: tasks[index].id);
+                        onEdit: () async {
+                          String? newTitle =
+                              await TasksPopups.taskTitleEditPopup(
+                                  context, tasks[index].title);
+                          if (newTitle != null)
+                            ref
+                                .read(tasksProvider(groupId).notifier)
+                                .updateTask(
+                                    taskId: tasks[index].id, title: newTitle);
+                        },
+                        onDelete: () async {
+                          bool confirm = await Dialogs.showConfirmationDialog(
+                              context,
+                              message:
+                                  "Are you sure you want to delete this task?",
+                              confirmText: "Delete");
+                          if (confirm)
+                            ref
+                                .read(tasksProvider(groupId).notifier)
+                                .deleteTask(taskId: tasks[index].id);
                         },
                         onTap: () {
                           bool isDone = tasks[index].completedById != null;

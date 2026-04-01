@@ -18,7 +18,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get loginPage_guestPopError_empty => 'Guest username cannot be empty';
 
   @override
-  String get loginPage_guestPopError_invalid => 'invalid username format';
+  String get loginPage_guestPopError_invalid => 'Invalid username format';
 
   @override
   String get groupsList_Title => 'Groups';
@@ -34,7 +34,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get onboardingPage_Description =>
-      'Create personal or collaborative tasks with others in real-time ';
+      'Create personal or collaborative tasks with others in real-time';
 
   @override
   String get onboardingPage_CreateAccount => 'Create Your Account';
@@ -71,6 +71,21 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get owner => 'Owner';
+
+  @override
+  String get rename => 'Rename';
+
+  @override
+  String get remove => 'Remove';
+
+  @override
+  String get add => 'Add';
+
+  @override
+  String get create => 'Create';
+
+  @override
+  String get moreOptions => 'More Options';
 
   @override
   String get filter_Completed => 'Completed';
@@ -170,6 +185,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsPage_ChangeMyPassword => 'Change My Password';
 
   @override
+  String get settingsPage_ConfirmLogout => 'Are you sure you want to logout?';
+
+  @override
+  String get settingsPage_ConfirmGuestLogout =>
+      'If you log out as a guest your data will be deleted';
+
+  @override
   String get dashboardPage_MyGroups => 'My Groups';
 
   @override
@@ -201,4 +223,95 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get image_NoImagePicked => 'No image picked';
+
+  @override
+  String get groupPopup_EditTitle => 'Edit Group Title';
+
+  @override
+  String get groupPopup_EditDescription => 'Edit Group Description';
+
+  @override
+  String get groupPopup_RemoveUser_Title =>
+      'Are you sure you want to remove this user from the group?';
+
+  @override
+  String get groupPopup_CreateGroup_Title => 'New Group';
+
+  @override
+  String get groupPopup_AddMember_Title => 'Add a New Member';
+
+  @override
+  String get groupPopup_GroupTitle_Label => 'Group Title';
+
+  @override
+  String get groupPopup_GroupTitle_Hint => 'Enter the title';
+
+  @override
+  String get groupPopup_GroupDescription_Label => 'Group Description';
+
+  @override
+  String get groupPopup_GroupDescription_Hint => 'Enter the description';
+
+  @override
+  String get groupPopup_MoreInfo => 'More Info About This Group';
+
+  @override
+  String get groupPopup_RenameGroup => 'Rename Group';
+
+  @override
+  String get groupPopup_DeleteGroup => 'Delete Group';
+
+  @override
+  String get groupPopup_LeaveGroup => 'Leave Group';
+
+  @override
+  String get groupPopup_Alert_NoUsersSelected => 'No users selected';
+
+  @override
+  String get groupPopup_Alert_CantAddSelf => 'You can\'t add yourself';
+
+  @override
+  String get groupPopup_Alert_UserAlreadyAdded => 'User already added';
+
+  @override
+  String get groupPopup_Error_UserNotFound => 'User not found';
+
+  @override
+  String get validation_GroupTitle_Empty => 'Empty title';
+
+  @override
+  String get validation_GroupTitle_Unchanged => 'Title is not changed';
+
+  @override
+  String get validation_GroupTitle_Invalid => 'Invalid title';
+
+  @override
+  String get validation_GroupTitle_Create_Empty => 'Empty group title';
+
+  @override
+  String get validation_GroupTitle_Create_Invalid => 'Invalid group title';
+
+  @override
+  String get validation_GroupDescription_Empty => 'Empty description';
+
+  @override
+  String get validation_GroupDescription_Unchanged =>
+      'Description is not changed';
+
+  @override
+  String get validation_GroupDescription_Invalid => 'Invalid description';
+
+  @override
+  String get validation_GroupDescription_Create_Empty =>
+      'Empty group description';
+
+  @override
+  String get validation_GroupDescription_Create_Invalid =>
+      'Invalid group description';
+
+  @override
+  String get validation_Username_Empty => 'Empty username';
+
+  @override
+  String get validation_Username_Invalid => 'Invalid username';
 }

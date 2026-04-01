@@ -31,7 +31,7 @@ class VerifyEmailPanel extends StatelessWidget {
                   textAlign: TextAlign.center,
                   text: TextSpan(
                       text:
-                          'Please verify your email ${authState.user!.email}, or ',
+                          'Please verify your email {authState.user!.email}, or ',
                       style: Theme.of(context).textTheme.bodySmall,
                       children: [
                         TextSpan(

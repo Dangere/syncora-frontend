@@ -4,7 +4,6 @@ import 'package:syncora_frontend/core/network/outbox/model/outbox_payload.dart';
 import 'package:syncora_frontend/core/typedef.dart';
 import 'package:syncora_frontend/core/utils/result.dart';
 import 'package:syncora_frontend/features/authentication/models/auth_state.dart';
-import 'package:syncora_frontend/features/authentication/models/user.dart';
 import 'package:syncora_frontend/features/groups/models/group.dart';
 import 'package:syncora_frontend/features/groups/models/group_progress.dart';
 import 'package:syncora_frontend/features/groups/repositories/local_groups_repository.dart';
@@ -24,25 +23,21 @@ class GroupsService {
   final bool _isOnline;
 
   GroupsService(
-      {required AuthState authState,
-      required bool isOnline,
-      required LocalGroupsRepository localGroupsRepository,
-      required RemoteGroupsRepository remoteGroupsRepository,
-      required StatisticsRepository groupStatisticsRepository,
-      required AsyncFunc<EnqueueRequest, Result<void>> enqueueEntry})
-      : _localGroupsRepository = localGroupsRepository,
-        _remoteGroupsRepository = remoteGroupsRepository,
-        _groupStatisticsRepository = groupStatisticsRepository,
-        _authState = authState,
-        _isOnline = isOnline,
-        _enqueueEntry = enqueueEntry;
+      this._localGroupsRepository,
+      this._remoteGroupsRepository,
+      this._groupStatisticsRepository,
+      this._enqueueEntry,
+      this._authState,
+      this._isOnline);
 
   Future<Result<List<Group>>> getAllGroups(
       List<GroupsFilter> filters, String? search) async {
     try {
-      if (_authState.user == null) return Result.failureMessage("User is null");
+      if (_authState.isUnauthenticated) {
+        return Result.failureMessage("User is unauthenticated");
+      }
       List<Group> groups = await _localGroupsRepository.getAllGroups(
-          filters, _authState.user!.id, search);
+          filters, _authState.userId!, search);
       return Result.success(groups);
     } catch (e, stackTrace) {
       return Result.failure(e, stackTrace);
@@ -50,7 +45,7 @@ class GroupsService {
   }
 
   Future<Result<Group>> createGroup(String title, String description) async {
-    int userId = _authState.user!.id;
+    int userId = _authState.userId!;
     final now = DateTime.now().toUtc();
 
     Group newGroup = Group(
@@ -121,8 +116,9 @@ class GroupsService {
         }
       },
     ));
-    if (!enqueueResult.isSuccess && !enqueueResult.isCancelled)
+    if (!enqueueResult.isSuccess && !enqueueResult.isCancelled) {
       return enqueueResult;
+    }
 
     return Result.success();
   }
@@ -170,8 +166,9 @@ class GroupsService {
         }
       },
     ));
-    if (!enqueueResult.isSuccess && !enqueueResult.isCancelled)
+    if (!enqueueResult.isSuccess && !enqueueResult.isCancelled) {
       return enqueueResult;
+    }
 
     return Result.success();
   }
@@ -194,18 +191,21 @@ class GroupsService {
         }
       },
     ));
-    if (!enqueueResult.isSuccess && !enqueueResult.isCancelled)
+    if (!enqueueResult.isSuccess && !enqueueResult.isCancelled) {
       return enqueueResult;
+    }
 
     return Result.success();
   }
 
   Future<Result<int>> getGroupsCount(List<GroupsFilter> filters) async {
     try {
-      if (_authState.user == null) return Result.failureMessage("User is null");
+      if (_authState.isUnauthenticated) {
+        return Result.failureMessage("User is unauthenticated");
+      }
 
       return Result.success(await _groupStatisticsRepository.getGroupsCount(
-          filters, _authState.user!.id));
+          filters, _authState.userId!));
     } catch (e, stackTrace) {
       return Result.failure(e, stackTrace);
     }
@@ -214,10 +214,12 @@ class GroupsService {
   Future<Result<List<GroupProgress>>> getGroupsProgress(
       bool includeAssignedTasks, int sinceDays) async {
     try {
-      if (_authState.user == null) return Result.failureMessage("User is null");
+      if (_authState.isUnauthenticated) {
+        return Result.failureMessage("User is unauthenticated");
+      }
 
       return Result.success(await _groupStatisticsRepository.getProgressSince(
-          _authState.user!.id, sinceDays, includeAssignedTasks));
+          _authState.userId!, sinceDays, includeAssignedTasks));
     } catch (e, stackTrace) {
       return Result.failure(e, stackTrace);
     }
@@ -226,11 +228,13 @@ class GroupsService {
   Future<Result<GroupProgress?>> getGroupsTotalProgress(
       bool includeAssignedTasks, int sinceDays) async {
     try {
-      if (_authState.user == null) return Result.failureMessage("User is null");
+      if (_authState.isUnauthenticated) {
+        return Result.failureMessage("User is unauthenticated");
+      }
 
       return Result.success(
           await _groupStatisticsRepository.getTotalProgressSince(
-              _authState.user!.id, sinceDays, includeAssignedTasks));
+              _authState.userId!, sinceDays, includeAssignedTasks));
     } catch (e, stackTrace) {
       return Result.failure(e, stackTrace);
     }

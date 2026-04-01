@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:syncora_frontend/common/themes/app_theme.dart';
 import 'package:syncora_frontend/common/widgets/marquee_widget.dart';
 import 'package:syncora_frontend/common/widgets/profile_picture.dart';
@@ -11,12 +12,15 @@ class TaskPanel extends StatelessWidget {
       required this.task,
       required this.isCompletedBy,
       required this.onDelete,
+      required this.onEdit,
       required this.onTap,
       required this.onHold,
       required this.assignedUsers,
       required this.isOwner});
   final Task task;
   final VoidCallback onDelete;
+  final VoidCallback onEdit;
+
   final VoidCallback onTap;
   final VoidCallback onHold;
   final List<int> assignedUsers;
@@ -28,7 +32,8 @@ class TaskPanel extends StatelessWidget {
 
     if (assignedUsers.isEmpty) return null;
 
-    if (assignedUsers.length == 1) return null;
+    if (assignedUsers.length == 1 && assignedUsers[0] == isCompletedBy)
+      return null;
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8.0),
@@ -49,11 +54,11 @@ class TaskPanel extends StatelessWidget {
             decoration: BoxDecoration(
               boxShadow: [AppShadow.shadow0(context)],
               color: Theme.of(context).colorScheme.surfaceContainer,
-              borderRadius: BorderRadius.circular(20),
+              // borderRadius: BorderRadius.circular(20),
             ),
             child: Row(mainAxisAlignment: MainAxisAlignment.start, children: [
               _CheckButton(value: isCompletedBy != null),
-              completerIcon() ?? SizedBox(width: 13),
+              completerIcon() ?? const SizedBox(width: 13),
               Expanded(
                   child: MarqueeWidget(
                 direction: Axis.vertical,
@@ -83,35 +88,39 @@ class TaskPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return isOwner
-        ? Dismissible(
-            onDismissed: (direction) {
-              onDelete();
-            },
-            direction: DismissDirection.endToStart,
-            background: Container(
-              decoration: BoxDecoration(
-                boxShadow: [AppShadow.shadow0(context)],
-                color: Theme.of(context).colorScheme.error,
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                    child: Icon(
-                      Icons.delete,
-                      color: Theme.of(context).colorScheme.onError,
-                    ),
-                  ),
-                ],
-              ),
+    if (!isOwner) {
+      return ClipRRect(
+          borderRadius: BorderRadius.circular(20), child: _body(context));
+    }
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(20),
+      child: Slidable(
+        key: Key(task.id.toString()),
+        endActionPane: ActionPane(
+          motion: const ScrollMotion(),
+          // dismissible: DismissiblePane(onDismissed: () {
+          //   onDelete();
+          // }),
+
+          children: [
+            SlidableAction(
+              onPressed: (context) => onDelete(),
+              backgroundColor: Theme.of(context).colorScheme.error,
+              foregroundColor: Theme.of(context).colorScheme.onError,
+              // borderRadius: BorderRadius.circular(20),
+              icon: Icons.delete,
             ),
-            key: Key(task.id.toString()),
-            child: _body(context),
-          )
-        : _body(context);
+            SlidableAction(
+              onPressed: (context) => onEdit(),
+              backgroundColor: Theme.of(context).colorScheme.secondary,
+              foregroundColor: Theme.of(context).colorScheme.onSecondary,
+              icon: Icons.edit,
+            ),
+          ],
+        ),
+        child: _body(context),
+      ),
+    );
   }
 }
 

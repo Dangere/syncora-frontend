@@ -16,6 +16,7 @@ import 'package:syncora_frontend/features/groups/models/group.dart';
 import 'package:syncora_frontend/features/groups/view/widgets/group_members_display.dart';
 import 'package:syncora_frontend/features/groups/view/popups/group_popups.dart';
 import 'package:syncora_frontend/features/tasks/tasks_provider.dart';
+import 'package:syncora_frontend/features/tasks/view/tasks_popups.dart';
 import 'package:syncora_frontend/features/tasks/view/widgets/tasks_list.dart';
 import 'package:syncora_frontend/features/groups/groups_provider.dart';
 import 'package:syncora_frontend/features/users/providers/users_provider.dart';
@@ -33,8 +34,7 @@ class GroupPageState extends ConsumerState<GroupPage> {
   @override
   void initState() {
     isOwner = ref.read(groupsProvider.notifier).isGroupOwner(
-        groupId: widget.groupId,
-        userId: ref.read(authProvider).value!.user!.id);
+        groupId: widget.groupId, userId: ref.read(authProvider).value!.userId!);
 
     super.initState();
   }
@@ -60,7 +60,7 @@ class GroupPageState extends ConsumerState<GroupPage> {
   }
 
   void createTaskPopup() async {
-    String? taskTitle = await GroupPopups.createTaskPopup(context);
+    String? taskTitle = await TasksPopups.createTaskPopup(context);
     if (taskTitle == null) return;
 
     ref
@@ -201,28 +201,30 @@ class GroupPageState extends ConsumerState<GroupPage> {
                                                   fontWeight: FontWeight.bold),
                                         ),
                                       ),
-                                      // CREATE TASK
-                                      AppButton(
-                                          width: 120,
-                                          padding: const EdgeInsets.symmetric(
-                                              horizontal: AppSpacing.lg),
-                                          // variant: AppButtonVariant.wide,
-                                          onPressed: createTaskPopup,
-                                          size: AppButtonSize.mini,
-                                          style: AppButtonStyle.filled,
-                                          intent: AppButtonIntent.primary,
-                                          fontSize: 16,
-                                          child: Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.spaceBetween,
-                                            children: [
-                                              Icon(Icons.add),
-                                              Text(
-                                                AppLocalizations.of(context)
-                                                    .groupPage_AddTaskButton,
-                                              ),
-                                            ],
-                                          )),
+                                      if (isOwner)
+                                        // CREATE TASK
+                                        AppButton(
+                                            width: 120,
+                                            padding: const EdgeInsets.symmetric(
+                                                horizontal: AppSpacing.lg),
+                                            // variant: AppButtonVariant.wide,
+                                            onPressed: createTaskPopup,
+                                            size: AppButtonSize.mini,
+                                            style: AppButtonStyle.filled,
+                                            intent: AppButtonIntent.primary,
+                                            fontSize: 16,
+                                            child: Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment
+                                                      .spaceBetween,
+                                              children: [
+                                                Icon(Icons.add),
+                                                Text(
+                                                  AppLocalizations.of(context)
+                                                      .groupPage_AddTaskButton,
+                                                ),
+                                              ],
+                                            )),
                                     ],
                                   ),
                                   AppSpacing.verticalSpaceLg,

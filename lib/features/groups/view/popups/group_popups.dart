@@ -11,23 +11,28 @@ import 'package:syncora_frontend/features/authentication/models/user.dart';
 class GroupPopups {
   static Future<String?> groupTitleEditPopup(
       BuildContext context, String defaultText) async {
+    final l10n = AppLocalizations.of(context);
     List<String> data = await Dialogs.showTextFieldDialog(
       context,
       fields: [
         DialogFieldData(
             autofocus: true,
             validation: (p0) {
-              if (p0 == null || p0.trim().isEmpty) return "Empty title";
-              if (p0.trim() == defaultText) return "New title is not changed";
-              return Validators.validateGroupTitle(p0) ? null : "Invalid title";
+              if (p0 == null || p0.trim().isEmpty)
+                return l10n.validation_GroupTitle_Empty;
+              if (p0.trim() == defaultText)
+                return l10n.validation_GroupTitle_Unchanged;
+              return Validators.validateGroupTitle(p0)
+                  ? null
+                  : l10n.validation_GroupTitle_Invalid;
             },
-            label: "Group Title",
+            label: l10n.groupPopup_GroupTitle_Label,
             defaultText: defaultText)
       ],
       barrierDismissible: true,
       blurBackground: false,
-      title: "Edit Group title",
-      confirmText: "Rename",
+      title: l10n.groupPopup_EditTitle,
+      confirmText: l10n.rename,
     );
 
     return data.isEmpty ? null : data[0];
@@ -35,6 +40,7 @@ class GroupPopups {
 
   static Future<String?> groupDescriptionEditPopup(
       BuildContext context, String defaultText) async {
+    final l10n = AppLocalizations.of(context);
     List<String> data = await Dialogs.showTextFieldDialog(
       context,
       fields: [
@@ -42,21 +48,22 @@ class GroupPopups {
           autofocus: true,
           multiLine: true,
           validation: (p0) {
-            if (p0 == null || p0.trim().isEmpty) return "Empty Description";
+            if (p0 == null || p0.trim().isEmpty)
+              return l10n.validation_GroupDescription_Empty;
             if (p0.trim() == defaultText)
-              return "New description is not changed";
+              return l10n.validation_GroupDescription_Unchanged;
             return Validators.validateGroupDescription(p0)
                 ? null
-                : "Invalid description";
+                : l10n.validation_GroupDescription_Invalid;
           },
-          label: "Group Description",
+          label: l10n.groupPopup_GroupDescription_Label,
           defaultText: defaultText,
         )
       ],
       barrierDismissible: true,
       blurBackground: false,
-      title: "Edit Group description",
-      confirmText: "Save",
+      title: l10n.groupPopup_EditDescription,
+      confirmText: l10n.save,
     );
 
     return data.isEmpty ? null : data[0];
@@ -64,49 +71,26 @@ class GroupPopups {
 
   static Future<String?> removeUserFromGroupPopup(
       BuildContext context, String username) async {
+    final l10n = AppLocalizations.of(context);
     List<String> data = await Dialogs.showTextFieldDialog(
       context,
       fields: [
         DialogFieldData(
           validation: (p0) {
-            if (p0 == null || p0.trim().isEmpty) return "Empty Username";
+            if (p0 == null || p0.trim().isEmpty)
+              return l10n.validation_Username_Empty;
             return Validators.validateUsername(p0.trim())
                 ? null
-                : "Invalid Username";
+                : l10n.validation_Username_Invalid;
           },
-          label: "Username",
+          label: l10n.signUpPage_Username,
           defaultHintText: username,
         )
       ],
       barrierDismissible: true,
       blurBackground: false,
-      title: "Are you sure you want to remove user from group?",
-      confirmText: "Remove",
-    );
-
-    return data.isEmpty ? null : data[0];
-  }
-
-  static Future<String?> createTaskPopup(BuildContext context) async {
-    List<String> data = await Dialogs.showTextFieldDialog(
-      context,
-      fields: [
-        DialogFieldData(
-            autofocus: true,
-            label: "Task Title",
-            defaultHintText: "Enter the title",
-            validation: (p0) {
-              if (p0 == null || p0.trim().isEmpty) return "Empty task title";
-
-              return Validators.validateGroupTitle(p0)
-                  ? null
-                  : "Invalid task title";
-            })
-      ],
-      barrierDismissible: true,
-      blurBackground: false,
-      title: "Add a New Task",
-      confirmText: "Add",
+      title: l10n.groupPopup_RemoveUser_Title,
+      confirmText: l10n.remove,
     );
 
     return data.isEmpty ? null : data[0];
@@ -114,37 +98,37 @@ class GroupPopups {
 
   static Future<({String title, String description})?> createGroupPopup(
       BuildContext context) async {
+    final l10n = AppLocalizations.of(context);
     List<String> data = await Dialogs.showTextFieldDialog(
       context,
       fields: [
         DialogFieldData(
             autofocus: true,
-            label: "Group Title",
-            defaultHintText: "Enter the title",
+            label: l10n.groupPopup_GroupTitle_Label,
+            defaultHintText: l10n.groupPopup_GroupTitle_Hint,
             validation: (p0) {
-              if (p0 == null || p0.trim().isEmpty) return "Empty group title";
-
+              if (p0 == null || p0.trim().isEmpty)
+                return l10n.validation_GroupTitle_Create_Empty;
               return Validators.validateGroupTitle(p0)
                   ? null
-                  : "Invalid group title";
+                  : l10n.validation_GroupTitle_Create_Invalid;
             }),
         DialogFieldData(
             multiLine: true,
-            label: "Task Description",
-            defaultHintText: "Enter the description",
+            label: l10n.groupPopup_GroupDescription_Label,
+            defaultHintText: l10n.groupPopup_GroupDescription_Hint,
             validation: (p0) {
               if (p0 == null || p0.trim().isEmpty)
-                return "Empty group description";
-
+                return l10n.validation_GroupDescription_Create_Empty;
               return Validators.validateGroupDescription(p0)
                   ? null
-                  : "Invalid group description";
+                  : l10n.validation_GroupDescription_Create_Invalid;
             })
       ],
       barrierDismissible: true,
       blurBackground: false,
-      title: "New Group",
-      confirmText: "Create",
+      title: l10n.groupPopup_CreateGroup_Title,
+      confirmText: l10n.create,
     );
 
     if (data.isEmpty) return null;
@@ -159,11 +143,12 @@ class GroupPopups {
       required VoidCallback onDeleteGroup,
       required VoidCallback onLeaveGroup,
       required bool isOwner}) async {
+    final l10n = AppLocalizations.of(context);
     await Dialogs.showContentDialog(
       context,
       barrierDismissible: true,
       blurBackground: false,
-      title: "More Options",
+      title: l10n.moreOptions,
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -184,17 +169,13 @@ class GroupPopups {
                     size: 24,
                     color: Theme.of(context).colorScheme.outline,
                   ),
-                  const SizedBox(
-                    width: 17,
-                  ),
-                  Text("More Info About This Group",
+                  const SizedBox(width: 17),
+                  Text(l10n.groupPopup_MoreInfo,
                       style: TextStyle(
                           color: Theme.of(context).colorScheme.outline)),
                 ],
               )),
-          const SizedBox(
-            height: 8,
-          ),
+          const SizedBox(height: 8),
           // Rename group
           if (isOwner)
             Padding(
@@ -215,10 +196,8 @@ class GroupPopups {
                         size: 24,
                         color: Theme.of(context).colorScheme.outline,
                       ),
-                      const SizedBox(
-                        width: 17,
-                      ),
-                      Text("Rename Group",
+                      const SizedBox(width: 17),
+                      Text(l10n.groupPopup_RenameGroup,
                           style: TextStyle(
                               color: Theme.of(context).colorScheme.outline)),
                     ],
@@ -243,10 +222,10 @@ class GroupPopups {
               child: Row(
                 children: [
                   const Icon(Icons.exit_to_app_outlined, size: 24),
-                  const SizedBox(
-                    width: 17,
-                  ),
-                  Text(isOwner ? "Delete Group" : "Leave Group"),
+                  const SizedBox(width: 17),
+                  Text(isOwner
+                      ? l10n.groupPopup_DeleteGroup
+                      : l10n.groupPopup_LeaveGroup),
                 ],
               )),
         ],
@@ -267,11 +246,14 @@ class GroupPopups {
     Future onConfirm(
         String username, void Function(void Function()) setState) async {
       isLoading = true;
+      final l10n = AppLocalizations.of(context);
+
       // If the text field is empty, we confirm selection and return it
       if (textEditingController.text.isEmpty) {
         if (users.isEmpty) {
           if (!context.mounted) return;
-          SnackBarAlerts.showAlertSnackBar("No users selected", context);
+          SnackBarAlerts.showAlertSnackBar(
+              l10n.groupPopup_Alert_NoUsersSelected, context);
         }
         Navigator.of(context).pop(users);
         return;
@@ -285,7 +267,8 @@ class GroupPopups {
       if (members.where((user) => user.username == username).firstOrNull?.id ==
           ownerId) {
         if (!context.mounted) return;
-        SnackBarAlerts.showAlertSnackBar("You can't add yourself", context);
+        SnackBarAlerts.showAlertSnackBar(
+            l10n.groupPopup_Alert_CantAddSelf, context);
         return;
       }
 
@@ -299,7 +282,8 @@ class GroupPopups {
                   user.username.toLowerCase() == username.toLowerCase())
               .isNotEmpty) {
         if (!context.mounted) return;
-        SnackBarAlerts.showAlertSnackBar("User already added", context);
+        SnackBarAlerts.showAlertSnackBar(
+            l10n.groupPopup_Alert_UserAlreadyAdded, context);
         return;
       }
 
@@ -309,7 +293,8 @@ class GroupPopups {
       // If the user was not found, we show an error
       if (addedUser == null) {
         if (!context.mounted) return;
-        SnackBarAlerts.showErrorSnackBar("User not found", context);
+        SnackBarAlerts.showErrorSnackBar(
+            l10n.groupPopup_Error_UserNotFound, context);
         return;
       }
       // If the user was found, we add it to the list
@@ -329,8 +314,9 @@ class GroupPopups {
     return await Dialogs.showContentDialog<List<User>?>(context,
         barrierDismissible: true,
         blurBackground: false,
-        title: "Add a New Member",
+        title: AppLocalizations.of(context).groupPopup_AddMember_Title,
         content: StatefulBuilder(builder: (context, setState) {
+      final l10n = AppLocalizations.of(context);
       return Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -341,14 +327,14 @@ class GroupPopups {
               controller: textEditingController,
               validator: (arg) {
                 if (arg == null || arg.trim().isEmpty) {
-                  return "Empty username";
+                  return l10n.validation_Username_Empty;
                 }
                 return Validators.validateUsername(arg)
                     ? null
-                    : "Invalid username";
+                    : l10n.validation_Username_Invalid;
               },
-              labelText: "Member Username",
-              hintText: AppLocalizations.of(context).signUpPage_Username_Field,
+              labelText: l10n.signUpPage_Username,
+              hintText: l10n.signUpPage_Username_Field,
               suffixIcon:
                   textEditingController.text.isEmpty ? null : Icons.close,
               onSuffixIconPressed: () {
@@ -360,9 +346,7 @@ class GroupPopups {
                 setState(() {});
               },
               keyboardType: TextInputType.name),
-          const SizedBox(
-            height: 24,
-          ),
+          const SizedBox(height: 24),
           // USERS
           ConstrainedBox(
             constraints: const BoxConstraints(maxHeight: 100),
@@ -422,10 +406,7 @@ class GroupPopups {
               ),
             ),
           ),
-          if (users.isNotEmpty)
-            const SizedBox(
-              height: 24,
-            ),
+          if (users.isNotEmpty) const SizedBox(height: 24),
           // ADD
           AppButton(
               size: AppButtonSize.small,
@@ -438,8 +419,8 @@ class GroupPopups {
                   isLoading = false;
                 }
               },
-              child:
-                  Text(textEditingController.text.isEmpty ? "Confirm" : "Add"))
+              child: Text(
+                  textEditingController.text.isEmpty ? l10n.confirm : l10n.add))
         ],
       );
     }));

@@ -8,16 +8,18 @@ import 'package:syncora_frontend/core/data/enums/database_tables.dart';
 import 'package:syncora_frontend/features/authentication/models/session.dart';
 import 'package:syncora_frontend/features/authentication/models/tokens_dto.dart';
 import 'package:syncora_frontend/features/authentication/models/user.dart';
+import 'package:syncora_frontend/features/users/repositories/local_users_repository.dart';
 
 // This class loads user data on startup and stores tokens in memory when fetched to be used for subsequent requests
 class SessionStorage {
   final FlutterSecureStorage _secureStorage;
   final SharedPreferences _sharedPreferences;
   final DatabaseManager _databaseManager;
+  final LocalUsersRepository _usersRepository;
 
   static const _accessTokenKey = 'jwt_token';
   static const _refreshTokenKey = 'refresh_token';
-  static const _userKey = 'user';
+  static const _userIdKey = 'user';
   static const _isVerifiedKey = 'isVerified';
 
   TokensDTO? _cachedTokens;
@@ -27,10 +29,12 @@ class SessionStorage {
   SessionStorage(
       {required secureStorage,
       required sharedPreferences,
-      required databaseManager})
+      required databaseManager,
+      required usersRepository})
       : _secureStorage = secureStorage,
         _sharedPreferences = sharedPreferences,
-        _databaseManager = databaseManager;
+        _databaseManager = databaseManager,
+        _usersRepository = usersRepository;
 
   Future<TokensDTO?> loadTokens() async {
     String? cachedAccessToken = await _secureStorage.read(key: _accessTokenKey);
@@ -46,18 +50,16 @@ class SessionStorage {
   }
 
   Future<Session?> loadSession() async {
-    String? userJson = _sharedPreferences.getString(_userKey);
+    int? userId = _sharedPreferences.getInt(_userIdKey);
 
-    if (userJson != null) {
+    if (userId != null) {
       TokensDTO? tokens = await loadTokens();
 
       bool isVerified =
           bool.parse(_sharedPreferences.getString(_isVerifiedKey) ?? 'false');
 
-      Session? session = Session(
-          user: User.fromJson(json.decode(userJson)),
-          isVerified: isVerified,
-          tokens: tokens);
+      Session? session =
+          Session(userId: userId, isVerified: isVerified, tokens: tokens);
 
       _cachedTokens = tokens;
       return session;
@@ -69,13 +71,8 @@ class SessionStorage {
 
   Future<void> saveSession(
       {required User user, TokensDTO? tokens, required bool isVerified}) async {
-    var db = await _databaseManager.getDatabase();
-
-    var userJson = user.toJson();
-    userJson.addAll({"isMainUser": 1});
-
-    db.insert(DatabaseTables.users, userJson);
-    await _sharedPreferences.setString(_userKey, json.encode(user));
+    await _usersRepository.upsertUsers([user]);
+    await _sharedPreferences.setInt(_userIdKey, user.id);
     await _sharedPreferences.setString(_isVerifiedKey, isVerified.toString());
     await updateTokens(
         accessToken: tokens?.accessToken, refreshToken: tokens?.refreshToken);
@@ -97,7 +94,7 @@ class SessionStorage {
     await Future.wait([
       _secureStorage.delete(key: _accessTokenKey),
       _secureStorage.delete(key: _refreshTokenKey),
-      _sharedPreferences.remove(_userKey),
+      _sharedPreferences.remove(_userIdKey),
       _sharedPreferences.remove(_isVerifiedKey)
     ]);
   }

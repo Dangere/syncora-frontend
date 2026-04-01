@@ -1,5 +1,3 @@
-import 'package:syncora_frontend/features/authentication/models/user.dart';
-
 /// Authentication states representing different user authentication scenarios.
 /// Each state represents a distinct authentication status in the application.
 abstract class AuthState {
@@ -7,18 +5,16 @@ abstract class AuthState {
 }
 
 class AuthAuthenticated extends AuthState {
-  final User user;
+  final int userId;
   final bool isVerified;
-  const AuthAuthenticated(this.user, this.isVerified);
+  const AuthAuthenticated(this.userId, this.isVerified);
 
-  AuthAuthenticated copyWith({User? user, bool? isVerified}) =>
-      AuthAuthenticated(user ?? this.user, isVerified ?? this.isVerified);
+  AuthAuthenticated copyWith({int? userId, bool? isVerified}) =>
+      AuthAuthenticated(userId ?? this.userId, isVerified ?? this.isVerified);
 }
 
 class AuthGuest extends AuthState {
-  final User user;
-
-  const AuthGuest(this.user);
+  const AuthGuest();
 }
 
 class AuthUnauthenticated extends AuthState {
@@ -33,9 +29,9 @@ extension AuthStateX on AuthState {
   bool get isUnauthenticated => this is AuthUnauthenticated;
 
   bool get isGuest => this is AuthGuest;
-  User? get user => switch (this) {
-        AuthAuthenticated u => u.user,
-        AuthGuest g => g.user,
+  int? get userId => switch (this) {
+        AuthAuthenticated u => u.userId,
+        AuthGuest g => -1,
         _ => null,
       };
 }

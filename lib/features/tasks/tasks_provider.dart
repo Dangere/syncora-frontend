@@ -27,11 +27,11 @@ final remoteTasksRepositoryProvider = Provider<RemoteTasksRepository>((ref) {
 
 final tasksServiceProvider = Provider<TasksService>((ref) {
   return TasksService(
-    authState: ref.watch(authProvider).asData!.value,
-    localTasksRepository: ref.watch(localTasksRepositoryProvider),
-    remoteTasksRepository: ref.watch(remoteTasksRepositoryProvider),
-    enqueueEntry: (enqueueRequest) =>
+    ref.watch(localTasksRepositoryProvider),
+    ref.watch(remoteTasksRepositoryProvider),
+    (enqueueRequest) =>
         ref.read(outboxProvider.notifier).enqueue(enqueueRequest),
+    ref.watch(authStateProvider),
   );
 });
 
@@ -199,7 +199,7 @@ class TasksNotifier extends AutoDisposeFamilyAsyncNotifier<List<Task>, int> {
   }
 
   int _userId() {
-    return ref.read(authProvider).value!.user!.id;
+    return ref.read(authProvider).value!.userId!;
   }
 
   bool isOwner() {

@@ -22,6 +22,7 @@ import 'package:syncora_frontend/core/utils/snack_bar_alerts.dart';
 import 'package:syncora_frontend/features/authentication/models/auth_state.dart';
 import 'package:syncora_frontend/features/authentication/models/user.dart';
 import 'package:syncora_frontend/features/authentication/auth_provider.dart';
+import 'package:syncora_frontend/features/groups/models/group.dart';
 import 'package:syncora_frontend/features/groups/models/group_dto.dart';
 import 'package:syncora_frontend/features/groups/models/group_progress.dart';
 import 'package:syncora_frontend/features/groups/repositories/statistics_repository.dart';
@@ -35,7 +36,7 @@ class Tests {
   // But i was expecting it as an int like how the local db handles bools
 
   static void test_print_user_progress(WidgetRef ref) async {
-    int userId = ref.read(authProvider).value!.user!.id;
+    int userId = ref.read(authProvider).value!.userId!;
 
     List<GroupProgress> progress = await ref
         .read(groupStatisticsProvider)
@@ -85,8 +86,7 @@ class Tests {
 
   // 1. The problem started here were i was not getting the task completed despite it being set to true
   static void test_Inserting_Tasks_LocalDb(WidgetRef ref) async {
-    int userId =
-        ref.read(authProvider.select((value) => value.value!.user!.id));
+    int userId = ref.read(authProvider.select((value) => value.value!.userId!));
 
     // Creating group
     GroupDTO group = GroupDTO(
@@ -329,6 +329,64 @@ class Tests {
     }
   }
 
+  static void populate_groups_and_tasks(WidgetRef ref) async {
+// Group 1: The Unhinged Political/Social Calendar
+    Result<Group> group1 = await ref
+        .read(groupsServiceProvider)
+        .createGroup("Weekend Plans", "things to do this weekend");
+    int group1Id = group1.data!.id;
+    await ref
+        .read(tasksServiceProvider)
+        .createTask(groupId: group1Id, title: "attend charlie kirk's debate");
+    await ref
+        .read(tasksServiceProvider)
+        .createTask(groupId: group1Id, title: "Donate 7000 to israel");
+    await ref.read(tasksServiceProvider).createTask(
+        groupId: group1Id, title: "have an eyebrow hair transplant");
+    await ref.read(tasksServiceProvider).createTask(
+        groupId: group1Id, title: "Return jordan peterson book to abdul");
+
+// Group 2: The Dementia Arc
+    Result<Group> group2 =
+        await ref.read(groupsServiceProvider).createGroup("Daily Routine", "");
+    int group2Id = group2.data!.id;
+    await ref
+        .read(tasksServiceProvider)
+        .createTask(groupId: group2Id, title: "Take meds for dementia");
+    await ref
+        .read(tasksServiceProvider)
+        .createTask(groupId: group2Id, title: "Ttake meds for dementia");
+    await ref
+        .read(tasksServiceProvider)
+        .createTask(groupId: group2Id, title: "Take meds for dementia");
+    await ref
+        .read(tasksServiceProvider)
+        .createTask(groupId: group2Id, title: "call mike (or was it joe?)");
+    await ref.read(tasksServiceProvider).createTask(
+        groupId: group2Id, title: "remember why i walked into the kitchen");
+
+// Group 3: The Statue/Bug Spiral
+    Result<Group> group3 = await ref
+        .read(groupsServiceProvider)
+        .createGroup("Errands", "misc stuff");
+    int group3Id = group3.data!.id;
+    await ref
+        .read(tasksServiceProvider)
+        .createTask(groupId: group3Id, title: "sell that weird statue on ebey");
+    await ref
+        .read(tasksServiceProvider)
+        .createTask(groupId: group3Id, title: "buy a bug spray");
+    await ref
+        .read(tasksServiceProvider)
+        .createTask(groupId: group3Id, title: "throw away the statue");
+    await ref.read(tasksServiceProvider).createTask(
+        groupId: group3Id,
+        title: "Google if its normal to feel bugs under your skin");
+    await ref.read(tasksServiceProvider).createTask(
+        groupId: group3Id,
+        title: "The bugs under my skin require a new sacrifice");
+  }
+
   static void test_profile_picture(WidgetRef ref, BuildContext context) async {
     Result<XFile?> imagePicked =
         await ref.read(imageServiceProvider).pickImage(ImageSource.gallery);
@@ -372,13 +430,13 @@ class Tests {
     }
   }
 
-  static void update_user_object_state(WidgetRef ref) async {
-    User currentUser = ref.read(authProvider).value!.user!;
+  // static void update_user_object_state(WidgetRef ref) async {
+  //   User currentUser = ref.read(authProvider).value!.userId!;
 
-    ref.read(authProvider.notifier).updateUser(currentUser.copyWith(
-        pfpURL:
-            "https://wallpapers-clan.com/wp-content/uploads/2023/06/cool-pfp-03.jpg"));
-  }
+  //   // ref.read(authProvider.notifier).updateUser(currentUser.copyWith(
+  //   //     pfpURL:
+  //   //         "https://wallpapers-clan.com/wp-content/uploads/2023/06/cool-pfp-03.jpg"));
+  // }
 
   static Future<void> printDb(Database db) async {
     var tasksRawQuery =

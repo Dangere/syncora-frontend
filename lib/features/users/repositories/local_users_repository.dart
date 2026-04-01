@@ -8,18 +8,6 @@ class LocalUsersRepository {
 
   LocalUsersRepository(this._databaseManager);
 
-  Future<void> upsertUser(User user) async {
-    final db = await _databaseManager.getDatabase();
-
-    await db.transaction((txn) async {
-      await txn.insert(
-        DatabaseTables.users,
-        user.toJson(),
-        conflictAlgorithm: ConflictAlgorithm.replace,
-      );
-    });
-  }
-
   Future<void> upsertUsers(List<User> users) async {
     final db = await _databaseManager.getDatabase();
 
@@ -92,10 +80,10 @@ class LocalUsersRepository {
   }
 
   // Removes users that dont belong to any group, except for the actual device user
-  Future<void> purgeOrphanedUsers() async {
+  Future<void> purgeOrphanedUsers(int userId) async {
     final db = await _databaseManager.getDatabase();
     await db.rawQuery(
-        "DELETE FROM ${DatabaseTables.users} WHERE isMainUser = 0 AND id NOT IN (SELECT userId FROM ${DatabaseTables.groupsMembers}) AND id NOT IN (SELECT ownerUserId FROM ${DatabaseTables.groups});");
+        "DELETE FROM ${DatabaseTables.users} WHERE id != $userId AND id NOT IN (SELECT userId FROM ${DatabaseTables.groupsMembers}) AND id NOT IN (SELECT ownerUserId FROM ${DatabaseTables.groups});");
   }
 
   Future<String?> userProfileUrl(int userId) async {
@@ -110,5 +98,26 @@ class LocalUsersRepository {
       return url;
     }
     return null;
+  }
+
+  Future<int> updateUserDetails(int userId,
+      {String? email,
+      String? username,
+      String? firstName,
+      String? lastName,
+      String? pfpUrl}) async {
+    final db = await _databaseManager.getDatabase();
+
+    Map<String, Object?> values = {
+      if (email != null) "email": email,
+      if (username != null) "username": username,
+      if (firstName != null) "firstName": firstName,
+      if (lastName != null) "lastName": lastName,
+      if (pfpUrl != null) "profilePictureURL": pfpUrl
+    };
+    if (values.isEmpty) return 0;
+
+    return await db.update(DatabaseTables.users, values,
+        where: "id = ?", whereArgs: [userId]);
   }
 }
