@@ -24,36 +24,47 @@ class ProfilePicture extends ConsumerWidget {
         child: SizedBox.square(
           dimension: radius != null ? radius! * 2 : null,
           child: AspectRatio(
-            aspectRatio: 1,
-            child: FutureBuilder(
-              future: ref.watch(
-                  userProfileImageProvider((userId: userId, imageUrl: imageUrl))
-                      .future),
-              builder: (context, snapshot) {
-                if (snapshot.hasError) {
-                  ref.read(loggerProvider).e(snapshot.error);
-
-                  return const Icon(
-                    Icons.error,
-                  );
-                }
-
-                if (snapshot.data != null) {
-                  return Image.memory(
-                    fit: BoxFit.cover,
-                    snapshot.data!,
-                  );
-                } else {
-                  return CircleAvatar(
-                    radius: radius,
-                    child: const Icon(
-                      Icons.person,
-                    ),
-                  );
-                }
-              },
-            ),
-          ),
+              aspectRatio: 1,
+              child: ref
+                  .watch(userProfileImageProvider(
+                      (userId: userId, imageUrl: imageUrl)))
+                  .when(
+                    skipLoadingOnRefresh: true,
+                    skipLoadingOnReload: true,
+                    skipError: true,
+                    data: (data) {
+                      if (data != null) {
+                        return Image.memory(
+                          fit: BoxFit.cover,
+                          data,
+                        );
+                      } else {
+                        return CircleAvatar(
+                          radius: radius,
+                          child: Icon(
+                            Icons.person,
+                            size: radius,
+                          ),
+                        );
+                      }
+                    },
+                    error: (error, stackTrace) {
+                      ref.read(loggerProvider).e(error, stackTrace: stackTrace);
+                      return Icon(
+                        Icons.error,
+                        size: radius,
+                      );
+                    },
+                    loading: () {
+                      return CircleAvatar(
+                        radius: radius,
+                        child: Icon(
+                          Icons.person,
+                          size: radius,
+                        ),
+                      );
+                    },
+                  )),
         ),
       ),
     );
