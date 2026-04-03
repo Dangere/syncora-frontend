@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:collection';
-import 'dart:convert';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:signalr_netcore/hub_connection.dart';
@@ -23,7 +22,7 @@ class SyncBackendNotifier extends AsyncNotifier<SyncState>
     with WidgetsBindingObserver {
   // When this is enabled, on each time the event payload is received from signalR
   // A fetch call to the state payload will be called to compare both event vs state data, which should be almost the same
-  final bool _debugEventPayloadCheck = false;
+  // final bool _debugEventPayloadCheck = false;
   bool _isProcessing = false;
   Queue<SyncPayload> _payloadQueue = Queue<SyncPayload>();
 
@@ -98,8 +97,8 @@ class SyncBackendNotifier extends AsyncNotifier<SyncState>
         await ref.read(syncServiceProvider).mapPayload(parameter);
 
     if (!result.isSuccess) {
-      state = AsyncValue.error(result.error!.errorObject,
-          result.error!.stackTrace ?? StackTrace.current);
+      state =
+          AsyncValue.error(result.error!.errorObject, result.error!.stackTrace);
       return;
     }
     _payloadQueue.add(result.data!);
@@ -114,8 +113,8 @@ class SyncBackendNotifier extends AsyncNotifier<SyncState>
         await ref.read(syncServiceProvider).fetchPayload();
 
     if (!result.isSuccess) {
-      state = AsyncValue.error(result.error!.errorObject,
-          result.error!.stackTrace ?? StackTrace.current);
+      state =
+          AsyncValue.error(result.error!.errorObject, result.error!.stackTrace);
       return;
     }
     _payloadQueue.add(result.data!);
@@ -134,8 +133,8 @@ class SyncBackendNotifier extends AsyncNotifier<SyncState>
           await ref.read(syncServiceProvider).processPayload(payload);
 
       if (!result.isSuccess) {
-        state = AsyncValue.error(result.error!.errorObject,
-            result.error!.stackTrace ?? StackTrace.current);
+        state = AsyncValue.error(
+            result.error!.errorObject, result.error!.stackTrace);
 
         ref.read(appErrorProvider.notifier).state = result.error;
         return;
@@ -178,7 +177,7 @@ final syncServiceProvider = Provider<SyncService>((ref) {
       ref.watch(localGroupsRepositoryProvider),
       ref.watch(localTasksRepositoryProvider),
       ref.watch(localUsersRepositoryProvider),
-      ref.watch(authStateProvider));
+      authStateFactory: () => ref.read(authStateProvider));
 });
 
 final syncRepositoryProvider = Provider<SyncRepository>((ref) {

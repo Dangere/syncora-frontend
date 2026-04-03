@@ -9,7 +9,7 @@ import 'package:syncora_frontend/core/utils/app_error.dart';
 import 'package:syncora_frontend/core/utils/result.dart';
 import 'package:syncora_frontend/features/authentication/auth_provider.dart';
 import 'package:syncora_frontend/features/authentication/models/auth_state.dart';
-import 'package:syncora_frontend/features/authentication/models/user.dart';
+import 'package:syncora_frontend/features/users/models/user.dart';
 import 'package:syncora_frontend/features/groups/groups_provider.dart';
 import 'package:syncora_frontend/features/tasks/models/task.dart';
 import 'package:syncora_frontend/features/tasks/repositories/local_tasks_repository.dart';
@@ -29,9 +29,9 @@ final tasksServiceProvider = Provider<TasksService>((ref) {
   return TasksService(
     ref.watch(localTasksRepositoryProvider),
     ref.watch(remoteTasksRepositoryProvider),
-    (enqueueRequest) =>
+    enqueueEntry: (enqueueRequest) =>
         ref.read(outboxProvider.notifier).enqueue(enqueueRequest),
-    ref.watch(authStateProvider),
+    authStateFactory: () => ref.read(authStateProvider),
   );
 });
 

@@ -1,21 +1,33 @@
-import 'package:image_picker/image_picker.dart';
-import 'package:logger/logger.dart';
-import 'package:syncora_frontend/core/image/image_service.dart';
+import 'dart:convert';
+
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:syncora_frontend/core/network/outbox/model/enqueue_request.dart';
+import 'package:syncora_frontend/core/network/outbox/model/outbox_entry.dart';
+import 'package:syncora_frontend/core/network/outbox/model/outbox_payload.dart';
+import 'package:syncora_frontend/core/typedef.dart';
 import 'package:syncora_frontend/core/utils/result.dart';
 import 'package:syncora_frontend/features/authentication/models/auth_state.dart';
-import 'package:syncora_frontend/features/authentication/models/user.dart';
+import 'package:syncora_frontend/features/users/models/user.dart';
+import 'package:syncora_frontend/features/users/models/user_preferences.dart';
 import 'package:syncora_frontend/features/users/repositories/local_users_repository.dart';
 import 'package:syncora_frontend/features/users/repositories/remote_users_repository.dart';
 
 class UsersService {
   final LocalUsersRepository _localUsersRepository;
   final RemoteUsersRepository _remoteUsersRepository;
-  final AuthState _authState;
+  final SharedPreferences _sharedPreferences;
 
-  UsersService(
-      this._localUsersRepository, this._remoteUsersRepository, this._authState);
+  final AuthState Function() _authStateFactory;
+  final AsyncFunc<EnqueueRequest, Result<void>> _enqueueEntry;
 
-  // final Map<int, Uint8List?> _userProfilePictures = {};
+  static const _userPreferencesKey = 'userPreferences';
+
+  UsersService(this._localUsersRepository, this._remoteUsersRepository,
+      this._sharedPreferences,
+      {required AuthState Function() authStateFactory,
+      required Future<Result<void>> Function(EnqueueRequest) enqueueEntry})
+      : _authStateFactory = authStateFactory,
+        _enqueueEntry = enqueueEntry;
 
   Future<Result<User>> findUser(String username) async {
     try {
@@ -54,15 +66,14 @@ class UsersService {
   }
 
   Future<Result<void>> updateProfilePicture(String url) async {
-    if (!_authState.isAuthenticated && !_authState.isGuest) {
-      return Result.failureMessage(
-          "Can't upload profile picture when not logged in");
+    if (!_authStateFactory().isAuthenticated && !_authStateFactory().isGuest) {
+      return Result.canceled("Can't upload profile picture when not logged in");
     }
     try {
       // Updating the user profile picture using the url
       await _remoteUsersRepository.updateUserProfilePicture(url);
 
-      await _localUsersRepository.updateUserDetails(_authState.userId!,
+      await _localUsersRepository.updateUserDetails(_authStateFactory().userId!,
           pfpUrl: url);
 
       return Result.success();
@@ -74,12 +85,78 @@ class UsersService {
   Future<Result<void>> updateProfile(
       {String? username, String? firstName, String? lastName}) async {
     try {
-      await _remoteUsersRepository.updateUserProfile(
+      if (!_authStateFactory().isAuthenticated) {
+        await _remoteUsersRepository.updateUserProfile(
+            username: username, firstName: firstName, lastName: lastName);
+      }
+
+      await _localUsersRepository.updateUserDetails(_authStateFactory().userId!,
           username: username, firstName: firstName, lastName: lastName);
 
-      await _localUsersRepository.updateUserDetails(_authState.userId!,
-          username: username, firstName: firstName, lastName: lastName);
+      return Result.success();
+    } catch (e, stackTrace) {
+      return Result.failure(e, stackTrace);
+    }
+  }
 
+  Future<Result<void>> updatePreferences(
+      {bool? darkMode, String? languageCode}) async {
+    if (_authStateFactory().isUnauthenticated)
+      return Result.canceled("Unauthenticated update to user preferences");
+
+    Result enqueueResult = await _enqueueEntry(EnqueueRequest(
+      entry: OutboxEntry.entry(
+        entityId: _authStateFactory().userId!,
+        entityType: OutboxEntityType.user,
+        actionType: OutboxActionType.update,
+        payload: UpdateUserPreferencesPayload(
+          darkMode: darkMode,
+          languageCode: languageCode,
+        ),
+      ),
+      onAfterEnqueue: () async {
+        return Result.success();
+      },
+    ));
+    if (!enqueueResult.isSuccess && !enqueueResult.isCancelled) {
+      return Result.failure(
+          enqueueResult.error!, enqueueResult.error!.stackTrace);
+    }
+    return Result.success();
+  }
+
+  // Saves the main user preferences
+  Future<Result<UserPreferences>> getPreferences() async {
+    try {
+      String? preferences = _sharedPreferences.getString(_userPreferencesKey);
+
+      if (preferences != null) {
+        return Result.success(
+            UserPreferences.fromJson(jsonDecode(preferences)));
+      } else {
+        return Result.failure(
+            Exception("User preferences not found"), StackTrace.current);
+      }
+    } catch (e, stackTrace) {
+      return Result.failure(e, stackTrace);
+    }
+  }
+
+  // Saves the main user preferences
+  Future<Result<void>> savePreferences(UserPreferences preferences) async {
+    try {
+      _sharedPreferences.setString(
+          _userPreferencesKey, jsonEncode(preferences));
+      return Result.success();
+    } catch (e, stackTrace) {
+      return Result.failure(e, stackTrace);
+    }
+  }
+
+  // Saves the main user object
+  Future<Result<void>> saveUser(User user) async {
+    try {
+      await _localUsersRepository.upsertUsers([user]);
       return Result.success();
     } catch (e, stackTrace) {
       return Result.failure(e, stackTrace);

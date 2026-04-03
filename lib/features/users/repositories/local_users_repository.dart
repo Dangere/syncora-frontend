@@ -1,7 +1,7 @@
 import 'package:sqflite/sqflite.dart';
 import 'package:syncora_frontend/core/data/database_manager.dart';
 import 'package:syncora_frontend/core/data/enums/database_tables.dart';
-import 'package:syncora_frontend/features/authentication/models/user.dart';
+import 'package:syncora_frontend/features/users/models/user.dart';
 
 class LocalUsersRepository {
   final DatabaseManager _databaseManager;

@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:dio/dio.dart';
 import 'package:syncora_frontend/core/constants/constants.dart';
 import 'package:syncora_frontend/features/authentication/models/auth_response_dto.dart';
-import 'package:syncora_frontend/features/authentication/models/tokens_dto.dart';
+import 'package:syncora_frontend/features/authentication/models/tokens.dart';
 
 class AuthRepository {
   final Dio _dio;
@@ -46,7 +46,7 @@ class AuthRepository {
     return authResponse;
   }
 
-  Future<TokensDTO> refreshAccessToken({required TokensDTO tokens}) async {
+  Future<Tokens> refreshAccessToken({required Tokens tokens}) async {
     // Using a different instance of Dio because the main instance is calling this method
     // To refresh tokens
     Dio dio = Dio();
@@ -60,7 +60,7 @@ class AuthRepository {
     String fetchedAccessToken = response.data['accessToken'] as String;
     String fetchedRefreshToken = response.data['refreshToken'] as String;
 
-    return TokensDTO(
+    return Tokens(
         accessToken: fetchedAccessToken, refreshToken: fetchedRefreshToken);
   }
 

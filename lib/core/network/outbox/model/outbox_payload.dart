@@ -17,6 +17,10 @@ extension OutboxPayloadX on OutboxPayload {
 
   MarkTaskPayload? get asMarkTaskPayload =>
       this is MarkTaskPayload ? this as MarkTaskPayload : null;
+  UpdateUserPreferencesPayload? get asUpdateUserPreferencesPayLoad =>
+      this is UpdateUserPreferencesPayload
+          ? this as UpdateUserPreferencesPayload
+          : null;
 }
 
 class UpdateGroupPayload extends OutboxPayload {
@@ -139,4 +143,25 @@ class MarkTaskPayload extends OutboxPayload {
       MarkTaskPayload(
           completedById: json["completedById"],
           isCompleted: json["isCompleted"]);
+}
+
+class UpdateUserPreferencesPayload extends OutboxPayload {
+  final bool? darkMode;
+  final String? languageCode;
+
+  UpdateUserPreferencesPayload({
+    this.darkMode,
+    this.languageCode,
+  }) : assert(darkMode != null || languageCode != null);
+  @override
+  Map<String, dynamic> toJson() {
+    return {
+      if (darkMode != null) "darkMode": darkMode,
+      if (languageCode != null) "languageCode": languageCode,
+    };
+  }
+
+  factory UpdateUserPreferencesPayload.fromJson(Map<String, dynamic> json) =>
+      UpdateUserPreferencesPayload(
+          darkMode: json["darkMode"], languageCode: json["languageCode"]);
 }

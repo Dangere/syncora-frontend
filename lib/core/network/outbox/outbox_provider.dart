@@ -10,6 +10,7 @@ import 'package:syncora_frontend/core/network/outbox/outbox_id_mapper.dart';
 import 'package:syncora_frontend/core/network/outbox/outbox_service.dart';
 import 'package:syncora_frontend/core/network/outbox/processors/groups_processor.dart';
 import 'package:syncora_frontend/core/network/outbox/processors/tasks_processor.dart';
+import 'package:syncora_frontend/core/network/outbox/processors/user_processor.dart';
 import 'package:syncora_frontend/core/network/outbox/repository/outbox_repository.dart';
 import 'package:syncora_frontend/core/network/syncing/sync_provider.dart';
 import 'package:syncora_frontend/core/utils/error_mapper.dart';
@@ -17,6 +18,7 @@ import 'package:syncora_frontend/core/utils/result.dart';
 import 'package:syncora_frontend/features/authentication/auth_provider.dart';
 import 'package:syncora_frontend/features/groups/groups_provider.dart';
 import 'package:syncora_frontend/features/tasks/tasks_provider.dart';
+import 'package:syncora_frontend/features/users/providers/users_provider.dart';
 
 class OutboxNotifier extends AsyncNotifier<OutboxStatus>
     with WidgetsBindingObserver {
@@ -87,8 +89,18 @@ class OutboxNotifier extends AsyncNotifier<OutboxStatus>
           _isAwaiting = true;
         },
         onGroupSync: ref.read(groupsProvider.notifier).onOutboxGroupSynced,
-        onRevert: ref.read(groupsProvider.notifier).onOutboxRevert,
-        onSync: ref.read(groupsProvider.notifier).onOutboxSync);
+        onRevert: (entityId, entityType) {
+          if (entityType == OutboxEntityType.group ||
+              entityType == OutboxEntityType.task) {
+            ref.read(groupsProvider.notifier).onOutboxRevert(entityId);
+          }
+        },
+        onSync: (entityId, entityType) {
+          if (entityType == OutboxEntityType.group ||
+              entityType == OutboxEntityType.task) {
+            ref.read(groupsProvider.notifier).onOutboxSync(entityId);
+          }
+        });
 
     if (!result.isSuccess && !result.isCancelled) {
       ref.read(appErrorProvider.notifier).state = result.error;
@@ -176,7 +188,8 @@ final outboxServiceProvider = Provider<OutboxService>((ref) {
       outboxRepository: ref.watch(outboxRepositoryProvider),
       processors: {
         OutboxEntityType.task: ref.watch(tasksProcessorProvider),
-        OutboxEntityType.group: ref.watch(groupProcessorProvider),
+        OutboxEntityType.group: ref.watch(groupsProcessorProvider),
+        OutboxEntityType.user: ref.watch(userProcessorProvider)
       },
       idMapper: ref.watch(outboxIdMapperProvider));
 });
@@ -191,16 +204,27 @@ final outboxIdMapperProvider = Provider<OutboxIdMapper>((ref) {
 
 final tasksProcessorProvider = Provider<TasksProcessor>((ref) {
   return TasksProcessor(
-      localTasksRepository: ref.watch(localTasksRepositoryProvider),
-      remoteTasksRepository: ref.watch(remoteTasksRepositoryProvider),
-      logger: ref.read(loggerProvider),
-      idMapper: ref.watch(outboxIdMapperProvider));
+    ref.watch(outboxIdMapperProvider),
+    ref.read(loggerProvider),
+    ref.watch(localTasksRepositoryProvider),
+    ref.watch(remoteTasksRepositoryProvider),
+  );
 });
 
-final groupProcessorProvider = Provider<GroupsProcessor>((ref) {
+final groupsProcessorProvider = Provider<GroupsProcessor>((ref) {
   return GroupsProcessor(
-      localGroupsRepository: ref.watch(localGroupsRepositoryProvider),
-      remoteGroupsRepository: ref.watch(remoteGroupsRepositoryProvider),
-      logger: ref.read(loggerProvider),
-      idMapper: ref.watch(outboxIdMapperProvider));
+    ref.watch(outboxIdMapperProvider),
+    ref.read(loggerProvider),
+    ref.watch(localGroupsRepositoryProvider),
+    ref.watch(remoteGroupsRepositoryProvider),
+  );
+});
+
+final userProcessorProvider = Provider<UserProcessor>((ref) {
+  return UserProcessor(
+    ref.watch(outboxIdMapperProvider),
+    ref.read(loggerProvider),
+    ref.watch(localUsersRepositoryProvider),
+    ref.watch(remoteUsersRepositoryProvider),
+  );
 });

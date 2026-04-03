@@ -9,7 +9,7 @@ import 'package:syncora_frontend/core/utils/error_mapper.dart';
 import 'package:syncora_frontend/core/utils/result.dart';
 import 'package:syncora_frontend/features/authentication/models/auth_state.dart';
 import 'package:syncora_frontend/features/authentication/auth_provider.dart';
-import 'package:syncora_frontend/features/authentication/models/user.dart';
+import 'package:syncora_frontend/features/users/models/user.dart';
 import 'package:syncora_frontend/features/groups/models/group.dart';
 import 'package:syncora_frontend/features/groups/models/group_progress.dart';
 import 'package:syncora_frontend/features/groups/repositories/local_groups_repository.dart';
@@ -493,17 +493,12 @@ final groupStatisticsProvider = Provider<StatisticsRepository>((ref) {
 });
 
 final groupsServiceProvider = Provider<GroupsService>((ref) {
-  ConnectionStatus connectionStatus = ref.watch(connectionProvider);
-  var isOnline = connectionStatus == ConnectionStatus.connected ||
-      connectionStatus == ConnectionStatus.slow;
-
   return GroupsService(
-    ref.watch(localGroupsRepositoryProvider),
-    ref.watch(remoteGroupsRepositoryProvider),
-    ref.watch(groupStatisticsProvider),
-    (enqueueRequest) =>
-        ref.read(outboxProvider.notifier).enqueue(enqueueRequest),
-    ref.watch(authStateProvider),
-    isOnline,
-  );
+      ref.watch(localGroupsRepositoryProvider),
+      ref.watch(remoteGroupsRepositoryProvider),
+      ref.watch(groupStatisticsProvider),
+      enqueueEntry: (enqueueRequest) =>
+          ref.read(outboxProvider.notifier).enqueue(enqueueRequest),
+      authStateFactory: () => ref.read(authStateProvider),
+      isOnlineFactory: () => ref.read(connectionProvider.notifier).isOnline);
 });

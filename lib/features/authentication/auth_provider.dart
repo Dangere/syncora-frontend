@@ -9,32 +9,18 @@ import 'package:syncora_frontend/features/authentication/models/auth_response_dt
 import 'package:syncora_frontend/features/authentication/models/auth_state.dart';
 import 'package:syncora_frontend/features/authentication/models/google_register_user_info.dart';
 import 'package:syncora_frontend/features/authentication/models/session.dart';
-import 'package:syncora_frontend/features/authentication/models/tokens_dto.dart';
-import 'package:syncora_frontend/features/authentication/models/user.dart';
+import 'package:syncora_frontend/features/authentication/models/tokens.dart';
+import 'package:syncora_frontend/features/users/models/user.dart';
 import 'package:syncora_frontend/features/authentication/auth_repository.dart';
 import 'package:syncora_frontend/features/authentication/services/auth_service.dart';
 import 'package:syncora_frontend/features/authentication/services/session_storage.dart';
+import 'package:syncora_frontend/features/users/models/user_preferences.dart';
 import 'package:syncora_frontend/features/users/providers/users_provider.dart';
 
 // TODO: Implement guard for connection checking before methods
 
 class AuthNotifier extends AsyncNotifier<AuthState> {
   Completer? _refreshTokenCompleter;
-
-  // void updateUser(User newData) {
-  //   if (!state.hasValue &&
-  //       (!state.value!.isAuthenticated || !state.value!.isGuest)) {
-  //     return;
-  //   }
-
-  //   if (state.asData!.value.isGuest) {
-  //     state = AsyncValue.data(AuthGuest());
-  //     return;
-  //   }
-
-  //   state = AsyncValue.data(
-  //       state.asData!.value.asAuthenticated!.copyWith(user: newData));
-  // }
 
   void loginUsingGoogle() async {
     if (state.isLoading || _isLoggedIn) return;
@@ -44,20 +30,27 @@ class AuthNotifier extends AsyncNotifier<AuthState> {
     Result<AuthResponseDTO> result =
         await ref.read(authServiceProvider).loginWithGoogle();
 
-    if (result.isSuccess) {
-      // Save session
-      await ref.read(sessionStorageProvider).saveSession(
-          user: result.data!.user,
-          tokens: result.data!.tokens,
-          isVerified: result.data!.isVerified);
-
-      // Update state
-      state = AsyncValue.data(
-          AuthAuthenticated(result.data!.user.id, result.data!.isVerified));
-    } else {
+    if (!result.isSuccess) {
       ref.read(appErrorProvider.notifier).state = result.error!;
       state = const AsyncValue.data(AuthUnauthenticated());
     }
+
+    // Save session and user data
+    Result saveSessionResult = await _saveSession(
+        result.data!.user,
+        result.data!.isVerified,
+        result.data!.tokens,
+        result.data!.userPreferences);
+
+    if (!saveSessionResult.isSuccess) {
+      ref.read(appErrorProvider.notifier).state = saveSessionResult.error!;
+      state = const AsyncValue.data(AuthUnauthenticated());
+      return;
+    }
+
+    // Update state
+    state = AsyncValue.data(
+        AuthAuthenticated(result.data!.user.id, result.data!.isVerified));
   }
 
   void registerUsingGoogle(
@@ -70,20 +63,27 @@ class AuthNotifier extends AsyncNotifier<AuthState> {
         .read(authServiceProvider)
         .registerWithGoogle(afterAccountSelect);
 
-    if (result.isSuccess) {
-      // Save session
-      await ref.read(sessionStorageProvider).saveSession(
-          user: result.data!.user,
-          tokens: result.data!.tokens,
-          isVerified: result.data!.isVerified);
-
-      // Update state
-      state = AsyncValue.data(
-          AuthAuthenticated(result.data!.user.id, result.data!.isVerified));
-    } else {
+    if (!result.isSuccess) {
       ref.read(appErrorProvider.notifier).state = result.error!;
       state = const AsyncValue.data(AuthUnauthenticated());
     }
+
+    // Save session and user data
+    Result saveSessionResult = await _saveSession(
+        result.data!.user,
+        result.data!.isVerified,
+        result.data!.tokens,
+        result.data!.userPreferences);
+
+    if (!saveSessionResult.isSuccess) {
+      ref.read(appErrorProvider.notifier).state = saveSessionResult.error!;
+      state = const AsyncValue.data(AuthUnauthenticated());
+      return;
+    }
+
+    // Update state
+    state = AsyncValue.data(
+        AuthAuthenticated(result.data!.user.id, result.data!.isVerified));
   }
 
   void loginWithEmailAndPassword(
@@ -96,20 +96,27 @@ class AuthNotifier extends AsyncNotifier<AuthState> {
         .read(authServiceProvider)
         .loginWithEmailAndPassword(email: email, password: password);
 
-    if (result.isSuccess) {
-      // Save session
-      await ref.read(sessionStorageProvider).saveSession(
-          user: result.data!.user,
-          tokens: result.data!.tokens,
-          isVerified: result.data!.isVerified);
-
-      // Update state
-      state = AsyncValue.data(
-          AuthAuthenticated(result.data!.user.id, result.data!.isVerified));
-    } else {
+    if (!result.isSuccess) {
       ref.read(appErrorProvider.notifier).state = result.error!;
       state = const AsyncValue.data(AuthUnauthenticated());
     }
+
+    // Save session and user data
+    Result saveSessionResult = await _saveSession(
+        result.data!.user,
+        result.data!.isVerified,
+        result.data!.tokens,
+        result.data!.userPreferences);
+
+    if (!saveSessionResult.isSuccess) {
+      ref.read(appErrorProvider.notifier).state = saveSessionResult.error!;
+      state = const AsyncValue.data(AuthUnauthenticated());
+      return;
+    }
+
+    // Update state
+    state = AsyncValue.data(
+        AuthAuthenticated(result.data!.user.id, result.data!.isVerified));
   }
 
   void registerWithEmailAndPassword(
@@ -131,28 +138,42 @@ class AuthNotifier extends AsyncNotifier<AuthState> {
             firstName: firstName,
             lastName: lastName);
 
-    if (result.isSuccess) {
-      // Save session
-      await ref.read(sessionStorageProvider).saveSession(
-          user: result.data!.user,
-          tokens: result.data!.tokens,
-          isVerified: result.data!.isVerified);
-      // Update state
-      state = AsyncValue.data(
-          AuthAuthenticated(result.data!.user.id, result.data!.isVerified));
-    } else {
-      ref.read(appErrorProvider.notifier).state = result.error;
+    if (!result.isSuccess) {
+      ref.read(appErrorProvider.notifier).state = result.error!;
       state = const AsyncValue.data(AuthUnauthenticated());
     }
+
+    // Save session and user data
+    Result saveSessionResult = await _saveSession(
+        result.data!.user,
+        result.data!.isVerified,
+        result.data!.tokens,
+        result.data!.userPreferences);
+
+    if (!saveSessionResult.isSuccess) {
+      ref.read(appErrorProvider.notifier).state = saveSessionResult.error!;
+      state = const AsyncValue.data(AuthUnauthenticated());
+      return;
+    }
+
+    // Update state
+    state = AsyncValue.data(
+        AuthAuthenticated(result.data!.user.id, result.data!.isVerified));
   }
 
   void loginAsGuest(String username) async {
     if (state.isLoading || _isLoggedIn) return;
     state = const AsyncValue.loading();
 
-    await ref
-        .read(sessionStorageProvider)
-        .saveSession(user: User.guest(username), isVerified: false);
+    // Save session and user data
+    Result saveSessionResult = await _saveSession(
+        User.guest(username), false, null, UserPreferences.defaults());
+
+    if (!saveSessionResult.isSuccess) {
+      ref.read(appErrorProvider.notifier).state = saveSessionResult.error!;
+      state = const AsyncValue.data(AuthUnauthenticated());
+      return;
+    }
 
     state = const AsyncValue.data(AuthGuest());
   }
@@ -180,15 +201,14 @@ class AuthNotifier extends AsyncNotifier<AuthState> {
   }
 
   Future<Result> refreshTokens([CancellationToken? cancellationToken]) async {
-    if (state.value == null || !state.value!.isAuthenticated) {
-      return Result.failureMessage(
-          "Cannot refresh tokens when no user is logged in");
+    if (state.value?.isAuthenticated ?? false) {
+      return Result.canceled("Cannot refresh tokens when no user is logged in");
     }
 
-    TokensDTO? tokens = ref.read(sessionStorageProvider).tokens;
+    Tokens? tokens = ref.read(sessionStorageProvider).tokens;
 
     if (tokens == null) {
-      return Result.failureMessage("Tokens are empty, cannot refresh them");
+      return Result.canceled("Tokens are empty, cannot refresh them");
     }
 
     if (_refreshTokenCompleter != null) {
@@ -202,7 +222,9 @@ class AuthNotifier extends AsyncNotifier<AuthState> {
     _refreshTokenCompleter = Completer();
 
     ref.read(loggerProvider).d("Refreshing tokens");
-    Result<TokensDTO> result = await ref
+    ref.read(loggerProvider).d(state.value?.isAuthenticated);
+
+    Result<Tokens> result = await ref
         .read(authServiceProvider)
         .refreshAccessToken(
             tokens: tokens,
@@ -292,21 +314,43 @@ class AuthNotifier extends AsyncNotifier<AuthState> {
     return value?.isAuthenticated == true || value?.isGuest == true;
   }
 
-  Future<Session?> loadSession() async {
-    return await ref.read(sessionStorageProvider).loadSession();
+  Future<Result<void>> _saveSession(User user, bool isVerified, Tokens? tokens,
+      UserPreferences userPreferences) async {
+    // Save data
+    Result<void> saveUserResult =
+        await ref.read(usersServiceProvider).saveUser(user);
+    if (!saveUserResult.isSuccess) return saveUserResult;
+
+    Result<void> saveUserPreferencesResult =
+        await ref.read(usersServiceProvider).savePreferences(userPreferences);
+    if (!saveUserPreferencesResult.isSuccess) return saveUserPreferencesResult;
+
+    // Save session
+    Result<void> saveSessionResult = await ref
+        .read(sessionStorageProvider)
+        .saveSession(userId: user.id, tokens: tokens, isVerified: isVerified);
+
+    if (!saveSessionResult.isSuccess) return saveSessionResult;
+
+    return Result.success();
   }
 
   @override
   Future<AuthState> build() async {
     ref.read(loggerProvider).w("building auth notifier");
 
-    Session? session = await loadSession();
+    Result<Session?> session =
+        await ref.read(sessionStorageProvider).loadSession();
+    if (!session.isSuccess) {
+      ref.read(appErrorProvider.notifier).state = session.error!;
+      return const AuthUnauthenticated();
+    }
 
-    if (session == null) return const AuthUnauthenticated();
+    if (session.data == null) return const AuthUnauthenticated();
 
-    if (session.userId == -1) return const AuthGuest();
+    if (session.data!.userId == -1) return const AuthGuest();
 
-    return AuthAuthenticated(session.userId, session.isVerified);
+    return AuthAuthenticated(session.data!.userId, session.data!.isVerified);
   }
 }
 
@@ -356,10 +400,10 @@ final isGuestProvider = Provider<bool>((ref) {
 final sessionStorageProvider = Provider<SessionStorage>((ref) {
   ref.read(loggerProvider).d("Constructing session storage");
   return SessionStorage(
-      secureStorage: ref.watch(secureStorageProvider),
-      sharedPreferences: ref.watch(sharedPreferencesProvider),
-      databaseManager: ref.watch(localDbProvider),
-      usersRepository: ref.watch(localUsersRepositoryProvider));
+    ref.watch(secureStorageProvider),
+    ref.watch(sharedPreferencesProvider),
+    ref.watch(localDbProvider),
+  );
 });
 
 final isVerifiedProvider = Provider.autoDispose<bool>((ref) {

@@ -6,13 +6,14 @@ import 'package:image_picker/image_picker.dart';
 import 'package:syncora_frontend/common/providers/common_providers.dart';
 import 'package:syncora_frontend/common/providers/connection_provider.dart';
 import 'package:syncora_frontend/core/image/image_providers.dart';
+import 'package:syncora_frontend/core/network/outbox/outbox_provider.dart';
 import 'package:syncora_frontend/core/network/syncing/sync_state.dart';
 import 'package:syncora_frontend/core/network/syncing/sync_provider.dart';
 import 'package:syncora_frontend/core/typedef.dart';
 import 'package:syncora_frontend/core/utils/app_error.dart';
 import 'package:syncora_frontend/core/utils/result.dart';
 import 'package:syncora_frontend/features/authentication/models/auth_state.dart';
-import 'package:syncora_frontend/features/authentication/models/user.dart';
+import 'package:syncora_frontend/features/users/models/user.dart';
 import 'package:syncora_frontend/features/authentication/auth_provider.dart';
 import 'package:syncora_frontend/features/users/repositories/local_users_repository.dart';
 import 'package:syncora_frontend/features/users/repositories/remote_users_repository.dart';
@@ -252,8 +253,10 @@ final remoteUsersRepositoryProvider = Provider<RemoteUsersRepository>((ref) {
 
 final usersServiceProvider = Provider<UsersService>((ref) {
   return UsersService(
-    ref.watch(localUsersRepositoryProvider),
-    ref.watch(remoteUsersRepositoryProvider),
-    ref.watch(authStateProvider),
-  );
+      ref.watch(localUsersRepositoryProvider),
+      ref.watch(remoteUsersRepositoryProvider),
+      ref.watch(sharedPreferencesProvider),
+      authStateFactory: () => ref.read(authStateProvider),
+      enqueueEntry: (enqueueRequest) =>
+          ref.read(outboxProvider.notifier).enqueue(enqueueRequest));
 });

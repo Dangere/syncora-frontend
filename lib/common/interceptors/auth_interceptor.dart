@@ -1,28 +1,28 @@
 import 'dart:async';
 
 import 'package:dio/dio.dart';
-import 'package:syncora_frontend/features/authentication/services/session_storage.dart';
+import 'package:syncora_frontend/features/authentication/models/tokens.dart';
 
 class AuthInterceptor extends Interceptor {
-  final SessionStorage _sessionStorage;
+  final Tokens? Function() _tokensFactory;
   final Future<void> Function() _refreshTokens;
   final Dio _dio; // The main Dio instance
 
   Completer? _refreshTokenCompleter;
 
   AuthInterceptor(
-      {required SessionStorage sessionStorage,
+      {required Tokens? Function() tokensFactory,
       required Future<void> Function() refreshTokens,
       required Dio dio})
-      : _sessionStorage = sessionStorage,
-        _refreshTokens = refreshTokens,
-        _dio = dio;
+      : _refreshTokens = refreshTokens,
+        _dio = dio,
+        _tokensFactory = tokensFactory;
 
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
-    if (_sessionStorage.tokens?.accessToken != null) {
+    if (_tokensFactory()?.accessToken != null) {
       options.headers['Authorization'] =
-          'Bearer ${_sessionStorage.tokens!.accessToken}';
+          'Bearer ${_tokensFactory()!.accessToken}';
     }
 
     // ref.read(loggerProvider).i("Dio request: ${options.data}");
@@ -35,7 +35,7 @@ class AuthInterceptor extends Interceptor {
     // ref.read(loggerProvider).i("Dio Error: ${err.response?.statusCode}");
 
     int? status = err.response?.statusCode;
-    bool haveAccessToken = _sessionStorage.tokens != null;
+    bool haveAccessToken = _tokensFactory() != null;
 
     // If we have an access token and the error is 401 unauthorized
     if (haveAccessToken && status == 401) {
@@ -45,7 +45,7 @@ class AuthInterceptor extends Interceptor {
           await _refreshTokenCompleter!.future;
 
           // If we dont have a refresh token after waiting, it means user was logged out and tokens were cleared so we end all pending requests
-          if (_sessionStorage.tokens?.refreshToken == null) {
+          if (_tokensFactory()?.refreshToken == null) {
             return super.onError(err, handler);
           }
 
@@ -81,7 +81,7 @@ class AuthInterceptor extends Interceptor {
     final options = err.requestOptions;
     // Making sure we are updating the authorization header with the current access token
     options.headers['Authorization'] =
-        'Bearer ${_sessionStorage.tokens!.accessToken}';
+        'Bearer ${_tokensFactory()!.accessToken}';
 
     // Retrying the request
     final response = await _dio.fetch(options);

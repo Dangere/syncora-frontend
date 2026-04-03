@@ -9,7 +9,10 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:syncora_frontend/common/interceptors/auth_interceptor.dart';
 import 'package:syncora_frontend/core/data/database_manager.dart';
 import 'package:syncora_frontend/core/utils/app_error.dart';
+import 'package:syncora_frontend/core/utils/result.dart';
 import 'package:syncora_frontend/features/authentication/auth_provider.dart';
+import 'package:syncora_frontend/features/users/models/user_preferences.dart';
+import 'package:syncora_frontend/features/users/providers/users_provider.dart';
 
 final loggerProvider = Provider<Logger>((ref) {
   return Logger(
@@ -27,7 +30,7 @@ final loggerProvider = Provider<Logger>((ref) {
 final dioProvider = Provider<Dio>((ref) {
   Dio dio = Dio();
   dio.interceptors.add(AuthInterceptor(
-      sessionStorage: ref.read(sessionStorageProvider),
+      tokensFactory: () => ref.read(sessionStorageProvider).tokens,
       refreshTokens: () async =>
           ref.read(authProvider.notifier).refreshTokens(),
       dio: dio));
@@ -56,20 +59,50 @@ final sharedPreferencesProvider = Provider<SharedPreferences>((ref) {
 // final localeProvider = Provider<Locale>((ref) => const Locale('en'));
 
 class LocaleNotifier extends Notifier<Locale> {
-  void setLocale(Locale locale) {
+  void setLocale(Locale locale) async {
     state = locale;
+
+    Result result = await ref
+        .read(usersServiceProvider)
+        .updatePreferences(languageCode: state.languageCode);
+
+    if (!result.isSuccess && !result.isCancelled) {
+      ref.read(appErrorProvider.notifier).state = result.error;
+    }
   }
 
-  void toggleLocale() {
+  void toggleLocale() async {
     if (state.languageCode == 'en') {
       state = const Locale('ar');
     } else {
       state = const Locale('en');
     }
+
+    Result result = await ref
+        .read(usersServiceProvider)
+        .updatePreferences(languageCode: state.languageCode);
+
+    if (!result.isSuccess && !result.isCancelled) {
+      ref.read(appErrorProvider.notifier).state = result.error;
+    }
   }
 
   @override
   Locale build() {
+    ref.listen(
+      isAuthenticatedProvider,
+      (previous, next) async {
+        if (next) {
+          Result<UserPreferences> preferences =
+              await ref.read(usersServiceProvider).getPreferences();
+
+          if (preferences.isSuccess) {
+            state = preferences.data!.locale;
+          }
+        }
+      },
+    );
+
     return const Locale('en');
   }
 }
@@ -78,16 +111,34 @@ final localeProvider =
     NotifierProvider<LocaleNotifier, Locale>(LocaleNotifier.new);
 
 class ThemeModeNotifier extends Notifier<ThemeMode> {
-  void setThemDark(bool isDark) {
+  void setThemDark(bool isDark) async {
     state = isDark ? ThemeMode.dark : ThemeMode.light;
-  }
 
-  void toggleTheme() {
-    state = state == ThemeMode.light ? ThemeMode.dark : ThemeMode.light;
+    Result result = await ref
+        .read(usersServiceProvider)
+        .updatePreferences(darkMode: state == ThemeMode.dark);
+
+    if (!result.isSuccess && !result.isCancelled) {
+      ref.read(appErrorProvider.notifier).state = result.error;
+    }
   }
 
   @override
   ThemeMode build() {
+    ref.listen(
+      isAuthenticatedProvider,
+      (previous, next) async {
+        if (next) {
+          Result<UserPreferences> preferences =
+              await ref.read(usersServiceProvider).getPreferences();
+
+          if (preferences.isSuccess) {
+            state =
+                preferences.data!.darkMode ? ThemeMode.dark : ThemeMode.light;
+          }
+        }
+      },
+    );
     return ThemeMode.light;
   }
 }
@@ -105,18 +156,6 @@ final localDbProvider = Provider<DatabaseManager>((ref) {
   return DatabaseManager(logger: ref.read(loggerProvider));
 });
 
-// class SearchBarSuggestionsNotifier extends Notifier<List<String>, String> {
-//   void addSuggestion(String suggestion) {
-//     state.remove(suggestion);
-//     state = [suggestion, ...state];
-//   }
-
-//   @override
-//   List<String> build() {
-//     return [];
-//   }
-// }
-
 class SearchBarSuggestionsNotifier
     extends FamilyNotifier<List<String>, String> {
   void addSuggestion(String suggestion) {
@@ -133,16 +172,3 @@ class SearchBarSuggestionsNotifier
 final searchBarSuggestionsProvider =
     NotifierProvider.family<SearchBarSuggestionsNotifier, List<String>, String>(
         SearchBarSuggestionsNotifier.new);
-
-// final searchBarSuggestionsProvider =
-//     NotifierProvider<SearchBarSuggestionsNotifier, List<String>>(
-//         SearchBarSuggestionsNotifier.new);
-
-// final localDbProvider = Provider<DatabaseManager>((ref) {
-//   bool isGuest = ref.watch(isGuestProvider);
-//   ref.read(loggerProvider).w(isGuest);
-//   if (isGuest) {
-//     return DatabaseManager(target: DatabaseTarget.guest);
-//   }
-//   return DatabaseManager(target: DatabaseTarget.user);
-// });

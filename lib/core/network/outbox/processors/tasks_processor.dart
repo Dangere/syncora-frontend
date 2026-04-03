@@ -11,13 +11,8 @@ class TasksProcessor extends OutboxProcessor {
   final LocalTasksRepository _localTasksRepository;
   final RemoteTasksRepository _remoteTasksRepository;
 
-  TasksProcessor(
-      {required localTasksRepository,
-      required remoteTasksRepository,
-      required super.idMapper,
-      required super.logger})
-      : _localTasksRepository = localTasksRepository,
-        _remoteTasksRepository = remoteTasksRepository;
+  TasksProcessor(super.idMapper, super.logger, this._localTasksRepository,
+      this._remoteTasksRepository);
 
   // To process a task entry, we always need a synced group id
   // To process a task deletion/update/mark, we need a synced group id and a synced task id

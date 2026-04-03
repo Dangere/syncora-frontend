@@ -107,8 +107,14 @@ class OutboxEntry {
           default:
             return null;
         }
-      default:
-        return null;
+
+      case OutboxEntityType.user:
+        switch (actionType) {
+          case OutboxActionType.update:
+            return UpdateUserPreferencesPayload.fromJson(payloadMap);
+          default:
+            return null;
+        }
     }
   }
 
@@ -119,6 +125,6 @@ class OutboxEntry {
 
 enum OutboxStatus { pending, complete, inProcess, failed, ignored }
 
-enum OutboxEntityType { group, task }
+enum OutboxEntityType { group, task, user }
 
 enum OutboxActionType { create, delete, update, mark, leave }

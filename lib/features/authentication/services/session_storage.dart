@@ -1,42 +1,32 @@
-import 'dart:convert';
-
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:logger/logger.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:syncora_frontend/core/data/database_manager.dart';
-import 'package:syncora_frontend/core/data/enums/database_tables.dart';
+import 'package:syncora_frontend/core/utils/result.dart';
 import 'package:syncora_frontend/features/authentication/models/session.dart';
-import 'package:syncora_frontend/features/authentication/models/tokens_dto.dart';
-import 'package:syncora_frontend/features/authentication/models/user.dart';
-import 'package:syncora_frontend/features/users/repositories/local_users_repository.dart';
+import 'package:syncora_frontend/features/authentication/models/tokens.dart';
 
 // This class loads user data on startup and stores tokens in memory when fetched to be used for subsequent requests
 class SessionStorage {
   final FlutterSecureStorage _secureStorage;
   final SharedPreferences _sharedPreferences;
   final DatabaseManager _databaseManager;
-  final LocalUsersRepository _usersRepository;
 
   static const _accessTokenKey = 'jwt_token';
   static const _refreshTokenKey = 'refresh_token';
   static const _userIdKey = 'user';
   static const _isVerifiedKey = 'isVerified';
 
-  TokensDTO? _cachedTokens;
+  Tokens? _cachedTokens;
 
-  TokensDTO? get tokens => _cachedTokens;
+  Tokens? get tokens => _cachedTokens;
 
   SessionStorage(
-      {required secureStorage,
-      required sharedPreferences,
-      required databaseManager,
-      required usersRepository})
-      : _secureStorage = secureStorage,
-        _sharedPreferences = sharedPreferences,
-        _databaseManager = databaseManager,
-        _usersRepository = usersRepository;
+    this._secureStorage,
+    this._sharedPreferences,
+    this._databaseManager,
+  );
 
-  Future<TokensDTO?> loadTokens() async {
+  Future<Tokens?> loadTokens() async {
     String? cachedAccessToken = await _secureStorage.read(key: _accessTokenKey);
     String? cachedRefreshToken =
         await _secureStorage.read(key: _refreshTokenKey);
@@ -45,39 +35,50 @@ class SessionStorage {
       return null;
     }
 
-    return TokensDTO(
+    return Tokens(
         accessToken: cachedAccessToken, refreshToken: cachedRefreshToken);
   }
 
-  Future<Session?> loadSession() async {
-    int? userId = _sharedPreferences.getInt(_userIdKey);
+  Future<Result<Session?>> loadSession() async {
+    try {
+      int? userId = _sharedPreferences.getInt(_userIdKey);
 
-    if (userId != null) {
-      TokensDTO? tokens = await loadTokens();
+      if (userId != null) {
+        Tokens? tokens = await loadTokens();
 
-      bool isVerified =
-          bool.parse(_sharedPreferences.getString(_isVerifiedKey) ?? 'false');
+        bool isVerified =
+            bool.parse(_sharedPreferences.getString(_isVerifiedKey) ?? 'false');
 
-      Session? session =
-          Session(userId: userId, isVerified: isVerified, tokens: tokens);
+        Session? session =
+            Session(userId: userId, isVerified: isVerified, tokens: tokens);
 
-      _cachedTokens = tokens;
-      return session;
+        _cachedTokens = tokens;
+        return Result.success(session);
+      }
+    } catch (e, stackTrace) {
+      return Result.failure(e, stackTrace);
     }
 
     _cachedTokens = null;
-    return null;
+    return Result.success(null);
   }
 
-  Future<void> saveSession(
-      {required User user, TokensDTO? tokens, required bool isVerified}) async {
-    await _usersRepository.upsertUsers([user]);
-    await _sharedPreferences.setInt(_userIdKey, user.id);
-    await _sharedPreferences.setString(_isVerifiedKey, isVerified.toString());
-    await updateTokens(
-        accessToken: tokens?.accessToken, refreshToken: tokens?.refreshToken);
+  Future<Result<void>> saveSession(
+      {required int userId, Tokens? tokens, required bool isVerified}) async {
+    try {
+      await _sharedPreferences.setInt(_userIdKey, userId);
+      await _sharedPreferences.setString(_isVerifiedKey, isVerified.toString());
+      // await _sharedPreferences.setString(
+      //     _userPreferencesKey, jsonEncode(preferences.toJson()));
+      await updateTokens(
+          accessToken: tokens?.accessToken, refreshToken: tokens?.refreshToken);
 
-    _cachedTokens = tokens;
+      _cachedTokens = tokens;
+    } catch (e, stackTrace) {
+      return Result.failure(e, stackTrace);
+    }
+
+    return Result.success();
   }
 
   Future<void> updateTokens({String? accessToken, String? refreshToken}) async {

@@ -6,7 +6,7 @@ import 'package:syncora_frontend/core/localization/generated/l10n/app_localizati
 import 'package:syncora_frontend/core/utils/dialogs.dart';
 import 'package:syncora_frontend/core/utils/snack_bar_alerts.dart';
 import 'package:syncora_frontend/core/utils/validators.dart';
-import 'package:syncora_frontend/features/authentication/models/user.dart';
+import 'package:syncora_frontend/features/users/models/user.dart';
 
 class GroupPopups {
   static Future<String?> groupTitleEditPopup(

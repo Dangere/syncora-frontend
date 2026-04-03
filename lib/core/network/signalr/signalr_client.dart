@@ -56,12 +56,12 @@ class SignalRClient {
   }
 
   // Tries to establish a connection to the server until it succeeds
-  Future<Result> connect() async {
+  Future<void> connect() async {
     // return Result.canceled("Canceling connection to hub");
     if (_connection.state == HubConnectionState.Connected) {
       _logger.i("SignalRClient: connection is already connected, skipping");
 
-      return Result.canceled("Connection is not disconnected to connect");
+      return;
     }
     _cancelationToken = CancellationToken();
     Result result = await _connectToServer();
@@ -69,8 +69,6 @@ class SignalRClient {
     if (result.isSuccess) {
       _logger.i("SignalRClient: established");
     }
-
-    return result;
   }
 
   void dispose() async {
@@ -124,7 +122,14 @@ class SignalRClient {
           if (e.statusCode == 401) {
             _logger.d(
                 "SignalRClient: connection failed due to expired tokens, refreshing tokens then trying again");
-            await _refreshTokenRequest(_cancelationToken!);
+            Result refreshResult =
+                await _refreshTokenRequest(_cancelationToken!);
+
+            if (!refreshResult.isSuccess) {
+              _logger.f(
+                  "SignalRClient: refreshing tokens failed due to: ${refreshResult.error!.message}");
+              return Result.failure(e, stackTrace);
+            }
             continue;
 
             // If its not an expired token, we return

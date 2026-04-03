@@ -6,7 +6,7 @@ abstract class OutboxProcessor {
   final OutboxIdMapper idMapper;
   final Logger logger;
 
-  OutboxProcessor({required this.idMapper, required this.logger});
+  OutboxProcessor(this.idMapper, this.logger);
 
   // Processes the outbox entry and returns the modified group server id
   // Creation process should ALWAYS cache the server id when successful for future processing

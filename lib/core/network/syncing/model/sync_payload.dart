@@ -1,7 +1,6 @@
 import 'dart:collection';
 
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:syncora_frontend/features/authentication/models/user.dart';
+import 'package:syncora_frontend/features/users/models/user.dart';
 import 'package:syncora_frontend/features/groups/models/group_dto.dart';
 import 'package:syncora_frontend/features/tasks/models/task.dart';
 import 'dart:convert';

@@ -1,6 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:syncora_frontend/core/constants/constants.dart';
-import 'package:syncora_frontend/features/authentication/models/user.dart';
+import 'package:syncora_frontend/features/users/models/user.dart';
 import 'package:syncora_frontend/features/groups/models/group_dto.dart';
 
 class RemoteGroupsRepository {

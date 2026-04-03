@@ -43,6 +43,10 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     ref.read(localeProvider.notifier).setLocale(locale);
   }
 
+  void toggleDarkMode(bool value) {
+    ref.read(themeModeProvider.notifier).setThemDark(value);
+  }
+
   @override
   Widget build(BuildContext context) {
     SnackBarAlerts.registerErrorListener(ref, context);
@@ -84,7 +88,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                     size: AppButtonSize.huge,
                     style: AppButtonStyle.filled,
                     onPressed: () {
-                      ref.read(themeModeProvider.notifier).toggleTheme();
+                      toggleDarkMode(!isDarkMode);
                     },
                     child: Row(
                       children: [
@@ -109,11 +113,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                           height: 24,
                           width: 44,
                           value: isDarkMode,
-                          onToggle: (value) {
-                            ref
-                                .read(themeModeProvider.notifier)
-                                .setThemDark(value);
-                          },
+                          onToggle: toggleDarkMode,
                         ),
                       ],
                     ),

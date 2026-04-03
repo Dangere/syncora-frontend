@@ -8,7 +8,7 @@ import 'package:syncora_frontend/core/typedef.dart';
 import 'package:syncora_frontend/core/utils/result.dart';
 import 'package:syncora_frontend/features/authentication/models/auth_response_dto.dart';
 import 'package:syncora_frontend/features/authentication/models/google_register_user_info.dart';
-import 'package:syncora_frontend/features/authentication/models/tokens_dto.dart';
+import 'package:syncora_frontend/features/authentication/models/tokens.dart';
 import 'package:syncora_frontend/features/authentication/auth_repository.dart';
 
 class AuthService {
@@ -57,12 +57,12 @@ class AuthService {
     }
   }
 
-  Future<Result<TokensDTO>> refreshAccessToken(
-      {required TokensDTO tokens,
+  Future<Result<Tokens>> refreshAccessToken(
+      {required Tokens tokens,
       required VoidCallback onExpire,
       CancellationToken? cancellationToken}) async {
     try {
-      TokensDTO refreshedTokens = await _authRepository
+      Tokens refreshedTokens = await _authRepository
           .refreshAccessToken(tokens: tokens)
           .asCancellable(cancellationToken);
       return Result.success(refreshedTokens);

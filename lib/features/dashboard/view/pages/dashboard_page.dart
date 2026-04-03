@@ -14,11 +14,12 @@ import 'package:syncora_frontend/common/widgets/app_button.dart';
 import 'package:syncora_frontend/common/widgets/filter_list.dart';
 import 'package:syncora_frontend/common/widgets/profile_picture.dart';
 import 'package:syncora_frontend/core/localization/generated/l10n/app_localizations.dart';
+import 'package:syncora_frontend/core/network/outbox/outbox_provider.dart';
 import 'package:syncora_frontend/core/tests.dart';
 import 'package:syncora_frontend/core/utils/result.dart';
 import 'package:syncora_frontend/core/utils/snack_bar_alerts.dart';
 import 'package:syncora_frontend/features/authentication/models/auth_state.dart';
-import 'package:syncora_frontend/features/authentication/models/user.dart';
+import 'package:syncora_frontend/features/users/models/user.dart';
 import 'package:syncora_frontend/features/authentication/auth_provider.dart';
 import 'package:syncora_frontend/features/dashboard/view/widgets/dashboard_search_bar.dart';
 import 'package:syncora_frontend/features/groups/groups_provider.dart';
@@ -79,6 +80,21 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
             style: AppButtonStyle.filled,
             intent: AppButtonIntent.warning,
             child: const Icon(Icons.add),
+          ),
+          AppButton(
+            width: 80,
+            onPressed: () async {
+              (await ref.read(outboxRepositoryProvider).getPendingEntries())
+                  .forEach(
+                (element) {
+                  print(element.toString());
+                },
+              );
+            },
+            size: AppButtonSize.mini,
+            style: AppButtonStyle.filled,
+            intent: AppButtonIntent.warning,
+            child: const Icon(Icons.table_bar),
           ),
           // AppButton(
           //   width: 80,

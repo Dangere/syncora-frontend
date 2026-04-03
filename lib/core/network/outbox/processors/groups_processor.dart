@@ -12,13 +12,8 @@ class GroupsProcessor extends OutboxProcessor {
   final LocalGroupsRepository _localGroupsRepository;
   final RemoteGroupsRepository _remoteGroupsRepository;
 
-  GroupsProcessor(
-      {required LocalGroupsRepository localGroupsRepository,
-      required RemoteGroupsRepository remoteGroupsRepository,
-      required super.logger,
-      required super.idMapper})
-      : _localGroupsRepository = localGroupsRepository,
-        _remoteGroupsRepository = remoteGroupsRepository;
+  GroupsProcessor(super.idMapper, super.logger, this._localGroupsRepository,
+      this._remoteGroupsRepository);
 
   // Takes in an outbox entry and processes it by calling the remote api and returns a result with the server id of the group or an error
   // To process a group creation entry, we dont need any dependencies

@@ -1,13 +1,17 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:internet_connection_checker/internet_connection_checker.dart';
-import 'package:syncora_frontend/common/providers/common_providers.dart';
 
+// ignore: non_constant_identifier_names
 final debug_fakeBeingOnlineProvider = StateProvider<bool>((ref) {
   return false;
 });
 
 class ConnectionNotifier extends Notifier<ConnectionStatus> {
+  bool get isOnline {
+    return state == ConnectionStatus.connected ||
+        state == ConnectionStatus.slow;
+  }
+
   @override
   build() {
     ref.listen(debug_fakeBeingOnlineProvider, (previous, next) {

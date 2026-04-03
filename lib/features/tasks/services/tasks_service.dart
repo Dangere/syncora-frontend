@@ -14,16 +14,19 @@ class TasksService {
   final RemoteTasksRepository _remoteTasksRepository;
   final AsyncFunc<EnqueueRequest, Result<void>> _enqueueEntry;
 
-  final AuthState _authState;
+  final AuthState Function() _authStateFactory;
   TasksService(this._localTasksRepository, this._remoteTasksRepository,
-      this._enqueueEntry, this._authState);
+      {required Future<Result<void>> Function(EnqueueRequest) enqueueEntry,
+      required AuthState Function() authStateFactory})
+      : _enqueueEntry = enqueueEntry,
+        _authStateFactory = authStateFactory;
 
   Future<Result<List<Task>>> getTasksForGroup(
       int groupId, List<TaskFilter> filters) async {
     try {
       // We aren't checking if user is authenticated or not because guests and logged in users can access tasks
       List<Task> tasks = await _localTasksRepository.getTasksForGroup(
-          groupId, _authState.userId!, filters);
+          groupId, _authStateFactory().userId!, filters);
       return Result.success(tasks);
     } catch (e, stackTrace) {
       return Result.failure(e, stackTrace);
@@ -133,7 +136,7 @@ class TasksService {
       {required int taskId,
       required int groupId,
       required List<int> ids}) async {
-    if (_authState.isGuest || _authState.isUnauthenticated) {
+    if (_authStateFactory().isGuest || _authStateFactory().isUnauthenticated) {
       return Result.failureMessage(
           "Can't assign task to users when not logged in");
     }
@@ -149,7 +152,7 @@ class TasksService {
       {required int taskId,
       required int groupId,
       required List<int> ids}) async {
-    if (_authState.isGuest || _authState.isUnauthenticated) {
+    if (_authStateFactory().isGuest || _authStateFactory().isUnauthenticated) {
       return Result.failureMessage(
           "Can't assign task to users when not logged in");
     }
@@ -170,12 +173,14 @@ class TasksService {
         entityType: OutboxEntityType.task,
         actionType: OutboxActionType.mark,
         payload: MarkTaskPayload(
-            completedById: _authState.userId!, isCompleted: isDone),
+            completedById: _authStateFactory().userId!, isCompleted: isDone),
       ),
       onAfterEnqueue: () async {
         try {
           await _localTasksRepository.markTaskCompletion(
-              taskId: taskId, userId: _authState.userId!, isDone: isDone);
+              taskId: taskId,
+              userId: _authStateFactory().userId!,
+              isDone: isDone);
           return Result.success();
         } catch (e, stackTrace) {
           return Result.failure(e, stackTrace);

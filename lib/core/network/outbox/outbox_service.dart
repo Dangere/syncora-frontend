@@ -75,8 +75,9 @@ class OutboxService {
       {required void Function({required int tempId, required int serverId})
           onGroupSync,
       required void Function(Exception e, StackTrace stackTrace) onFail,
-      required void Function(int groupId) onRevert,
-      required void Function(int groupId) onSync,
+      required void Function(int entityId, OutboxEntityType entityType)
+          onRevert,
+      required void Function(int entityId, OutboxEntityType entityType) onSync,
       required VoidCallback requireSecondPass}) async {
     _cancelationToken = CancellationToken();
 
@@ -122,7 +123,7 @@ class OutboxService {
           // TODO: remove artificial delay
           // await Future.delayed(const Duration(seconds: 3));
 
-          int processedGroupId =
+          int processedEntityId =
               await _processors[entry.entityType]!.processToBackend(entry);
 
           await _outboxRepository.completeEntry(entry.id!);
@@ -131,12 +132,14 @@ class OutboxService {
           if (entry.actionType == OutboxActionType.create &&
               entry.entityType == OutboxEntityType.group) {
             // We call the onGroupIdUpdate callback to tell the UI we updated from a temp id to a server synced id
-            onGroupSync(tempId: entry.entityId, serverId: processedGroupId);
+            onGroupSync(tempId: entry.entityId, serverId: processedEntityId);
           }
 
           // We call the onSync To update the UI
-          onSync(processedGroupId);
-        } on OutboxDependencyFailureException catch (e, stackTrace) {
+          // if (entry.entityType != OutboxEntityType.user)
+          onSync(processedEntityId, entry.entityType);
+        } on OutboxException catch (e, stackTrace) {
+          // if (e is OutboxDependencyFailureException) {}
           await _outboxRepository.failEntry(entry.id!);
           onFail(e, stackTrace);
         }
@@ -208,7 +211,7 @@ class OutboxService {
           await _outboxRepository.failEntry(entry.id!);
 
           // We call the onRevert callback To update the UI
-          onRevert(revertResult.data!);
+          onRevert(revertResult.data!, entry.entityType);
 
           // If its a deletion fail, means it could've marked other entires as ignored, so we unignore them and call for a second pass
           if (entry.actionType == OutboxActionType.delete) {
