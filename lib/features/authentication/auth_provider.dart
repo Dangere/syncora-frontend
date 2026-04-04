@@ -7,7 +7,8 @@ import 'package:syncora_frontend/core/utils/app_error.dart';
 import 'package:syncora_frontend/core/utils/result.dart';
 import 'package:syncora_frontend/features/authentication/models/auth_response_dto.dart';
 import 'package:syncora_frontend/features/authentication/models/auth_state.dart';
-import 'package:syncora_frontend/features/authentication/models/google_register_user_info.dart';
+import 'package:syncora_frontend/features/authentication/models/google_register_filled_info.dart';
+import 'package:syncora_frontend/features/authentication/models/google_user_info.dart';
 import 'package:syncora_frontend/features/authentication/models/session.dart';
 import 'package:syncora_frontend/features/authentication/models/tokens.dart';
 import 'package:syncora_frontend/features/users/models/user.dart';
@@ -30,9 +31,15 @@ class AuthNotifier extends AsyncNotifier<AuthState> {
     Result<AuthResponseDTO> result =
         await ref.read(authServiceProvider).loginWithGoogle();
 
+    if (result.isCancelled) {
+      state = const AsyncValue.data(AuthUnauthenticated());
+      return;
+    }
+
     if (!result.isSuccess) {
       ref.read(appErrorProvider.notifier).state = result.error!;
       state = const AsyncValue.data(AuthUnauthenticated());
+      return;
     }
 
     // Save session and user data
@@ -53,19 +60,46 @@ class AuthNotifier extends AsyncNotifier<AuthState> {
         AuthAuthenticated(result.data!.user.id, result.data!.isVerified));
   }
 
-  void registerUsingGoogle(
-      AsyncFunc<String, GoogleRegisterUserInfo?> afterAccountSelect) async {
+  /// Displays a pop up that allows the user to select a google account and returns the token with info
+  Future<Result<GoogleUserInfo>> getGoogleRegisterToken() async {
+    if (_isLoggedIn) {
+      return Result.canceled("User is logged in");
+    }
+    if (state.isLoading) return Result.canceled("Already loading");
+
+    state = const AsyncValue.loading();
+
+    Result<GoogleUserInfo> result =
+        await ref.read(authServiceProvider).getGoogleRegisterToken();
+
+    if (result.isCancelled) {
+      state = const AsyncValue.data(AuthUnauthenticated());
+      return result;
+    }
+
+    if (!result.isSuccess) {
+      ref.read(appErrorProvider.notifier).state = result.error!;
+    }
+    state = const AsyncValue.data(AuthUnauthenticated());
+    return result;
+  }
+
+  /// Uses a preselected GoogleUserInfo and user selected GoogleRegisterFilledInfo to register
+  void registerUsingGoogle(GoogleUserInfo googleUserInfo,
+      GoogleRegisterFilledInfo userFilledInfo) async {
     if (state.isLoading || _isLoggedIn) return;
 
     state = const AsyncValue.loading();
 
     Result<AuthResponseDTO> result = await ref
         .read(authServiceProvider)
-        .registerWithGoogle(afterAccountSelect);
+        .registerUserWithGoogle(googleUserInfo, userFilledInfo);
 
     if (!result.isSuccess) {
       ref.read(appErrorProvider.notifier).state = result.error!;
       state = const AsyncValue.data(AuthUnauthenticated());
+
+      return;
     }
 
     // Save session and user data
@@ -141,6 +175,8 @@ class AuthNotifier extends AsyncNotifier<AuthState> {
     if (!result.isSuccess) {
       ref.read(appErrorProvider.notifier).state = result.error!;
       state = const AsyncValue.data(AuthUnauthenticated());
+
+      return;
     }
 
     // Save session and user data

@@ -7,6 +7,9 @@ import 'package:image_picker/image_picker.dart';
 import 'package:logger/logger.dart';
 import 'package:syncora_frontend/common/providers/common_providers.dart';
 import 'package:syncora_frontend/core/typedef.dart';
+import 'package:syncora_frontend/features/authentication/models/google_register_filled_info.dart';
+import 'package:syncora_frontend/features/authentication/models/google_user_info.dart';
+import 'package:syncora_frontend/features/authentication/view/pages/google_sign_up_page.dart';
 import 'package:syncora_frontend/features/authentication/view/pages/password_reset_page.dart';
 import 'package:syncora_frontend/features/authentication/view/pages/sign_in_page.dart';
 import 'package:syncora_frontend/features/authentication/view/pages/sign_up_page.dart';
@@ -120,6 +123,23 @@ class RouteNotifier extends Notifier<GoRouter> {
             },
             routes: [
               GoRoute(
+                name: 'google-sign-up',
+                path: 'google-sign-up',
+                builder: (context, state) {
+                  final GoogleUserInfo googleUserInfo =
+                      state.extra as GoogleUserInfo;
+                  return GoogleSignUpPage(
+                    googleUserInfo: googleUserInfo,
+                  );
+                },
+                redirect: (context, state) {
+                  if (state.extra is! GoogleUserInfo) {
+                    return '/';
+                  }
+                  return null;
+                },
+              ),
+              GoRoute(
                 name: 'sign-up',
                 path: 'sign-up',
                 builder: (context, state) {
@@ -200,6 +220,7 @@ class RouteNotifier extends Notifier<GoRouter> {
             state.fullPath != "/onboarding/sign-in" &&
             state.fullPath != "/onboarding/sign-in/reset-password" &&
             state.fullPath != "/onboarding/sign-up" &&
+            state.fullPath != "/onboarding/google-sign-up" &&
             state.fullPath != "/onboarding") {
           logger.d(
               "You were on ${state.fullPath} and getting redirected to login page");

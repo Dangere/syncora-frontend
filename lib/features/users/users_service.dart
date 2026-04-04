@@ -85,7 +85,7 @@ class UsersService {
   Future<Result<void>> updateProfile(
       {String? username, String? firstName, String? lastName}) async {
     try {
-      if (!_authStateFactory().isAuthenticated) {
+      if (_authStateFactory().isAuthenticated) {
         await _remoteUsersRepository.updateUserProfile(
             username: username, firstName: firstName, lastName: lastName);
       }

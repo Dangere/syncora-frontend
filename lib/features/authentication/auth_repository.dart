@@ -37,7 +37,8 @@ class AuthRepository {
       "Username": username,
       "Password": password,
       "FirstName": firstName,
-      "LastName": lastName
+      "LastName": lastName,
+      //  "preferences": {"darkMode": darkMode, "languageCode": languageCode}
     }).timeout(const Duration(seconds: 20));
 
     AuthResponseDTO authResponse = AuthResponseDTO.fromJson(response.data);
@@ -78,14 +79,20 @@ class AuthRepository {
 
   // We could first ask for additional information from the user before registering
   Future<AuthResponseDTO> registerWithGoogle(String idToken,
-      {required String username, required String password}) async {
+      {required String username,
+      required String password,
+      required String firstName,
+      required String lastName}) async {
     // Getting the register response
     final response = await _dio.post(
         "${Constants.BASE_API_URL}/authentication/register/google",
         data: {
           "IdToken": idToken,
+          "FirstName": firstName,
+          "LastName": lastName,
           "Username": username,
-          "Password": password
+          "Password": password,
+          //  "preferences": {"darkMode": darkMode, "languageCode": languageCode}
         }).timeout(const Duration(seconds: 20));
 
     AuthResponseDTO authResponse = AuthResponseDTO.fromJson(response.data);

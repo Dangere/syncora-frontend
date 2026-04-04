@@ -7,20 +7,23 @@ import 'package:syncora_frontend/common/widgets/app_button.dart';
 import 'package:syncora_frontend/common/widgets/input_field.dart';
 import 'package:syncora_frontend/common/widgets/overlay_loader.dart';
 import 'package:syncora_frontend/core/localization/generated/l10n/app_localizations.dart';
-import 'package:syncora_frontend/core/utils/result.dart';
 import 'package:syncora_frontend/core/utils/snack_bar_alerts.dart';
 import 'package:syncora_frontend/core/utils/validators.dart';
 import 'package:syncora_frontend/features/authentication/auth_provider.dart';
+import 'package:syncora_frontend/features/authentication/models/google_register_filled_info.dart';
 import 'package:syncora_frontend/features/authentication/models/google_user_info.dart';
 
-class SignUpPage extends ConsumerStatefulWidget {
-  const SignUpPage({super.key});
+class GoogleSignUpPage extends ConsumerStatefulWidget {
+  const GoogleSignUpPage({super.key, required this.googleUserInfo});
+
+  final GoogleUserInfo googleUserInfo;
 
   @override
-  ConsumerState<ConsumerStatefulWidget> createState() => _SignUpPageState();
+  ConsumerState<ConsumerStatefulWidget> createState() =>
+      _GoogleSignUpPageState();
 }
 
-class _SignUpPageState extends ConsumerState<SignUpPage> {
+class _GoogleSignUpPageState extends ConsumerState<GoogleSignUpPage> {
   final _formKey = GlobalKey<FormState>();
 
   final TextEditingController firstNameController = TextEditingController();
@@ -45,31 +48,33 @@ class _SignUpPageState extends ConsumerState<SignUpPage> {
   }
 
   @override
+  void initState() {
+    emailController.text = widget.googleUserInfo.email;
+    firstNameController.text = widget.googleUserInfo.firstName;
+    lastNameController.text = widget.googleUserInfo.lastName;
+
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final user = ref.watch(authProvider);
-
     SnackBarAlerts.registerErrorListener(ref, context);
 
     void signUp() {
-      if (!_formKey.currentState!.validate() || user.isLoading) return;
-      ref.read(authProvider.notifier).registerWithEmailAndPassword(
-          email: emailController.text.trim(),
-          username: usernameController.text.trim(),
-          firstName: firstNameController.text.trim(),
-          lastName: lastNameController.text.trim(),
-          password: passwordController.text.trim());
-    }
-
-    void googleSignUp() async {
       if (user.isLoading) return;
-      Result<GoogleUserInfo> googleUserInfoResult =
-          await ref.read(authProvider.notifier).getGoogleRegisterToken();
-      if (googleUserInfoResult.isSuccess) {
-        if (context.mounted) {
-          context.pushNamed("google-sign-up",
-              extra: googleUserInfoResult.data!);
-        }
-      }
+
+      if (!_formKey.currentState!.validate()) return;
+
+      GoogleRegisterFilledInfo userFilledInfo = GoogleRegisterFilledInfo(
+          username: usernameController.text.trim(),
+          password: passwordController.text.trim(),
+          firstName: firstNameController.text.trim(),
+          lastName: lastNameController.text.trim());
+
+      ref
+          .read(authProvider.notifier)
+          .registerUsingGoogle(widget.googleUserInfo, userFilledInfo);
     }
 
     return Scaffold(
@@ -181,23 +186,27 @@ class _SignUpPageState extends ConsumerState<SignUpPage> {
                           const SizedBox(height: 12),
 
                           // EMAIL
-                          InputField(
-                            suffixIcon: Icons.email_outlined,
-                            labelText: AppLocalizations.of(context).email,
-                            hintText: AppLocalizations.of(context).email_Field,
-                            keyboardType: TextInputType.emailAddress,
-                            controller: emailController,
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Email cannot be empty';
-                              }
+                          AbsorbPointer(
+                            absorbing: true,
+                            child: InputField(
+                              suffixIcon: Icons.email_outlined,
+                              labelText: AppLocalizations.of(context).email,
+                              hintText:
+                                  AppLocalizations.of(context).email_Field,
+                              keyboardType: TextInputType.emailAddress,
+                              controller: emailController,
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Email cannot be empty';
+                                }
 
-                              if (Validators.validateEmail(value.trim()) ==
-                                  false) {
-                                return 'Invalid email';
-                              }
-                              return null;
-                            },
+                                if (Validators.validateEmail(value.trim()) ==
+                                    false) {
+                                  return 'Invalid email';
+                                }
+                                return null;
+                              },
+                            ),
                           ),
                           const SizedBox(height: 12),
 
@@ -283,37 +292,9 @@ class _SignUpPageState extends ConsumerState<SignUpPage> {
                         intent: AppButtonIntent.primary,
                         onPressed: signUp,
                         child: Text(AppLocalizations.of(context).signUp)),
-                    const SizedBox(height: 24),
-
-                    // GOOGLE SIGN UP
-                    AppButton(
-                        size: AppButtonSize.large,
-                        style: AppButtonStyle.glow,
-                        onPressed: googleSignUp,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            SvgPicture.asset(
-                              "assets/logos/google-icon.svg",
-                              semanticsLabel: 'Google Logo',
-                              height: 20,
-                            ),
-                            const SizedBox(width: 10),
-                            Text(
-                                AppLocalizations.of(context)
-                                    .signUpPage_GoogleSignUp,
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .bodyLarge!
-                                    .copyWith(
-                                        fontWeight: FontWeight.w600,
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .outlineVariant)),
-                          ],
-                        )),
                     const Spacer(),
 
+                    // const SizedBox(height: 24),
                     // FOOTER
                     TextButton(
                       onPressed: () {

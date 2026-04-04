@@ -7,7 +7,8 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:syncora_frontend/core/typedef.dart';
 import 'package:syncora_frontend/core/utils/result.dart';
 import 'package:syncora_frontend/features/authentication/models/auth_response_dto.dart';
-import 'package:syncora_frontend/features/authentication/models/google_register_user_info.dart';
+import 'package:syncora_frontend/features/authentication/models/google_register_filled_info.dart';
+import 'package:syncora_frontend/features/authentication/models/google_user_info.dart';
 import 'package:syncora_frontend/features/authentication/models/tokens.dart';
 import 'package:syncora_frontend/features/authentication/auth_repository.dart';
 
@@ -81,12 +82,13 @@ class AuthService {
       return Result.failureMessage(
           "Google login is only available on Android and Web");
     }
+    googleSignIn.signOut();
 
     try {
       // FIXME:  `signIn` method is deprecated on the web, use `renderButton` instead but it reqiures a platform specific implementation
       final GoogleSignInAccount? googleAccount = await googleSignIn.signIn();
       if (googleAccount == null) {
-        return Result.failureMessage("Google login failed");
+        return Result.canceled("Google login canceled");
       }
 
       final GoogleSignInAuthentication googleAuthentication =
@@ -106,38 +108,52 @@ class AuthService {
     }
   }
 
-  Future<Result<AuthResponseDTO>> registerWithGoogle(
-      AsyncFunc<String, GoogleRegisterUserInfo?> afterAccountSelect) async {
+  Future<Result<GoogleUserInfo>> getGoogleRegisterToken() async {
+    if (!(kIsWeb || Platform.isAndroid)) {
+      return Result.failureMessage(
+          "Google login is only available on Android and Web");
+    }
+    googleSignIn.signOut();
+
+    try {
+      final GoogleSignInAccount? googleAccount = await googleSignIn.signIn();
+      if (googleAccount == null) {
+        return Result.canceled("Google registration canceled");
+      }
+
+      final GoogleSignInAuthentication googleAuthentication =
+          await googleAccount.authentication;
+
+      // We call the delegate to get the username and password from UI pop up
+      List<String> fullName = googleAccount.displayName?.split(" ") ?? [];
+      var userInfo = GoogleUserInfo(
+          token: googleAuthentication.idToken!,
+          email: googleAccount.email,
+          firstName: fullName.isNotEmpty ? fullName[0] : "",
+          lastName: fullName.length > 1 ? fullName[1] : "");
+
+      return Result.success(userInfo);
+    } catch (e, stackTrace) {
+      await googleSignIn.signOut();
+      return Result.failure(e, stackTrace);
+    }
+  }
+
+  Future<Result<AuthResponseDTO>> registerUserWithGoogle(
+      GoogleUserInfo googleUserInfo,
+      GoogleRegisterFilledInfo userFilledInfo) async {
     if (!(kIsWeb || Platform.isAndroid)) {
       return Result.failureMessage(
           "Google login is only available on Android and Web");
     }
 
     try {
-      final GoogleSignInAccount? googleAccount = await googleSignIn.signIn();
-      if (googleAccount == null) {
-        return Result.failureMessage("Google registration failed");
-      }
-
-      final GoogleSignInAuthentication googleAuthentication =
-          await googleAccount.authentication;
-
-      // This is the JWT token containing the user's identity
-      String idToken = googleAuthentication.idToken!;
-
-      // We call the delegate to get the username and password from UI pop up
-      GoogleRegisterUserInfo? userInfo =
-          await afterAccountSelect(googleAccount.email);
-
-      if (userInfo == null) {
-        await googleSignIn.signOut();
-        return Result.failureMessage("Google registration failed");
-      }
-
-      // We send it to the backend to verify it and get our own user data and tokens
       AuthResponseDTO registerResponse =
-          await _authRepository.registerWithGoogle(idToken,
-              username: userInfo.username, password: userInfo.password);
+          await _authRepository.registerWithGoogle(googleUserInfo.token,
+              firstName: userFilledInfo.firstName,
+              lastName: userFilledInfo.lastName,
+              username: userFilledInfo.username,
+              password: userFilledInfo.password);
 
       return Result.success(registerResponse);
     } catch (e, stackTrace) {
