@@ -29,7 +29,6 @@ class _PasswordResetPageState extends ConsumerState<PasswordResetPage> {
     emailController.dispose();
   }
 
-  // TODO: this could be refactored to use a provider instead of manually managing the state (careful of ephemeral state)
   void sendEmail() async {
     if (isLoading || ref.read(resetPasswordTimerProvider) != null) {
       return;

@@ -19,8 +19,7 @@ class GroupsList extends ConsumerWidget {
     // TODO: This builds 4 times even when not viewed..
     // it rebuilds 2 times if loading indicator is disabled
     ref.read(loggerProvider).d("Building groups list");
-    List<Group> groups =
-        ref.watch(groupsProvider).asData?.value ?? List.empty();
+    List<Group> groups = ref.watch(groupsProvider).valueOrNull ?? List.empty();
     // List<Group> groupsList = groups ? groups.value! : List.empty();
 
     return MultiSliver(
@@ -75,27 +74,27 @@ class GroupsList extends ConsumerWidget {
         ),
       ],
     );
-    return OverlayLoader(
-      isLoading: false,
-      body: ListView.separated(
-        padding: const EdgeInsets.symmetric(vertical: AppSpacing.lg / 2),
-        itemCount: groups.length,
-        itemBuilder: (context, index) {
-          return GestureDetector(
-            onTap: () {
-              context.push('/group/${groups[index].id}');
-            },
-            child: GroupPanel(
-              group: groups[index],
-            ),
-          );
-        },
-        separatorBuilder: (context, index) {
-          return const SizedBox(
-            height: 16,
-          );
-        },
-      ),
-    );
+    // return OverlayLoader(
+    //   isLoading: false,
+    //   body: ListView.separated(
+    //     padding: const EdgeInsets.symmetric(vertical: AppSpacing.lg / 2),
+    //     itemCount: groups.length,
+    //     itemBuilder: (context, index) {
+    //       return GestureDetector(
+    //         onTap: () {
+    //           context.push('/group/${groups[index].id}');
+    //         },
+    //         child: GroupPanel(
+    //           group: groups[index],
+    //         ),
+    //       );
+    //     },
+    //     separatorBuilder: (context, index) {
+    //       return const SizedBox(
+    //         height: 16,
+    //       );
+    //     },
+    //   ),
+    // );
   }
 }

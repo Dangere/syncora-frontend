@@ -33,6 +33,8 @@ class InputField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isLTR = Directionality.of(context) == TextDirection.ltr;
+
     return Stack(
       // alignment: Alignment.bottomLeft,
 
@@ -57,7 +59,10 @@ class InputField extends StatelessWidget {
                 textAlignVertical: TextAlignVertical.center,
                 decoration: InputDecoration(
                   hintText: hintText,
-                  suffixIcon: suffixIcon != null ? Icon(suffixIcon) : null,
+                  suffixIcon: suffixIcon != null
+                      ? GestureDetector(
+                          onTap: onSuffixIconPressed, child: Icon(suffixIcon))
+                      : null,
                 ),
                 controller: controller,
                 validator: validator,
@@ -65,26 +70,6 @@ class InputField extends StatelessWidget {
             ),
           ],
         ),
-        // TODO: this is unstable, rework it
-        Positioned(
-            top: 30,
-            right: 0,
-            child: GestureDetector(
-              onTap: () {
-                if (suffixIcon != null && onSuffixIconPressed != null) {
-                  onSuffixIconPressed!();
-                }
-              },
-              child: Container(
-                color: Colors.red.withOpacity(0.2),
-                child: SizedBox(
-                  height: 45,
-                  width: 45,
-                  child: Center(
-                      child: Icon(suffixIcon, color: Colors.transparent)),
-                ),
-              ),
-            )),
       ],
     );
   }
