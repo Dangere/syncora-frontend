@@ -15,4 +15,10 @@ class UserPreferences {
 
   Map<String, dynamic> toJson() =>
       {"darkMode": darkMode, "languageCode": locale.languageCode};
+
+  UserPreferences copyWith({bool? darkMode, String? languageCode}) {
+    return UserPreferences(
+        darkMode: darkMode ?? this.darkMode,
+        locale: languageCode != null ? Locale(languageCode) : locale);
+  }
 }

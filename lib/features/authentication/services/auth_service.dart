@@ -4,13 +4,13 @@ import 'package:cancellation_token/cancellation_token.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:syncora_frontend/core/typedef.dart';
 import 'package:syncora_frontend/core/utils/result.dart';
 import 'package:syncora_frontend/features/authentication/models/auth_response_dto.dart';
 import 'package:syncora_frontend/features/authentication/models/google_register_filled_info.dart';
 import 'package:syncora_frontend/features/authentication/models/google_user_info.dart';
 import 'package:syncora_frontend/features/authentication/models/tokens.dart';
 import 'package:syncora_frontend/features/authentication/auth_repository.dart';
+import 'package:syncora_frontend/features/users/models/user_preferences.dart';
 
 class AuthService {
   final AuthRepository _authRepository;
@@ -42,7 +42,8 @@ class AuthService {
       required String username,
       required String firstName,
       required String lastName,
-      required String password}) async {
+      required String password,
+      required UserPreferences preferences}) async {
     try {
       AuthResponseDTO registerResponse =
           await _authRepository.registerWithEmailAndPassword(
@@ -50,28 +51,10 @@ class AuthService {
               username: username,
               firstName: firstName,
               lastName: lastName,
-              password: password);
+              password: password,
+              preferences: preferences);
 
       return Result.success(registerResponse);
-    } catch (e, stackTrace) {
-      return Result.failure(e, stackTrace);
-    }
-  }
-
-  Future<Result<Tokens>> refreshAccessToken(
-      {required Tokens tokens,
-      required VoidCallback onExpire,
-      CancellationToken? cancellationToken}) async {
-    try {
-      Tokens refreshedTokens = await _authRepository
-          .refreshAccessToken(tokens: tokens)
-          .asCancellable(cancellationToken);
-      return Result.success(refreshedTokens);
-    } on DioException catch (e, stackTrace) {
-      if (e.response?.statusCode == 401) {
-        onExpire();
-      }
-      return Result.failure(e, stackTrace);
     } catch (e, stackTrace) {
       return Result.failure(e, stackTrace);
     }
@@ -108,6 +91,32 @@ class AuthService {
     }
   }
 
+  Future<Result<AuthResponseDTO>> registerUserWithGoogle(
+      GoogleUserInfo googleUserInfo,
+      GoogleRegisterFilledInfo userFilledInfo,
+      UserPreferences preferences) async {
+    if (!(kIsWeb || Platform.isAndroid)) {
+      return Result.failureMessage(
+          "Google login is only available on Android and Web");
+    }
+
+    try {
+      AuthResponseDTO registerResponse =
+          await _authRepository.registerWithGoogle(googleUserInfo.token,
+              firstName: userFilledInfo.firstName,
+              lastName: userFilledInfo.lastName,
+              username: userFilledInfo.username,
+              password: userFilledInfo.password,
+              preferences: preferences);
+
+      return Result.success(registerResponse);
+    } catch (e, stackTrace) {
+      googleSignIn.signOut();
+
+      return Result.failure(e, stackTrace);
+    }
+  }
+
   Future<Result<GoogleUserInfo>> getGoogleRegisterToken() async {
     if (!(kIsWeb || Platform.isAndroid)) {
       return Result.failureMessage(
@@ -139,26 +148,21 @@ class AuthService {
     }
   }
 
-  Future<Result<AuthResponseDTO>> registerUserWithGoogle(
-      GoogleUserInfo googleUserInfo,
-      GoogleRegisterFilledInfo userFilledInfo) async {
-    if (!(kIsWeb || Platform.isAndroid)) {
-      return Result.failureMessage(
-          "Google login is only available on Android and Web");
-    }
-
+  Future<Result<Tokens>> refreshAccessToken(
+      {required Tokens tokens,
+      required VoidCallback onExpire,
+      CancellationToken? cancellationToken}) async {
     try {
-      AuthResponseDTO registerResponse =
-          await _authRepository.registerWithGoogle(googleUserInfo.token,
-              firstName: userFilledInfo.firstName,
-              lastName: userFilledInfo.lastName,
-              username: userFilledInfo.username,
-              password: userFilledInfo.password);
-
-      return Result.success(registerResponse);
+      Tokens refreshedTokens = await _authRepository
+          .refreshAccessToken(tokens: tokens)
+          .asCancellable(cancellationToken);
+      return Result.success(refreshedTokens);
+    } on DioException catch (e, stackTrace) {
+      if (e.response?.statusCode == 401) {
+        onExpire();
+      }
+      return Result.failure(e, stackTrace);
     } catch (e, stackTrace) {
-      googleSignIn.signOut();
-
       return Result.failure(e, stackTrace);
     }
   }

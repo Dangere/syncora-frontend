@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:logger/logger.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:syncora_frontend/core/network/outbox/model/enqueue_request.dart';
 import 'package:syncora_frontend/core/network/outbox/model/outbox_entry.dart';
@@ -20,6 +21,7 @@ class UsersService {
   final AuthState Function() _authStateFactory;
   final AsyncFunc<EnqueueRequest, Result<void>> _enqueueEntry;
 
+  // User preferences persists even when logged out and get overridden if a logged out user changes them
   static const _userPreferencesKey = 'userPreferences';
 
   UsersService(this._localUsersRepository, this._remoteUsersRepository,
@@ -101,8 +103,18 @@ class UsersService {
 
   Future<Result<void>> updatePreferences(
       {bool? darkMode, String? languageCode}) async {
-    if (_authStateFactory().isUnauthenticated)
-      return Result.canceled("Unauthenticated update to user preferences");
+    if (_authStateFactory().isUnauthenticated || _authStateFactory().isGuest) {
+      Result<UserPreferences> preferencesResult = await getPreferences();
+
+      if (!preferencesResult.isSuccess) return preferencesResult;
+
+      UserPreferences newPreferences = preferencesResult.data!
+          .copyWith(darkMode: darkMode, languageCode: languageCode);
+      Result savePreferencesResult = await savePreferences(newPreferences);
+      if (!savePreferencesResult.isSuccess) return savePreferencesResult;
+
+      return Result.success();
+    }
 
     Result enqueueResult = await _enqueueEntry(EnqueueRequest(
       entry: OutboxEntry.entry(
@@ -115,6 +127,15 @@ class UsersService {
         ),
       ),
       onAfterEnqueue: () async {
+        Result<UserPreferences> preferencesResult = await getPreferences();
+
+        if (!preferencesResult.isSuccess) return preferencesResult;
+
+        UserPreferences newPreferences = preferencesResult.data!
+            .copyWith(darkMode: darkMode, languageCode: languageCode);
+        Result savePreferencesResult = await savePreferences(newPreferences);
+        if (!savePreferencesResult.isSuccess) return savePreferencesResult;
+
         return Result.success();
       },
     ));
@@ -125,7 +146,7 @@ class UsersService {
     return Result.success();
   }
 
-  // Saves the main user preferences
+  // Retrieves the global user preferences or defaults if theres none yet
   Future<Result<UserPreferences>> getPreferences() async {
     try {
       String? preferences = _sharedPreferences.getString(_userPreferencesKey);
@@ -134,15 +155,17 @@ class UsersService {
         return Result.success(
             UserPreferences.fromJson(jsonDecode(preferences)));
       } else {
-        return Result.failure(
-            Exception("User preferences not found"), StackTrace.current);
+        // If no preferences are found, return the defaults
+        UserPreferences defaultPreferences = UserPreferences.defaults();
+        await savePreferences(defaultPreferences);
+        return Result.success(defaultPreferences);
       }
     } catch (e, stackTrace) {
       return Result.failure(e, stackTrace);
     }
   }
 
-  // Saves the main user preferences
+  // Saves the global user preferences
   Future<Result<void>> savePreferences(UserPreferences preferences) async {
     try {
       _sharedPreferences.setString(

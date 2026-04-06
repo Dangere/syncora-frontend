@@ -90,15 +90,14 @@ class LocaleNotifier extends Notifier<Locale> {
   @override
   Locale build() {
     ref.listen(
-      isAuthenticatedProvider,
+      authStateProvider,
       (previous, next) async {
-        if (next) {
-          Result<UserPreferences> preferences =
-              await ref.read(usersServiceProvider).getPreferences();
+        // if (next) {
+        Result<UserPreferences> preferences =
+            await ref.read(usersServiceProvider).getPreferences();
 
-          if (preferences.isSuccess) {
-            state = preferences.data!.locale;
-          }
+        if (preferences.isSuccess) {
+          state = preferences.data!.locale;
         }
       },
     );
@@ -126,16 +125,13 @@ class ThemeModeNotifier extends Notifier<ThemeMode> {
   @override
   ThemeMode build() {
     ref.listen(
-      isAuthenticatedProvider,
+      authStateProvider,
       (previous, next) async {
-        if (next) {
-          Result<UserPreferences> preferences =
-              await ref.read(usersServiceProvider).getPreferences();
+        Result<UserPreferences> preferences =
+            await ref.read(usersServiceProvider).getPreferences();
 
-          if (preferences.isSuccess) {
-            state =
-                preferences.data!.darkMode ? ThemeMode.dark : ThemeMode.light;
-          }
+        if (preferences.isSuccess) {
+          state = preferences.data!.darkMode ? ThemeMode.dark : ThemeMode.light;
         }
       },
     );

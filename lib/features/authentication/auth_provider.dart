@@ -91,9 +91,18 @@ class AuthNotifier extends AsyncNotifier<AuthState> {
 
     state = const AsyncValue.loading();
 
+    Result<UserPreferences> preferencesResult =
+        await ref.read(usersServiceProvider).getPreferences();
+    if (!preferencesResult.isSuccess) {
+      ref.read(appErrorProvider.notifier).state = preferencesResult.error!;
+      state = const AsyncValue.data(AuthUnauthenticated());
+      return;
+    }
+
     Result<AuthResponseDTO> result = await ref
         .read(authServiceProvider)
-        .registerUserWithGoogle(googleUserInfo, userFilledInfo);
+        .registerUserWithGoogle(
+            googleUserInfo, userFilledInfo, preferencesResult.data!);
 
     if (!result.isSuccess) {
       ref.read(appErrorProvider.notifier).state = result.error!;
@@ -135,6 +144,8 @@ class AuthNotifier extends AsyncNotifier<AuthState> {
       state = const AsyncValue.data(AuthUnauthenticated());
     }
 
+    ref.read(loggerProvider).w(result.data!.userPreferences.toJson());
+
     // Save session and user data
     Result saveSessionResult = await _saveSession(
         result.data!.user,
@@ -163,6 +174,14 @@ class AuthNotifier extends AsyncNotifier<AuthState> {
 
     state = const AsyncValue.loading();
 
+    Result<UserPreferences> preferencesResult =
+        await ref.read(usersServiceProvider).getPreferences();
+    if (!preferencesResult.isSuccess) {
+      ref.read(appErrorProvider.notifier).state = preferencesResult.error!;
+      state = const AsyncValue.data(AuthUnauthenticated());
+      return;
+    }
+
     Result<AuthResponseDTO> result = await ref
         .read(authServiceProvider)
         .registerWithEmailAndPassword(
@@ -170,7 +189,8 @@ class AuthNotifier extends AsyncNotifier<AuthState> {
             username: username,
             password: password,
             firstName: firstName,
-            lastName: lastName);
+            lastName: lastName,
+            preferences: preferencesResult.data!);
 
     if (!result.isSuccess) {
       ref.read(appErrorProvider.notifier).state = result.error!;
@@ -201,9 +221,9 @@ class AuthNotifier extends AsyncNotifier<AuthState> {
     if (state.isLoading || _isLoggedIn) return;
     state = const AsyncValue.loading();
 
-    // Save session and user data
-    Result saveSessionResult = await _saveSession(
-        User.guest(username), false, null, UserPreferences.defaults());
+    // Save session and user data (both tokens and user preferences are passed null)
+    Result saveSessionResult =
+        await _saveSession(User.guest(username), false, null, null);
 
     if (!saveSessionResult.isSuccess) {
       ref.read(appErrorProvider.notifier).state = saveSessionResult.error!;
@@ -351,15 +371,19 @@ class AuthNotifier extends AsyncNotifier<AuthState> {
   }
 
   Future<Result<void>> _saveSession(User user, bool isVerified, Tokens? tokens,
-      UserPreferences userPreferences) async {
+      UserPreferences? userPreferences) async {
     // Save data
     Result<void> saveUserResult =
         await ref.read(usersServiceProvider).saveUser(user);
     if (!saveUserResult.isSuccess) return saveUserResult;
 
-    Result<void> saveUserPreferencesResult =
-        await ref.read(usersServiceProvider).savePreferences(userPreferences);
-    if (!saveUserPreferencesResult.isSuccess) return saveUserPreferencesResult;
+    if (userPreferences != null) {
+      Result<void> saveUserPreferencesResult =
+          await ref.read(usersServiceProvider).savePreferences(userPreferences);
+      if (!saveUserPreferencesResult.isSuccess) {
+        return saveUserPreferencesResult;
+      }
+    }
 
     // Save session
     Result<void> saveSessionResult = await ref

@@ -4,6 +4,7 @@ import 'package:dio/dio.dart';
 import 'package:syncora_frontend/core/constants/constants.dart';
 import 'package:syncora_frontend/features/authentication/models/auth_response_dto.dart';
 import 'package:syncora_frontend/features/authentication/models/tokens.dart';
+import 'package:syncora_frontend/features/users/models/user_preferences.dart';
 
 class AuthRepository {
   final Dio _dio;
@@ -29,7 +30,8 @@ class AuthRepository {
       required String username,
       required String firstName,
       required String lastName,
-      required String password}) async {
+      required String password,
+      UserPreferences? preferences}) async {
     // Getting the register response
     final response = await _dio
         .post("${Constants.BASE_API_URL}/authentication/register", data: {
@@ -38,8 +40,53 @@ class AuthRepository {
       "Password": password,
       "FirstName": firstName,
       "LastName": lastName,
-      //  "preferences": {"darkMode": darkMode, "languageCode": languageCode}
+      if (preferences != null)
+        "preferences": {
+          "darkMode": preferences.darkMode,
+          "languageCode": preferences.locale.languageCode
+        }
     }).timeout(const Duration(seconds: 20));
+
+    AuthResponseDTO authResponse = AuthResponseDTO.fromJson(response.data);
+
+    // Returning the authentication response
+    return authResponse;
+  }
+
+  Future<AuthResponseDTO> loginWithGoogle(String idToken) async {
+    // Getting the login response
+    final response = await _dio
+        .post("${Constants.BASE_API_URL}/authentication/login/google/$idToken")
+        .timeout(const Duration(seconds: 20));
+
+    AuthResponseDTO authResponse = AuthResponseDTO.fromJson(response.data);
+
+    // Returning the authentication response
+    return authResponse;
+  }
+
+  // We could first ask for additional information from the user before registering
+  Future<AuthResponseDTO> registerWithGoogle(String idToken,
+      {required String username,
+      required String password,
+      required String firstName,
+      required String lastName,
+      UserPreferences? preferences}) async {
+    // Getting the register response
+    final response = await _dio.post(
+        "${Constants.BASE_API_URL}/authentication/register/google",
+        data: {
+          "IdToken": idToken,
+          "FirstName": firstName,
+          "LastName": lastName,
+          "Username": username,
+          "Password": password,
+          if (preferences != null)
+            "preferences": {
+              "darkMode": preferences.darkMode,
+              "languageCode": preferences.locale.languageCode
+            }
+        }).timeout(const Duration(seconds: 20));
 
     AuthResponseDTO authResponse = AuthResponseDTO.fromJson(response.data);
 
@@ -63,42 +110,6 @@ class AuthRepository {
 
     return Tokens(
         accessToken: fetchedAccessToken, refreshToken: fetchedRefreshToken);
-  }
-
-  Future<AuthResponseDTO> loginWithGoogle(String idToken) async {
-    // Getting the login response
-    final response = await _dio
-        .post("${Constants.BASE_API_URL}/authentication/login/google/$idToken")
-        .timeout(const Duration(seconds: 20));
-
-    AuthResponseDTO authResponse = AuthResponseDTO.fromJson(response.data);
-
-    // Returning the authentication response
-    return authResponse;
-  }
-
-  // We could first ask for additional information from the user before registering
-  Future<AuthResponseDTO> registerWithGoogle(String idToken,
-      {required String username,
-      required String password,
-      required String firstName,
-      required String lastName}) async {
-    // Getting the register response
-    final response = await _dio.post(
-        "${Constants.BASE_API_URL}/authentication/register/google",
-        data: {
-          "IdToken": idToken,
-          "FirstName": firstName,
-          "LastName": lastName,
-          "Username": username,
-          "Password": password,
-          //  "preferences": {"darkMode": darkMode, "languageCode": languageCode}
-        }).timeout(const Duration(seconds: 20));
-
-    AuthResponseDTO authResponse = AuthResponseDTO.fromJson(response.data);
-
-    // Returning the authentication response
-    return authResponse;
   }
 
   Future<void> sendVerificationEmail() async {
