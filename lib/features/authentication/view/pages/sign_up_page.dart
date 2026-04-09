@@ -120,8 +120,7 @@ class _SignUpPageState extends ConsumerState<SignUpPage> {
                                       return 'First name cannot be empty';
                                     }
 
-                                    if (Validators.validateUsername(
-                                            value.trim()) ==
+                                    if (Validators.validateName(value.trim()) ==
                                         false) {
                                       return 'Invalid first name';
                                     }
@@ -145,8 +144,7 @@ class _SignUpPageState extends ConsumerState<SignUpPage> {
                                       return 'Last name cannot be empty';
                                     }
 
-                                    if (Validators.validateUsername(
-                                            value.trim()) ==
+                                    if (Validators.validateName(value.trim()) ==
                                         false) {
                                       return 'Invalid last name';
                                     }

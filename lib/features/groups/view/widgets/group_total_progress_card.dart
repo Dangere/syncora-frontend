@@ -23,10 +23,11 @@ class _GroupTotalProgressCardState
 
   @override
   Widget build(BuildContext context) {
-    ref.watch(groupsProvider);
+    ref.watch(groupsListProvider);
     return FutureBuilder(
-        future:
-            ref.read(groupsProvider.notifier).getGroupsTotalProgress(true, 30),
+        future: ref
+            .read(groupsListProvider.notifier)
+            .getGroupsTotalProgress(true, 30),
         builder: (context, asyncSnapshot) {
           if (asyncSnapshot.connectionState == ConnectionState.waiting &&
               groupProgress == null) {

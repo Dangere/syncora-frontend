@@ -125,8 +125,7 @@ class _GoogleSignUpPageState extends ConsumerState<GoogleSignUpPage> {
                                       return 'First name cannot be empty';
                                     }
 
-                                    if (Validators.validateUsername(
-                                            value.trim()) ==
+                                    if (Validators.validateName(value.trim()) ==
                                         false) {
                                       return 'Invalid first name';
                                     }
@@ -150,8 +149,7 @@ class _GoogleSignUpPageState extends ConsumerState<GoogleSignUpPage> {
                                       return 'Last name cannot be empty';
                                     }
 
-                                    if (Validators.validateUsername(
-                                            value.trim()) ==
+                                    if (Validators.validateName(value.trim()) ==
                                         false) {
                                       return 'Invalid last name';
                                     }

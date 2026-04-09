@@ -324,7 +324,7 @@ class Tests {
           loremIpsum(paragraphs: 1, words: 10 + Random().nextInt(10));
 
       await ref
-          .read(groupsProvider.notifier)
+          .read(groupsListProvider.notifier)
           .createGroup(title: title, description: description);
     }
   }

@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:logger/logger.dart';
 import 'package:syncora_frontend/core/network/outbox/exception/outbox_exception.dart';
 import 'package:syncora_frontend/core/network/outbox/interface/outbox_processor_interface.dart';
@@ -26,7 +27,7 @@ class GroupsProcessor extends OutboxProcessor {
     // To process a group deletion/updating we get our mandatory group id dependency
     int? groupId;
     if (entry.actionType != OutboxActionType.create) {
-      Result result = await idMapper.getServerId(entry.entityId);
+      Result result = await idMapper.getDependency(entry.entityId);
       if (!result.isSuccess || result.data == null) {
         throw OutboxDependencyFailureException(
             "Group dependency failed to get, entry: ${entry.toTable()}");
@@ -92,8 +93,8 @@ class GroupsProcessor extends OutboxProcessor {
   Future<int> revertLocalChange(OutboxEntry entry) async {
     int? groupId;
     if (entry.actionType != OutboxActionType.create) {
-      // Every time we call getServerId, we are SURE that temp id is already synced to server
-      Result result = await idMapper.getServerId(entry.entityId);
+      // Every time we call getDependency, we are SURE that temp id is already synced to server
+      Result result = await idMapper.getDependency(entry.entityId);
       if (!result.isSuccess || result.data == null) {
         throw OutboxDependencyFailureException(
             "Group dependency failed to get, entry: ${entry.toTable()}");

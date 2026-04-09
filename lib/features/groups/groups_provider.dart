@@ -27,7 +27,7 @@ enum GroupsFilter { inProgress, completed, shared, owned, newest, oldest }
 // It updates as well through the outbox processor to reflect updates
 // It also updates the current viewed group's notifier if its details change
 // It does NOT update the tasks notifier as it works independently
-class GroupsNotifier extends AutoDisposeAsyncNotifier<List<Group>> {
+class GroupsListNotifier extends AutoDisposeAsyncNotifier<List<Group>> {
   List<GroupsFilter> get filters => _filters;
 
   List<GroupsFilter> _filters = [GroupsFilter.inProgress];
@@ -43,7 +43,7 @@ class GroupsNotifier extends AutoDisposeAsyncNotifier<List<Group>> {
 
   // This gets called when the outbox processor updates an entity within a group or the group itself
   // It provides the group synced id
-  // This gets called after onOutboxGroupIdUpdate
+  // This gets called after ids are resolved
   void onOutboxSync(int groupId) {
     ref.read(loggerProvider).d("Groups provider: Outbox update received");
 
@@ -54,57 +54,24 @@ class GroupsNotifier extends AutoDisposeAsyncNotifier<List<Group>> {
 
   // This gets called when the outbox reverts an entity within a group or the group itself
   // It provides the group synced id
-  // This gets called after onOutboxGroupIdUpdate
+  // This gets called after onOutboxGroupSynced
   void onOutboxRevert(int groupId) {
-    ref.read(loggerProvider).d("Groups provider: Outbox revert received");
+    ref
+        .read(loggerProvider)
+        .d("Groups provider: Outbox revert received for $groupId");
 
-    // We update the viewed group to reflect the revert
-    reloadViewedGroups([groupId]);
-
-    // We update the viewed tasks to reflect the revert
-    if (ref.exists(tasksProvider(groupId)))
-      ref.invalidate(tasksProvider(groupId));
-
+    // We refresh the viewed groups and tasks to reflect the revert
     // When an entity updates within a group and is reverted
-    // We update the groups list
+    _refreshViewedGroups([groupId]);
+    // We refresh the groups list
     _reloadGroupsList();
   }
 
   // This gets called when a group updates its temp id to a server id
-  // Used to update the viewed group and tasks to use the new id
+  // Used to update the viewed group and tasks to use the new id (this logic was moved to be done by the outbox provider)
   // This gets called before onOutboxGroupUpdate
-  void onOutboxGroupSynced({required int tempId, required int serverId}) async {
-    // TODO: This needs work
-    // ref
-    //     .read(loggerProvider)
-    //     .d("Groups provider: Group id updated, invalidating tasks notifiers");
-    // Result<int?> serverId =
-    //     await ref.read(outboxIdMapperProvider).getServerId(tempId);
-
-    // if (!serverId.isSuccess) {
-    //   ref.read(appErrorProvider.notifier).state = serverId.error;
-    //   return;
-    // }
-    // if (serverId.data == null) {
-    //   ref.read(appErrorProvider.notifier).state = ErrorMapper.map(
-    //       "Groups provider: Group id not found when calling onOutboxGroupIdUpdate",
-    //       null);
-    //   return;
-    // }
-
-    // // When updating group id, we invalidate the tasksProvider to start listening to new id
-    // if (serverId.data != null) {
-    //   if (ref.exists(tasksProvider(serverId.data!)))
-    //     ref.invalidate(tasksProvider(serverId.data!));
-    // }
-
-    // if (ref.exists(tasksProvider(tempId)))
-    //   ref.invalidate(tasksProvider(tempId));
-
-    // TODO: reloading all groups might be too much when one entry is updated,
-    // Could be called instead when the outbox queue is done processing all entires
-    _reloadGroupsList();
-  }
+  void onOutboxGroupSynced(
+      {required int tempId, required int serverId}) async {}
 
   Future<void> createGroup(
       {required String title, required String description}) async {
@@ -119,148 +86,6 @@ class GroupsNotifier extends AutoDisposeAsyncNotifier<List<Group>> {
     }
 
     _reloadGroupsList();
-  }
-
-  Future<void> updateGroupDetails(
-      {String? title, String? description, required int groupId}) async {
-    if (title == null && description == null) return;
-
-    ref.read(loggerProvider).d("Groups provider: Updating group details");
-    Result<void> updateResult = await ref
-        .read(groupsServiceProvider)
-        .updateGroupDetails(title, description, groupId);
-    ref.read(loggerProvider).d("Groups provider: Done updating group details");
-
-    if (!updateResult.isSuccess) {
-      ref.read(appErrorProvider.notifier).state = updateResult.error;
-      return;
-    }
-
-    _reloadGroupsList();
-    reloadViewedGroups([groupId]);
-  }
-
-  Future<void> deleteGroup(int groupId) async {
-    Result<void> deleteResult =
-        await ref.read(groupsServiceProvider).deleteGroup(groupId);
-
-    if (!deleteResult.isSuccess) {
-      ref.read(appErrorProvider.notifier).state = deleteResult.error;
-      return;
-    }
-
-    // These reflect local changes, the groups are onces referenced in the outbox for online changes
-    _reloadGroupsList();
-    reloadViewedGroups([groupId]);
-  }
-
-  Future<void> leaveGroup(int groupId) async {
-    Result<void> leaveResult =
-        await ref.read(groupsServiceProvider).leaveGroup(groupId);
-
-    if (!leaveResult.isSuccess) {
-      ref.read(appErrorProvider.notifier).state = leaveResult.error;
-      return;
-    }
-    _reloadGroupsList();
-    reloadViewedGroups([groupId]);
-  }
-
-  Future<bool> allowUserAccessToGroup(
-      {required int groupId, required String username}) async {
-    Result updateResult = await ref
-        .read(groupsServiceProvider)
-        .grantAccessToGroup(
-            allowAccess: true, groupId: groupId, usernames: [username]);
-
-    ref.read(loggerProvider).d(updateResult);
-
-    if (!updateResult.isSuccess) {
-      ref.read(appErrorProvider.notifier).state = updateResult.error;
-      return false;
-    }
-    _reloadGroupsList();
-    return true;
-  }
-
-  Future<void> allowUsersAccessToGroup(
-      {required int groupId, required List<String> usernames}) async {
-    ref.read(loggerProvider).d("Groups provider: Adding $usernames");
-    Result<void> updateResult = await ref
-        .read(groupsServiceProvider)
-        .grantAccessToGroup(
-            allowAccess: true, groupId: groupId, usernames: usernames);
-
-    if (!updateResult.isSuccess) {
-      ref.read(appErrorProvider.notifier).state = updateResult.error;
-      return;
-    }
-
-    _reloadGroupsList();
-  }
-
-  Future<bool> removeUserAccessToGroup(
-      {required int groupId, required String username}) async {
-    Result<void> updateResult = await ref
-        .read(groupsServiceProvider)
-        .grantAccessToGroup(
-            allowAccess: false, groupId: groupId, usernames: [username]);
-    ref.read(loggerProvider).d(updateResult);
-
-    if (!updateResult.isSuccess) {
-      ref.read(appErrorProvider.notifier).state = updateResult.error;
-      return false;
-    }
-    _reloadGroupsList();
-    return true;
-  }
-
-  Future<List<User>> getGroupMembers(int groupId, bool includeOwner) async {
-    Result<List<User>> result = await ref
-        .read(usersServiceProvider)
-        .getGroupMembers(groupId, includeOwner);
-    if (!result.isSuccess) {
-      ref.read(appErrorProvider.notifier).state = result.error;
-      return [];
-    }
-    return result.data!;
-  }
-
-  void _reloadGroupsList() async {
-    // Multiple calls to reload groups can happen at the same time (one for local changes and one for remote changes)
-    if (_waitingToReloadGroupList) return;
-
-    if (state.isLoading) {
-      _waitingToReloadGroupList = true;
-      await Future.doWhile(() async {
-        await Future.delayed(const Duration(seconds: 3));
-        return state.isLoading;
-      });
-      _waitingToReloadGroupList = false;
-    }
-
-    // If we aren't on the home page (not viewing the groups list), we schedule a reload
-    if (ref.read(routeProvider).state.name != "home") {
-      ref.read(loggerProvider).d(
-          "Groups provider: Scheduling a groups list reload on going to home page");
-
-      _waitingToReloadGroupList = true;
-      return;
-    }
-
-    ref.read(loggerProvider).d("Groups provider: Reloading groups");
-    state = const AsyncValue.loading();
-
-    Result<List<Group>> fetchResult =
-        await ref.read(groupsServiceProvider).getAllGroups(_filters, _search);
-
-    if (!fetchResult.isSuccess) {
-      ref.read(appErrorProvider.notifier).state = fetchResult.error;
-      state = AsyncValue.error(fetchResult.error!.errorObject,
-          fetchResult.error!.stackTrace ?? StackTrace.current);
-    } else {
-      state = AsyncValue.data(fetchResult.data!);
-    }
   }
 
   Future<void> filterGroups(List<GroupsFilter> groupFilters) async {
@@ -284,13 +109,18 @@ class GroupsNotifier extends AutoDisposeAsyncNotifier<List<Group>> {
   }
 
   // Checks if the current user is the owner of the group, uses in-memory cache
-  bool isGroupOwner({required int groupId, required int userId}) {
-    Group? group =
-        state.value?.where((group) => group.id == groupId).firstOrNull;
-    if (group != null) {
-      return group.ownerUserId == userId;
+  Future<bool> isGroupOwner(int groupId) async {
+    int resolvedId = ref.read(outboxIdMapperProvider).resolveId(groupId);
+    Result<bool> fetchResult = await ref
+        .read(groupsServiceProvider)
+        .isGroupOwner(
+            groupId: resolvedId, userId: ref.read(authProvider).value!.userId!);
+    if (!fetchResult.isSuccess) {
+      ref.read(appErrorProvider.notifier).state = fetchResult.error;
+      return false;
     }
-    return false;
+
+    return fetchResult.data!;
   }
 
   Future<int?> getGroupsCount(List<GroupsFilter> groupFilters) async {
@@ -333,41 +163,73 @@ class GroupsNotifier extends AutoDisposeAsyncNotifier<List<Group>> {
     }
   }
 
-  /// Updates the widgets that are displaying a group using its tempId or serverId
-  void reloadViewedGroups(List<int> groupIds) async {
-    ref.read(loggerProvider).d("Groups provider: Reloading group view");
-
-    // Invalidate the group view provider for the given id, and its secondary id (tempId, or serverId)
-    for (var id in groupIds) {
-      if (ref.exists(groupViewProvider(id))) {
-        ref.invalidate(groupViewProvider(id));
+  void _refreshViewedGroups(List<int> ids) {
+    for (int id in ids) {
+      if (ref.exists(tasksProvider(id))) {
+        ref.invalidate(tasksProvider(id));
       }
 
-      late int? secondaryId;
-      // If id is negative, then it's a temp id, we get the server id if its synced
-      if (id < 0) {
-        Result<int?> serverIdResult =
-            await ref.read(outboxIdMapperProvider).getServerId(id);
+      if (ref.exists(groupProvider(id))) {
+        ref.invalidate(groupProvider(id));
+      }
 
-        if (serverIdResult.isSuccess) {
-          secondaryId = serverIdResult.data;
+      int? correlatedId = ref.read(outboxIdMapperProvider).getCorrelatedId(id);
+
+      if (correlatedId != null) {
+        if (ref.exists(tasksProvider(correlatedId))) {
+          ref.invalidate(tasksProvider(correlatedId));
+        }
+
+        if (ref.exists(groupProvider(correlatedId))) {
+          ref.invalidate(groupProvider(correlatedId));
         }
       }
-      // If id is positive, then it's a server id, we get the temp id if its there
-      else {
-        Result<int?> tempId =
-            await ref.read(outboxIdMapperProvider).getTempId(id);
+    }
+  }
 
-        if (tempId.isSuccess) {
-          secondaryId = tempId.data;
-        }
-      }
-      if (secondaryId != null) {
-        if (ref.exists(groupViewProvider(secondaryId))) {
-          ref.invalidate(groupViewProvider(secondaryId));
-        }
-      }
-      ;
+  void _reloadGroupsList() async {
+    // Multiple calls to reload groups can happen at the same time (one for local changes and one for remote changes)
+    if (_waitingToReloadGroupList) {
+      ref
+          .read(loggerProvider)
+          .d("Groups provider: Waiting to reload group list again");
+      return;
+    }
+
+    if (state.isLoading) {
+      _waitingToReloadGroupList = true;
+      await Future.doWhile(() async {
+        ref
+            .read(loggerProvider)
+            .d("Groups provider: reload group list is loading");
+        await Future.delayed(const Duration(seconds: 3));
+        return state.isLoading;
+      });
+      _waitingToReloadGroupList = false;
+    }
+
+    // If we aren't on the home page (not viewing the groups list), we schedule a reload
+    if (ref.read(routeProvider).state.name != "home") {
+      ref.read(loggerProvider).d(
+          "Groups provider: Scheduling a groups list reload on going to home page");
+
+      _waitingToReloadGroupList = true;
+      return;
+    }
+
+    ref.read(loggerProvider).d("Groups provider: Reloading groups");
+    state = const AsyncValue.loading();
+
+    Result<List<Group>> fetchResult = await ref
+        .read(groupsServiceProvider)
+        .getCachedGroups(_filters, _search);
+
+    if (!fetchResult.isSuccess) {
+      ref.read(appErrorProvider.notifier).state = fetchResult.error;
+      state = AsyncValue.error(
+          fetchResult.error!.errorObject, fetchResult.error!.stackTrace);
+    } else {
+      state = AsyncValue.data(fetchResult.data!);
     }
   }
 
@@ -394,13 +256,15 @@ class GroupsNotifier extends AutoDisposeAsyncNotifier<List<Group>> {
         // Meaning when a task is deleted, the current view group wont know,
         // However it will still reflect in the tasks shown in the group by default
         // Because the tasks notifier listens to the list of deleted tasks in the sync payload and removes it
-        reloadViewedGroups(next.value!.payload!.modifiedGroupIds().toList());
+        _refreshViewedGroups(next.value!.payload!.modifiedGroupIds().toList());
       }
     });
 
     // Updating the UI on viewing the groups list in the home page if we had changes marked by `_waitingToReloadGroupList`
     ref.read(routeProvider.notifier).dataStream.listen(
       (event) {
+        ref.read(loggerProvider).d("Groups provider: changed route to $event");
+
         if (event == "home" && _waitingToReloadGroupList) {
           _waitingToReloadGroupList = false;
           ref
@@ -421,7 +285,7 @@ class GroupsNotifier extends AutoDisposeAsyncNotifier<List<Group>> {
           // await Future.delayed(const Duration(seconds: 1));
           Result<List<Group>> fetchResult = await ref
               .read(groupsServiceProvider)
-              .getAllGroups(_filters, null);
+              .getCachedGroups(_filters, null);
 
           if (!fetchResult.isSuccess) {
             ref.read(appErrorProvider.notifier).state = fetchResult.error;
@@ -444,41 +308,157 @@ class GroupsNotifier extends AutoDisposeAsyncNotifier<List<Group>> {
   }
 }
 
-final groupsProvider =
-    AutoDisposeAsyncNotifierProvider<GroupsNotifier, List<Group>>(
-        GroupsNotifier.new);
+final groupsListProvider =
+    AutoDisposeAsyncNotifierProvider<GroupsListNotifier, List<Group>>(
+        GroupsListNotifier.new);
 
-final groupViewProvider =
-    FutureProvider.family.autoDispose<Group?, int>((ref, id) async {
-  late int resolvedId;
+class GroupNotifier extends AutoDisposeFamilyAsyncNotifier<Group?, int> {
+  Future<void> updateGroupDetails(
+      {String? title, String? description, required int groupId}) async {
+    int resolvedId = ref.read(outboxIdMapperProvider).resolveId(groupId);
 
-  // If id is negative, then it's a temp id, we get the server id if possible
-  if (id < 0) {
-    Result<int?> serverIdResult =
-        await ref.read(outboxIdMapperProvider).getServerId(id);
-    if (!serverIdResult.isSuccess) {
-      ref.read(appErrorProvider.notifier).state = serverIdResult.error;
+    if (title == null && description == null) return;
+
+    Result<void> updateResult = await ref
+        .read(groupsServiceProvider)
+        .updateGroupDetails(title, description, resolvedId);
+
+    if (!updateResult.isSuccess) {
+      ref.read(appErrorProvider.notifier).state = updateResult.error;
+      return;
     }
 
-    // If id doesn't have a server id, use the temp id
-    if (serverIdResult.data == null) {
-      resolvedId = id;
-    } else {
-      resolvedId = serverIdResult.data!;
+    await _refreshState();
+  }
+
+  Future<void> deleteGroup(int groupId) async {
+    int resolvedId = ref.read(outboxIdMapperProvider).resolveId(groupId);
+
+    Result<void> deleteResult =
+        await ref.read(groupsServiceProvider).deleteGroup(resolvedId);
+
+    if (!deleteResult.isSuccess) {
+      ref.read(appErrorProvider.notifier).state = deleteResult.error;
+      return;
     }
-  } else {
-    resolvedId = id;
+
+    await _refreshState();
   }
-  ref
-      .read(loggerProvider)
-      .d("Group provider: Getting group with id $resolvedId");
-  try {
-    return await ref.read(localGroupsRepositoryProvider).getGroup(resolvedId);
-  } catch (e, stacktrace) {
-    ref.read(appErrorProvider.notifier).state = ErrorMapper.map(e, stacktrace);
-    rethrow;
+
+  Future<void> leaveGroup() async {
+    int resolvedId = ref.read(outboxIdMapperProvider).resolveId(arg);
+
+    Result<void> leaveResult =
+        await ref.read(groupsServiceProvider).leaveGroup(resolvedId);
+
+    if (!leaveResult.isSuccess) {
+      ref.read(appErrorProvider.notifier).state = leaveResult.error;
+      return;
+    }
+    await _refreshState();
   }
-});
+
+  Future<bool> allowUserAccessToGroup(String username) async {
+    int resolvedId = ref.read(outboxIdMapperProvider).resolveId(arg);
+
+    Result updateResult = await ref
+        .read(groupsServiceProvider)
+        .grantAccessToGroup(
+            allowAccess: true, groupId: resolvedId, usernames: [username]);
+
+    ref.read(loggerProvider).d(updateResult);
+
+    if (!updateResult.isSuccess) {
+      ref.read(appErrorProvider.notifier).state = updateResult.error;
+      return false;
+    }
+
+    await _refreshState();
+    return true;
+  }
+
+  Future<void> allowUsersAccessToGroup(List<String> usernames) async {
+    int resolvedId = ref.read(outboxIdMapperProvider).resolveId(arg);
+
+    ref.read(loggerProvider).d("Groups provider: Adding $usernames");
+    Result<void> updateResult = await ref
+        .read(groupsServiceProvider)
+        .grantAccessToGroup(
+            allowAccess: true, groupId: resolvedId, usernames: usernames);
+
+    if (!updateResult.isSuccess) {
+      ref.read(appErrorProvider.notifier).state = updateResult.error;
+      return;
+    }
+    await _refreshState();
+  }
+
+  Future<bool> removeUserAccessToGroup(String username) async {
+    int resolvedId = ref.read(outboxIdMapperProvider).resolveId(arg);
+
+    Result<void> updateResult = await ref
+        .read(groupsServiceProvider)
+        .grantAccessToGroup(
+            allowAccess: false, groupId: resolvedId, usernames: [username]);
+    ref.read(loggerProvider).d(updateResult);
+
+    if (!updateResult.isSuccess) {
+      ref.read(appErrorProvider.notifier).state = updateResult.error;
+      return false;
+    }
+    await _refreshState();
+    return true;
+  }
+
+  bool isGroupOwner() {
+    return state.value?.ownerUserId == ref.read(authProvider).value!.userId;
+  }
+
+  Future<List<User>> getGroupMembers(bool includeOwner) async {
+    int resolvedId = ref.read(outboxIdMapperProvider).resolveId(arg);
+
+    Result<List<User>> result = await ref
+        .read(usersServiceProvider)
+        .getGroupMembers(resolvedId, includeOwner);
+    if (!result.isSuccess) {
+      ref.read(appErrorProvider.notifier).state = result.error;
+      return [];
+    }
+    return result.data!;
+  }
+
+  Future _refreshState() async {
+    ref.read(loggerProvider).d("Group provider: Refreshing state");
+
+    int resolvedId = ref.read(outboxIdMapperProvider).resolveId(arg);
+
+    Result<Group?> groupResult =
+        await ref.read(groupsServiceProvider).getCachedGroup(resolvedId);
+    if (groupResult.isSuccess) state = AsyncData(groupResult.data);
+
+    ref.read(appErrorProvider.notifier).state = groupResult.error;
+  }
+
+  @override
+  FutureOr<Group?> build(int groupId) async {
+    int resolvedId = ref.read(outboxIdMapperProvider).resolveId(arg);
+
+    ref
+        .read(loggerProvider)
+        .d("Groups provider: Getting group with id $resolvedId");
+
+    Result<Group?> groupResult =
+        await ref.read(groupsServiceProvider).getCachedGroup(resolvedId);
+    if (!groupResult.isSuccess) {
+      ref.read(appErrorProvider.notifier).state = groupResult.error;
+    }
+
+    return groupResult.data;
+  }
+}
+
+final groupProvider = AsyncNotifierProvider.autoDispose
+    .family<GroupNotifier, Group?, int>(GroupNotifier.new);
 
 final localGroupsRepositoryProvider = Provider<LocalGroupsRepository>((ref) {
   return LocalGroupsRepository(ref.read(localDbProvider));

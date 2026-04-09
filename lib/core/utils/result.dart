@@ -18,6 +18,9 @@ class Result<T> {
   static Result<T> failure<T>(Object exception, StackTrace stackTrace) =>
       Result<T>(error: ErrorMapper.map(exception, stackTrace));
 
+  static Result<T> failureMap<T>(Result result) => Result<T>(
+      error: ErrorMapper.map(result.errorObject(), result.error!.stackTrace));
+
   static Result<T> canceled<T>(String message) => Result<T>(
       error: AppError(
           message: message,

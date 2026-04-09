@@ -79,28 +79,35 @@ class OutboxNotifier extends AsyncNotifier<OutboxStatus>
 
     Result<void> result = await ref.read(outboxServiceProvider).processQueue(
         onFail: (error, stackTrace) {
-          ref.read(appErrorProvider.notifier).state =
-              ErrorMapper.map(error, stackTrace);
-        },
-        requireSecondPass: () {
-          ref
-              .read(loggerProvider)
-              .w("Outbox Queue: We are calling for a second pass!");
-          _isAwaiting = true;
-        },
-        onGroupSync: ref.read(groupsProvider.notifier).onOutboxGroupSynced,
-        onRevert: (entityId, entityType) {
-          if (entityType == OutboxEntityType.group ||
-              entityType == OutboxEntityType.task) {
-            ref.read(groupsProvider.notifier).onOutboxRevert(entityId);
-          }
-        },
-        onSync: (entityId, entityType) {
-          if (entityType == OutboxEntityType.group ||
-              entityType == OutboxEntityType.task) {
-            ref.read(groupsProvider.notifier).onOutboxSync(entityId);
-          }
-        });
+      ref.read(appErrorProvider.notifier).state =
+          ErrorMapper.map(error, stackTrace);
+    }, requireSecondPass: () {
+      ref
+          .read(loggerProvider)
+          .w("Outbox Queue: We are calling for a second pass!");
+      _isAwaiting = true;
+    }, onEntityIdSync: ({required serverId, required tempId}) {
+      ref
+          .read(outboxIdMapperProvider)
+          .cacheId(tempId: tempId, serverId: serverId);
+      ref
+          .read(groupsListProvider.notifier)
+          .onOutboxGroupSynced(serverId: serverId, tempId: tempId);
+    }, onRevert: (entry) {
+      if (entry.entityType == OutboxEntityType.group) {
+        ref.read(groupsListProvider.notifier).onOutboxRevert(entry.entityId);
+      } else if (entry.entityType == OutboxEntityType.task) {
+        ref
+            .read(groupsListProvider.notifier)
+            .onOutboxRevert(entry.dependencyId!);
+      }
+    }, onSync: (entry) {
+      if (entry.entityType == OutboxEntityType.group) {
+        ref.read(groupsListProvider.notifier).onOutboxSync(entry.entityId);
+      } else if (entry.entityType == OutboxEntityType.task) {
+        ref.read(groupsListProvider.notifier).onOutboxSync(entry.dependencyId!);
+      }
+    });
 
     if (!result.isSuccess && !result.isCancelled) {
       ref.read(appErrorProvider.notifier).state = result.error;

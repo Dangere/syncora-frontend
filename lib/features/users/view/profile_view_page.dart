@@ -326,8 +326,7 @@ class _ProfileViewPageState extends ConsumerState<ProfileViewPage> {
                                     return 'First name cannot be empty';
                                   }
 
-                                  if (Validators.validateUsername(
-                                          value.trim()) ==
+                                  if (Validators.validateName(value.trim()) ==
                                       false) {
                                     return 'Invalid first name';
                                   }
@@ -351,8 +350,7 @@ class _ProfileViewPageState extends ConsumerState<ProfileViewPage> {
                                     return 'Last name cannot be empty';
                                   }
 
-                                  if (Validators.validateUsername(
-                                          value.trim()) ==
+                                  if (Validators.validateName(value.trim()) ==
                                       false) {
                                     return 'Invalid last name';
                                   }

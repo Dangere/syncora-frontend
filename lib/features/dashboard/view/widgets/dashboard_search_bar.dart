@@ -35,7 +35,7 @@ class _DashboardSearchBarState extends ConsumerState<DashboardSearchBar> {
     void onSearch(String query) {
       dismissedBar = true;
       ref
-          .read(groupsProvider.notifier)
+          .read(groupsListProvider.notifier)
           .searchGroups(query.isEmpty ? null : query);
       if (query.isEmpty) return;
       ref

@@ -21,9 +21,11 @@ class _GroupsProgressPageState extends ConsumerState<GroupsProgressPage> {
 
   Future<List<GroupProgress>> getProgress() async {
     totalProgress = await ref
-        .read(groupsProvider.notifier)
+        .read(groupsListProvider.notifier)
         .getGroupsTotalProgress(true, 30);
-    return await ref.read(groupsProvider.notifier).getGroupsProgress(true, 30);
+    return await ref
+        .read(groupsListProvider.notifier)
+        .getGroupsProgress(true, 30);
   }
 
   @override

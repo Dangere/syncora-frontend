@@ -31,12 +31,18 @@ class GroupsService {
         _authStateFactory = authStateFactory,
         _enqueueEntry = enqueueEntry;
 
-  Future<Result<List<Group>>> getAllGroups(
+  Future<Result<Group?>> getCachedGroup(int groupId) async {
+    try {
+      Group? group = await _localGroupsRepository.getGroup(groupId);
+      return Result.success(group);
+    } catch (e, stackTrace) {
+      return Result.failure(e, stackTrace);
+    }
+  }
+
+  Future<Result<List<Group>>> getCachedGroups(
       List<GroupsFilter> filters, String? search) async {
     try {
-      if (_authStateFactory().isUnauthenticated) {
-        return Result.failureMessage("User is unauthenticated");
-      }
       List<Group> groups = await _localGroupsRepository.getAllGroups(
           filters, _authStateFactory().userId!, search);
       return Result.success(groups);
@@ -239,5 +245,14 @@ class GroupsService {
     } catch (e, stackTrace) {
       return Result.failure(e, stackTrace);
     }
+  }
+
+  Future<Result<bool>> isGroupOwner(
+      {required int groupId, required int userId}) async {
+    Result<Group?> groupResult = await getCachedGroup(groupId);
+    if (!groupResult.isSuccess) {
+      return Result.failureMap(groupResult);
+    }
+    return Result.success(groupResult.data?.ownerUserId == userId);
   }
 }

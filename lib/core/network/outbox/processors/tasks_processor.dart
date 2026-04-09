@@ -1,3 +1,6 @@
+import 'dart:async';
+
+import 'package:dio/dio.dart';
 import 'package:syncora_frontend/core/network/outbox/exception/outbox_exception.dart';
 import 'package:syncora_frontend/core/network/outbox/interface/outbox_processor_interface.dart';
 import 'package:syncora_frontend/core/network/outbox/model/outbox_entry.dart';
@@ -22,7 +25,7 @@ class TasksProcessor extends OutboxProcessor {
   @override
   Future<int> processToBackend(OutboxEntry entry) async {
     // Getting our mandatory group id dependency
-    Result groupIdResult = await idMapper.getServerId(entry.dependencyId!);
+    Result groupIdResult = await idMapper.getDependency(entry.dependencyId!);
     if (!groupIdResult.isSuccess || groupIdResult.data == null) {
       throw OutboxDependencyFailureException(
           "Group dependency failed to get, entry: ${entry.toTable()}");
@@ -32,7 +35,7 @@ class TasksProcessor extends OutboxProcessor {
     // To process a task deletion/updating/marking we get our mandatory task id dependency
     int? taskId;
     if (entry.actionType != OutboxActionType.create) {
-      Result taskIdResult = await idMapper.getServerId(entry.entityId);
+      Result taskIdResult = await idMapper.getDependency(entry.entityId);
       if (!groupIdResult.isSuccess || groupIdResult.data == null) {
         throw OutboxDependencyFailureException(
             "Task dependency failed to get, entry: ${entry.toTable()}");
@@ -40,6 +43,16 @@ class TasksProcessor extends OutboxProcessor {
       // If we have no server id, we are processing a create event
       taskId = taskIdResult.isSuccess ? taskIdResult.data : null;
     }
+    // throw TimeoutException("message");
+
+    // throw DioException.badResponse(
+    //     statusCode: 403,
+    //     requestOptions: RequestOptions(),
+    //     response: Response(
+    //         data: "unauthorized!",
+    //         statusMessage: "Something something",
+    //         requestOptions: RequestOptions(),
+    //         statusCode: 403));
 
     switch (entry.actionType) {
       // The create event
@@ -88,7 +101,7 @@ class TasksProcessor extends OutboxProcessor {
   // This wont be called if dependencies are not met
   @override
   Future<int> revertLocalChange(OutboxEntry entry) async {
-    Result groupIdResult = await idMapper.getServerId(entry.dependencyId!);
+    Result groupIdResult = await idMapper.getDependency(entry.dependencyId!);
     if (!groupIdResult.isSuccess || groupIdResult.data == null) {
       throw OutboxDependencyFailureException(
           "Group dependency failed to get, entry: ${entry.toTable()}");
@@ -99,7 +112,7 @@ class TasksProcessor extends OutboxProcessor {
     // To process a task deletion/updating/marking we get our mandatory task id dependency
     int? taskId;
     if (entry.actionType != OutboxActionType.create) {
-      Result taskIdResult = await idMapper.getServerId(entry.entityId);
+      Result taskIdResult = await idMapper.getDependency(entry.entityId);
       if (!groupIdResult.isSuccess || groupIdResult.data == null) {
         throw OutboxDependencyFailureException(
             "Task dependency failed to get, entry: ${entry.toTable()}");

@@ -13,7 +13,15 @@ import 'package:syncora_frontend/core/network/outbox/outbox_id_mapper.dart';
 import 'package:syncora_frontend/core/network/outbox/outbox_sorter.dart';
 import 'package:syncora_frontend/core/network/outbox/repository/outbox_repository.dart';
 import 'package:syncora_frontend/core/typedef.dart';
+import 'package:syncora_frontend/core/utils/app_error.dart';
 import 'package:syncora_frontend/core/utils/result.dart';
+
+enum OutboxErrorQueueAction {
+  stopQueue,
+  timeoutQueue,
+  skipAndRevertEntry,
+  retryEntry
+}
 
 class OutboxService {
   final OutboxRepository _outboxRepository;
@@ -73,11 +81,10 @@ class OutboxService {
   /// `requireSecondPass` gets called when the queue is done processing and possibly some new entries were undeleted so a second pass
   Future<Result<void>> processQueue(
       {required void Function({required int tempId, required int serverId})
-          onGroupSync,
+          onEntityIdSync,
       required void Function(Exception e, StackTrace stackTrace) onFail,
-      required void Function(int entityId, OutboxEntityType entityType)
-          onRevert,
-      required void Function(int entityId, OutboxEntityType entityType) onSync,
+      required void Function(OutboxEntry entry) onRevert,
+      required void Function(OutboxEntry entry) onSync,
       required VoidCallback requireSecondPass}) async {
     _cancelationToken = CancellationToken();
 
@@ -96,13 +103,11 @@ class OutboxService {
 
     for (final entry in entries) {
       if (_processors[entry.entityType] == null) {
-        _cancelationToken = null;
         return Result.failureMessage(
             'No processor found for ${entry.entityType}');
       }
 
       if (_cancelationToken!.isCancelled) {
-        _cancelationToken = null;
         return Result.canceled("Outbox processor: queue cancelled");
       }
 
@@ -115,11 +120,10 @@ class OutboxService {
       // We process the entry, it runs a while loop until it succeeds and returns the group that was modified or returns an error that we handle here
       while (_cancelationToken!.isCancelled == false) {
         // Gets set if an entry fails and we need to revert local changes
-        ({Exception e, StackTrace stackTrace})? failedEntryException;
 
         try {
           await _outboxRepository.markEntryInProcess(entry.id!);
-
+          _logger.i("Processing entry $entry");
           // TODO: remove artificial delay
           // await Future.delayed(const Duration(seconds: 3));
 
@@ -132,95 +136,52 @@ class OutboxService {
           if (entry.actionType == OutboxActionType.create &&
               entry.entityType == OutboxEntityType.group) {
             // We call the onGroupIdUpdate callback to tell the UI we updated from a temp id to a server synced id
-            onGroupSync(tempId: entry.entityId, serverId: processedEntityId);
+            onEntityIdSync(tempId: entry.entityId, serverId: processedEntityId);
           }
 
           // We call the onSync To update the UI
           // if (entry.entityType != OutboxEntityType.user)
-          onSync(processedEntityId, entry.entityType);
-        } on OutboxException catch (e, stackTrace) {
-          // if (e is OutboxDependencyFailureException) {}
-          await _outboxRepository.failEntry(entry.id!);
-          onFail(e, stackTrace);
-        }
-        // If its a timeout error we stop the queue
-        on TimeoutException {
-          // The entry stays pending and we reprocessed in the next loop
-          await _outboxRepository.markEntryPending(entry.id!);
-          _logger.d('Outbox debug: Timeout error, stopping queue');
+          onSync(entry);
+        } on Exception catch (e, stackTrace) {
+          OutboxErrorQueueAction queueAction =
+              await _handleError(e, stackTrace);
 
-          _cancelationToken = null;
-          return Result.canceled('Timeout error');
-        }
-        // If its a network error we process it
-        on DioException catch (e, stackTrace) {
-          if (e.type == DioExceptionType.connectionError) {
-            await _outboxRepository.markEntryPending(entry.id!);
-            _logger.d('Outbox debug: unable to reach server, stopping queue');
-            _cancelationToken = null;
-            return Result.canceled('Unable to reach server');
-          }
+          switch (queueAction) {
+            case OutboxErrorQueueAction.retryEntry:
+              continue;
+            // await _outboxRepository.markEntryPending(entry.id!);
+            case OutboxErrorQueueAction.skipAndRevertEntry:
+              {
+                // Reverting
+                Result<bool> revertResult =
+                    (await _revertEntry(entry)).onSuccess(
+                  (callPass) {
+                    if (callPass) requireSecondPass();
+                  },
+                );
 
-          // If we get a 403 error (forbidden), we fail the entry (which will revert it)
-          if (e.response?.statusCode == 403) {
-            failedEntryException = (e: e, stackTrace: stackTrace);
-          }
-          // If we get a 429 error (too many requests), we delay and try again
-          // We extract the retry-after header and wait for that many seconds
-          else if (e.response?.statusCode == 429) {
-            int secondsToWait = 0;
-            await _outboxRepository.markEntryPending(entry.id!);
+                // Failing entry
+                await _outboxRepository.failEntry(entry.id!);
 
-            var retryAfter = e.response!.headers['retry-after'];
-            if (retryAfter != null) {
-              int seconds = int.parse(e.response!.headers['retry-after']![0]);
-              secondsToWait = seconds;
-            }
-            secondsToWait =
-                retryAfter != null ? secondsToWait : _rateLimitDelay.inSeconds;
-            _logger.d(
-                'Outbox debug: 429 error, retrying in $secondsToWait seconds');
-            await Future.delayed(Duration(seconds: secondsToWait));
+                if (!revertResult.isSuccess) {
+                  _logger.e("Outbox debug: reverting failed");
+                  break;
+                }
 
-            continue;
-          }
-          // TODO: Other status codes could be handled here, beacuse if the error is not 403 or 429
-          else {
-            failedEntryException = (e: e, stackTrace: stackTrace);
-          }
-        }
-        // If its an exception, we fail the entry (which will revert it)
-        on Exception catch (e, stackTrace) {
-          failedEntryException = (e: e, stackTrace: stackTrace);
-        }
-
-        // If we got a failed error, we revert the local changes
-        if (failedEntryException != null) {
-          onFail(failedEntryException.e, failedEntryException.stackTrace);
-          _logger.d('Outbox debug: Reverting local for ${entry.toString()}');
-
-          Result<int> revertResult = await Result.wrapAsync(() async =>
-              await _processors[entry.entityType]!.revertLocalChange(entry));
-
-          if (!revertResult.isSuccess) {
-            // If we failed to revert, we stop the entire queue and return that failed result
-            _cancelationToken = null;
-            return revertResult;
-          }
-
-          await _outboxRepository.failEntry(entry.id!);
-
-          // We call the onRevert callback To update the UI
-          onRevert(revertResult.data!, entry.entityType);
-
-          // If its a deletion fail, means it could've marked other entires as ignored, so we unignore them and call for a second pass
-          if (entry.actionType == OutboxActionType.delete) {
-            bool entiresUnignored = await _outboxRepository
-                .unignoreDependingEntries(entry.entityId);
-
-            if (entiresUnignored) {
-              requireSecondPass();
-            }
+                // callbacks
+                onRevert(entry);
+                onFail(e, stackTrace);
+              }
+              break;
+            case OutboxErrorQueueAction.stopQueue:
+              await _outboxRepository.markEntryPending(entry.id!);
+              return Result.failure(e, stackTrace);
+            case OutboxErrorQueueAction.timeoutQueue:
+              {
+                await _outboxRepository.markEntryPending(entry.id!);
+                _logger.d('Outbox debug: Timeout error, stopping queue');
+                return Result.canceled('Timeout error');
+              }
           }
         }
 
@@ -229,15 +190,78 @@ class OutboxService {
       }
     }
 
-    // End of queue
-    if (_cancelationToken?.isCancelled ?? false) {
-      _cancelationToken = null;
-
+    if (_cancelationToken!.isCancelled) {
       return Result.canceled("Canceling queue");
     }
-    _cancelationToken = null;
 
     return Result.success();
+  }
+
+  Future<OutboxErrorQueueAction> _handleError(
+      Exception e, StackTrace stackTrace) async {
+    if (e is TimeoutException) {
+      return OutboxErrorQueueAction.stopQueue;
+    }
+
+    if (e is DioException) {
+      // Connection error
+      if (e.type == DioExceptionType.connectionError) {
+        _logger.d('Outbox debug: unable to reach server, stopping queue');
+        return OutboxErrorQueueAction.stopQueue;
+      }
+
+      // Rate limit
+      if (e.response?.statusCode == 429) {
+        int secondsToWait = 0;
+
+        var retryAfter = e.response!.headers['retry-after'];
+        if (retryAfter != null) {
+          int seconds = int.parse(e.response!.headers['retry-after']![0]);
+          secondsToWait = seconds;
+        }
+        secondsToWait =
+            retryAfter != null ? secondsToWait : _rateLimitDelay.inSeconds;
+        _logger
+            .d('Outbox debug: 429 error, retrying in $secondsToWait seconds');
+
+        await Future.delayed(Duration(seconds: secondsToWait));
+        _logger.d(
+            'Outbox debug: Rate limit error, retrying in $secondsToWait seconds');
+        return OutboxErrorQueueAction.retryEntry;
+      }
+
+      return OutboxErrorQueueAction.skipAndRevertEntry;
+    }
+
+    if (e is OutboxException) {
+      return OutboxErrorQueueAction.skipAndRevertEntry;
+    }
+
+    return OutboxErrorQueueAction.stopQueue;
+  }
+
+  Future<Result<bool>> _revertEntry(OutboxEntry entry) async {
+    _logger.d('Outbox debug: Reverting local for ${entry.toString()}');
+
+    Result<int> revertResult = await Result.wrapAsync(() async =>
+        await _processors[entry.entityType]!.revertLocalChange(entry));
+
+    if (!revertResult.isSuccess) {
+      return Result.failure(
+          revertResult.error!, revertResult.error!.stackTrace);
+    }
+
+    // If its a deletion fail, means it could've marked other entires as ignored, so we unignore them and call for a second pass
+    if (entry.actionType == OutboxActionType.delete) {
+      bool entiresUnignored =
+          await _outboxRepository.unignoreDependingEntries(entry.entityId);
+
+      if (entiresUnignored) {
+        return Result.success(true);
+      }
+    }
+
+    return Result.success(false);
   }
 
   // // Gets called when the queue is running but client loses connection or the user logs out

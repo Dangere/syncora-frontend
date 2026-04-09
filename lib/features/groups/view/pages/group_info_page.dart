@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -10,11 +11,8 @@ import 'package:syncora_frontend/core/localization/generated/l10n/app_localizati
 import 'package:syncora_frontend/core/utils/date_utilities.dart';
 import 'package:syncora_frontend/core/utils/error_mapper.dart';
 import 'package:syncora_frontend/core/utils/snack_bar_alerts.dart';
-import 'package:syncora_frontend/features/authentication/auth_provider.dart';
-import 'package:syncora_frontend/features/authentication/models/auth_state.dart';
 import 'package:syncora_frontend/features/users/models/user.dart';
 import 'package:syncora_frontend/features/groups/groups_provider.dart';
-import 'package:syncora_frontend/features/groups/models/group.dart';
 import 'package:syncora_frontend/features/groups/view/popups/group_popups.dart';
 
 // TODO: Seperate the members update trigger from the groups tasks updates
@@ -26,16 +24,8 @@ class GroupInfoPage extends ConsumerStatefulWidget {
 }
 
 class _GroupInfoPageState extends ConsumerState<GroupInfoPage> {
-  late bool isOwner;
+  late bool isOwner = false;
   bool isEditingMembers = false;
-
-  @override
-  void initState() {
-    isOwner = ref.read(groupsProvider.notifier).isGroupOwner(
-        groupId: widget.groupId, userId: ref.read(authProvider).value!.userId!);
-
-    super.initState();
-  }
 
   void onGroupDescriptionEdit(String? defaultDescription) async {
     String? newDescription = await GroupPopups.groupDescriptionEditPopup(
@@ -45,7 +35,7 @@ class _GroupInfoPageState extends ConsumerState<GroupInfoPage> {
       return;
     }
 
-    await ref.read(groupsProvider.notifier).updateGroupDetails(
+    await ref.read(groupProvider(widget.groupId).notifier).updateGroupDetails(
         groupId: widget.groupId, description: newDescription);
   }
 
@@ -63,13 +53,13 @@ class _GroupInfoPageState extends ConsumerState<GroupInfoPage> {
 
   void onDeleteMember(String username) {
     ref
-        .read(groupsProvider.notifier)
-        .removeUserAccessToGroup(groupId: widget.groupId, username: username);
+        .read(groupProvider(widget.groupId).notifier)
+        .removeUserAccessToGroup(username);
   }
 
   // Returns the members with the group owner being the first element
   Future<List<User>> getMembers() =>
-      ref.read(groupsProvider.notifier).getGroupMembers(widget.groupId, true);
+      ref.read(groupProvider(widget.groupId).notifier).getGroupMembers(true);
 
   void onMemberClick(int id) =>
       context.pushNamed("profile-view", pathParameters: {"id": id.toString()});
@@ -83,15 +73,20 @@ class _GroupInfoPageState extends ConsumerState<GroupInfoPage> {
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        title: const Text("Group Info"),
+        title: Text(
+            "Group Info${kDebugMode ? " [${widget.groupId.toString()}]" : ""}"),
       ),
-      body: ref.watch(groupViewProvider(widget.groupId)).when(
+      body: ref.watch(groupProvider(widget.groupId)).when(
             skipLoadingOnRefresh: true,
             skipLoadingOnReload: true,
             data: (data) {
               if (data == null) {
                 return const Center(child: Text("Group not found"));
               }
+
+              isOwner = ref
+                  .read(groupProvider(widget.groupId).notifier)
+                  .isGroupOwner();
 
               return Padding(
                 padding: AppSpacing.paddingHorizontalLg +

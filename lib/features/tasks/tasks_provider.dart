@@ -55,20 +55,22 @@ class TasksNotifier extends AutoDisposeFamilyAsyncNotifier<List<Task>, int> {
   List<TaskFilter> get filters => _filters;
 
   List<TaskFilter> _filters = [TaskFilter.all];
+  int get _groupResolvedId => ref.read(outboxIdMapperProvider).resolveId(arg);
+
+  bool get isGroupOwner => ref.read(groupProvider(arg).notifier).isGroupOwner();
 
   Future<void> createTask(
       {required String title, required String? description}) async {
     ref.read(loggerProvider).d("Creating task");
-    Result<void> createResult = await ref
-        .read(tasksServiceProvider)
-        .createTask(title: title, description: description, groupId: arg);
+    Result<void> createResult = await ref.read(tasksServiceProvider).createTask(
+        title: title, description: description, groupId: _groupResolvedId);
 
     if (!createResult.isSuccess) {
       ref.read(appErrorProvider.notifier).state = createResult.error;
       return;
     }
     reloadTasks();
-    ref.read(groupsProvider.notifier).onTasksModification(arg);
+    ref.read(groupsListProvider.notifier).onTasksModification(_groupResolvedId);
 
     // _reloadGroupsList();
     // reloadViewedGroups([groupId]);
@@ -76,11 +78,11 @@ class TasksNotifier extends AutoDisposeFamilyAsyncNotifier<List<Task>, int> {
 
   Future<void> deleteTask({required int taskId}) async {
     //Checking if user is not the owner of the group
-    if (!isOwner()) return;
+    if (!isGroupOwner) return;
 
     Result<void> deleteResult = await ref
         .read(tasksServiceProvider)
-        .deleteTask(groupId: arg, taskId: taskId);
+        .deleteTask(groupId: _groupResolvedId, taskId: taskId);
 
     if (!deleteResult.isSuccess) {
       ref.read(appErrorProvider.notifier).state = deleteResult.error;
@@ -88,7 +90,7 @@ class TasksNotifier extends AutoDisposeFamilyAsyncNotifier<List<Task>, int> {
     }
     reloadTasks();
 
-    ref.read(groupsProvider.notifier).onTasksModification(arg);
+    ref.read(groupsListProvider.notifier).onTasksModification(_groupResolvedId);
 
     // _reloadGroupsList();
     // reloadViewedGroups([groupId]);
@@ -97,7 +99,10 @@ class TasksNotifier extends AutoDisposeFamilyAsyncNotifier<List<Task>, int> {
   Future<void> updateTask(
       {required int taskId, String? title, String? description}) async {
     Result<void> updateResult = await ref.read(tasksServiceProvider).updateTask(
-        groupId: arg, taskId: taskId, title: title, description: description);
+        groupId: _groupResolvedId,
+        taskId: taskId,
+        title: title,
+        description: description);
 
     if (!updateResult.isSuccess) {
       ref.read(appErrorProvider.notifier).state = updateResult.error;
@@ -105,7 +110,7 @@ class TasksNotifier extends AutoDisposeFamilyAsyncNotifier<List<Task>, int> {
     }
     reloadTasks();
 
-    ref.read(groupsProvider.notifier).onTasksModification(arg);
+    ref.read(groupsListProvider.notifier).onTasksModification(_groupResolvedId);
 
     // reloadViewedGroups([groupId]);
   }
@@ -113,7 +118,7 @@ class TasksNotifier extends AutoDisposeFamilyAsyncNotifier<List<Task>, int> {
   Future<void> assignTask({required int taskId, required List<int> ids}) async {
     Result<void> updateResult = await ref
         .read(tasksServiceProvider)
-        .assignTaskToUsers(groupId: arg, taskId: taskId, ids: ids);
+        .assignTaskToUsers(groupId: _groupResolvedId, taskId: taskId, ids: ids);
 
     if (!updateResult.isSuccess) {
       ref.read(appErrorProvider.notifier).state = updateResult.error;
@@ -142,7 +147,8 @@ class TasksNotifier extends AutoDisposeFamilyAsyncNotifier<List<Task>, int> {
       {required int taskId, required List<int> ids}) async {
     Result<void> updateResult = await ref
         .read(tasksServiceProvider)
-        .setAssignedUsersToTask(taskId: taskId, groupId: arg, ids: ids);
+        .setAssignedUsersToTask(
+            taskId: taskId, groupId: _groupResolvedId, ids: ids);
 
     if (!updateResult.isSuccess) {
       ref.read(appErrorProvider.notifier).state = updateResult.error;
@@ -153,7 +159,7 @@ class TasksNotifier extends AutoDisposeFamilyAsyncNotifier<List<Task>, int> {
 
   Future<void> markTask({required Task task, required bool isDone}) async {
     //Checking if user is not the owner of the group
-    if (!isOwner()) {
+    if (!isGroupOwner) {
       //Checking if user is not assigned to task
       if (!task.assignedTo.contains(_userId())) {
         return;
@@ -162,14 +168,14 @@ class TasksNotifier extends AutoDisposeFamilyAsyncNotifier<List<Task>, int> {
 
     Result<void> updateResult = await ref
         .read(tasksServiceProvider)
-        .markTask(taskId: task.id, groupId: arg, isDone: isDone);
+        .markTask(taskId: task.id, groupId: _groupResolvedId, isDone: isDone);
 
     if (!updateResult.isSuccess) {
       ref.read(appErrorProvider.notifier).state = updateResult.error;
       return;
     }
     reloadTasks();
-    ref.read(groupsProvider.notifier).onTasksModification(arg);
+    ref.read(groupsListProvider.notifier).onTasksModification(_groupResolvedId);
 
     // reloadViewedGroups([groupId]);
   }
@@ -185,10 +191,11 @@ class TasksNotifier extends AutoDisposeFamilyAsyncNotifier<List<Task>, int> {
   void reloadTasks() async {
     ref
         .read(loggerProvider)
-        .d("Tasks provider: Reloading tasks for group $arg");
+        .d("Tasks provider: Reloading tasks for group $_groupResolvedId");
 
-    Result<List<Task>> result =
-        await ref.read(tasksServiceProvider).getTasksForGroup(arg, _filters);
+    Result<List<Task>> result = await ref
+        .read(tasksServiceProvider)
+        .getTasksForGroup(_groupResolvedId, _filters);
 
     if (result.isSuccess) {
       state = AsyncValue.data(result.data!);
@@ -200,10 +207,6 @@ class TasksNotifier extends AutoDisposeFamilyAsyncNotifier<List<Task>, int> {
 
   int _userId() {
     return ref.read(authProvider).value!.userId!;
-  }
-
-  bool isOwner() {
-    return ref.read(groupViewProvider(arg)).value!.ownerUserId == _userId();
   }
 
   @override
@@ -224,7 +227,7 @@ class TasksNotifier extends AutoDisposeFamilyAsyncNotifier<List<Task>, int> {
 
         // Reloading on new tasks
         if (next.value!.payload!.tasks
-            .where((t) => t.groupId == groupId)
+            .where((t) => t.groupId == _groupResolvedId)
             .isNotEmpty) {
           reloadTasks();
         }
@@ -237,7 +240,7 @@ class TasksNotifier extends AutoDisposeFamilyAsyncNotifier<List<Task>, int> {
 
     Result<List<Task>> result = await ref
         .read(tasksServiceProvider)
-        .getTasksForGroup(groupId, _filters);
+        .getTasksForGroup(_groupResolvedId, _filters);
 
     if (result.isSuccess) {
       return result.data!;

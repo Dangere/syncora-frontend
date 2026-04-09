@@ -17,7 +17,7 @@ import 'package:syncora_frontend/features/users/providers/users_provider.dart';
 final loggerProvider = Provider<Logger>((ref) {
   return Logger(
     printer: PrettyPrinter(
-      // methodCount: 0, // Number of method calls to be displayed
+      methodCount: 0, // Number of method calls to be displayed
       // errorMethodCount: 0, // Number of method calls if stacktrace is provided
       lineLength: 40, // Width of the output (minimal)
       colors: true, // Colorful log messages

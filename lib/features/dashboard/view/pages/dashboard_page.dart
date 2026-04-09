@@ -59,7 +59,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
 
       if (result != null) {
         ref
-            .read(groupsProvider.notifier)
+            .read(groupsListProvider.notifier)
             .createGroup(title: result.title, description: result.description);
       }
     }
@@ -324,11 +324,12 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                                 AppSpacing.verticalSpaceLg,
                                 // FILTERS FOR GROUPS
                                 FilterList<GroupsFilter>(
-                                  providerListenable: groupsProvider,
+                                  providerListenable: groupsListProvider,
                                   multiSelect: true,
                                   disable: false,
-                                  initialValue:
-                                      ref.read(groupsProvider.notifier).filters,
+                                  initialValue: ref
+                                      .read(groupsListProvider.notifier)
+                                      .filters,
                                   items: [
                                     FilterListItem(
                                       title: AppLocalizations.of(context)
@@ -336,7 +337,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                                       value: GroupsFilter.completed,
                                       opposites: [GroupsFilter.inProgress],
                                       countFactory: (arg) => ref
-                                          .read(groupsProvider.notifier)
+                                          .read(groupsListProvider.notifier)
                                           .getGroupsCount([arg]),
                                     ),
                                     FilterListItem(
@@ -345,7 +346,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                                       value: GroupsFilter.inProgress,
                                       opposites: [GroupsFilter.completed],
                                       countFactory: (arg) => ref
-                                          .read(groupsProvider.notifier)
+                                          .read(groupsListProvider.notifier)
                                           .getGroupsCount([arg]),
                                     ),
                                     FilterListItem(
@@ -375,7 +376,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                                   ],
                                   onTap: (arg) {
                                     ref
-                                        .read(groupsProvider.notifier)
+                                        .read(groupsListProvider.notifier)
                                         .filterGroups(arg);
                                   },
                                 ),

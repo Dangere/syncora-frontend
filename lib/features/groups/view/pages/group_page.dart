@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -29,15 +30,7 @@ class GroupPage extends ConsumerStatefulWidget {
 }
 
 class GroupPageState extends ConsumerState<GroupPage> {
-  late bool isOwner;
-
-  @override
-  void initState() {
-    isOwner = ref.read(groupsProvider.notifier).isGroupOwner(
-        groupId: widget.groupId, userId: ref.read(authProvider).value!.userId!);
-
-    super.initState();
-  }
+  late bool isOwner = false;
 
   void addUserToGroupPopup(
       {required List<int> membersIds, required int ownerId}) async {
@@ -46,17 +39,17 @@ class GroupPageState extends ConsumerState<GroupPage> {
         ownerId: ownerId,
         findUser: ref.read(userProvider.notifier).findUser,
         currentUsers: () => ref
-            .read(groupsProvider.notifier)
-            .getGroupMembers(widget.groupId, true));
+            .read(groupProvider(widget.groupId).notifier)
+            .getGroupMembers(true));
 
     ref
         .read(loggerProvider)
         .d("Selected users: ${users?.map((e) => e.username)}");
     if (users == null || users.isEmpty) return;
 
-    await ref.read(groupsProvider.notifier).allowUsersAccessToGroup(
-        groupId: widget.groupId,
-        usernames: users.map((e) => e.username).toList());
+    await ref
+        .read(groupProvider(widget.groupId).notifier)
+        .allowUsersAccessToGroup(users.map((e) => e.username).toList());
   }
 
   void createTaskPopup() async {
@@ -81,7 +74,7 @@ class GroupPageState extends ConsumerState<GroupPage> {
             await GroupPopups.groupTitleEditPopup(context, group.title);
         if (newTitle == null) return;
         ref
-            .read(groupsProvider.notifier)
+            .read(groupProvider(widget.groupId).notifier)
             .updateGroupDetails(groupId: group.id, title: newTitle);
       },
       onLeaveGroup: () {},
@@ -91,7 +84,9 @@ class GroupPageState extends ConsumerState<GroupPage> {
             confirmText: "Yes, Delete");
 
         if (confirmDeletion) {
-          ref.read(groupsProvider.notifier).deleteGroup(widget.groupId);
+          ref
+              .read(groupProvider(widget.groupId).notifier)
+              .deleteGroup(widget.groupId);
         }
       },
     );
@@ -105,10 +100,9 @@ class GroupPageState extends ConsumerState<GroupPage> {
     return Consumer(
         child: TasksList(
           groupId: widget.groupId,
-          isOwner: isOwner,
         ),
         builder: (context, innerRef, tasksList) {
-          return innerRef.watch(groupViewProvider(widget.groupId)).when(
+          return innerRef.watch(groupProvider(widget.groupId)).when(
                 skipLoadingOnRefresh: true,
                 skipLoadingOnReload: true,
                 data: (data) {
@@ -119,11 +113,17 @@ class GroupPageState extends ConsumerState<GroupPage> {
                   }
                   Group group = data;
 
+                  isOwner = innerRef
+                      .read(groupProvider(widget.groupId).notifier)
+                      .isGroupOwner();
+
                   return Scaffold(
                     extendBodyBehindAppBar: true,
                     appBar: AppBar(
                       // foregroundColor: Colors.transparent,
-                      title: MarqueeWidget(child: Text(data.title)),
+                      title: MarqueeWidget(
+                          child: Text(data.title +
+                              (kDebugMode ? " [${group.id.toString()}]" : ""))),
                       centerTitle: true,
                       actions: [
                         // GROUP EXTRA/INFO
@@ -158,6 +158,7 @@ class GroupPageState extends ConsumerState<GroupPage> {
                         Column(
                           children: [
                             const SizedBox(height: 127),
+
                             // GROUP MEMBERS
                             GroupMembersDisplay(
                               group: group,

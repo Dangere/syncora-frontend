@@ -17,14 +17,19 @@ class Validators {
     return regex.hasMatch(username);
   }
 
+  static bool validateName(String name) {
+    final regex = RegExp(r"^[^';<>\\]{1,20}$");
+    return regex.hasMatch(name);
+  }
+
   static bool validateGroupTitle(String title) {
-    final regex = RegExp(r'^[a-zA-Z0-9\s]{3,110}$');
+    final regex = RegExp(r"^\S[^';<>\\]{1,108}\S$|^\S{3,110}$");
     return regex.hasMatch(title);
   }
 
-  static bool validateGroupDescription(String title) {
-    final regex = RegExp(r'^[a-zA-Z0-9\s]{6,255}$');
-    return regex.hasMatch(title);
+  static bool validateGroupDescription(String description) {
+    final regex = RegExp(r"^\S[^';<>\\]{4,253}\S$|^\S{6,255}$");
+    return regex.hasMatch(description);
   }
   // static bool ValidateName(String name)
   // {

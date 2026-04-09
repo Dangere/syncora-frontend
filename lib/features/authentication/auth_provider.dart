@@ -142,6 +142,7 @@ class AuthNotifier extends AsyncNotifier<AuthState> {
     if (!result.isSuccess) {
       ref.read(appErrorProvider.notifier).state = result.error!;
       state = const AsyncValue.data(AuthUnauthenticated());
+      return;
     }
 
     ref.read(loggerProvider).w(result.data!.userPreferences.toJson());
@@ -257,8 +258,9 @@ class AuthNotifier extends AsyncNotifier<AuthState> {
   }
 
   Future<Result> refreshTokens([CancellationToken? cancellationToken]) async {
-    if (state.value?.isAuthenticated ?? false) {
-      return Result.canceled("Cannot refresh tokens when no user is logged in");
+    if (state.value?.isUnauthenticated ?? true) {
+      return Result.canceled(
+          "Cannot refresh tokens when no user is logged in, user is ${state.value?.isAuthenticated}");
     }
 
     Tokens? tokens = ref.read(sessionStorageProvider).tokens;
