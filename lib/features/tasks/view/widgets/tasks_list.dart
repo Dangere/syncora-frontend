@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:syncora_frontend/common/providers/common_providers.dart';
 import 'package:syncora_frontend/common/themes/app_spacing.dart';
 import 'package:syncora_frontend/common/widgets/filter_list.dart';
+import 'package:syncora_frontend/core/data/enums/tasks_filter.dart';
 import 'package:syncora_frontend/core/localization/generated/l10n/app_localizations.dart';
 import 'package:syncora_frontend/core/utils/dialogs.dart';
 import 'package:syncora_frontend/features/groups/groups_provider.dart';
@@ -49,7 +50,7 @@ class TasksList extends ConsumerWidget {
           child: Column(
             children: [
               // FILTER
-              FilterList<TaskFilter>(
+              FilterList<TasksFilter>(
                   onTap: (arg) {
                     ref.read(tasksProvider(groupId).notifier).filterTasks(arg);
                   },
@@ -60,37 +61,37 @@ class TasksList extends ConsumerWidget {
                   items: [
                     FilterListItem(
                       title: AppLocalizations.of(context).filter_All,
-                      value: TaskFilter.all,
+                      value: TasksFilter.all,
                       opposites: [
-                        TaskFilter.pending,
-                        TaskFilter.completed,
-                        TaskFilter.assigned
+                        TasksFilter.pending,
+                        TasksFilter.completed,
+                        TasksFilter.assigned
                       ],
                     ),
                     FilterListItem(
                       title: AppLocalizations.of(context).filter_Completed,
-                      value: TaskFilter.completed,
-                      opposites: [TaskFilter.all, TaskFilter.pending],
+                      value: TasksFilter.completed,
+                      opposites: [TasksFilter.all, TasksFilter.pending],
                     ),
                     FilterListItem(
                       title: AppLocalizations.of(context).filter_Pending,
-                      value: TaskFilter.pending,
-                      opposites: [TaskFilter.all, TaskFilter.completed],
+                      value: TasksFilter.pending,
+                      opposites: [TasksFilter.all, TasksFilter.completed],
                     ),
                     FilterListItem(
                       title: AppLocalizations.of(context).filter_Assigned,
-                      value: TaskFilter.assigned,
-                      opposites: [TaskFilter.all],
+                      value: TasksFilter.assigned,
+                      opposites: [TasksFilter.all],
                     ),
                     FilterListItem(
                       title: AppLocalizations.of(context).filter_Newest,
-                      value: TaskFilter.newest,
-                      opposites: [TaskFilter.oldest],
+                      value: TasksFilter.newest,
+                      opposites: [TasksFilter.oldest],
                     ),
                     FilterListItem(
                       title: AppLocalizations.of(context).filter_Oldest,
-                      value: TaskFilter.oldest,
-                      opposites: [TaskFilter.newest],
+                      value: TasksFilter.oldest,
+                      opposites: [TasksFilter.newest],
                     ),
                   ]),
               const SizedBox(height: AppSpacing.md / 2),

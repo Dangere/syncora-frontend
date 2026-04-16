@@ -25,8 +25,8 @@ class SyncService {
 
       await _syncRepository.storeSyncTimestamp(payload.timestamp);
       return Result.success(payload);
-    } catch (e, stackTrace) {
-      return Result.failure(e, stackTrace);
+    } on Exception catch (e, stackTrace) {
+      return Result.failureError(e, stackTrace);
     }
   }
 
@@ -35,33 +35,34 @@ class SyncService {
       SyncPayload payload = SyncPayload.fromJson(raw);
       return Result.success(payload);
     } catch (e, stackTrace) {
-      return Result.failure(e, stackTrace);
+      return Result.failureError(e, stackTrace);
     }
   }
 
   Future<Result<void>> processPayload(SyncPayload payload) async {
-    if (_authStateFactory().isUnauthenticated)
-      return Result.failureMessage("User is unauthenticated");
+    if (_authStateFactory().isUnauthenticated) {
+      return Result.canceled("User is unauthenticated", StackTrace.current);
+    }
 
     // Handling added users from payload
     try {
       await _localUsersRepository.upsertUsers(payload.users);
     } catch (e, stackTrace) {
-      return Result.failure(e, stackTrace);
+      return Result.failureError(e, stackTrace);
     }
 
     // Handling added groups from payload
     try {
       await _localGroupsRepository.upsertGroups(payload.groups);
     } catch (e, stackTrace) {
-      return Result.failure(e, stackTrace);
+      return Result.failureError(e, stackTrace);
     }
 
     // Handling added tasks from payload
     try {
       await _localTasksRepository.upsertTasks(payload.tasks);
     } catch (e, stackTrace) {
-      return Result.failure(e, stackTrace);
+      return Result.failureError(e, stackTrace);
     }
 
     // Handling kicked groups in payload
@@ -71,7 +72,7 @@ class SyncService {
         await _localGroupsRepository.wipeDeletedGroup(groupId);
       }
     } catch (e, stackTrace) {
-      return Result.failure(e, stackTrace);
+      return Result.failureError(e, stackTrace);
     }
 
     // Handling deleted groups in payload
@@ -81,7 +82,7 @@ class SyncService {
         await _localGroupsRepository.wipeDeletedGroup(groupId);
       }
     } catch (e, stackTrace) {
-      return Result.failure(e, stackTrace);
+      return Result.failureError(e, stackTrace);
     }
 
     // Handling deleted tasks from payload
@@ -91,14 +92,14 @@ class SyncService {
         await _localTasksRepository.wipeDeletedTask(taskId);
       }
     } catch (e, stackTrace) {
-      return Result.failure(e, stackTrace);
+      return Result.failureError(e, stackTrace);
     }
 
     try {
       await _localUsersRepository
           .purgeOrphanedUsers(_authStateFactory().userId!);
     } catch (e, stackTrace) {
-      return Result.failure(e, stackTrace);
+      return Result.failureError(e, stackTrace);
     }
 
     return Result.success();

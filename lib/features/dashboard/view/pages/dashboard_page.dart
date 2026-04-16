@@ -13,6 +13,7 @@ import 'package:syncora_frontend/common/themes/app_spacing.dart';
 import 'package:syncora_frontend/common/widgets/app_button.dart';
 import 'package:syncora_frontend/common/widgets/filter_list.dart';
 import 'package:syncora_frontend/common/widgets/profile_picture.dart';
+import 'package:syncora_frontend/core/data/enums/groups_filter.dart';
 import 'package:syncora_frontend/core/localization/generated/l10n/app_localizations.dart';
 import 'package:syncora_frontend/core/network/outbox/outbox_provider.dart';
 import 'package:syncora_frontend/core/tests.dart';
@@ -142,8 +143,8 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                   SliverPersistentHeader(
                     delegate: MySliverPersistentHeaderDelegate(
                         child: Center(
-                            child:
-                                Text(ref.watch(connectionProvider).toString())),
+                            child: Text(
+                                "Connection is ${ref.watch(isOnlineProvider) ? "online" : "offline"}")),
                         height: 30),
                     pinned: true,
                   ),

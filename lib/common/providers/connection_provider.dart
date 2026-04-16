@@ -7,11 +7,6 @@ final debug_fakeBeingOnlineProvider = StateProvider<bool>((ref) {
 });
 
 class ConnectionNotifier extends Notifier<ConnectionStatus> {
-  bool get isOnline {
-    return state == ConnectionStatus.connected ||
-        state == ConnectionStatus.slow;
-  }
-
   @override
   build() {
     ref.listen(debug_fakeBeingOnlineProvider, (previous, next) {
@@ -22,7 +17,19 @@ class ConnectionNotifier extends Notifier<ConnectionStatus> {
       }
     });
 
-    final connectionChecker = InternetConnectionChecker.instance;
+    final connectionChecker = InternetConnectionChecker.createInstance(
+      addresses: [
+        AddressCheckOption(
+          uri: Uri.parse('https://google.com'),
+          timeout: const Duration(seconds: 3),
+        ),
+        AddressCheckOption(
+          uri: Uri.parse('https://flutter.dev'),
+          timeout: const Duration(seconds: 3),
+        ),
+      ],
+    );
+
     connectionChecker.onStatusChange.listen(
       (InternetConnectionStatus status) {
         switch (status) {
@@ -43,9 +50,15 @@ class ConnectionNotifier extends Notifier<ConnectionStatus> {
 }
 
 // TODO: Randomly says disconnected dispite the emulator being connected to the internet
-final connectionProvider =
+final _connectionProvider =
     NotifierProvider<ConnectionNotifier, ConnectionStatus>(
         ConnectionNotifier.new);
+
+final isOnlineProvider = Provider<bool>((ref) {
+  var status = ref.watch(_connectionProvider);
+  return status == ConnectionStatus.connected ||
+      status == ConnectionStatus.slow;
+});
 
 // final connectionAsyncProvider = FutureProvider<ConnectionStatus>((ref) async {
 //   ConnectionStatus currentStatus = ref.read(connectionProvider);

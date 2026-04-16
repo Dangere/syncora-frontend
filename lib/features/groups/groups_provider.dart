@@ -2,10 +2,10 @@ import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:syncora_frontend/common/providers/common_providers.dart';
 import 'package:syncora_frontend/common/providers/connection_provider.dart';
+import 'package:syncora_frontend/core/data/enums/groups_filter.dart';
 import 'package:syncora_frontend/core/network/outbox/outbox_provider.dart';
 import 'package:syncora_frontend/core/network/syncing/sync_state.dart';
 import 'package:syncora_frontend/core/network/syncing/sync_provider.dart';
-import 'package:syncora_frontend/core/utils/error_mapper.dart';
 import 'package:syncora_frontend/core/utils/result.dart';
 import 'package:syncora_frontend/features/authentication/models/auth_state.dart';
 import 'package:syncora_frontend/features/authentication/auth_provider.dart';
@@ -19,8 +19,6 @@ import 'package:syncora_frontend/features/groups/groups_service.dart';
 import 'package:syncora_frontend/features/tasks/tasks_provider.dart';
 import 'package:syncora_frontend/features/users/providers/users_provider.dart';
 import 'package:syncora_frontend/router.dart';
-
-enum GroupsFilter { inProgress, completed, shared, owned, newest, oldest }
 
 // This notifier is used to load groups for the UI
 // The list updates when, local changes happen through methods, or when theres a sync payload available
@@ -218,7 +216,7 @@ class GroupsListNotifier extends AutoDisposeAsyncNotifier<List<Group>> {
     }
 
     ref.read(loggerProvider).d("Groups provider: Reloading groups");
-    state = const AsyncValue.loading();
+    // state = const AsyncValue.loading();
 
     Result<List<Group>> fetchResult = await ref
         .read(groupsServiceProvider)
@@ -226,8 +224,8 @@ class GroupsListNotifier extends AutoDisposeAsyncNotifier<List<Group>> {
 
     if (!fetchResult.isSuccess) {
       ref.read(appErrorProvider.notifier).state = fetchResult.error;
-      state = AsyncValue.error(
-          fetchResult.error!.errorObject, fetchResult.error!.stackTrace);
+      // state = AsyncValue.error(
+      //     fetchResult.error!.errorObject, fetchResult.error!.stackTrace);
     } else {
       state = AsyncValue.data(fetchResult.data!);
     }
@@ -480,5 +478,5 @@ final groupsServiceProvider = Provider<GroupsService>((ref) {
       enqueueEntry: (enqueueRequest) =>
           ref.read(outboxProvider.notifier).enqueue(enqueueRequest),
       authStateFactory: () => ref.read(authStateProvider),
-      isOnlineFactory: () => ref.read(connectionProvider.notifier).isOnline);
+      isOnlineFactory: () => ref.read(isOnlineProvider));
 });

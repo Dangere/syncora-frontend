@@ -13,6 +13,7 @@ import 'package:syncora_frontend/common/widgets/input_field.dart';
 import 'package:syncora_frontend/common/widgets/overlay_loader.dart';
 import 'package:syncora_frontend/common/widgets/profile_picture.dart';
 import 'package:syncora_frontend/core/localization/generated/l10n/app_localizations.dart';
+import 'package:syncora_frontend/core/utils/app_error.dart';
 import 'package:syncora_frontend/core/utils/error_mapper.dart';
 import 'package:syncora_frontend/core/utils/snack_bar_alerts.dart';
 import 'package:syncora_frontend/core/utils/validators.dart';
@@ -228,7 +229,10 @@ class _ProfileViewPageState extends ConsumerState<ProfileViewPage> {
       },
       error: (error, stackTrace) {
         return Center(
-          child: Text(ErrorMapper.map(error, stackTrace).message),
+          child: Text(
+            ref.read(localizeAppErrorsProvider).localizeErrorCode(
+                AppError.fromException(error, stackTrace).errorCode, context),
+          ),
         );
       },
       loading: () {

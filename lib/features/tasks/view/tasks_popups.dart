@@ -156,6 +156,7 @@ class TasksPopups {
       context,
       fields: [
         DialogFieldData(
+            multiLine: true,
             autofocus: true,
             validation: (p0) {
               if (p0 == null || p0.trim().isEmpty) return "Empty title";
@@ -179,6 +180,7 @@ class TasksPopups {
       context,
       fields: [
         DialogFieldData(
+            multiLine: true,
             autofocus: true,
             label: "Task Title",
             defaultHintText: "Enter the title",

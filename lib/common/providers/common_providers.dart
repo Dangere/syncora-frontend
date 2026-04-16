@@ -7,7 +7,11 @@ import 'package:image_picker/image_picker.dart';
 import 'package:logger/logger.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:syncora_frontend/common/interceptors/auth_interceptor.dart';
+import 'package:syncora_frontend/common/interceptors/connection_interceptor.dart';
+import 'package:syncora_frontend/common/providers/connection_provider.dart';
 import 'package:syncora_frontend/core/data/database_manager.dart';
+import 'package:syncora_frontend/core/localization/generated/l10n/app_localizations.dart';
+import 'package:syncora_frontend/core/localization/localize_app_errors.dart';
 import 'package:syncora_frontend/core/utils/app_error.dart';
 import 'package:syncora_frontend/core/utils/result.dart';
 import 'package:syncora_frontend/features/authentication/auth_provider.dart';
@@ -29,6 +33,8 @@ final loggerProvider = Provider<Logger>((ref) {
 
 final dioProvider = Provider<Dio>((ref) {
   Dio dio = Dio();
+
+  dio.interceptors.add(ConnectionInterceptor(() => ref.read(isOnlineProvider)));
   dio.interceptors.add(AuthInterceptor(
       tokensFactory: () => ref.read(sessionStorageProvider).tokens,
       refreshTokens: () async =>
@@ -168,3 +174,7 @@ class SearchBarSuggestionsNotifier
 final searchBarSuggestionsProvider =
     NotifierProvider.family<SearchBarSuggestionsNotifier, List<String>, String>(
         SearchBarSuggestionsNotifier.new);
+
+final localizeAppErrorsProvider = Provider<LocalizeAppErrors>((ref) {
+  return LocalizeAppErrors();
+});

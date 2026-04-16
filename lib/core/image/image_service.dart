@@ -1,9 +1,7 @@
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 
-import 'package:flutter/material.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
-import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:syncora_frontend/core/image/image_repository.dart';
 import 'package:syncora_frontend/core/utils/result.dart';
@@ -25,7 +23,7 @@ class ImageService {
     try {
       return Result.success(await _imageRepository.uploadImage(imageBytes));
     } catch (e, stackTrace) {
-      return Result.failure(e, stackTrace);
+      return Result.failureError(e, stackTrace);
     }
   }
 
@@ -35,7 +33,7 @@ class ImageService {
 
       return Result.success(await file.readAsBytes());
     } catch (e, stackTrace) {
-      return Result.failure(e, stackTrace);
+      return Result.failureError(e, stackTrace);
     }
   }
 
@@ -44,7 +42,7 @@ class ImageService {
       return Result.success(await _picker.pickImage(
           source: source, imageQuality: 100, requestFullMetadata: true));
     } catch (e, stackTrace) {
-      return Result.failure(e, stackTrace);
+      return Result.failureError(e, stackTrace);
     }
   }
 

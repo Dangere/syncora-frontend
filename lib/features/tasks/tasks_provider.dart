@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:syncora_frontend/common/providers/common_providers.dart';
+import 'package:syncora_frontend/core/data/enums/tasks_filter.dart';
 import 'package:syncora_frontend/core/network/outbox/outbox_provider.dart';
 import 'package:syncora_frontend/core/network/syncing/sync_state.dart';
 import 'package:syncora_frontend/core/network/syncing/sync_provider.dart';
@@ -52,9 +53,9 @@ final tasksServiceProvider = Provider<TasksService>((ref) {
 // TODO: Since there is not direct conneciton between the tasks and the groups notifier, creating a task
 // Does not update the groups notifier to reflect it in the dashboard UI
 class TasksNotifier extends AutoDisposeFamilyAsyncNotifier<List<Task>, int> {
-  List<TaskFilter> get filters => _filters;
+  List<TasksFilter> get filters => _filters;
 
-  List<TaskFilter> _filters = [TaskFilter.all];
+  List<TasksFilter> _filters = [TasksFilter.all];
   int get _groupResolvedId => ref.read(outboxIdMapperProvider).resolveId(arg);
 
   bool get isGroupOwner => ref.read(groupProvider(arg).notifier).isGroupOwner();
@@ -180,7 +181,7 @@ class TasksNotifier extends AutoDisposeFamilyAsyncNotifier<List<Task>, int> {
     // reloadViewedGroups([groupId]);
   }
 
-  Future<void> filterTasks(List<TaskFilter> tasksFilters) async {
+  Future<void> filterTasks(List<TasksFilter> tasksFilters) async {
     if (state.isLoading) {
       return;
     }
@@ -200,8 +201,8 @@ class TasksNotifier extends AutoDisposeFamilyAsyncNotifier<List<Task>, int> {
     if (result.isSuccess) {
       state = AsyncValue.data(result.data!);
     } else {
-      state =
-          AsyncValue.error(result.error!.errorObject, result.error!.stackTrace);
+      ref.read(appErrorProvider.notifier).state = result.error;
+      return;
     }
   }
 
@@ -253,5 +254,3 @@ class TasksNotifier extends AutoDisposeFamilyAsyncNotifier<List<Task>, int> {
 
 final tasksProvider = AsyncNotifierProvider.autoDispose
     .family<TasksNotifier, List<Task>, int>(TasksNotifier.new);
-
-enum TaskFilter { all, pending, completed, assigned, newest, oldest }

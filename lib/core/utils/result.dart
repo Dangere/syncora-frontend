@@ -1,7 +1,7 @@
 import 'package:cancellation_token/cancellation_token.dart';
 import 'package:flutter/foundation.dart';
+import 'package:syncora_frontend/core/data/enums/app_error_code.dart';
 import 'package:syncora_frontend/core/utils/app_error.dart';
-import 'package:syncora_frontend/core/utils/error_mapper.dart';
 
 class Result<T> {
   final T? data;
@@ -10,32 +10,30 @@ class Result<T> {
   Result({this.data, this.error});
 
   bool get isSuccess => error == null;
-  bool get isCancelled => error?.errorObject is CancelledException;
+  bool get isCancelled => error?.exception is CancelledException;
 
-  // Helper methods to make the API cleaner
   static Result<T> success<T>([T? data]) => Result<T>(data: data);
 
-  static Result<T> failure<T>(Object exception, StackTrace stackTrace) =>
-      Result<T>(error: ErrorMapper.map(exception, stackTrace));
+  static Result<T> failureError<T>(Object error, StackTrace stackTrace) =>
+      Result<T>(error: AppError.fromException(error, stackTrace));
 
-  static Result<T> failureMap<T>(Result result) => Result<T>(
-      error: ErrorMapper.map(result.errorObject(), result.error!.stackTrace));
+  static Result<T> failureCode<T>(AppErrorCode code, StackTrace stackTrace) =>
+      Result<T>(error: AppError.fromCode(code, stackTrace));
 
-  static Result<T> canceled<T>(String message) => Result<T>(
-      error: AppError(
-          message: message,
-          errorObject: const CancelledException(),
-          stackTrace: StackTrace.current));
+  static Result<T> failureFrom<T>(Result result) =>
+      Result<T>(error: result.error);
 
-  static Result<T> failureMessage<T>(String message) => Result<T>(
-      error: AppError(message: message, stackTrace: StackTrace.current));
+  static Result<T> canceled<T>(String message, StackTrace stackTrace) =>
+      Result<T>(
+          error: AppError.fromException(
+              CancelledException(cancellationReason: message), stackTrace));
 
   static Result<void> wrap(VoidCallback callback) {
     try {
       callback();
       return Result.success();
     } catch (e, stackTrace) {
-      return Result.failure(e, stackTrace);
+      return Result.failureError(e, stackTrace);
     }
   }
 
@@ -44,22 +42,7 @@ class Result<T> {
       T result = await callback();
       return Result.success(result);
     } catch (e, stackTrace) {
-      return Result.failure(e, stackTrace);
+      return Result.failureError(e, stackTrace);
     }
   }
-
-  // TODO: replace all the manual if checks for the isSuccess in other classes with these fluent methods
-  Result<T> onSuccess(void Function(T data) callback) {
-    if (isSuccess) callback(data as T);
-
-    return this;
-  }
-
-  Result<T> onError(void Function(AppError error) callback) {
-    if (!isSuccess && !isCancelled) callback(error!);
-
-    return this;
-  }
-
-  E? errorObject<E>() => error?.errorObject as E;
 }

@@ -33,7 +33,8 @@ class AuthService {
           .loginWithEmailAndPassword(email: email, password: password);
       return Result.success(loginResponse);
     } catch (e, stackTrace) {
-      return Result.failure(e, stackTrace);
+      // print("ERRORRRR");
+      return Result.failureError(e, stackTrace);
     }
   }
 
@@ -56,14 +57,15 @@ class AuthService {
 
       return Result.success(registerResponse);
     } catch (e, stackTrace) {
-      return Result.failure(e, stackTrace);
+      return Result.failureError(e, stackTrace);
     }
   }
 
   Future<Result<AuthResponseDTO>> loginWithGoogle() async {
     if (!(kIsWeb || Platform.isAndroid)) {
-      return Result.failureMessage(
-          "Google login is only available on Android and Web");
+      return Result.canceled(
+          "Google login is only available on Android and Web",
+          StackTrace.current);
     }
     googleSignIn.signOut();
 
@@ -71,7 +73,7 @@ class AuthService {
       // FIXME:  `signIn` method is deprecated on the web, use `renderButton` instead but it reqiures a platform specific implementation
       final GoogleSignInAccount? googleAccount = await googleSignIn.signIn();
       if (googleAccount == null) {
-        return Result.canceled("Google login canceled");
+        return Result.canceled("Google login canceled", StackTrace.current);
       }
 
       final GoogleSignInAuthentication googleAuthentication =
@@ -87,7 +89,7 @@ class AuthService {
       return Result.success(loginResponse);
     } catch (e, stackTrace) {
       googleSignIn.signOut();
-      return Result.failure(e, stackTrace);
+      return Result.failureError(e, stackTrace);
     }
   }
 
@@ -96,8 +98,9 @@ class AuthService {
       GoogleRegisterFilledInfo userFilledInfo,
       UserPreferences preferences) async {
     if (!(kIsWeb || Platform.isAndroid)) {
-      return Result.failureMessage(
-          "Google login is only available on Android and Web");
+      return Result.canceled(
+          "Google login is only available on Android and Web",
+          StackTrace.current);
     }
 
     try {
@@ -113,21 +116,23 @@ class AuthService {
     } catch (e, stackTrace) {
       googleSignIn.signOut();
 
-      return Result.failure(e, stackTrace);
+      return Result.failureError(e, stackTrace);
     }
   }
 
   Future<Result<GoogleUserInfo>> getGoogleRegisterToken() async {
     if (!(kIsWeb || Platform.isAndroid)) {
-      return Result.failureMessage(
-          "Google login is only available on Android and Web");
+      return Result.canceled(
+          "Google login is only available on Android and Web",
+          StackTrace.current);
     }
     googleSignIn.signOut();
 
     try {
       final GoogleSignInAccount? googleAccount = await googleSignIn.signIn();
       if (googleAccount == null) {
-        return Result.canceled("Google registration canceled");
+        return Result.canceled(
+            "Google registration canceled", StackTrace.current);
       }
 
       final GoogleSignInAuthentication googleAuthentication =
@@ -144,7 +149,7 @@ class AuthService {
       return Result.success(userInfo);
     } catch (e, stackTrace) {
       await googleSignIn.signOut();
-      return Result.failure(e, stackTrace);
+      return Result.failureError(e, stackTrace);
     }
   }
 
@@ -161,9 +166,9 @@ class AuthService {
       if (e.response?.statusCode == 401) {
         onExpire();
       }
-      return Result.failure(e, stackTrace);
+      return Result.failureError(e, stackTrace);
     } catch (e, stackTrace) {
-      return Result.failure(e, stackTrace);
+      return Result.failureError(e, stackTrace);
     }
   }
 
@@ -173,7 +178,7 @@ class AuthService {
 
       return Result.success();
     } catch (e, stackTrace) {
-      return Result.failure(e, stackTrace);
+      return Result.failureError(e, stackTrace);
     }
   }
 
@@ -181,7 +186,7 @@ class AuthService {
     try {
       return Result.success(await _authRepository.checkVerificationStatus());
     } catch (e, stackTrace) {
-      return Result.failure(e, stackTrace);
+      return Result.failureError(e, stackTrace);
     }
   }
 
@@ -190,7 +195,7 @@ class AuthService {
       await _authRepository.requestPasswordReset(email);
       return Result.success();
     } catch (e, stackTrace) {
-      return Result.failure(e, stackTrace);
+      return Result.failureError(e, stackTrace);
     }
   }
 

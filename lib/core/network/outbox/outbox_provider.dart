@@ -13,6 +13,7 @@ import 'package:syncora_frontend/core/network/outbox/processors/tasks_processor.
 import 'package:syncora_frontend/core/network/outbox/processors/user_processor.dart';
 import 'package:syncora_frontend/core/network/outbox/repository/outbox_repository.dart';
 import 'package:syncora_frontend/core/network/syncing/sync_provider.dart';
+import 'package:syncora_frontend/core/utils/app_error.dart';
 import 'package:syncora_frontend/core/utils/error_mapper.dart';
 import 'package:syncora_frontend/core/utils/result.dart';
 import 'package:syncora_frontend/features/authentication/auth_provider.dart';
@@ -31,8 +32,7 @@ class OutboxNotifier extends AsyncNotifier<OutboxStatus>
         await ref.read(outboxServiceProvider).enqueue(request);
 
     if (!result.isSuccess) {
-      state = AsyncValue.error(
-          result.error!, result.error!.stackTrace ?? StackTrace.current);
+      state = result.error!.toAsyncValue();
       return result;
     }
 
@@ -48,12 +48,13 @@ class OutboxNotifier extends AsyncNotifier<OutboxStatus>
 
   // TODO: A behavior i noticed is that when processing a list of entries at once, the actions will revert on failing but it wont update the UI or show errors until the entire list is processed, which is a bit confusing for the user,
   Future<Result<void>> _processQueue() async {
-    if (ref.read(connectionProvider) == ConnectionStatus.disconnected) {
+    if (!ref.read(isOnlineProvider)) {
       state = const AsyncValue.data(OutboxStatus.pending);
       ref
           .read(loggerProvider)
           .w("Outbox Queue: Not processing queue when offline!");
-      return Result.canceled("Cant process outbox queue when offline");
+      return Result.canceled(
+          "Cant process outbox queue when offline", StackTrace.current);
     }
 
     if (ref.read(isGuestProvider) == true) {
@@ -61,7 +62,8 @@ class OutboxNotifier extends AsyncNotifier<OutboxStatus>
       ref
           .read(loggerProvider)
           .w("Outbox Queue: Not processing queue when guest!");
-      return Result.canceled("Cant process outbox queue when guest");
+      return Result.canceled(
+          "Cant process outbox queue when guest", StackTrace.current);
     }
 
     // If we are trying to process the queue while we are already processing it, we mark it as awaiting
@@ -80,7 +82,7 @@ class OutboxNotifier extends AsyncNotifier<OutboxStatus>
     Result<void> result = await ref.read(outboxServiceProvider).processQueue(
         onFail: (error, stackTrace) {
       ref.read(appErrorProvider.notifier).state =
-          ErrorMapper.map(error, stackTrace);
+          AppError.fromException(error, stackTrace);
     }, requireSecondPass: () {
       ref
           .read(loggerProvider)
@@ -111,7 +113,7 @@ class OutboxNotifier extends AsyncNotifier<OutboxStatus>
 
     if (!result.isSuccess && !result.isCancelled) {
       ref.read(appErrorProvider.notifier).state = result.error;
-      state = AsyncValue.error(result.error!.message, result.error!.stackTrace);
+      state = result.error!.toAsyncValue();
     } else if (result.isCancelled) {
       state = const AsyncValue.data(OutboxStatus.pending);
     }
@@ -143,8 +145,8 @@ class OutboxNotifier extends AsyncNotifier<OutboxStatus>
   FutureOr<OutboxStatus> build() async {
     WidgetsBinding.instance.addObserver(this);
     ref.onDispose(_onDispose);
-    ref.listen(connectionProvider, (previous, next) async {
-      if (next == ConnectionStatus.connected || next == ConnectionStatus.slow) {
+    ref.listen(isOnlineProvider, (previous, next) async {
+      if (next) {
         ref
             .read(loggerProvider)
             .i("Outbox Queue: Processing Queue on connection change!");
@@ -168,7 +170,7 @@ class OutboxNotifier extends AsyncNotifier<OutboxStatus>
     if (result.isSuccess || result.isCancelled) {
       return OutboxStatus.complete;
     } else {
-      throw result.error!.errorObject;
+      return OutboxStatus.failed;
     }
   }
 

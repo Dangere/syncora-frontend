@@ -76,7 +76,7 @@ class OutboxIdMapper {
       int? serverId = await _outboxRepository.getServerId(tempId);
       return Result.success(serverId);
     } catch (e, stackTrace) {
-      return Result.failure(e, stackTrace);
+      return Result.failureError(e, stackTrace);
     }
   }
 

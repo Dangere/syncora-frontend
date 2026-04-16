@@ -288,5 +288,149 @@
   "validation_Username_Invalid": "Invalid username",
   "@validation_Username_Invalid": {
     "description": "Validation error when the username format is invalid"
+  },
+  "appError_GroupNotFound": "Group not found",
+  "@appError_GroupNotFound": {
+    "description": "Error when the requested group does not exist"
+  },
+  "appError_GroupDetailsUnchanged": "Group details are unchanged",
+  "@appError_GroupDetailsUnchanged": {
+    "description": "Error when the submitted group details are identical to the existing ones"
+  },
+  "appError_TaskNotFound": "Task not found",
+  "@appError_TaskNotFound": {
+    "description": "Error when the requested task does not exist"
+  },
+  "appError_AccessDenied": "You don't have permission to perform this action",
+  "@appError_AccessDenied": {
+    "description": "Error when the user lacks permission for the requested action"
+  },
+  "appError_OwnerCannotPerformAction": "The group owner cannot perform this action",
+  "@appError_OwnerCannotPerformAction": {
+    "description": "Error when the action is forbidden specifically for group owners"
+  },
+  "appError_SharedUserCannotPerformAction": "You don't have permission to perform this action",
+  "@appError_SharedUserCannotPerformAction": {
+    "description": "Error when the action is forbidden specifically for non-owner members"
+  },
+  "appError_UserNotFound": "User not found",
+  "@appError_UserNotFound": {
+    "description": "Error when the requested user does not exist"
+  },
+  "appError_UserAlreadyVerified": "This account is already verified",
+  "@appError_UserAlreadyVerified": {
+    "description": "Error when attempting to verify an already-verified account"
+  },
+  "appError_UserNotAssignedToTask": "This user is not assigned to the task",
+  "@appError_UserNotAssignedToTask": {
+    "description": "Error when an action requires the user to be assigned to the task but they are not"
+  },
+  "appError_InvalidUrl": "The provided URL is invalid",
+  "@appError_InvalidUrl": {
+    "description": "Error when a submitted URL fails validation"
+  },
+  "appError_InvalidCredentials": "Incorrect email or password",
+  "@appError_InvalidCredentials": {
+    "description": "Error when the login credentials do not match any account"
+  },
+  "appError_EmailAlreadyInUse": "This email address is already in use",
+  "@appError_EmailAlreadyInUse": {
+    "description": "Error when attempting to register with an email that already exists"
+  },
+  "appError_UsernameAlreadyInUse": "This username is already taken",
+  "@appError_UsernameAlreadyInUse": {
+    "description": "Error when attempting to register with a username that already exists"
+  },
+  "appError_CredentialsAlreadyInUse": "These credentials are already associated with an account",
+  "@appError_CredentialsAlreadyInUse": {
+    "description": "Error when both email and username are already in use"
+  },
+  "appError_InvalidToken": "This link has expired or is no longer valid",
+  "@appError_InvalidToken": {
+    "description": "Error when a refresh, verification, or password reset token is invalid or expired"
+  },
+  "appError_InvalidGoogleToken": "Google sign-in failed. Please try again",
+  "@appError_InvalidGoogleToken": {
+    "description": "Error when the Google JWT token fails validation"
+  },
+  "appError_UserAlreadyGranted": "This user is already a member of the group",
+  "@appError_UserAlreadyGranted": {
+    "description": "Error when attempting to add a user who is already in the group"
+  },
+  "appError_UserAlreadyRevoked": "This user is not a member of the group",
+  "@appError_UserAlreadyRevoked": {
+    "description": "Error when attempting to remove a user who is not in the group"
+  },
+  "appError_NoUsernamesProvided": "No usernames were provided",
+  "@appError_NoUsernamesProvided": {
+    "description": "Error when a member management request is submitted with an empty username list"
+  },
+  "appError_InternalError": "Something went wrong. Please try again later",
+  "@appError_InternalError": {
+    "description": "Generic server-side error message"
+  },
+  "appError_EmailSendFailed": "We couldn't send the email. Please try again later",
+  "@appError_EmailSendFailed": {
+    "description": "Error when the server fails to dispatch an email"
+  },
+  "appError_NoFilePicked": "No file was selected",
+  "@appError_NoFilePicked": {
+    "description": "Error when no file is selected for upload"
+  },
+  "appError_SessionExpired": "Your session has ended. Please log in again",
+  "@appError_SessionExpired": {
+    "description": "Error when the user's session has expired"
+  },
+  "appError_OfflineAccessDenied": "You must be online to perform this action",
+  "@appError_OfflineAccessDenied": {
+    "description": "Error when the user tries to perform an action while offline"
+  },
+  "appError_Unknown": "An unexpected error occurred. Please try again",
+  "@appError_Unknown": {
+    "description": "Fallback error for unrecognized or unmapped error codes"
+  },
+  "appError_Dio_ConnectionTimeout": "Connection timed out. Please check your internet and try again",
+  "@appError_Dio_ConnectionTimeout": {
+    "description": "Error when a request fails due to a connection timeout"
+  },
+  "appError_Dio_SendTimeout": "Failed to send your request. Please try again",
+  "@appError_Dio_SendTimeout": {
+    "description": "Error when a request fails due to a send timeout"
+  },
+  "appError_Dio_ReceiveTimeout": "The server is taking too long to respond. Please try again later",
+  "@appError_Dio_ReceiveTimeout": {
+    "description": "Error when a request fails due to a receive timeout"
+  },
+  "appError_Dio_BadCertificate": "Unable to verify the server. Please try again on a secure network",
+  "@appError_Dio_BadCertificate": {
+    "description": "Error when SSL/TLS certificate validation fails"
+  },
+  "appError_Dio_RequestCancelled": "Request was cancelled. Please try again",
+  "@appError_Dio_RequestCancelled": {
+    "description": "Error when a request is explicitly cancelled"
+  },
+  "appError_Dio_ConnectionError": "Unable to reach the server. Please check your connection",
+  "@appError_Dio_ConnectionError": {
+    "description": "Error when a network-level connection failure occurs"
+  },
+  "appError_HTTP_BadRequest": "Your request could not be processed. Please try again",
+  "@appError_HTTP_BadRequest": {
+    "description": "Error when the server cannot understand or process the request (HTTP 400)"
+  },
+  "appError_HTTP_ResourceNotFound": "The requested resource could not be found",
+  "@appError_HTTP_ResourceNotFound": {
+    "description": "Error when the requested resource does not exist (HTTP 404)"
+  },
+  "appError_HTTP_RequestTimeout": "The request timed out. Please try again",
+  "@appError_HTTP_RequestTimeout": {
+    "description": "Error when the server times out waiting for the request (HTTP 408)"
+  },
+  "appError_HTTP_UnprocessableData": "The submitted data is invalid. Please check your input and try again",
+  "@appError_HTTP_UnprocessableData": {
+    "description": "Error when the server cannot process the submitted data (HTTP 422)"
+  },
+  "appError_HTTP_TooManyRequests": "Too many requests. Please wait a moment and try again",
+  "@appError_HTTP_TooManyRequests": {
+    "description": "Error when the client exceeds the server's rate limit (HTTP 429)"
   }
 }

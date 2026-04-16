@@ -13,6 +13,7 @@ import 'package:lorem_ipsum/lorem_ipsum.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:syncora_frontend/common/providers/common_providers.dart';
 import 'package:syncora_frontend/core/data/enums/database_tables.dart';
+import 'package:syncora_frontend/core/data/enums/groups_filter.dart';
 import 'package:syncora_frontend/core/image/image_providers.dart';
 import 'package:syncora_frontend/core/network/outbox/model/outbox_entry.dart';
 import 'package:syncora_frontend/core/network/outbox/outbox_sorter.dart';
@@ -394,7 +395,7 @@ class Tests {
     if (!imagePicked.isSuccess || imagePicked.data == null) {
       return Logger().e(imagePicked.data == null
           ? "No image picked"
-          : imagePicked.error!.message);
+          : imagePicked.error!.rawMessage);
     }
     Logger().f("Picked image path: ${imagePicked.data!.path}");
     if (!context.mounted) return;
@@ -408,7 +409,7 @@ class Tests {
         await ref.read(imageServiceProvider).uploadImage(croppedImageBytes);
 
     if (!uploadedImageUrl.isSuccess) {
-      return Logger().e(uploadedImageUrl.error!.message);
+      return Logger().e(uploadedImageUrl.error!.rawMessage);
     }
 
     Logger().f("Successfully uploaded image: ${uploadedImageUrl.data}");
@@ -420,13 +421,13 @@ class Tests {
     if (context.mounted) {
       if (!updateImageResult.isSuccess) {
         SnackBarAlerts.showErrorSnackBar(
-            updateImageResult.error!.message, context);
+            updateImageResult.error!.rawMessage, context);
       } else {
         SnackBarAlerts.showSuccessSnackBar("Changed profile picture!", context);
       }
     }
     if (!updateImageResult.isSuccess) {
-      return Logger().e(updateImageResult.error!.message);
+      return Logger().e(updateImageResult.error!.rawMessage);
     }
   }
 

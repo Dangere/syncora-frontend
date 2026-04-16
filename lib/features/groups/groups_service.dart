@@ -1,3 +1,5 @@
+import 'package:syncora_frontend/core/data/enums/app_error_code.dart';
+import 'package:syncora_frontend/core/data/enums/groups_filter.dart';
 import 'package:syncora_frontend/core/network/outbox/model/enqueue_request.dart';
 import 'package:syncora_frontend/core/network/outbox/model/outbox_entry.dart';
 import 'package:syncora_frontend/core/network/outbox/model/outbox_payload.dart';
@@ -36,7 +38,7 @@ class GroupsService {
       Group? group = await _localGroupsRepository.getGroup(groupId);
       return Result.success(group);
     } catch (e, stackTrace) {
-      return Result.failure(e, stackTrace);
+      return Result.failureError(e, stackTrace);
     }
   }
 
@@ -47,7 +49,7 @@ class GroupsService {
           filters, _authStateFactory().userId!, search);
       return Result.success(groups);
     } catch (e, stackTrace) {
-      return Result.failure(e, stackTrace);
+      return Result.failureError(e, stackTrace);
     }
   }
 
@@ -76,13 +78,12 @@ class GroupsService {
           await _localGroupsRepository.createGroup(newGroup);
           return Result.success();
         } catch (e, stackTrace) {
-          return Result.failure(e, stackTrace);
+          return Result.failureError(e, stackTrace);
         }
       },
     ));
     if (!enqueueResult.isSuccess && !enqueueResult.isCancelled) {
-      return Result.failure(
-          enqueueResult.error!, enqueueResult.error!.stackTrace);
+      return Result.failureFrom(enqueueResult);
     }
 
     return Result.success(newGroup);
@@ -96,10 +97,10 @@ class GroupsService {
       if (fetchedGroup != null) {
         group = fetchedGroup;
       } else {
-        return Result.failureMessage("Group not found");
+        return Result.canceled("Group not found", StackTrace.current);
       }
     } catch (e) {
-      return Result.failure(e, StackTrace.current);
+      return Result.failureError(e, StackTrace.current);
     }
 
     Result enqueueResult = await _enqueueEntry(EnqueueRequest(
@@ -119,7 +120,7 @@ class GroupsService {
               title, description, groupId);
           return Result.success();
         } catch (e, stackTrace) {
-          return Result.failure(e, stackTrace);
+          return Result.failureError(e, stackTrace);
         }
       },
     ));
@@ -135,8 +136,8 @@ class GroupsService {
       required List<String> usernames,
       required int groupId}) async {
     if (!_isOnlineFactory()) {
-      return Result.failureMessage(
-          "Can't grant access or revoke it when offline");
+      return Result.failureCode(
+          AppErrorCode.OFFLINE_ACCESS_DENIED, StackTrace.current);
     }
 
     try {
@@ -150,13 +151,14 @@ class GroupsService {
 
       return Result.success();
     } catch (e, stackTrace) {
-      return Result.failure(e, stackTrace);
+      return Result.failureError(e, stackTrace);
     }
   }
 
   Future<Result<void>> leaveGroup(int groupId) async {
     if (!_isOnlineFactory()) {
-      return Result.failureMessage("Can't leave group when offline");
+      return Result.failureCode(
+          AppErrorCode.OFFLINE_ACCESS_DENIED, StackTrace.current);
     }
     Result enqueueResult = await _enqueueEntry(EnqueueRequest(
       entry: OutboxEntry.entry(
@@ -169,7 +171,7 @@ class GroupsService {
           await _localGroupsRepository.markGroupAsDeleted(groupId);
           return Result.success();
         } catch (e, stackTrace) {
-          return Result.failure(e, stackTrace);
+          return Result.failureError(e, stackTrace);
         }
       },
     ));
@@ -194,7 +196,7 @@ class GroupsService {
           await _localGroupsRepository.markGroupAsDeleted(groupId);
           return Result.success();
         } catch (e, stackTrace) {
-          return Result.failure(e, stackTrace);
+          return Result.failureError(e, stackTrace);
         }
       },
     ));
@@ -208,13 +210,13 @@ class GroupsService {
   Future<Result<int>> getGroupsCount(List<GroupsFilter> filters) async {
     try {
       if (_authStateFactory().isUnauthenticated) {
-        return Result.failureMessage("User is unauthenticated");
+        return Result.canceled("User is unauthenticated", StackTrace.current);
       }
 
       return Result.success(await _groupStatisticsRepository.getGroupsCount(
           filters, _authStateFactory().userId!));
     } catch (e, stackTrace) {
-      return Result.failure(e, stackTrace);
+      return Result.failureError(e, stackTrace);
     }
   }
 
@@ -222,13 +224,13 @@ class GroupsService {
       bool includeAssignedTasks, int sinceDays) async {
     try {
       if (_authStateFactory().isUnauthenticated) {
-        return Result.failureMessage("User is unauthenticated");
+        return Result.canceled("User is unauthenticated", StackTrace.current);
       }
 
       return Result.success(await _groupStatisticsRepository.getProgressSince(
           _authStateFactory().userId!, sinceDays, includeAssignedTasks));
     } catch (e, stackTrace) {
-      return Result.failure(e, stackTrace);
+      return Result.failureError(e, stackTrace);
     }
   }
 
@@ -236,14 +238,14 @@ class GroupsService {
       bool includeAssignedTasks, int sinceDays) async {
     try {
       if (_authStateFactory().isUnauthenticated) {
-        return Result.failureMessage("User is unauthenticated");
+        return Result.canceled("User is unauthenticated", StackTrace.current);
       }
 
       return Result.success(
           await _groupStatisticsRepository.getTotalProgressSince(
               _authStateFactory().userId!, sinceDays, includeAssignedTasks));
     } catch (e, stackTrace) {
-      return Result.failure(e, stackTrace);
+      return Result.failureError(e, stackTrace);
     }
   }
 
@@ -251,7 +253,7 @@ class GroupsService {
       {required int groupId, required int userId}) async {
     Result<Group?> groupResult = await getCachedGroup(groupId);
     if (!groupResult.isSuccess) {
-      return Result.failureMap(groupResult);
+      return Result.failureFrom(groupResult);
     }
     return Result.success(groupResult.data?.ownerUserId == userId);
   }

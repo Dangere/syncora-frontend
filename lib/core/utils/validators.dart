@@ -18,7 +18,7 @@ class Validators {
   }
 
   static bool validateName(String name) {
-    final regex = RegExp(r"^[^';<>\\]{1,20}$");
+    final regex = RegExp(r"^[^';<>\s\\]{1,20}$");
     return regex.hasMatch(name);
   }
 

@@ -2,6 +2,7 @@ import 'package:logger/logger.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:syncora_frontend/core/data/database_manager.dart';
 import 'package:syncora_frontend/core/data/enums/database_tables.dart';
+import 'package:syncora_frontend/core/data/enums/groups_filter.dart';
 import 'package:syncora_frontend/features/groups/models/group.dart';
 import 'package:syncora_frontend/features/groups/models/group_dto.dart';
 import 'package:syncora_frontend/features/groups/groups_provider.dart';

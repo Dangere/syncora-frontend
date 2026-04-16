@@ -314,4 +314,138 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get validation_Username_Invalid => 'Invalid username';
+
+  @override
+  String get appError_GroupNotFound => 'Group not found';
+
+  @override
+  String get appError_GroupDetailsUnchanged => 'Group details are unchanged';
+
+  @override
+  String get appError_TaskNotFound => 'Task not found';
+
+  @override
+  String get appError_AccessDenied =>
+      'You don\'t have permission to perform this action';
+
+  @override
+  String get appError_OwnerCannotPerformAction =>
+      'The group owner cannot perform this action';
+
+  @override
+  String get appError_SharedUserCannotPerformAction =>
+      'You don\'t have permission to perform this action';
+
+  @override
+  String get appError_UserNotFound => 'User not found';
+
+  @override
+  String get appError_UserAlreadyVerified => 'This account is already verified';
+
+  @override
+  String get appError_UserNotAssignedToTask =>
+      'This user is not assigned to the task';
+
+  @override
+  String get appError_InvalidUrl => 'The provided URL is invalid';
+
+  @override
+  String get appError_InvalidCredentials => 'Incorrect email or password';
+
+  @override
+  String get appError_EmailAlreadyInUse =>
+      'This email address is already in use';
+
+  @override
+  String get appError_UsernameAlreadyInUse => 'This username is already taken';
+
+  @override
+  String get appError_CredentialsAlreadyInUse =>
+      'These credentials are already associated with an account';
+
+  @override
+  String get appError_InvalidToken =>
+      'This link has expired or is no longer valid';
+
+  @override
+  String get appError_InvalidGoogleToken =>
+      'Google sign-in failed. Please try again';
+
+  @override
+  String get appError_UserAlreadyGranted =>
+      'This user is already a member of the group';
+
+  @override
+  String get appError_UserAlreadyRevoked =>
+      'This user is not a member of the group';
+
+  @override
+  String get appError_NoUsernamesProvided => 'No usernames were provided';
+
+  @override
+  String get appError_InternalError =>
+      'Something went wrong. Please try again later';
+
+  @override
+  String get appError_EmailSendFailed =>
+      'We couldn\'t send the email. Please try again later';
+
+  @override
+  String get appError_NoFilePicked => 'No file was selected';
+
+  @override
+  String get appError_SessionExpired =>
+      'Your session has ended. Please log in again';
+
+  @override
+  String get appError_OfflineAccessDenied =>
+      'You must be online to perform this action';
+
+  @override
+  String get appError_Unknown =>
+      'An unexpected error occurred. Please try again';
+
+  @override
+  String get appError_Dio_ConnectionTimeout =>
+      'Connection timed out. Please check your internet and try again';
+
+  @override
+  String get appError_Dio_SendTimeout =>
+      'Failed to send your request. Please try again';
+
+  @override
+  String get appError_Dio_ReceiveTimeout =>
+      'The server is taking too long to respond. Please try again later';
+
+  @override
+  String get appError_Dio_BadCertificate =>
+      'Unable to verify the server. Please try again on a secure network';
+
+  @override
+  String get appError_Dio_RequestCancelled =>
+      'Request was cancelled. Please try again';
+
+  @override
+  String get appError_Dio_ConnectionError =>
+      'Unable to reach the server. Please check your connection';
+
+  @override
+  String get appError_HTTP_BadRequest =>
+      'Your request could not be processed. Please try again';
+
+  @override
+  String get appError_HTTP_ResourceNotFound =>
+      'The requested resource could not be found';
+
+  @override
+  String get appError_HTTP_RequestTimeout =>
+      'The request timed out. Please try again';
+
+  @override
+  String get appError_HTTP_UnprocessableData =>
+      'The submitted data is invalid. Please check your input and try again';
+
+  @override
+  String get appError_HTTP_TooManyRequests =>
+      'Too many requests. Please wait a moment and try again';
 }

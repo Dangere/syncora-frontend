@@ -50,16 +50,15 @@ class SnackBarAlerts {
       // Check if the current page is the top page
       bool isTopPage = ModalRoute.of(context)?.isCurrent ?? false;
       if (next != null && isTopPage) {
-        showErrorSnackBar(next.message, context);
+        String localizedErrorMessage = ref
+            .read(localizeAppErrorsProvider)
+            .localizeErrorCode(next.errorCode, context);
+
+        showErrorSnackBar(localizedErrorMessage, context);
         Future.microtask(() {
           ref.read(appErrorProvider.notifier).state = null;
         });
-        ref
-            .read(loggerProvider)
-            .e("${next.message}\nError Source: ${context.widget.runtimeType}");
-        if (next.stackTrace != null) {
-          ref.read(loggerProvider).w(next.stackTrace);
-        }
+        ref.read(loggerProvider).e("${next.logMessage}\n");
       }
     });
   }

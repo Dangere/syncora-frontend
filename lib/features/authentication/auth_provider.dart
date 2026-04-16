@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:cancellation_token/cancellation_token.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:syncora_frontend/common/providers/common_providers.dart';
+import 'package:syncora_frontend/core/data/enums/app_error_code.dart';
 import 'package:syncora_frontend/core/typedef.dart';
 import 'package:syncora_frontend/core/utils/app_error.dart';
 import 'package:syncora_frontend/core/utils/result.dart';
@@ -63,9 +64,11 @@ class AuthNotifier extends AsyncNotifier<AuthState> {
   /// Displays a pop up that allows the user to select a google account and returns the token with info
   Future<Result<GoogleUserInfo>> getGoogleRegisterToken() async {
     if (_isLoggedIn) {
-      return Result.canceled("User is logged in");
+      return Result.canceled("User is logged in", StackTrace.current);
     }
-    if (state.isLoading) return Result.canceled("Already loading");
+    if (state.isLoading) {
+      return Result.canceled("Already loading", StackTrace.current);
+    }
 
     state = const AsyncValue.loading();
 
@@ -251,22 +254,22 @@ class AuthNotifier extends AsyncNotifier<AuthState> {
 
     // TODO: Show pop up instead of snackbar
     // TODO: in the future make it so you can differentiate between a revoked refresh token or an expired, and give different messages
-    ref.read(appErrorProvider.notifier).state = AppError(
-        message:
-            "Your session was either expired or revoked, please login again",
-        stackTrace: StackTrace.current);
+    ref.read(appErrorProvider.notifier).state =
+        AppError.fromCode(AppErrorCode.SESSION_EXPIRED, StackTrace.current);
   }
 
   Future<Result> refreshTokens([CancellationToken? cancellationToken]) async {
     if (state.value?.isUnauthenticated ?? true) {
       return Result.canceled(
-          "Cannot refresh tokens when no user is logged in, user is ${state.value?.isAuthenticated}");
+          "Cannot refresh tokens when no user is logged in, user is ${state.value?.isAuthenticated}",
+          StackTrace.current);
     }
 
     Tokens? tokens = ref.read(sessionStorageProvider).tokens;
 
     if (tokens == null) {
-      return Result.canceled("Tokens are empty, cannot refresh them");
+      return Result.canceled(
+          "Tokens are empty, cannot refresh them", StackTrace.current);
     }
 
     if (_refreshTokenCompleter != null) {

@@ -36,7 +36,7 @@ class UsersService {
       return Result.success<User>(
           await _remoteUsersRepository.getUser(username));
     } catch (e, stackTrace) {
-      return Result.failure(e, stackTrace);
+      return Result.failureError(e, stackTrace);
     }
   }
 
@@ -44,7 +44,7 @@ class UsersService {
     try {
       return Result.success<User?>(await _localUsersRepository.getUser(id));
     } catch (e, stackTrace) {
-      return Result.failure(e, stackTrace);
+      return Result.failureError(e, stackTrace);
     }
   }
 
@@ -53,7 +53,7 @@ class UsersService {
       return Result.success<List<User>>(
           await _localUsersRepository.getUsers(ids));
     } catch (e, stackTrace) {
-      return Result.failure(e, stackTrace);
+      return Result.failureError(e, stackTrace);
     }
   }
 
@@ -63,13 +63,14 @@ class UsersService {
       return Result.success<List<User>>(
           await _localUsersRepository.getGroupMembers(groupId, includeOwner));
     } catch (e, stackTrace) {
-      return Result.failure(e, stackTrace);
+      return Result.failureError(e, stackTrace);
     }
   }
 
   Future<Result<void>> updateProfilePicture(String url) async {
     if (!_authStateFactory().isAuthenticated && !_authStateFactory().isGuest) {
-      return Result.canceled("Can't upload profile picture when not logged in");
+      return Result.canceled("Can't upload profile picture when not logged in",
+          StackTrace.current);
     }
     try {
       // Updating the user profile picture using the url
@@ -80,7 +81,7 @@ class UsersService {
 
       return Result.success();
     } catch (e, stacktrace) {
-      return Result.failure(e, stacktrace);
+      return Result.failureError(e, stacktrace);
     }
   }
 
@@ -97,7 +98,7 @@ class UsersService {
 
       return Result.success();
     } catch (e, stackTrace) {
-      return Result.failure(e, stackTrace);
+      return Result.failureError(e, stackTrace);
     }
   }
 
@@ -140,8 +141,7 @@ class UsersService {
       },
     ));
     if (!enqueueResult.isSuccess && !enqueueResult.isCancelled) {
-      return Result.failure(
-          enqueueResult.error!, enqueueResult.error!.stackTrace);
+      return enqueueResult;
     }
     return Result.success();
   }
@@ -161,7 +161,7 @@ class UsersService {
         return Result.success(defaultPreferences);
       }
     } catch (e, stackTrace) {
-      return Result.failure(e, stackTrace);
+      return Result.failureError(e, stackTrace);
     }
   }
 
@@ -172,7 +172,7 @@ class UsersService {
           _userPreferencesKey, jsonEncode(preferences));
       return Result.success();
     } catch (e, stackTrace) {
-      return Result.failure(e, stackTrace);
+      return Result.failureError(e, stackTrace);
     }
   }
 
@@ -182,7 +182,7 @@ class UsersService {
       await _localUsersRepository.upsertUsers([user]);
       return Result.success();
     } catch (e, stackTrace) {
-      return Result.failure(e, stackTrace);
+      return Result.failureError(e, stackTrace);
     }
   }
 }

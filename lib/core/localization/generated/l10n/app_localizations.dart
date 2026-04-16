@@ -697,6 +697,222 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Invalid username'**
   String get validation_Username_Invalid;
+
+  /// Error when the requested group does not exist
+  ///
+  /// In en, this message translates to:
+  /// **'Group not found'**
+  String get appError_GroupNotFound;
+
+  /// Error when the submitted group details are identical to the existing ones
+  ///
+  /// In en, this message translates to:
+  /// **'Group details are unchanged'**
+  String get appError_GroupDetailsUnchanged;
+
+  /// Error when the requested task does not exist
+  ///
+  /// In en, this message translates to:
+  /// **'Task not found'**
+  String get appError_TaskNotFound;
+
+  /// Error when the user lacks permission for the requested action
+  ///
+  /// In en, this message translates to:
+  /// **'You don\'t have permission to perform this action'**
+  String get appError_AccessDenied;
+
+  /// Error when the action is forbidden specifically for group owners
+  ///
+  /// In en, this message translates to:
+  /// **'The group owner cannot perform this action'**
+  String get appError_OwnerCannotPerformAction;
+
+  /// Error when the action is forbidden specifically for non-owner members
+  ///
+  /// In en, this message translates to:
+  /// **'You don\'t have permission to perform this action'**
+  String get appError_SharedUserCannotPerformAction;
+
+  /// Error when the requested user does not exist
+  ///
+  /// In en, this message translates to:
+  /// **'User not found'**
+  String get appError_UserNotFound;
+
+  /// Error when attempting to verify an already-verified account
+  ///
+  /// In en, this message translates to:
+  /// **'This account is already verified'**
+  String get appError_UserAlreadyVerified;
+
+  /// Error when an action requires the user to be assigned to the task but they are not
+  ///
+  /// In en, this message translates to:
+  /// **'This user is not assigned to the task'**
+  String get appError_UserNotAssignedToTask;
+
+  /// Error when a submitted URL fails validation
+  ///
+  /// In en, this message translates to:
+  /// **'The provided URL is invalid'**
+  String get appError_InvalidUrl;
+
+  /// Error when the login credentials do not match any account
+  ///
+  /// In en, this message translates to:
+  /// **'Incorrect email or password'**
+  String get appError_InvalidCredentials;
+
+  /// Error when attempting to register with an email that already exists
+  ///
+  /// In en, this message translates to:
+  /// **'This email address is already in use'**
+  String get appError_EmailAlreadyInUse;
+
+  /// Error when attempting to register with a username that already exists
+  ///
+  /// In en, this message translates to:
+  /// **'This username is already taken'**
+  String get appError_UsernameAlreadyInUse;
+
+  /// Error when both email and username are already in use
+  ///
+  /// In en, this message translates to:
+  /// **'These credentials are already associated with an account'**
+  String get appError_CredentialsAlreadyInUse;
+
+  /// Error when a refresh, verification, or password reset token is invalid or expired
+  ///
+  /// In en, this message translates to:
+  /// **'This link has expired or is no longer valid'**
+  String get appError_InvalidToken;
+
+  /// Error when the Google JWT token fails validation
+  ///
+  /// In en, this message translates to:
+  /// **'Google sign-in failed. Please try again'**
+  String get appError_InvalidGoogleToken;
+
+  /// Error when attempting to add a user who is already in the group
+  ///
+  /// In en, this message translates to:
+  /// **'This user is already a member of the group'**
+  String get appError_UserAlreadyGranted;
+
+  /// Error when attempting to remove a user who is not in the group
+  ///
+  /// In en, this message translates to:
+  /// **'This user is not a member of the group'**
+  String get appError_UserAlreadyRevoked;
+
+  /// Error when a member management request is submitted with an empty username list
+  ///
+  /// In en, this message translates to:
+  /// **'No usernames were provided'**
+  String get appError_NoUsernamesProvided;
+
+  /// Generic server-side error message
+  ///
+  /// In en, this message translates to:
+  /// **'Something went wrong. Please try again later'**
+  String get appError_InternalError;
+
+  /// Error when the server fails to dispatch an email
+  ///
+  /// In en, this message translates to:
+  /// **'We couldn\'t send the email. Please try again later'**
+  String get appError_EmailSendFailed;
+
+  /// Error when no file is selected for upload
+  ///
+  /// In en, this message translates to:
+  /// **'No file was selected'**
+  String get appError_NoFilePicked;
+
+  /// Error when the user's session has expired
+  ///
+  /// In en, this message translates to:
+  /// **'Your session has ended. Please log in again'**
+  String get appError_SessionExpired;
+
+  /// Error when the user tries to perform an action while offline
+  ///
+  /// In en, this message translates to:
+  /// **'You must be online to perform this action'**
+  String get appError_OfflineAccessDenied;
+
+  /// Fallback error for unrecognized or unmapped error codes
+  ///
+  /// In en, this message translates to:
+  /// **'An unexpected error occurred. Please try again'**
+  String get appError_Unknown;
+
+  /// Error when a request fails due to a connection timeout
+  ///
+  /// In en, this message translates to:
+  /// **'Connection timed out. Please check your internet and try again'**
+  String get appError_Dio_ConnectionTimeout;
+
+  /// Error when a request fails due to a send timeout
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to send your request. Please try again'**
+  String get appError_Dio_SendTimeout;
+
+  /// Error when a request fails due to a receive timeout
+  ///
+  /// In en, this message translates to:
+  /// **'The server is taking too long to respond. Please try again later'**
+  String get appError_Dio_ReceiveTimeout;
+
+  /// Error when SSL/TLS certificate validation fails
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to verify the server. Please try again on a secure network'**
+  String get appError_Dio_BadCertificate;
+
+  /// Error when a request is explicitly cancelled
+  ///
+  /// In en, this message translates to:
+  /// **'Request was cancelled. Please try again'**
+  String get appError_Dio_RequestCancelled;
+
+  /// Error when a network-level connection failure occurs
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to reach the server. Please check your connection'**
+  String get appError_Dio_ConnectionError;
+
+  /// Error when the server cannot understand or process the request (HTTP 400)
+  ///
+  /// In en, this message translates to:
+  /// **'Your request could not be processed. Please try again'**
+  String get appError_HTTP_BadRequest;
+
+  /// Error when the requested resource does not exist (HTTP 404)
+  ///
+  /// In en, this message translates to:
+  /// **'The requested resource could not be found'**
+  String get appError_HTTP_ResourceNotFound;
+
+  /// Error when the server times out waiting for the request (HTTP 408)
+  ///
+  /// In en, this message translates to:
+  /// **'The request timed out. Please try again'**
+  String get appError_HTTP_RequestTimeout;
+
+  /// Error when the server cannot process the submitted data (HTTP 422)
+  ///
+  /// In en, this message translates to:
+  /// **'The submitted data is invalid. Please check your input and try again'**
+  String get appError_HTTP_UnprocessableData;
+
+  /// Error when the client exceeds the server's rate limit (HTTP 429)
+  ///
+  /// In en, this message translates to:
+  /// **'Too many requests. Please wait a moment and try again'**
+  String get appError_HTTP_TooManyRequests;
 }
 
 class _AppLocalizationsDelegate

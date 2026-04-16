@@ -2,8 +2,8 @@ import 'package:logger/logger.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:syncora_frontend/core/data/database_manager.dart';
 import 'package:syncora_frontend/core/data/enums/database_tables.dart';
+import 'package:syncora_frontend/core/data/enums/tasks_filter.dart';
 import 'package:syncora_frontend/features/tasks/models/task.dart';
-import 'package:syncora_frontend/features/tasks/tasks_provider.dart';
 
 class LocalTasksRepository {
   final DatabaseManager _databaseManager;
@@ -11,25 +11,25 @@ class LocalTasksRepository {
   LocalTasksRepository(this._databaseManager);
 
   Future<List<Task>> getTasksForGroup(
-      int groupId, int userId, List<TaskFilter> filters) async {
+      int groupId, int userId, List<TasksFilter> filters) async {
     final db = await _databaseManager.getDatabase();
 
-    final String orderingFilter = (filters.contains(TaskFilter.newest) ||
-            filters.contains(TaskFilter.oldest))
-        ? (filters.contains(TaskFilter.newest)
+    final String orderingFilter = (filters.contains(TasksFilter.newest) ||
+            filters.contains(TasksFilter.oldest))
+        ? (filters.contains(TasksFilter.newest)
             ? "ORDER BY creationDate DESC"
             : "ORDER BY creationDate ASC")
         : "";
 
-    final String completedFilter = (filters.contains(TaskFilter.completed) ||
-            filters.contains(TaskFilter.pending))
-        ? (filters.contains(TaskFilter.completed)
+    final String completedFilter = (filters.contains(TasksFilter.completed) ||
+            filters.contains(TasksFilter.pending))
+        ? (filters.contains(TasksFilter.completed)
             ? "AND t.completedById IS NOT NULL"
             : "AND t.completedById IS NULL")
         : "";
 
     // TODO: Test that this filter doesn't exclude other assigned members and only brings tasks assigned to user
-    final String assignedFilter = (filters.contains(TaskFilter.assigned))
+    final String assignedFilter = (filters.contains(TasksFilter.assigned))
         ? "AND ts.userId = $userId"
         : "";
 

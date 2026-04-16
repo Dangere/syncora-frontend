@@ -19,6 +19,8 @@ class SignalRClient {
 
   CancellationToken? _cancelationToken;
 
+  bool _isConnecting = false;
+
   SignalRClient(Logger logger,
       {required String serverUrl,
       required String hub,
@@ -58,8 +60,9 @@ class SignalRClient {
   // Tries to establish a connection to the server until it succeeds
   Future<void> connect() async {
     // return Result.canceled("Canceling connection to hub");
-    if (_connection.state == HubConnectionState.Connected) {
-      _logger.i("SignalRClient: connection is already connected, skipping");
+    if (_connection.state == HubConnectionState.Connected || _isConnecting) {
+      _logger.i(
+          "SignalRClient: connection is already connected or is connecting, skipping");
 
       return;
     }
@@ -77,6 +80,7 @@ class SignalRClient {
       return;
     }
     _cancelationToken!.cancel();
+    _isConnecting = false;
     // We have to check that its connected to stop it first, otherwise if we try to stop it while it has a disconnect error, it will bug out and get stuck at "disconnecting" (this happens when we try to call this method when we lose internet connection, it already has a no internet error)
     if (_connection.state == HubConnectionState.Connected) {
       await _connection.stop();
@@ -102,6 +106,7 @@ class SignalRClient {
   Future<Result> _connectToServer() async {
     while (_connection.state == HubConnectionState.Disconnected &&
         !_cancelationToken!.isCancelled) {
+      _isConnecting = true;
       try {
         // Try to start the connection
         await _connection.start()?.asCancellable(_cancelationToken);
@@ -113,7 +118,7 @@ class SignalRClient {
       } catch (e, stackTrace) {
         if (e is CancelledException) {
           _logger.d("SignalRClient: connection was cancelled, returning");
-          return Result.failure(e, stackTrace);
+          return Result.failureError(e, stackTrace);
         }
 
         // If the error is an http error, we see if its an expired token or not
@@ -127,15 +132,15 @@ class SignalRClient {
 
             if (!refreshResult.isSuccess) {
               _logger.f(
-                  "SignalRClient: refreshing tokens failed due to: ${refreshResult.error!.message}");
-              return Result.failure(e, stackTrace);
+                  "SignalRClient: refreshing tokens failed due to: ${refreshResult.error!.rawMessage}");
+              return Result.failureError(e, stackTrace);
             }
             continue;
 
             // If its not an expired token, we return
           } else {
             _logger.f("SignalRClient: connection failed with network error $e");
-            return Result.failure(e, stackTrace);
+            return Result.failureError(e, stackTrace);
           }
         }
         // If the error is a timeout, we wait and try again
@@ -149,19 +154,22 @@ class SignalRClient {
 
         // If the error is not an http error and not a timeout, we return with fetal error
         _logger.f("SignalRClient: connection failed with fetal error $e");
-        return Result.failure(e, stackTrace);
+        return Result.failureError(e, stackTrace);
+      } finally {
+        _isConnecting = false;
       }
     }
 
     if (_cancelationToken!.isCancelled) {
       _logger.d("SignalRClient: connection was cancelled, returning");
 
-      return Result.canceled("Canceling connection to hub");
+      return Result.canceled("Canceling connection to hub", StackTrace.current);
     }
 
     _logger.d(
         "SignalRClient: tried to connect to server while its ${_connection.state}");
     return Result.canceled(
-        "Tried to connect to server while its ${_connection.state}");
+        "Tried to connect to server while its ${_connection.state}",
+        StackTrace.current);
   }
 }

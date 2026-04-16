@@ -1,3 +1,4 @@
+import 'package:syncora_frontend/core/data/enums/tasks_filter.dart';
 import 'package:syncora_frontend/core/network/outbox/model/enqueue_request.dart';
 import 'package:syncora_frontend/core/network/outbox/model/outbox_entry.dart';
 import 'package:syncora_frontend/core/network/outbox/model/outbox_payload.dart';
@@ -22,14 +23,14 @@ class TasksService {
         _authStateFactory = authStateFactory;
 
   Future<Result<List<Task>>> getTasksForGroup(
-      int groupId, List<TaskFilter> filters) async {
+      int groupId, List<TasksFilter> filters) async {
     try {
       // We aren't checking if user is authenticated or not because guests and logged in users can access tasks
       List<Task> tasks = await _localTasksRepository.getTasksForGroup(
           groupId, _authStateFactory().userId!, filters);
       return Result.success(tasks);
     } catch (e, stackTrace) {
-      return Result.failure(e, stackTrace);
+      return Result.failureError(e, stackTrace);
     }
   }
 
@@ -47,7 +48,7 @@ class TasksService {
           await _localTasksRepository.markTaskAsDeleted(taskId);
           return Result.success();
         } catch (e, stackTrace) {
-          return Result.failure(e, stackTrace);
+          return Result.failureError(e, stackTrace);
         }
       },
     ));
@@ -83,7 +84,7 @@ class TasksService {
               taskId: taskId, title: title, description: description);
           return Result.success();
         } catch (e, stackTrace) {
-          return Result.failure(e, stackTrace);
+          return Result.failureError(e, stackTrace);
         }
       },
     ));
@@ -121,7 +122,7 @@ class TasksService {
           await _localTasksRepository.upsertTasks([task]);
           return Result.success();
         } catch (e, stackTrace) {
-          return Result.failure(e, stackTrace);
+          return Result.failureError(e, stackTrace);
         }
       },
     ));
@@ -137,14 +138,14 @@ class TasksService {
       required int groupId,
       required List<int> ids}) async {
     if (_authStateFactory().isGuest || _authStateFactory().isUnauthenticated) {
-      return Result.failureMessage(
-          "Can't assign task to users when not logged in");
+      return Result.canceled(
+          "Can't assign task to users when not logged in", StackTrace.current);
     }
     try {
       return Result.success(await _remoteTasksRepository.assignTask(
           taskId: taskId, groupId: groupId, ids: ids));
     } catch (e, stackTrace) {
-      return Result.failure(e, stackTrace);
+      return Result.failureError(e, stackTrace);
     }
   }
 
@@ -153,14 +154,14 @@ class TasksService {
       required int groupId,
       required List<int> ids}) async {
     if (_authStateFactory().isGuest || _authStateFactory().isUnauthenticated) {
-      return Result.failureMessage(
-          "Can't assign task to users when not logged in");
+      return Result.canceled(
+          "Can't assign task to users when not logged in", StackTrace.current);
     }
     try {
       return Result.success(await _remoteTasksRepository.setAssignTask(
           taskId: taskId, groupId: groupId, ids: ids));
     } catch (e, stackTrace) {
-      return Result.failure(e, stackTrace);
+      return Result.failureError(e, stackTrace);
     }
   }
 
@@ -183,7 +184,7 @@ class TasksService {
               isDone: isDone);
           return Result.success();
         } catch (e, stackTrace) {
-          return Result.failure(e, stackTrace);
+          return Result.failureError(e, stackTrace);
         }
       },
     ));

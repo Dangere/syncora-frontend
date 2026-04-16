@@ -3,11 +3,13 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:syncora_frontend/common/providers/common_providers.dart';
 import 'package:syncora_frontend/common/themes/app_sizes.dart';
 import 'package:syncora_frontend/common/themes/app_spacing.dart';
 import 'package:syncora_frontend/common/themes/app_theme.dart';
 import 'package:syncora_frontend/common/widgets/profile_picture.dart';
 import 'package:syncora_frontend/core/localization/generated/l10n/app_localizations.dart';
+import 'package:syncora_frontend/core/utils/app_error.dart';
 import 'package:syncora_frontend/core/utils/date_utilities.dart';
 import 'package:syncora_frontend/core/utils/error_mapper.dart';
 import 'package:syncora_frontend/core/utils/snack_bar_alerts.dart';
@@ -357,7 +359,12 @@ class _GroupInfoPageState extends ConsumerState<GroupInfoPage> {
             },
             error: (error, stackTrace) {
               return Center(
-                  child: Text(ErrorMapper.map(error, stackTrace).message));
+                child: Text(
+                  ref.read(localizeAppErrorsProvider).localizeErrorCode(
+                      AppError.fromException(error, stackTrace).errorCode,
+                      context),
+                ),
+              );
             },
             loading: () {
               return const Center(child: CircularProgressIndicator());

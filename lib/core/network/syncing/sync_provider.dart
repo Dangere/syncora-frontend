@@ -24,7 +24,7 @@ class SyncBackendNotifier extends AsyncNotifier<SyncState>
   // A fetch call to the state payload will be called to compare both event vs state data, which should be almost the same
   // final bool _debugEventPayloadCheck = false;
   bool _isProcessing = false;
-  Queue<SyncPayload> _payloadQueue = Queue<SyncPayload>();
+  final Queue<SyncPayload> _payloadQueue = Queue<SyncPayload>();
 
   @override
   FutureOr<SyncState> build() async {
@@ -90,15 +90,14 @@ class SyncBackendNotifier extends AsyncNotifier<SyncState>
   // TODO: We could potentially ignore events coming from this device and only process events from other devices
   void _receiveData(Object? parameter) async {
     if (parameter == null || parameter is! Map<String, dynamic>) return;
-    if (ref.read(connectionProvider) == ConnectionStatus.disconnected) return;
+    if (!ref.read(isOnlineProvider)) return;
     if (ref.read(isAuthenticatedProvider) == false) return;
 
     Result<SyncPayload> result =
         await ref.read(syncServiceProvider).mapPayload(parameter);
 
     if (!result.isSuccess) {
-      state =
-          AsyncValue.error(result.error!.errorObject, result.error!.stackTrace);
+      ref.read(appErrorProvider.notifier).state = result.error;
       return;
     }
     _payloadQueue.add(result.data!);
@@ -106,15 +105,14 @@ class SyncBackendNotifier extends AsyncNotifier<SyncState>
   }
 
   Future<void> _refreshData() async {
-    if (ref.read(connectionProvider) == ConnectionStatus.disconnected) return;
+    if (!ref.read(isOnlineProvider)) return;
     if (ref.read(isAuthenticatedProvider) == false) return;
 
     Result<SyncPayload> result =
         await ref.read(syncServiceProvider).fetchPayload();
 
     if (!result.isSuccess) {
-      state =
-          AsyncValue.error(result.error!.errorObject, result.error!.stackTrace);
+      ref.read(appErrorProvider.notifier).state = result.error;
       return;
     }
     _payloadQueue.add(result.data!);
@@ -133,9 +131,6 @@ class SyncBackendNotifier extends AsyncNotifier<SyncState>
           await ref.read(syncServiceProvider).processPayload(payload);
 
       if (!result.isSuccess) {
-        state = AsyncValue.error(
-            result.error!.errorObject, result.error!.stackTrace);
-
         ref.read(appErrorProvider.notifier).state = result.error;
         return;
       }
@@ -216,7 +211,7 @@ final signalRClientProvider = Provider<SignalRClient>((ref) {
   // Listen for authentication changes
   ref.listen(isAuthenticatedProvider, (previous, next) {
     if (next) {
-      if (ref.read(connectionProvider) == ConnectionStatus.disconnected) return;
+      if (!ref.read(isOnlineProvider)) return;
       ref
           .read(loggerProvider)
           .d("signalRClientProvider: User is authenticated, connecting to hub");
@@ -230,8 +225,8 @@ final signalRClientProvider = Provider<SignalRClient>((ref) {
   });
 
   // Listen for connection changes
-  ref.listen(connectionProvider, (previous, next) {
-    if (!(next == ConnectionStatus.disconnected)) {
+  ref.listen(isOnlineProvider, (previous, next) {
+    if (next) {
       if (!ref.read(isAuthenticatedProvider)) return;
       ref
           .read(loggerProvider)

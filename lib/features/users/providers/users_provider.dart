@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:syncora_frontend/common/providers/common_providers.dart';
 import 'package:syncora_frontend/common/providers/connection_provider.dart';
+import 'package:syncora_frontend/core/data/enums/app_error_code.dart';
 import 'package:syncora_frontend/core/image/image_providers.dart';
 import 'package:syncora_frontend/core/network/outbox/outbox_provider.dart';
 import 'package:syncora_frontend/core/network/syncing/sync_state.dart';
@@ -25,7 +26,7 @@ class UserNotifier extends AsyncNotifier<void> {
     String? firstName,
     String? lastName,
   }) async {
-    if (ref.read(connectionProvider) == ConnectionStatus.disconnected) {
+    if (!ref.read(isOnlineProvider)) {
       return;
     }
     if (username == null && firstName == null && lastName == null) {
@@ -49,7 +50,7 @@ class UserNotifier extends AsyncNotifier<void> {
 
   Future<String?> changeProfilePicture(
       AsyncFunc<XFile, Uint8List?> cropImageScreen, ImageSource source) async {
-    if (ref.read(connectionProvider) == ConnectionStatus.disconnected) {
+    if (!ref.read(isOnlineProvider)) {
       return null;
     }
 
@@ -68,7 +69,7 @@ class UserNotifier extends AsyncNotifier<void> {
 
     if (imagePicked.data == null) {
       ref.read(appErrorProvider.notifier).state =
-          AppError(message: "No image picked", stackTrace: StackTrace.current);
+          AppError.fromCode(AppErrorCode.NO_FILE_PICKED, StackTrace.current);
       state = const AsyncValue.data(null);
 
       return null;
@@ -79,7 +80,7 @@ class UserNotifier extends AsyncNotifier<void> {
 
     if (imageBytes == null) {
       ref.read(appErrorProvider.notifier).state =
-          AppError(message: "No image picked", stackTrace: StackTrace.current);
+          AppError.fromCode(AppErrorCode.NO_FILE_PICKED, StackTrace.current);
 
       state = const AsyncValue.data(null);
       return null;
@@ -137,7 +138,7 @@ class UserNotifier extends AsyncNotifier<void> {
 
     if (userId == null) {
       ref.read(appErrorProvider.notifier).state =
-          AppError(message: "User id is null", stackTrace: StackTrace.current);
+          AppError.fromCode(AppErrorCode.USER_NOT_FOUND, StackTrace.current);
 
       throw Exception("User id is null");
     }
@@ -145,9 +146,16 @@ class UserNotifier extends AsyncNotifier<void> {
     Result<User?> result =
         await ref.read(usersServiceProvider).getCachedUser(userId);
 
-    if (!result.isSuccess || result.data == null) {
+    if (result.data == null) {
+      ref.read(appErrorProvider.notifier).state =
+          AppError.fromCode(AppErrorCode.USER_NOT_FOUND, StackTrace.current);
+
+      throw Exception("User is null");
+    }
+
+    if (!result.isSuccess) {
       ref.read(appErrorProvider.notifier).state = result.error;
-      throw result.error!.errorObject;
+      throw result.error!.exception!;
     }
 
     return result.data!;
@@ -207,7 +215,7 @@ final userLocalProvider =
   if (!result.isSuccess) {
     ref.read(appErrorProvider.notifier).state = result.error;
 
-    throw result.error!.errorObject;
+    throw result.error!.exception!;
   }
 
   return result.data;

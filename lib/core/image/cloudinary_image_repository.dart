@@ -1,7 +1,6 @@
 import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:syncora_frontend/core/constants/constants.dart';
 import 'package:syncora_frontend/core/image/image_repository.dart';
 import 'package:syncora_frontend/core/image/upload_signature_dto.dart';

@@ -7,6 +7,7 @@ import 'package:syncora_frontend/common/themes/app_spacing.dart';
 import 'package:syncora_frontend/common/widgets/app_button.dart';
 import 'package:syncora_frontend/common/widgets/marquee_widget.dart';
 import 'package:syncora_frontend/core/localization/generated/l10n/app_localizations.dart';
+import 'package:syncora_frontend/core/utils/app_error.dart';
 import 'package:syncora_frontend/core/utils/dialogs.dart';
 import 'package:syncora_frontend/core/utils/error_mapper.dart';
 import 'package:syncora_frontend/core/utils/snack_bar_alerts.dart';
@@ -245,8 +246,13 @@ class GroupPageState extends ConsumerState<GroupPage> {
                   return Scaffold(
                       appBar: AppBar(),
                       body: Center(
-                          child: Text(
-                              ErrorMapper.map(error, stackTrace).message)));
+                        child: Text(
+                          ref.read(localizeAppErrorsProvider).localizeErrorCode(
+                              AppError.fromException(error, stackTrace)
+                                  .errorCode,
+                              context),
+                        ),
+                      ));
                 },
                 loading: () {
                   return Scaffold(

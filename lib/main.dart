@@ -7,8 +7,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:syncora_frontend/common/providers/common_providers.dart';
+import 'package:syncora_frontend/common/providers/connection_provider.dart';
 import 'package:syncora_frontend/common/themes/app_theme.dart';
 import 'package:syncora_frontend/core/localization/generated/l10n/app_localizations.dart';
+import 'package:syncora_frontend/core/network/syncing/sync_provider.dart';
 import 'package:syncora_frontend/router.dart';
 
 void main() async {
@@ -30,8 +32,9 @@ class MyApp extends ConsumerWidget {
     GoRouter router = ref.watch(routeProvider);
     ThemeMode themeMode = ref.watch(themeModeProvider);
     Locale locale = ref.watch(localeProvider);
-    // Initialize sync notifier
-    // registerSyncListeners(ref);
+    // Warming providers
+    ref.read(isOnlineProvider);
+    ref.read(syncBackendProvider);
 
     return MaterialApp.router(
       useInheritedMediaQuery: true,

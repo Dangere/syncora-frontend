@@ -1,0 +1,89 @@
+import 'package:flutter/widgets.dart';
+import 'package:syncora_frontend/core/data/enums/app_error_code.dart';
+import 'package:syncora_frontend/core/localization/generated/l10n/app_localizations.dart';
+
+class LocalizeAppErrors {
+  String localizeErrorCode(AppErrorCode code, BuildContext context) {
+    AppLocalizations appLocalizations = AppLocalizations.of(context);
+    switch (code) {
+      case AppErrorCode.GROUP_NOT_FOUND:
+        return appLocalizations.appError_GroupNotFound;
+      case AppErrorCode.GROUP_DETAILS_UNCHANGED:
+        return appLocalizations.appError_GroupDetailsUnchanged;
+      case AppErrorCode.TASK_NOT_FOUND:
+        return appLocalizations.appError_TaskNotFound;
+      case AppErrorCode.ACCESS_DENIED:
+        return appLocalizations.appError_AccessDenied;
+      case AppErrorCode.OWNER_CANNOT_PERFORM_ACTION:
+        return appLocalizations.appError_OwnerCannotPerformAction;
+      case AppErrorCode.SHARED_USER_CANNOT_PERFORM_ACTION:
+        return appLocalizations.appError_SharedUserCannotPerformAction;
+      case AppErrorCode.USER_NOT_FOUND:
+        return appLocalizations.appError_UserNotFound;
+      case AppErrorCode.USER_ALREADY_VERIFIED:
+        return appLocalizations.appError_UserAlreadyVerified;
+      case AppErrorCode.USER_NOT_ASSIGNED_TO_TASK:
+        return appLocalizations.appError_UserNotAssignedToTask;
+      case AppErrorCode.INVALID_URL:
+        return appLocalizations.appError_InvalidUrl;
+      case AppErrorCode.INVALID_CREDENTIALS:
+        return appLocalizations.appError_InvalidCredentials;
+      case AppErrorCode.EMAIL_ALREADY_IN_USE:
+        return appLocalizations.appError_EmailAlreadyInUse;
+      case AppErrorCode.USERNAME_ALREADY_IN_USE:
+        return appLocalizations.appError_UsernameAlreadyInUse;
+      case AppErrorCode.CREDENTIALS_ALREADY_IN_USE:
+        return appLocalizations.appError_CredentialsAlreadyInUse;
+      case AppErrorCode.INVALID_TOKEN:
+        return appLocalizations.appError_InvalidToken;
+      case AppErrorCode.INVALID_GOOGLE_TOKEN:
+        return appLocalizations.appError_InvalidGoogleToken;
+      case AppErrorCode.USER_ALREADY_GRANTED:
+        return appLocalizations.appError_UserAlreadyGranted;
+      case AppErrorCode.USER_ALREADY_REVOKED:
+        return appLocalizations.appError_UserAlreadyRevoked;
+      case AppErrorCode.NO_USERNAMES_PROVIDED:
+        return appLocalizations.appError_NoUsernamesProvided;
+      case AppErrorCode.INTERNAL_ERROR:
+        return appLocalizations.appError_InternalError;
+      case AppErrorCode.EMAIL_SEND_FAILED:
+        return appLocalizations.appError_EmailSendFailed;
+      case AppErrorCode.UNKNOWN:
+        return appLocalizations.appError_Unknown;
+      case AppErrorCode.NO_FILE_PICKED:
+        return appLocalizations.appError_NoFilePicked;
+      case AppErrorCode.SESSION_EXPIRED:
+        return appLocalizations.appError_SessionExpired;
+      case AppErrorCode.OFFLINE_ACCESS_DENIED:
+        return appLocalizations.appError_OfflineAccessDenied;
+      case AppErrorCode.DIO_CONNECTION_TIMEOUT:
+        return appLocalizations.appError_Dio_ConnectionTimeout;
+      case AppErrorCode.DIO_SEND_TIMEOUT:
+        return appLocalizations.appError_Dio_SendTimeout;
+      case AppErrorCode.DIO_RECEIVE_TIMEOUT:
+        return appLocalizations.appError_Dio_ReceiveTimeout;
+      case AppErrorCode.DIO_BAD_CERTIFICATE:
+        return appLocalizations.appError_Dio_BadCertificate;
+      case AppErrorCode.DIO_REQUEST_CANCELLED:
+        return appLocalizations.appError_Dio_RequestCancelled;
+      case AppErrorCode.DIO_CONNECTION_ERROR:
+        return appLocalizations.appError_Dio_ConnectionError;
+      case AppErrorCode.HTTP_BAD_REQUEST:
+        return appLocalizations.appError_HTTP_BadRequest;
+      case AppErrorCode.HTTP_UNAUTHORIZED:
+        return appLocalizations.appError_SessionExpired;
+      case AppErrorCode.HTTP_FORBIDDEN:
+        return appLocalizations.appError_AccessDenied;
+      case AppErrorCode.HTTP_NOT_FOUND:
+        return appLocalizations.appError_HTTP_ResourceNotFound;
+      case AppErrorCode.HTTP_REQUEST_TIMEOUT:
+        return appLocalizations.appError_HTTP_RequestTimeout;
+      case AppErrorCode.HTTP_UNPROCESSABLE:
+        return appLocalizations.appError_HTTP_UnprocessableData;
+      case AppErrorCode.HTTP_TOO_MANY_REQUESTS:
+        return appLocalizations.appError_HTTP_TooManyRequests;
+      case AppErrorCode.HTTP_UNEXPECTED:
+        return appLocalizations.appError_Unknown;
+    }
+  }
+}

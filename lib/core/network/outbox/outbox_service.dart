@@ -61,7 +61,7 @@ class OutboxService {
       await _outboxRepository.deleteEntry(entryId);
       return result;
     } catch (e, stackTrace) {
-      return Result.failure(e, stackTrace);
+      return Result.failureError(e, stackTrace);
     }
   }
 
@@ -82,7 +82,7 @@ class OutboxService {
   Future<Result<void>> processQueue(
       {required void Function({required int tempId, required int serverId})
           onEntityIdSync,
-      required void Function(Exception e, StackTrace stackTrace) onFail,
+      required void Function(Object error, StackTrace stackTrace) onFail,
       required void Function(OutboxEntry entry) onRevert,
       required void Function(OutboxEntry entry) onSync,
       required VoidCallback requireSecondPass}) async {
@@ -103,12 +103,13 @@ class OutboxService {
 
     for (final entry in entries) {
       if (_processors[entry.entityType] == null) {
-        return Result.failureMessage(
-            'No processor found for ${entry.entityType}');
+        return Result.canceled(
+            'No processor found for ${entry.entityType}', StackTrace.current);
       }
 
       if (_cancelationToken!.isCancelled) {
-        return Result.canceled("Outbox processor: queue cancelled");
+        return Result.canceled(
+            "Outbox processor: queue cancelled", StackTrace.current);
       }
 
       // Before we process an entity, we see if the dependencies for it are available
@@ -142,7 +143,7 @@ class OutboxService {
           // We call the onSync To update the UI
           // if (entry.entityType != OutboxEntityType.user)
           onSync(entry);
-        } on Exception catch (e, stackTrace) {
+        } catch (e, stackTrace) {
           OutboxErrorQueueAction queueAction =
               await _handleError(e, stackTrace);
 
@@ -153,13 +154,10 @@ class OutboxService {
             case OutboxErrorQueueAction.skipAndRevertEntry:
               {
                 // Reverting
-                Result<bool> revertResult =
-                    (await _revertEntry(entry)).onSuccess(
-                  (callPass) {
-                    if (callPass) requireSecondPass();
-                  },
-                );
-
+                Result<bool> revertResult = await _revertEntry(entry);
+                if (revertResult.isSuccess && revertResult.data! == true) {
+                  requireSecondPass();
+                }
                 // Failing entry
                 await _outboxRepository.failEntry(entry.id!);
 
@@ -175,12 +173,12 @@ class OutboxService {
               break;
             case OutboxErrorQueueAction.stopQueue:
               await _outboxRepository.markEntryPending(entry.id!);
-              return Result.failure(e, stackTrace);
+              return Result.failureError(e, stackTrace);
             case OutboxErrorQueueAction.timeoutQueue:
               {
                 await _outboxRepository.markEntryPending(entry.id!);
                 _logger.d('Outbox debug: Timeout error, stopping queue');
-                return Result.canceled('Timeout error');
+                return Result.canceled('Timeout error', StackTrace.current);
               }
           }
         }
@@ -191,14 +189,14 @@ class OutboxService {
     }
 
     if (_cancelationToken!.isCancelled) {
-      return Result.canceled("Canceling queue");
+      return Result.canceled("Canceling queue", StackTrace.current);
     }
 
     return Result.success();
   }
 
   Future<OutboxErrorQueueAction> _handleError(
-      Exception e, StackTrace stackTrace) async {
+      Object e, StackTrace stackTrace) async {
     if (e is TimeoutException) {
       return OutboxErrorQueueAction.stopQueue;
     }
@@ -247,7 +245,7 @@ class OutboxService {
         await _processors[entry.entityType]!.revertLocalChange(entry));
 
     if (!revertResult.isSuccess) {
-      return Result.failure(
+      return Result.failureError(
           revertResult.error!, revertResult.error!.stackTrace);
     }
 

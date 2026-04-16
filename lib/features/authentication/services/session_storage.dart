@@ -56,7 +56,7 @@ class SessionStorage {
         return Result.success(session);
       }
     } catch (e, stackTrace) {
-      return Result.failure(e, stackTrace);
+      return Result.failureError(e, stackTrace);
     }
 
     _cachedTokens = null;
@@ -75,7 +75,7 @@ class SessionStorage {
 
       _cachedTokens = tokens;
     } catch (e, stackTrace) {
-      return Result.failure(e, stackTrace);
+      return Result.failureError(e, stackTrace);
     }
 
     return Result.success();
