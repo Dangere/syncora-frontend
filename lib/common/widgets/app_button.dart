@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:syncora_frontend/common/themes/app_theme.dart';
 
 // enum AppButtonVariant {

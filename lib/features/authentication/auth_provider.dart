@@ -1,9 +1,10 @@
 import 'dart:async';
 import 'package:cancellation_token/cancellation_token.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:syncora_frontend/common/providers/common_providers.dart';
 import 'package:syncora_frontend/core/data/enums/app_error_code.dart';
-import 'package:syncora_frontend/core/typedef.dart';
 import 'package:syncora_frontend/core/utils/app_error.dart';
 import 'package:syncora_frontend/core/utils/result.dart';
 import 'package:syncora_frontend/features/authentication/models/auth_response_dto.dart';
@@ -19,18 +20,16 @@ import 'package:syncora_frontend/features/authentication/services/session_storag
 import 'package:syncora_frontend/features/users/models/user_preferences.dart';
 import 'package:syncora_frontend/features/users/providers/users_provider.dart';
 
-// TODO: Implement guard for connection checking before methods
-
 class AuthNotifier extends AsyncNotifier<AuthState> {
   Completer? _refreshTokenCompleter;
 
-  void loginUsingGoogle() async {
+  void loginUsingGoogle(String token) async {
     if (state.isLoading || _isLoggedIn) return;
 
     state = const AsyncValue.loading();
 
     Result<AuthResponseDTO> result =
-        await ref.read(authServiceProvider).loginWithGoogle();
+        await ref.read(authServiceProvider).loginWithGoogle(token);
 
     if (result.isCancelled) {
       state = const AsyncValue.data(AuthUnauthenticated());
@@ -42,7 +41,6 @@ class AuthNotifier extends AsyncNotifier<AuthState> {
       state = const AsyncValue.data(AuthUnauthenticated());
       return;
     }
-
     // Save session and user data
     Result saveSessionResult = await _saveSession(
         result.data!.user,
@@ -61,32 +59,6 @@ class AuthNotifier extends AsyncNotifier<AuthState> {
         AuthAuthenticated(result.data!.user.id, result.data!.isVerified));
   }
 
-  /// Displays a pop up that allows the user to select a google account and returns the token with info
-  Future<Result<GoogleUserInfo>> getGoogleRegisterToken() async {
-    if (_isLoggedIn) {
-      return Result.canceled("User is logged in", StackTrace.current);
-    }
-    if (state.isLoading) {
-      return Result.canceled("Already loading", StackTrace.current);
-    }
-
-    state = const AsyncValue.loading();
-
-    Result<GoogleUserInfo> result =
-        await ref.read(authServiceProvider).getGoogleRegisterToken();
-
-    if (result.isCancelled) {
-      state = const AsyncValue.data(AuthUnauthenticated());
-      return result;
-    }
-
-    if (!result.isSuccess) {
-      ref.read(appErrorProvider.notifier).state = result.error!;
-    }
-    state = const AsyncValue.data(AuthUnauthenticated());
-    return result;
-  }
-
   /// Uses a preselected GoogleUserInfo and user selected GoogleRegisterFilledInfo to register
   void registerUsingGoogle(GoogleUserInfo googleUserInfo,
       GoogleRegisterFilledInfo userFilledInfo) async {
@@ -95,7 +67,7 @@ class AuthNotifier extends AsyncNotifier<AuthState> {
     state = const AsyncValue.loading();
 
     Result<UserPreferences> preferencesResult =
-        await ref.read(usersServiceProvider).getPreferences();
+        ref.read(usersServiceProvider).getPreferences();
     if (!preferencesResult.isSuccess) {
       ref.read(appErrorProvider.notifier).state = preferencesResult.error!;
       state = const AsyncValue.data(AuthUnauthenticated());
@@ -179,7 +151,7 @@ class AuthNotifier extends AsyncNotifier<AuthState> {
     state = const AsyncValue.loading();
 
     Result<UserPreferences> preferencesResult =
-        await ref.read(usersServiceProvider).getPreferences();
+        ref.read(usersServiceProvider).getPreferences();
     if (!preferencesResult.isSuccess) {
       ref.read(appErrorProvider.notifier).state = preferencesResult.error!;
       state = const AsyncValue.data(AuthUnauthenticated());
@@ -244,7 +216,7 @@ class AuthNotifier extends AsyncNotifier<AuthState> {
     // TODO: This should tell the user if theres unsynced data that will be lost/deleted if they log out
 
     await ref.read(sessionStorageProvider).clearSession();
-    await ref.read(authServiceProvider).googleSignOut();
+    await ref.read(googleSignInProvider).signOut();
     await ref.read(cacheManagerProvider).emptyCache();
     state = const AsyncValue.data(AuthUnauthenticated());
   }
@@ -478,6 +450,19 @@ final isVerifiedProvider = Provider.autoDispose<bool>((ref) {
     return false;
   }
   return authState.value!.asAuthenticated!.isVerified;
+});
+
+final googleSignInProvider = Provider<GoogleSignIn>((ref) {
+  final googleSignIn = GoogleSignIn(
+    serverClientId: kIsWeb
+        ? null
+        : "740026130263-r929iqqghkj757fu2agvqipo3577b9aj.apps.googleusercontent.com",
+    scopes: [
+      'email',
+    ],
+  );
+
+  return googleSignIn;
 });
 
 // A simple persistent countdown timer that counts from seconds to 0 and then completes to null

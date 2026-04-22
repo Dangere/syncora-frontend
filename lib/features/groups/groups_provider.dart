@@ -36,7 +36,7 @@ class GroupsListNotifier extends AutoDisposeAsyncNotifier<List<Group>> {
 
   /// Gets called when the task provider modifies a task (create/modify/delete) to update the displayed list of groups
   void onTasksModification(int groupId) {
-    _reloadGroupsList();
+    reloadGroupsList();
   }
 
   // This gets called when the outbox processor updates an entity within a group or the group itself
@@ -62,7 +62,7 @@ class GroupsListNotifier extends AutoDisposeAsyncNotifier<List<Group>> {
     // When an entity updates within a group and is reverted
     _refreshViewedGroups([groupId]);
     // We refresh the groups list
-    _reloadGroupsList();
+    reloadGroupsList();
   }
 
   // This gets called when a group updates its temp id to a server id
@@ -83,7 +83,7 @@ class GroupsListNotifier extends AutoDisposeAsyncNotifier<List<Group>> {
       return;
     }
 
-    _reloadGroupsList();
+    reloadGroupsList();
   }
 
   Future<void> filterGroups(List<GroupsFilter> groupFilters) async {
@@ -91,7 +91,7 @@ class GroupsListNotifier extends AutoDisposeAsyncNotifier<List<Group>> {
       return;
     }
     _filters = groupFilters;
-    _reloadGroupsList();
+    reloadGroupsList();
   }
 
   Future<void> searchGroups(String? search) async {
@@ -103,7 +103,7 @@ class GroupsListNotifier extends AutoDisposeAsyncNotifier<List<Group>> {
 
     ref.read(loggerProvider).w("Groups provider: Searching for $_search");
 
-    _reloadGroupsList();
+    reloadGroupsList();
   }
 
   // Checks if the current user is the owner of the group, uses in-memory cache
@@ -185,33 +185,33 @@ class GroupsListNotifier extends AutoDisposeAsyncNotifier<List<Group>> {
     }
   }
 
-  void _reloadGroupsList() async {
+  void reloadGroupsList() async {
     // Multiple calls to reload groups can happen at the same time (one for local changes and one for remote changes)
-    if (_waitingToReloadGroupList) {
-      ref
-          .read(loggerProvider)
-          .d("Groups provider: Waiting to reload group list again");
-      return;
-    }
+    // if (_waitingToReloadGroupList) {
+    //   ref
+    //       .read(loggerProvider)
+    //       .d("Groups provider: Waiting to reload group list again");
+    //   return;
+    // }
 
-    if (state.isLoading) {
-      _waitingToReloadGroupList = true;
-      await Future.doWhile(() async {
-        ref
-            .read(loggerProvider)
-            .d("Groups provider: reload group list is loading");
-        await Future.delayed(const Duration(seconds: 3));
-        return state.isLoading;
-      });
-      _waitingToReloadGroupList = false;
-    }
+    // if (state.isLoading) {
+    //   _waitingToReloadGroupList = true;
+    //   await Future.doWhile(() async {
+    //     ref
+    //         .read(loggerProvider)
+    //         .d("Groups provider: reload group list is loading");
+    //     await Future.delayed(const Duration(seconds: 3));
+    //     return state.isLoading;
+    //   });
+    //   _waitingToReloadGroupList = false;
+    // }
 
     // If we aren't on the home page (not viewing the groups list), we schedule a reload
     if (ref.read(routeProvider).state.name != "home") {
       ref.read(loggerProvider).d(
-          "Groups provider: Scheduling a groups list reload on going to home page");
+          "Groups provider: Tried to reload group list but not on home page");
 
-      _waitingToReloadGroupList = true;
+      // _waitingToReloadGroupList = true;
       return;
     }
 
@@ -248,7 +248,7 @@ class GroupsListNotifier extends AutoDisposeAsyncNotifier<List<Group>> {
       if (next.error == null && !next.isLoading && next.value != null) {
         // Checking if the payload is empty or still in progress (loading)
         if (!next.value!.isAvailable || next.value!.payload!.isEmpty()) return;
-        _reloadGroupsList();
+        reloadGroupsList();
 
         // The `.modifiedGroupIds()` does not include groups with tasks that are deleted
         // Meaning when a task is deleted, the current view group wont know,
@@ -263,13 +263,12 @@ class GroupsListNotifier extends AutoDisposeAsyncNotifier<List<Group>> {
       (event) {
         ref.read(loggerProvider).d("Groups provider: changed route to $event");
 
-        if (event == "home" && _waitingToReloadGroupList) {
-          _waitingToReloadGroupList = false;
-          ref
-              .read(loggerProvider)
-              .d("Groups provider: Reloading groups list on home page");
+        if (event == "home") {
+          // _waitingToReloadGroupList = false;
+          ref.read(loggerProvider).d(
+              "Groups provider: Reloading groups list on going to home page");
 
-          _reloadGroupsList();
+          reloadGroupsList();
         }
       },
     );
@@ -427,6 +426,9 @@ class GroupNotifier extends AutoDisposeFamilyAsyncNotifier<Group?, int> {
 
   Future _refreshState() async {
     ref.read(loggerProvider).d("Group provider: Refreshing state");
+
+    // Reloading the groups list for the dashboard
+    ref.read(groupsListProvider.notifier).reloadGroupsList();
 
     int resolvedId = ref.read(outboxIdMapperProvider).resolveId(arg);
 

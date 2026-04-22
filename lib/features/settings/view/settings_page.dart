@@ -49,7 +49,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
 
   @override
   Widget build(BuildContext context) {
-    SnackBarAlerts.registerErrorListener(ref, context);
+    SnackBarAlerts.registerNotificationListener(ref, context);
 
     Locale currentLocale = ref.watch(localeProvider);
     // bool isDarkMode = ref.watch(themeModeProvider);7

@@ -55,7 +55,7 @@ class _PasswordResetPageState extends ConsumerState<PasswordResetPage> {
 
   @override
   Widget build(BuildContext context) {
-    SnackBarAlerts.registerErrorListener(ref, context);
+    SnackBarAlerts.registerNotificationListener(ref, context);
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(),

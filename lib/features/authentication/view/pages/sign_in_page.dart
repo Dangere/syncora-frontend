@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:syncora_frontend/common/themes/app_spacing.dart';
 import 'package:syncora_frontend/common/widgets/app_button.dart';
@@ -10,6 +9,9 @@ import 'package:syncora_frontend/core/localization/generated/l10n/app_localizati
 import 'package:syncora_frontend/core/utils/snack_bar_alerts.dart';
 import 'package:syncora_frontend/core/utils/validators.dart';
 import 'package:syncora_frontend/features/authentication/auth_provider.dart';
+import 'package:syncora_frontend/features/authentication/google_auth_type_enum.dart';
+
+import 'package:syncora_frontend/features/authentication/view/widgets/google_auth_button_stud.dart';
 
 class SignInPage extends ConsumerStatefulWidget {
   const SignInPage({super.key});
@@ -37,7 +39,7 @@ class _SignInPageState extends ConsumerState<SignInPage> {
   Widget build(BuildContext context) {
     final user = ref.watch(authProvider);
 
-    SnackBarAlerts.registerErrorListener(ref, context);
+    SnackBarAlerts.registerNotificationListener(ref, context);
 
     void signIn() {
       // Check if form is valid before attempting to login
@@ -45,10 +47,6 @@ class _SignInPageState extends ConsumerState<SignInPage> {
       ref.read(authProvider.notifier).loginWithEmailAndPassword(
           email: emailController.text.trim(),
           password: passwordController.text.trim());
-    }
-
-    void googleSignIn() {
-      ref.read(authProvider.notifier).loginUsingGoogle();
     }
 
     return Scaffold(
@@ -175,32 +173,9 @@ class _SignInPageState extends ConsumerState<SignInPage> {
                     const SizedBox(height: 24),
 
                     // GOOGLE SIGN IN
-                    AppButton(
-                        size: AppButtonSize.large,
-                        style: AppButtonStyle.glow,
-                        onPressed: googleSignIn,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            SvgPicture.asset(
-                              "assets/logos/google-icon.svg",
-                              semanticsLabel: 'Google Logo',
-                              height: 20,
-                            ),
-                            const SizedBox(width: 10),
-                            Text(
-                                AppLocalizations.of(context)
-                                    .signInPage_GoogleSignIn,
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .bodyLarge!
-                                    .copyWith(
-                                        fontWeight: FontWeight.w600,
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .outlineVariant)),
-                          ],
-                        )),
+                    const GoogleAuthButton(
+                      type: GoogleAuthType.signIn,
+                    ),
                     const SizedBox(height: 25),
                     const Spacer(),
 

@@ -1,4 +1,5 @@
 // import 'package:signalr_netcore/errors.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:syncora_frontend/core/data/enums/app_error_code.dart';
 import 'package:syncora_frontend/core/utils/error_mapper.dart';
@@ -26,11 +27,13 @@ class AppError {
 
   // Takes exceptions and localizes it to a user friendly message, or when undefined, return a generic error
   factory AppError.fromException(Object e, StackTrace stackTrace) {
+    String rawMessage =
+        e is DioException ? e.response.toString() : e.toString();
     return AppError(
         errorCode: ErrorMapper.mapError(e),
-        rawMessage: e.toString(),
+        rawMessage: rawMessage,
         logMessage: ErrorMapper.parseLogMessage(
-            e.toString(), stackTrace, StackTrace.current),
+            rawMessage, stackTrace, StackTrace.current),
         stackTrace: stackTrace,
         exception: e is Exception ? e : null);
   }

@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:signalr_netcore/hub_connection.dart';
 import 'package:syncora_frontend/common/providers/common_providers.dart';
+import 'package:syncora_frontend/core/localization/generated/l10n/app_localizations.dart';
+import 'package:syncora_frontend/core/network/syncing/sync_provider.dart';
 
 class SnackBarAlerts {
   static void showSnackBar(String message, BuildContext context) {
@@ -43,9 +46,11 @@ class SnackBarAlerts {
 
   /// Registers a listener to the error message provider
   /// and shows an error snackbar when the error message is not null
-  static void registerErrorListener(WidgetRef ref, BuildContext context) {
+  static void registerNotificationListener(
+      WidgetRef ref, BuildContext context) {
     if (!context.mounted) return;
 
+    // Listening for errors
     ref.listen(appErrorProvider, (previous, next) {
       // Check if the current page is the top page
       bool isTopPage = ModalRoute.of(context)?.isCurrent ?? false;
@@ -59,6 +64,53 @@ class SnackBarAlerts {
           ref.read(appErrorProvider.notifier).state = null;
         });
         ref.read(loggerProvider).e("${next.logMessage}\n");
+      }
+    });
+
+    // // Listening for online status
+    // ref.listen(appErrorProvider, (previous, next) {
+    //   // Check if the current page is the top page
+    //   bool isTopPage = ModalRoute.of(context)?.isCurrent ?? false;
+    //   if (next != null && isTopPage) {
+    //     String localizedErrorMessage = ref
+    //         .read(localizeAppErrorsProvider)
+    //         .localizeErrorCode(next.errorCode, context);
+
+    //     showErrorSnackBar(localizedErrorMessage, context);
+    //     Future.microtask(() {
+    //       ref.read(appErrorProvider.notifier).state = null;
+    //     });
+    //     ref.read(loggerProvider).e("${next.logMessage}\n");
+    //   }
+    // });
+
+    // Listening for backend availability
+    ref.read(signalRClientProvider).onStateChanged.listen((event) {
+      switch (event) {
+        case HubConnectionState.Connected:
+          if (context.mounted) {
+            showSuccessSnackBar(
+                AppLocalizations.of(context).notification_Backend_Connected,
+                context);
+          }
+          break;
+        case HubConnectionState.Disconnected:
+          // showErrorSnackBar("Disconnected from server", context);
+          break;
+        case HubConnectionState.Connecting:
+          // showSnackBar("Connecting to server", context);
+
+          break;
+
+        case HubConnectionState.Reconnecting:
+          // showSnackBar("Reconnecting to server", context);
+
+          break;
+
+        case HubConnectionState.Disconnecting:
+          // showAlertSnackBar("Disconnecting from server", context);
+
+          break;
       }
     });
   }

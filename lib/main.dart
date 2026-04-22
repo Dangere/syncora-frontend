@@ -11,6 +11,7 @@ import 'package:syncora_frontend/common/providers/connection_provider.dart';
 import 'package:syncora_frontend/common/themes/app_theme.dart';
 import 'package:syncora_frontend/core/localization/generated/l10n/app_localizations.dart';
 import 'package:syncora_frontend/core/network/syncing/sync_provider.dart';
+import 'package:syncora_frontend/features/authentication/auth_provider.dart';
 import 'package:syncora_frontend/router.dart';
 
 void main() async {
@@ -35,6 +36,7 @@ class MyApp extends ConsumerWidget {
     // Warming providers
     ref.read(isOnlineProvider);
     ref.read(syncBackendProvider);
+    ref.read(googleSignInProvider);
 
     return MaterialApp.router(
       useInheritedMediaQuery: true,

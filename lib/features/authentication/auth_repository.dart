@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:dio/dio.dart';
 import 'package:syncora_frontend/core/constants/constants.dart';
@@ -56,7 +57,13 @@ class AuthRepository {
   Future<AuthResponseDTO> loginWithGoogle(String idToken) async {
     // Getting the login response
     final response = await _dio
-        .post("${Constants.BASE_API_URL}/authentication/login/google/$idToken")
+        .post(
+          "${Constants.BASE_API_URL}/authentication/login/google",
+          data: jsonEncode(idToken),
+          options: Options(
+            contentType: 'application/json',
+          ),
+        )
         .timeout(const Duration(seconds: 20));
 
     AuthResponseDTO authResponse = AuthResponseDTO.fromJson(response.data);

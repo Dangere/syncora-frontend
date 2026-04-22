@@ -147,7 +147,7 @@ class UsersService {
   }
 
   // Retrieves the global user preferences or defaults if theres none yet
-  Future<Result<UserPreferences>> getPreferences() async {
+  Result<UserPreferences> getPreferences() {
     try {
       String? preferences = _sharedPreferences.getString(_userPreferencesKey);
 
@@ -155,9 +155,13 @@ class UsersService {
         return Result.success(
             UserPreferences.fromJson(jsonDecode(preferences)));
       } else {
-        // If no preferences are found, return the defaults
+        // If no preferences are found, return the defaults and save them in the background
         UserPreferences defaultPreferences = UserPreferences.defaults();
-        await savePreferences(defaultPreferences);
+        Future.microtask(
+          () async {
+            await savePreferences(defaultPreferences);
+          },
+        );
         return Result.success(defaultPreferences);
       }
     } catch (e, stackTrace) {

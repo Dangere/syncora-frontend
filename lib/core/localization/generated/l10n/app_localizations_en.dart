@@ -277,6 +277,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get groupPopup_Error_UserNotFound => 'User not found';
 
   @override
+  String get notification_Backend_Connected => 'Connected to server';
+
+  @override
   String get validation_GroupTitle_Empty => 'Empty title';
 
   @override

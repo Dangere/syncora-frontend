@@ -40,7 +40,7 @@ class SyncBackendNotifier extends AsyncNotifier<SyncState>
               .d("Sync Notifier: refreshing data on server connect");
 
           state = const AsyncValue.data(SyncIdle());
-          _refreshData();
+          refreshData();
           break;
         case HubConnectionState.Disconnected:
           ref
@@ -104,7 +104,7 @@ class SyncBackendNotifier extends AsyncNotifier<SyncState>
     _processQueue();
   }
 
-  Future<void> _refreshData() async {
+  Future<void> refreshData() async {
     if (!ref.read(isOnlineProvider)) return;
     if (ref.read(isAuthenticatedProvider) == false) return;
 

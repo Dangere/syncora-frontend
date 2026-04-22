@@ -97,10 +97,9 @@ class LocaleNotifier extends Notifier<Locale> {
   Locale build() {
     ref.listen(
       authStateProvider,
-      (previous, next) async {
-        // if (next) {
+      (previous, next) {
         Result<UserPreferences> preferences =
-            await ref.read(usersServiceProvider).getPreferences();
+            ref.read(usersServiceProvider).getPreferences();
 
         if (preferences.isSuccess) {
           state = preferences.data!.locale;
@@ -108,7 +107,16 @@ class LocaleNotifier extends Notifier<Locale> {
       },
     );
 
-    return const Locale('en');
+    Result<UserPreferences> preferences =
+        ref.read(usersServiceProvider).getPreferences();
+
+    if (!preferences.isSuccess) {
+      ref.read(appErrorProvider.notifier).state = preferences.error;
+    }
+
+    return preferences.isSuccess
+        ? preferences.data!.locale
+        : const Locale('en');
   }
 }
 
@@ -132,16 +140,28 @@ class ThemeModeNotifier extends Notifier<ThemeMode> {
   ThemeMode build() {
     ref.listen(
       authStateProvider,
-      (previous, next) async {
+      (previous, next) {
         Result<UserPreferences> preferences =
-            await ref.read(usersServiceProvider).getPreferences();
+            ref.read(usersServiceProvider).getPreferences();
 
         if (preferences.isSuccess) {
           state = preferences.data!.darkMode ? ThemeMode.dark : ThemeMode.light;
         }
       },
     );
-    return ThemeMode.light;
+
+    Result<UserPreferences> preferences =
+        ref.read(usersServiceProvider).getPreferences();
+
+    if (!preferences.isSuccess) {
+      ref.read(appErrorProvider.notifier).state = preferences.error;
+    }
+
+    return preferences.isSuccess
+        ? preferences.data!.darkMode
+            ? ThemeMode.dark
+            : ThemeMode.light
+        : ThemeMode.light;
   }
 }
 

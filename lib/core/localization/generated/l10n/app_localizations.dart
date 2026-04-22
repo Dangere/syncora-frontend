@@ -626,6 +626,12 @@ abstract class AppLocalizations {
   /// **'User not found'**
   String get groupPopup_Error_UserNotFound;
 
+  /// notification that pops up when the client has signalR connection to the backend
+  ///
+  /// In en, this message translates to:
+  /// **'Connected to server'**
+  String get notification_Backend_Connected;
+
   /// Validation error when the group title field is empty
   ///
   /// In en, this message translates to:

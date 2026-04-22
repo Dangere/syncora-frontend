@@ -70,7 +70,7 @@ class TasksNotifier extends AutoDisposeFamilyAsyncNotifier<List<Task>, int> {
       ref.read(appErrorProvider.notifier).state = createResult.error;
       return;
     }
-    reloadTasks();
+    _reloadTasks();
     ref.read(groupsListProvider.notifier).onTasksModification(_groupResolvedId);
 
     // _reloadGroupsList();
@@ -89,7 +89,7 @@ class TasksNotifier extends AutoDisposeFamilyAsyncNotifier<List<Task>, int> {
       ref.read(appErrorProvider.notifier).state = deleteResult.error;
       return;
     }
-    reloadTasks();
+    _reloadTasks();
 
     ref.read(groupsListProvider.notifier).onTasksModification(_groupResolvedId);
 
@@ -109,7 +109,7 @@ class TasksNotifier extends AutoDisposeFamilyAsyncNotifier<List<Task>, int> {
       ref.read(appErrorProvider.notifier).state = updateResult.error;
       return;
     }
-    reloadTasks();
+    _reloadTasks();
 
     ref.read(groupsListProvider.notifier).onTasksModification(_groupResolvedId);
 
@@ -125,7 +125,7 @@ class TasksNotifier extends AutoDisposeFamilyAsyncNotifier<List<Task>, int> {
       ref.read(appErrorProvider.notifier).state = updateResult.error;
       return;
     }
-    reloadTasks();
+    _reloadTasks();
   }
 
   Future<List<User>> assignedUsers(int taskId) async {
@@ -155,7 +155,7 @@ class TasksNotifier extends AutoDisposeFamilyAsyncNotifier<List<Task>, int> {
       ref.read(appErrorProvider.notifier).state = updateResult.error;
       return;
     }
-    reloadTasks();
+    _reloadTasks();
   }
 
   Future<void> markTask({required Task task, required bool isDone}) async {
@@ -175,7 +175,7 @@ class TasksNotifier extends AutoDisposeFamilyAsyncNotifier<List<Task>, int> {
       ref.read(appErrorProvider.notifier).state = updateResult.error;
       return;
     }
-    reloadTasks();
+    _reloadTasks();
     ref.read(groupsListProvider.notifier).onTasksModification(_groupResolvedId);
 
     // reloadViewedGroups([groupId]);
@@ -186,13 +186,16 @@ class TasksNotifier extends AutoDisposeFamilyAsyncNotifier<List<Task>, int> {
       return;
     }
     _filters = tasksFilters;
-    reloadTasks();
+    _reloadTasks(isFiltering: true);
   }
 
-  void reloadTasks() async {
+  void _reloadTasks({bool isFiltering = false}) async {
     ref
         .read(loggerProvider)
         .d("Tasks provider: Reloading tasks for group $_groupResolvedId");
+
+    // Reloading the groups list for the dashboard
+    if (!isFiltering) ref.read(groupsListProvider.notifier).reloadGroupsList();
 
     Result<List<Task>> result = await ref
         .read(tasksServiceProvider)
@@ -222,7 +225,7 @@ class TasksNotifier extends AutoDisposeFamilyAsyncNotifier<List<Task>, int> {
         // Reloading on deleted tasks
         for (int taskId in next.value!.payload!.deletedTasks) {
           if (state.value!.where((t) => t.id == taskId).isNotEmpty) {
-            reloadTasks();
+            _reloadTasks();
           }
         }
 
@@ -230,7 +233,7 @@ class TasksNotifier extends AutoDisposeFamilyAsyncNotifier<List<Task>, int> {
         if (next.value!.payload!.tasks
             .where((t) => t.groupId == _groupResolvedId)
             .isNotEmpty) {
-          reloadTasks();
+          _reloadTasks();
         }
       }
     });

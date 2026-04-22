@@ -70,7 +70,7 @@ class _GroupInfoPageState extends ConsumerState<GroupInfoPage> {
 
   @override
   Widget build(BuildContext context) {
-    SnackBarAlerts.registerErrorListener(ref, context);
+    SnackBarAlerts.registerNotificationListener(ref, context);
 
     return Scaffold(
       appBar: AppBar(

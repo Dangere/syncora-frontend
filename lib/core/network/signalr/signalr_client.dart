@@ -16,6 +16,7 @@ class SignalRClient {
   final Future<Result> Function(CancellationToken) _refreshTokenRequest;
 
   final int _timeoutAwaitSeconds = 5;
+  final int _reconnectRetrySeconds = 20;
 
   CancellationToken? _cancelationToken;
 
@@ -59,7 +60,6 @@ class SignalRClient {
 
   // Tries to establish a connection to the server until it succeeds
   Future<void> connect() async {
-    // return Result.canceled("Canceling connection to hub");
     if (_connection.state == HubConnectionState.Connected || _isConnecting) {
       _logger.i(
           "SignalRClient: connection is already connected or is connecting, skipping");
@@ -68,6 +68,7 @@ class SignalRClient {
     }
     _cancelationToken = CancellationToken();
     Result result = await _connectToServer();
+    print(result);
 
     if (result.isSuccess) {
       _logger.i("SignalRClient: established");
@@ -153,8 +154,11 @@ class SignalRClient {
         }
 
         // If the error is not an http error and not a timeout, we return with fetal error
-        _logger.f("SignalRClient: connection failed with fetal error $e");
-        return Result.failureError(e, stackTrace);
+        _logger.f(
+            "SignalRClient: connection failed with fetal error $e, retrying in $_reconnectRetrySeconds seconds");
+
+        await Future.delayed(Duration(seconds: _reconnectRetrySeconds));
+        continue;
       } finally {
         _isConnecting = false;
       }

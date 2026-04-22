@@ -60,7 +60,7 @@ class _PasswordResetPopupState extends ConsumerState<PasswordResetPopup> {
 
   @override
   Widget build(BuildContext context) {
-    SnackBarAlerts.registerErrorListener(ref, context);
+    SnackBarAlerts.registerNotificationListener(ref, context);
 
     int? resendTimer = ref.watch(resetPasswordTimerProvider);
     ref.read(loggerProvider).d("Building password pop up");

@@ -241,6 +241,10 @@
   "@groupPopup_Error_UserNotFound": {
     "description": "Error shown when a searched user does not exist"
   },
+  "notification_Backend_Connected": "Connected to server",
+  "@notification_Backend_Connected": {
+    "description": "notification that pops up when the client has signalR connection to the backend"
+  },
   "validation_GroupTitle_Empty": "Empty title",
   "@validation_GroupTitle_Empty": {
     "description": "Validation error when the group title field is empty"

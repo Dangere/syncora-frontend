@@ -95,7 +95,7 @@ class GroupPageState extends ConsumerState<GroupPage> {
 
   @override
   Widget build(BuildContext context) {
-    SnackBarAlerts.registerErrorListener(ref, context);
+    SnackBarAlerts.registerNotificationListener(ref, context);
     // This consumer will update whenever `groupViewProvider` updates BUT excludes `TasksList` because it updates itself internally
 
     return Consumer(

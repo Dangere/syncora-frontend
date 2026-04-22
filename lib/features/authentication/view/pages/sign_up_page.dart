@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:syncora_frontend/common/themes/app_spacing.dart';
 import 'package:syncora_frontend/common/widgets/app_button.dart';
 import 'package:syncora_frontend/common/widgets/input_field.dart';
 import 'package:syncora_frontend/common/widgets/overlay_loader.dart';
 import 'package:syncora_frontend/core/localization/generated/l10n/app_localizations.dart';
-import 'package:syncora_frontend/core/utils/result.dart';
 import 'package:syncora_frontend/core/utils/snack_bar_alerts.dart';
 import 'package:syncora_frontend/core/utils/validators.dart';
 import 'package:syncora_frontend/features/authentication/auth_provider.dart';
-import 'package:syncora_frontend/features/authentication/models/google_user_info.dart';
+import 'package:syncora_frontend/features/authentication/google_auth_type_enum.dart';
+
+import '../widgets/google_auth_button_stud.dart';
 
 class SignUpPage extends ConsumerStatefulWidget {
   const SignUpPage({super.key});
@@ -48,7 +48,7 @@ class _SignUpPageState extends ConsumerState<SignUpPage> {
   Widget build(BuildContext context) {
     final user = ref.watch(authProvider);
 
-    SnackBarAlerts.registerErrorListener(ref, context);
+    SnackBarAlerts.registerNotificationListener(ref, context);
 
     void signUp() {
       if (!_formKey.currentState!.validate() || user.isLoading) return;
@@ -58,18 +58,6 @@ class _SignUpPageState extends ConsumerState<SignUpPage> {
           firstName: firstNameController.text.trim(),
           lastName: lastNameController.text.trim(),
           password: passwordController.text.trim());
-    }
-
-    void googleSignUp() async {
-      if (user.isLoading) return;
-      Result<GoogleUserInfo> googleUserInfoResult =
-          await ref.read(authProvider.notifier).getGoogleRegisterToken();
-      if (googleUserInfoResult.isSuccess) {
-        if (context.mounted) {
-          context.pushNamed("google-sign-up",
-              extra: googleUserInfoResult.data!);
-        }
-      }
     }
 
     return Scaffold(
@@ -284,32 +272,9 @@ class _SignUpPageState extends ConsumerState<SignUpPage> {
                     const SizedBox(height: 24),
 
                     // GOOGLE SIGN UP
-                    AppButton(
-                        size: AppButtonSize.large,
-                        style: AppButtonStyle.glow,
-                        onPressed: googleSignUp,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            SvgPicture.asset(
-                              "assets/logos/google-icon.svg",
-                              semanticsLabel: 'Google Logo',
-                              height: 20,
-                            ),
-                            const SizedBox(width: 10),
-                            Text(
-                                AppLocalizations.of(context)
-                                    .signUpPage_GoogleSignUp,
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .bodyLarge!
-                                    .copyWith(
-                                        fontWeight: FontWeight.w600,
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .outlineVariant)),
-                          ],
-                        )),
+                    const GoogleAuthButton(
+                      type: GoogleAuthType.signUp,
+                    ),
                     const Spacer(),
 
                     // FOOTER

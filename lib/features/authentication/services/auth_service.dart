@@ -5,6 +5,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:syncora_frontend/core/utils/result.dart';
+import 'package:syncora_frontend/features/authentication/google_auth_type_enum.dart';
 import 'package:syncora_frontend/features/authentication/models/auth_response_dto.dart';
 import 'package:syncora_frontend/features/authentication/models/google_register_filled_info.dart';
 import 'package:syncora_frontend/features/authentication/models/google_user_info.dart';
@@ -14,14 +15,10 @@ import 'package:syncora_frontend/features/users/models/user_preferences.dart';
 
 class AuthService {
   final AuthRepository _authRepository;
-  final GoogleSignIn googleSignIn = GoogleSignIn(
-    serverClientId: kIsWeb
-        ? null
-        : "740026130263-r929iqqghkj757fu2agvqipo3577b9aj.apps.googleusercontent.com",
-    scopes: [
-      'email',
-    ],
-  );
+  // GoogleAuthType _googleAuthType = GoogleAuthType.signIn;
+
+  // This gets set by UI buttons to decide if the auth coming from a sign up or a sign in button
+  // void setGoogleAuthType(GoogleAuthType type) => _googleAuthType = type;
 
   AuthService({required AuthRepository authRepository})
       : _authRepository = authRepository;
@@ -61,34 +58,13 @@ class AuthService {
     }
   }
 
-  Future<Result<AuthResponseDTO>> loginWithGoogle() async {
-    if (!(kIsWeb || Platform.isAndroid)) {
-      return Result.canceled(
-          "Google login is only available on Android and Web",
-          StackTrace.current);
-    }
-    googleSignIn.signOut();
-
+  Future<Result<AuthResponseDTO>> loginWithGoogle(String token) async {
     try {
-      // FIXME:  `signIn` method is deprecated on the web, use `renderButton` instead but it reqiures a platform specific implementation
-      final GoogleSignInAccount? googleAccount = await googleSignIn.signIn();
-      if (googleAccount == null) {
-        return Result.canceled("Google login canceled", StackTrace.current);
-      }
-
-      final GoogleSignInAuthentication googleAuthentication =
-          await googleAccount.authentication;
-
-      // This is the JWT token containing the user's identity
-      String idToken = googleAuthentication.idToken!;
-
-      // We send it to the backend to verify it and get our own user data and tokens
       AuthResponseDTO loginResponse =
-          await _authRepository.loginWithGoogle(idToken);
+          await _authRepository.loginWithGoogle(token);
 
       return Result.success(loginResponse);
     } catch (e, stackTrace) {
-      googleSignIn.signOut();
       return Result.failureError(e, stackTrace);
     }
   }
@@ -114,44 +90,44 @@ class AuthService {
 
       return Result.success(registerResponse);
     } catch (e, stackTrace) {
-      googleSignIn.signOut();
+      // _googleSignIn.signOut();
 
       return Result.failureError(e, stackTrace);
     }
   }
 
-  Future<Result<GoogleUserInfo>> getGoogleRegisterToken() async {
-    if (!(kIsWeb || Platform.isAndroid)) {
-      return Result.canceled(
-          "Google login is only available on Android and Web",
-          StackTrace.current);
-    }
-    googleSignIn.signOut();
+  // Future<Result<GoogleUserInfo>> getGoogleRegisterToken() async {
+  //   if (!(kIsWeb || Platform.isAndroid)) {
+  //     return Result.canceled(
+  //         "Google login is only available on Android and Web",
+  //         StackTrace.current);
+  //   }
+  //   _googleSignIn.signOut();
 
-    try {
-      final GoogleSignInAccount? googleAccount = await googleSignIn.signIn();
-      if (googleAccount == null) {
-        return Result.canceled(
-            "Google registration canceled", StackTrace.current);
-      }
+  //   try {
+  //     final GoogleSignInAccount? googleAccount = await _googleSignIn.signIn();
+  //     if (googleAccount == null) {
+  //       return Result.canceled(
+  //           "Google registration canceled", StackTrace.current);
+  //     }
 
-      final GoogleSignInAuthentication googleAuthentication =
-          await googleAccount.authentication;
+  //     final GoogleSignInAuthentication googleAuthentication =
+  //         await googleAccount.authentication;
 
-      // We call the delegate to get the username and password from UI pop up
-      List<String> fullName = googleAccount.displayName?.split(" ") ?? [];
-      var userInfo = GoogleUserInfo(
-          token: googleAuthentication.idToken!,
-          email: googleAccount.email,
-          firstName: fullName.isNotEmpty ? fullName[0] : "",
-          lastName: fullName.length > 1 ? fullName[1] : "");
+  //     // We call the delegate to get the username and password from UI pop up
+  //     List<String> fullName = googleAccount.displayName?.split(" ") ?? [];
+  //     var userInfo = GoogleUserInfo(
+  //         token: googleAuthentication.idToken!,
+  //         email: googleAccount.email,
+  //         firstName: fullName.isNotEmpty ? fullName[0] : "",
+  //         lastName: fullName.length > 1 ? fullName[1] : "");
 
-      return Result.success(userInfo);
-    } catch (e, stackTrace) {
-      await googleSignIn.signOut();
-      return Result.failureError(e, stackTrace);
-    }
-  }
+  //     return Result.success(userInfo);
+  //   } catch (e, stackTrace) {
+  //     await _googleSignIn.signOut();
+  //     return Result.failureError(e, stackTrace);
+  //   }
+  // }
 
   Future<Result<Tokens>> refreshAccessToken(
       {required Tokens tokens,
@@ -197,9 +173,5 @@ class AuthService {
     } catch (e, stackTrace) {
       return Result.failureError(e, stackTrace);
     }
-  }
-
-  Future<void> googleSignOut() async {
-    if (await googleSignIn.isSignedIn()) await googleSignIn.signOut();
   }
 }
