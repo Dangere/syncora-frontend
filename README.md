@@ -31,8 +31,8 @@
 ### Installation
 
 ```bash
-git clone https://github.com/your-username/syncora-flutter.git
-cd syncora-flutter
+git clone https://github.com/Dangere/syncora-frontend.git
+cd syncora-frontend
 flutter pub get
 ```
 
