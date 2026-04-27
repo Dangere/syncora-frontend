@@ -141,9 +141,8 @@ class LocalGroupsRepository {
     );
   }
 
+  // adds or updates groups and their members
   Future<void> upsertGroups(List<GroupDTO> groups) async {
-    // throw UnimplementedError("No upsert method");
-
     final db = await _databaseManager.getDatabase();
 
     List<int> existingGroupsIds =
@@ -186,6 +185,56 @@ class LocalGroupsRepository {
       }
       batch.commit(noResult: true);
     });
+  }
+
+  // Method used to add or remove users from a group
+  Future<void> grantAccessToGroup(
+      {required int groupId,
+      required List<String> usernames,
+      required bool allowAccess}) async {
+    final db = await _databaseManager.getDatabase();
+
+    List<int> userIds = await db
+        .query(
+          DatabaseTables.users,
+          columns: ["id"],
+          where: "username IN (${usernames.map((id) => "?").join(",")})",
+          whereArgs: usernames,
+        )
+        .then((value) => value.map((e) => e["id"] as int).toList());
+
+    Logger().d(userIds);
+
+    if (allowAccess) {
+      await db.transaction((txn) async {
+        final batch = txn.batch();
+
+        for (var userId in userIds) {
+          batch.insert(
+            DatabaseTables.groupsMembers,
+            {
+              "groupId": groupId,
+              "userId": userId,
+            },
+            conflictAlgorithm: ConflictAlgorithm.replace,
+          );
+        }
+
+        batch.commit(noResult: true);
+      });
+    } else {
+      await db.transaction((txn) async {
+        final batch = txn.batch();
+
+        for (var userId in userIds) {
+          batch.delete(DatabaseTables.groupsMembers,
+              where: "groupId = ? AND userId = ?",
+              whereArgs: [groupId, userId]);
+        }
+
+        batch.commit(noResult: true);
+      });
+    }
   }
 
   // Method used to mark group as deleted

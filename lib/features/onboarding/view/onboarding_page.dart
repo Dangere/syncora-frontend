@@ -75,21 +75,15 @@ class OnboardingPage extends ConsumerWidget {
                   ),
 
                   // TITLE
-                  Container(
-                    color: Colors.red,
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Container(
-                          color: Colors.amber,
-                          child: Text(
-                            AppLocalizations.of(context).onboardingPage_Title,
-                            style: Theme.of(context).textTheme.titleLarge,
-                            textAlign: TextAlign.start,
-                          ),
-                        ),
-                      ],
-                    ),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Text(
+                        AppLocalizations.of(context).onboardingPage_Title,
+                        style: Theme.of(context).textTheme.titleLarge,
+                        textAlign: TextAlign.start,
+                      ),
+                    ],
                   ),
                   const SizedBox(height: 14),
 

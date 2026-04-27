@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:logger/logger.dart';
 import 'package:syncora_frontend/core/constants/constants.dart';
 import 'package:syncora_frontend/features/users/models/user.dart';
 import 'package:syncora_frontend/features/groups/models/group_dto.dart';
@@ -39,15 +40,19 @@ class RemoteGroupsRepository {
   //   return groups;
   // }
 
-  Future<void> addUsersToGroup(
+  Future<List<User>> addUsersToGroup(
       {required List<String> usernames, required int groupId}) async {
-    await _dio
+    var response = await _dio
         .post('${Constants.BASE_API_URL}/groups/$groupId/grant-access',
             options: Options(
               contentType: 'application/json',
             ),
             data: usernames)
         .timeout(const Duration(seconds: 10));
+
+    List<User> users =
+        (response.data as List).map((e) => User.fromJson(e)).toList();
+    return users;
   }
 
   Future<void> removeUsersFromGroup(

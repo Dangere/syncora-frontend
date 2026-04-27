@@ -14,7 +14,6 @@ import 'package:syncora_frontend/common/widgets/overlay_loader.dart';
 import 'package:syncora_frontend/common/widgets/profile_picture.dart';
 import 'package:syncora_frontend/core/localization/generated/l10n/app_localizations.dart';
 import 'package:syncora_frontend/core/utils/app_error.dart';
-import 'package:syncora_frontend/core/utils/error_mapper.dart';
 import 'package:syncora_frontend/core/utils/snack_bar_alerts.dart';
 import 'package:syncora_frontend/core/utils/validators.dart';
 import 'package:syncora_frontend/features/authentication/models/auth_state.dart';
@@ -327,12 +326,14 @@ class _ProfileViewPageState extends ConsumerState<ProfileViewPage> {
                                 controller: firstNameController,
                                 validator: (value) {
                                   if (value == null || value.isEmpty) {
-                                    return 'First name cannot be empty';
+                                    return AppLocalizations.of(context)
+                                        .validation_Name_Empty;
                                   }
 
                                   if (Validators.validateName(value.trim()) ==
                                       false) {
-                                    return 'Invalid first name';
+                                    return AppLocalizations.of(context)
+                                        .validation_Name_Invalid;
                                   }
                                   return null;
                                 },
@@ -351,12 +352,14 @@ class _ProfileViewPageState extends ConsumerState<ProfileViewPage> {
                                 controller: lastNameController,
                                 validator: (value) {
                                   if (value == null || value.isEmpty) {
-                                    return 'Last name cannot be empty';
+                                    return AppLocalizations.of(context)
+                                        .validation_Name_Empty;
                                   }
 
                                   if (Validators.validateName(value.trim()) ==
                                       false) {
-                                    return 'Invalid last name';
+                                    return AppLocalizations.of(context)
+                                        .validation_Name_Invalid;
                                   }
                                   return null;
                                 },
@@ -376,12 +379,14 @@ class _ProfileViewPageState extends ConsumerState<ProfileViewPage> {
                           controller: usernameController,
                           validator: (value) {
                             if (value == null || value.isEmpty) {
-                              return 'Username cannot be empty';
+                              return AppLocalizations.of(context)
+                                  .validation_Username_Empty;
                             }
 
                             if (Validators.validateUsername(value.trim()) ==
                                 false) {
-                              return 'Invalid username';
+                              return AppLocalizations.of(context)
+                                  .validation_Username_Invalid;
                             }
                             return null;
                           },
@@ -398,12 +403,14 @@ class _ProfileViewPageState extends ConsumerState<ProfileViewPage> {
                             controller: emailController,
                             validator: (value) {
                               if (value == null || value.isEmpty) {
-                                return 'Email cannot be empty';
+                                return AppLocalizations.of(context)
+                                    .validation_Email_Empty;
                               }
 
                               if (Validators.validateEmail(value.trim()) ==
                                   false) {
-                                return 'Invalid email';
+                                return AppLocalizations.of(context)
+                                    .validation_Email_Invalid;
                               }
                               return null;
                             },

@@ -1,3 +1,5 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 class User {
   final int id;
   final String username;
@@ -52,4 +54,9 @@ class User {
           lastName: lastName ?? this.lastName,
           email: email ?? this.email,
           pfpURL: pfpURL ?? this.pfpURL);
+
+  @override
+  String toString() {
+    return "User{id: $id, username: $username, firstName: $firstName, lastName: $lastName, email: $email, pfpURL: $pfpURL}";
+  }
 }

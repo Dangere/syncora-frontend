@@ -25,29 +25,32 @@ class _GroupTotalProgressCardState
   Widget build(BuildContext context) {
     ref.watch(groupsListProvider);
     return FutureBuilder(
-        future: ref
-            .read(groupsListProvider.notifier)
-            .getGroupsTotalProgress(true, 30),
-        builder: (context, asyncSnapshot) {
-          if (asyncSnapshot.connectionState == ConnectionState.waiting &&
-              groupProgress == null) {
-            return const Center(child: CircularProgressIndicator());
-          }
+      future: ref
+          .read(groupsListProvider.notifier)
+          .getGroupsTotalProgress(true, 30),
+      builder: (context, asyncSnapshot) {
+        if (asyncSnapshot.connectionState == ConnectionState.waiting &&
+            groupProgress == null) {
+          return const Center(child: CircularProgressIndicator());
+        }
 
-          groupProgress = asyncSnapshot.data;
+        groupProgress = asyncSnapshot.data;
 
-          if (asyncSnapshot.data == null) return Container();
-          if (asyncSnapshot.hasData && asyncSnapshot.requireData == null)
-            return Container();
+        if (asyncSnapshot.data == null) return Container();
+        if (asyncSnapshot.hasData && asyncSnapshot.requireData == null)
+          return Container();
 
-          ref.read(loggerProvider).f(groupProgress.toString());
+        ref.read(loggerProvider).f(groupProgress.toString());
 
-          return GroupProgressCard(
-              groupProgress: groupProgress!.copyWith(
-                  groupTitle: AppLocalizations.of(context)!.filter_InProgress),
-              onExpand: () => context.push('/groups-progress').whenComplete(
-                    () => setState(() {}),
-                  ));
-        });
+        return GroupProgressCard(
+          groupProgress: groupProgress!.copyWith(
+              groupTitle:
+                  AppLocalizations.of(context).dashboardPage_Monthly_Progress),
+          onExpand: () => context.push('/groups-progress').whenComplete(
+                () => setState(() {}),
+              ),
+        );
+      },
+    );
   }
 }

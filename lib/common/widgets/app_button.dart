@@ -112,6 +112,8 @@ class AppButton extends StatelessWidget {
               fontFamily: fontFamily,
               fontSize: fontSize,
               fontWeight: fontWeight),
+          backgroundColor: theme.colorScheme.primary,
+          foregroundColor: theme.colorScheme.onPrimary,
           elevation: 0,
           padding: EdgeInsets.symmetric(horizontal: contentHorizontalPadding),
           shape: RoundedRectangleBorder(
@@ -217,7 +219,7 @@ class AppButton extends StatelessWidget {
         ),
         child: AbsorbPointer(
           absorbing: disabled,
-          child: ElevatedButton(
+          child: TextButton(
             style: disabled ? disabledStyle : buttonColor,
             onPressed: onPressed,
             child: child,

@@ -64,6 +64,7 @@ dependencies:
   crop_image: ^1.0.17
   sliver_tools: ^0.2.12
   flutter_slidable: ^4.0.3
+  auto_size_text: ^3.0.0
 
 dev_dependencies:
   flutter_test:

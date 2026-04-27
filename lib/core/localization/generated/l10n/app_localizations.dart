@@ -476,6 +476,12 @@ abstract class AppLocalizations {
   /// **'Search for a group'**
   String get dashboardPage_SearchGroups;
 
+  /// No description provided for @dashboardPage_Monthly_Progress.
+  ///
+  /// In en, this message translates to:
+  /// **'Your Monthly Progress'**
+  String get dashboardPage_Monthly_Progress;
+
   /// No description provided for @cropImagePage_Title.
   ///
   /// In en, this message translates to:
@@ -590,6 +596,12 @@ abstract class AppLocalizations {
   /// **'Rename Group'**
   String get groupPopup_RenameGroup;
 
+  /// Confirmation message to confirm deleting a group (shown to owners)
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to delete this group?'**
+  String get groupPopup_DeleteGroup_Confirm;
+
   /// Button label to delete a group (shown to owners)
   ///
   /// In en, this message translates to:
@@ -601,6 +613,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Leave Group'**
   String get groupPopup_LeaveGroup;
+
+  /// Confirmation message to confirm leaving a group (shown to non-owners)
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to leave this group?'**
+  String get groupPopup_LeaveGroup_Confirm;
 
   /// Alert shown when confirming with no users selected
   ///
@@ -703,6 +721,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Invalid username'**
   String get validation_Username_Invalid;
+
+  /// Validation error when the Name field is empty
+  ///
+  /// In en, this message translates to:
+  /// **'Empty Name'**
+  String get validation_Name_Empty;
+
+  /// Validation error when the Name format is invalid
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid Name'**
+  String get validation_Name_Invalid;
+
+  /// Validation error when the Email field is empty
+  ///
+  /// In en, this message translates to:
+  /// **'Empty Email'**
+  String get validation_Email_Empty;
+
+  /// Validation error when the Email format is invalid
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid Email'**
+  String get validation_Email_Invalid;
+
+  /// Validation error when the Password field is empty
+  ///
+  /// In en, this message translates to:
+  /// **'Empty Password'**
+  String get validation_Password_Empty;
+
+  /// Validation error when the Password format is invalid
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid Password, Password must be between 6 and 16 characters'**
+  String get validation_Password_Invalid;
+
+  /// Validation error when the Password format is Not Matching
+  ///
+  /// In en, this message translates to:
+  /// **'Password is not matching'**
+  String get validation_Password_Not_Matching;
 
   /// Error when the requested group does not exist
   ///

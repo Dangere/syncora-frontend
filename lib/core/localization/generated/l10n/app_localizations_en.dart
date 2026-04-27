@@ -201,6 +201,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get dashboardPage_SearchGroups => 'Search for a group';
 
   @override
+  String get dashboardPage_Monthly_Progress => 'Your Monthly Progress';
+
+  @override
   String get cropImagePage_Title => 'Crop Image';
 
   @override
@@ -259,10 +262,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get groupPopup_RenameGroup => 'Rename Group';
 
   @override
+  String get groupPopup_DeleteGroup_Confirm =>
+      'Are you sure you want to delete this group?';
+
+  @override
   String get groupPopup_DeleteGroup => 'Delete Group';
 
   @override
   String get groupPopup_LeaveGroup => 'Leave Group';
+
+  @override
+  String get groupPopup_LeaveGroup_Confirm =>
+      'Are you sure you want to leave this group?';
 
   @override
   String get groupPopup_Alert_NoUsersSelected => 'No users selected';
@@ -317,6 +328,28 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get validation_Username_Invalid => 'Invalid username';
+
+  @override
+  String get validation_Name_Empty => 'Empty Name';
+
+  @override
+  String get validation_Name_Invalid => 'Invalid Name';
+
+  @override
+  String get validation_Email_Empty => 'Empty Email';
+
+  @override
+  String get validation_Email_Invalid => 'Invalid Email';
+
+  @override
+  String get validation_Password_Empty => 'Empty Password';
+
+  @override
+  String get validation_Password_Invalid =>
+      'Invalid Password, Password must be between 6 and 16 characters';
+
+  @override
+  String get validation_Password_Not_Matching => 'Password is not matching';
 
   @override
   String get appError_GroupNotFound => 'Group not found';

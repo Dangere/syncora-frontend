@@ -1,3 +1,4 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:syncora_frontend/common/themes/app_spacing.dart';
@@ -40,8 +41,6 @@ class FilterList<T extends Enum> extends ConsumerStatefulWidget {
 }
 
 class _FilterListState<T extends Enum> extends ConsumerState<FilterList<T>> {
-  // int selectedIndex = 0;
-
   List<T> selectedValues = List.empty(growable: true);
 
   @override
@@ -78,8 +77,9 @@ class _FilterListState<T extends Enum> extends ConsumerState<FilterList<T>> {
 
   @override
   Widget build(BuildContext context) {
-    if (widget.providerListenable != null)
+    if (widget.providerListenable != null) {
       ref.watch(widget.providerListenable!);
+    }
     return SizedBox(
         height: 30,
         child: ListView.separated(
@@ -120,31 +120,54 @@ class _FilterListState<T extends Enum> extends ConsumerState<FilterList<T>> {
                           .countFactory!(widget.items[index].value),
                       builder: (context, snapshot) {
                         return Padding(
-                          padding: const EdgeInsets.all(5),
-                          child: SizedBox.square(
-                            dimension: 22,
-                            child: Container(
-                                decoration: BoxDecoration(
-                                    color: isSelected
-                                        ? Theme.of(context).colorScheme.primary
-                                        : Theme.of(context)
-                                            .colorScheme
-                                            .tertiaryContainer,
-                                    shape: BoxShape.circle),
-                                child: Center(
-                                    child: !snapshot.hasData
-                                        ? const CircularProgressIndicator()
-                                        : Text(
-                                            snapshot.data.toString(),
-                                            style: TextStyle(
-                                                color: isSelected
-                                                    ? Theme.of(context)
-                                                        .colorScheme
-                                                        .onPrimary
-                                                    : Theme.of(context)
-                                                        .colorScheme
-                                                        .tertiary),
-                                          ))),
+                          padding: const EdgeInsets.all(5.0),
+                          child: Container(
+                            decoration: BoxDecoration(
+                                color: isSelected
+                                    ? Theme.of(context).colorScheme.primary
+                                    : Theme.of(context)
+                                        .colorScheme
+                                        .tertiaryContainer,
+                                shape: BoxShape.circle),
+                            child: Center(
+                              child: !snapshot.hasData
+                                  ? const SizedBox.square(
+                                      dimension: 22,
+                                      child: CircularProgressIndicator())
+                                  : Container(
+                                      constraints: const BoxConstraints(
+                                          minWidth: 22, minHeight: 22),
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 3.0),
+                                      decoration: ShapeDecoration(
+                                        color: isSelected
+                                            ? Theme.of(context)
+                                                .colorScheme
+                                                .primary
+                                            : Theme.of(context)
+                                                .colorScheme
+                                                .tertiaryContainer,
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(90),
+                                        ),
+                                      ),
+                                      child: FittedBox(
+                                        child: Text(
+                                          snapshot.data.toString(),
+                                          style: TextStyle(
+                                              fontSize: 12,
+                                              color: isSelected
+                                                  ? Theme.of(context)
+                                                      .colorScheme
+                                                      .onPrimary
+                                                  : Theme.of(context)
+                                                      .colorScheme
+                                                      .tertiary),
+                                        ),
+                                      ),
+                                    ),
+                            ),
                           ),
                         );
                       },

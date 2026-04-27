@@ -122,12 +122,14 @@ class _GoogleSignUpPageState extends ConsumerState<GoogleSignUpPage> {
                                   controller: firstNameController,
                                   validator: (value) {
                                     if (value == null || value.isEmpty) {
-                                      return 'First name cannot be empty';
+                                      return AppLocalizations.of(context)
+                                          .validation_Name_Empty;
                                     }
 
                                     if (Validators.validateName(value.trim()) ==
                                         false) {
-                                      return 'Invalid first name';
+                                      return AppLocalizations.of(context)
+                                          .validation_Name_Invalid;
                                     }
                                     return null;
                                   },
@@ -146,12 +148,14 @@ class _GoogleSignUpPageState extends ConsumerState<GoogleSignUpPage> {
                                   controller: lastNameController,
                                   validator: (value) {
                                     if (value == null || value.isEmpty) {
-                                      return 'Last name cannot be empty';
+                                      return AppLocalizations.of(context)
+                                          .validation_Name_Empty;
                                     }
 
                                     if (Validators.validateName(value.trim()) ==
                                         false) {
-                                      return 'Invalid last name';
+                                      return AppLocalizations.of(context)
+                                          .validation_Name_Invalid;
                                     }
                                     return null;
                                   },
@@ -171,12 +175,14 @@ class _GoogleSignUpPageState extends ConsumerState<GoogleSignUpPage> {
                             controller: usernameController,
                             validator: (value) {
                               if (value == null || value.isEmpty) {
-                                return 'Username cannot be empty';
+                                return AppLocalizations.of(context)
+                                    .validation_Username_Empty;
                               }
 
                               if (Validators.validateUsername(value.trim()) ==
                                   false) {
-                                return 'Invalid username';
+                                return AppLocalizations.of(context)
+                                    .validation_Username_Invalid;
                               }
                               return null;
                             },
@@ -195,12 +201,14 @@ class _GoogleSignUpPageState extends ConsumerState<GoogleSignUpPage> {
                               controller: emailController,
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
-                                  return 'Email cannot be empty';
+                                  return AppLocalizations.of(context)
+                                      .validation_Email_Empty;
                                 }
 
                                 if (Validators.validateEmail(value.trim()) ==
                                     false) {
-                                  return 'Invalid email';
+                                  return AppLocalizations.of(context)
+                                      .validation_Email_Invalid;
                                 }
                                 return null;
                               },
@@ -226,13 +234,15 @@ class _GoogleSignUpPageState extends ConsumerState<GoogleSignUpPage> {
                                     controller: passwordController,
                                     validator: (value) {
                                       if (value == null || value.isEmpty) {
-                                        return 'Password cannot be empty';
+                                        return AppLocalizations.of(context)
+                                            .validation_Password_Empty;
                                       }
 
                                       if (Validators.validatePassword(
                                               value.trim()) ==
                                           false) {
-                                        return 'Password must be between 6 and 16 characters';
+                                        return AppLocalizations.of(context)
+                                            .validation_Password_Invalid;
                                       }
                                       return null;
                                     },
@@ -258,12 +268,21 @@ class _GoogleSignUpPageState extends ConsumerState<GoogleSignUpPage> {
                                     validator: (value) {
                                       if (value == null ||
                                           value.trim().isEmpty) {
-                                        return 'Password cannot be empty';
+                                        return AppLocalizations.of(context)
+                                            .validation_Password_Empty;
+                                      }
+
+                                      if (Validators.validatePassword(
+                                              value.trim()) ==
+                                          false) {
+                                        return AppLocalizations.of(context)
+                                            .validation_Password_Invalid;
                                       }
 
                                       if (value.trim() !=
                                           passwordController.text.trim()) {
-                                        return "Password does not match";
+                                        return AppLocalizations.of(context)
+                                            .validation_Password_Not_Matching;
                                       }
                                       return null;
                                     },

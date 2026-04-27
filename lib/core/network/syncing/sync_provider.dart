@@ -89,6 +89,7 @@ class SyncBackendNotifier extends AsyncNotifier<SyncState>
 
   // TODO: We could potentially ignore events coming from this device and only process events from other devices
   void _receiveData(Object? parameter) async {
+    return;
     if (parameter == null || parameter is! Map<String, dynamic>) return;
     if (!ref.read(isOnlineProvider)) return;
     if (ref.read(isAuthenticatedProvider) == false) return;
@@ -120,6 +121,7 @@ class SyncBackendNotifier extends AsyncNotifier<SyncState>
   }
 
   Future<void> _processQueue() async {
+    // return;
     // TODO: A queue merge could be done here
     if (_isProcessing) return Future.value();
     _isProcessing = true;

@@ -355,25 +355,6 @@ class GroupNotifier extends AutoDisposeFamilyAsyncNotifier<Group?, int> {
     await _refreshState();
   }
 
-  Future<bool> allowUserAccessToGroup(String username) async {
-    int resolvedId = ref.read(outboxIdMapperProvider).resolveId(arg);
-
-    Result updateResult = await ref
-        .read(groupsServiceProvider)
-        .grantAccessToGroup(
-            allowAccess: true, groupId: resolvedId, usernames: [username]);
-
-    ref.read(loggerProvider).d(updateResult);
-
-    if (!updateResult.isSuccess) {
-      ref.read(appErrorProvider.notifier).state = updateResult.error;
-      return false;
-    }
-
-    await _refreshState();
-    return true;
-  }
-
   Future<void> allowUsersAccessToGroup(List<String> usernames) async {
     int resolvedId = ref.read(outboxIdMapperProvider).resolveId(arg);
 
@@ -475,6 +456,7 @@ final groupStatisticsProvider = Provider<StatisticsRepository>((ref) {
 final groupsServiceProvider = Provider<GroupsService>((ref) {
   return GroupsService(
       ref.watch(localGroupsRepositoryProvider),
+      ref.watch(localUsersRepositoryProvider),
       ref.watch(remoteGroupsRepositoryProvider),
       ref.watch(groupStatisticsProvider),
       enqueueEntry: (enqueueRequest) =>

@@ -8,7 +8,7 @@ class Constants {
   /// http://10.0.2.2:5000/api
 
   static String BASE_URL =
-      false ? "http://192.168.1.28:5000" : "https://syncoratasks.runasp.net";
+      true ? "http://192.168.1.28:5000" : "https://syncoratasks.runasp.net";
   // static String BASE_URL = "http://10.0.2.2:5000";
 
   static String BASE_API_URL = "$BASE_URL/api";

@@ -12,11 +12,14 @@ import 'package:syncora_frontend/features/groups/repositories/local_groups_repos
 import 'package:syncora_frontend/features/groups/repositories/remote_groups_repository.dart';
 import 'package:syncora_frontend/features/groups/repositories/statistics_repository.dart';
 import 'package:syncora_frontend/features/groups/groups_provider.dart';
+import 'package:syncora_frontend/features/users/models/user.dart';
+import 'package:syncora_frontend/features/users/repositories/local_users_repository.dart';
 
 // If group is shared, user can leave and modify it when online only using remote requests
 // When its local group, the user can leave and modify it when online or offline
 class GroupsService {
   final LocalGroupsRepository _localGroupsRepository;
+  final LocalUsersRepository _localUsersRepository;
   final RemoteGroupsRepository _remoteGroupsRepository;
   final StatisticsRepository _groupStatisticsRepository;
   final AsyncFunc<EnqueueRequest, Result<void>> _enqueueEntry;
@@ -24,8 +27,8 @@ class GroupsService {
   final AuthState Function() _authStateFactory;
   final bool Function() _isOnlineFactory;
 
-  GroupsService(this._localGroupsRepository, this._remoteGroupsRepository,
-      this._groupStatisticsRepository,
+  GroupsService(this._localGroupsRepository, this._localUsersRepository,
+      this._remoteGroupsRepository, this._groupStatisticsRepository,
       {required bool Function() isOnlineFactory,
       required AsyncFunc<EnqueueRequest, Result<void>> enqueueEntry,
       required AuthState Function() authStateFactory})
@@ -142,12 +145,20 @@ class GroupsService {
 
     try {
       if (allowAccess) {
-        await _remoteGroupsRepository.addUsersToGroup(
+        List<User> addedUsers = await _remoteGroupsRepository.addUsersToGroup(
             usernames: usernames, groupId: groupId);
+
+        await _localUsersRepository.upsertUsers(addedUsers);
       } else {
         await _remoteGroupsRepository.removeUsersFromGroup(
             usernames: usernames, groupId: groupId);
       }
+
+      await _localGroupsRepository.grantAccessToGroup(
+          usernames: usernames, groupId: groupId, allowAccess: allowAccess);
+
+      await _localUsersRepository
+          .purgeOrphanedUsers(_authStateFactory().userId!);
 
       return Result.success();
     } catch (e, stackTrace) {

@@ -78,14 +78,23 @@ class GroupPageState extends ConsumerState<GroupPage> {
             .read(groupProvider(widget.groupId).notifier)
             .updateGroupDetails(groupId: group.id, title: newTitle);
       },
-      onLeaveGroup: () {},
+      onLeaveGroup: () async {
+        bool confirmLeaving = await Dialogs.showConfirmationDialog(context,
+            message: AppLocalizations.of(context).groupPopup_LeaveGroup_Confirm,
+            confirmText: AppLocalizations.of(context).confirm);
+
+        if (confirmLeaving) {
+          await ref.read(groupProvider(widget.groupId).notifier).leaveGroup();
+        }
+      },
       onDeleteGroup: () async {
         bool confirmDeletion = await Dialogs.showConfirmationDialog(context,
-            message: "Are you sure you want to delete this group?",
-            confirmText: "Yes, Delete");
+            message:
+                AppLocalizations.of(context).groupPopup_DeleteGroup_Confirm,
+            confirmText: AppLocalizations.of(context).confirm);
 
         if (confirmDeletion) {
-          ref
+          await ref
               .read(groupProvider(widget.groupId).notifier)
               .deleteGroup(widget.groupId);
         }
@@ -110,7 +119,9 @@ class GroupPageState extends ConsumerState<GroupPage> {
                   if (data == null) {
                     return Scaffold(
                         appBar: AppBar(),
-                        body: const Center(child: Text("Group not found")));
+                        body: Center(
+                            child: Text(AppLocalizations.of(context)
+                                .appError_GroupNotFound)));
                   }
                   Group group = data;
 

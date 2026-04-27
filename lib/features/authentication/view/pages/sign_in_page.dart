@@ -89,12 +89,14 @@ class _SignInPageState extends ConsumerState<SignInPage> {
                             controller: emailController,
                             validator: (value) {
                               if (value == null || value.isEmpty) {
-                                return 'Email cannot be empty';
+                                return AppLocalizations.of(context)
+                                    .validation_Email_Empty;
                               }
 
                               if (Validators.validateEmail(value.trim()) ==
                                   false) {
-                                return 'Invalid email';
+                                return AppLocalizations.of(context)
+                                    .validation_Email_Invalid;
                               }
                               return null;
                             },
@@ -116,13 +118,15 @@ class _SignInPageState extends ConsumerState<SignInPage> {
                                 controller: passwordController,
                                 validator: (value) {
                                   if (value == null || value.isEmpty) {
-                                    return 'Password cannot be empty';
+                                    return AppLocalizations.of(context)
+                                        .validation_Password_Empty;
                                   }
 
                                   if (Validators.validatePassword(
                                           value.trim()) ==
                                       false) {
-                                    return 'Password must be between 6 and 16 characters';
+                                    return AppLocalizations.of(context)
+                                        .validation_Password_Invalid;
                                   }
                                   return null;
                                 },

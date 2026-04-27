@@ -191,9 +191,11 @@ class LanguageExpandableCard extends StatelessWidget {
         boxShadow: [AppShadow.shadow0(context)],
       ),
       child: Card(
+        surfaceTintColor: Colors.transparent,
         margin: const EdgeInsets.all(0),
         shadowColor: Colors.transparent,
         elevation: 0,
+        color: Colors.transparent,
         clipBehavior: Clip.antiAlias,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20.0),

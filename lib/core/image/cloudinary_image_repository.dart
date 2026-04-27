@@ -8,7 +8,8 @@ import 'package:syncora_frontend/core/image/upload_signature_dto.dart';
 class CloudinaryImageRepository implements ImageRepository {
   // ignore: non_constant_identifier_names
   final String CLOUDINARY_API_KEY = "358762152499182";
-
+  final String CLOUDINARY_UPLOAD_URL =
+      "https://api.cloudinary.com/v1_1/dpo5aj891/image/upload";
   final Dio _dio;
   CloudinaryImageRepository(this._dio);
 
@@ -31,8 +32,7 @@ class CloudinaryImageRepository implements ImageRepository {
     final formData = FormData.fromMap(map);
 
     final uploadResponse = await _dio
-        .post("https://api.cloudinary.com/v1_1/dpo5aj891/image/upload",
-            data: formData)
+        .post(CLOUDINARY_UPLOAD_URL, data: formData)
         .timeout(const Duration(seconds: 240));
 
     return uploadResponse.data['url'] as String;

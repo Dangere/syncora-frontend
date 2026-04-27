@@ -157,6 +157,8 @@
   "@dashboardPage_CreateGroup": {},
   "dashboardPage_SearchGroups": "Search for a group",
   "@dashboardPage_SearchGroups": {},
+  "dashboardPage_Monthly_Progress": "Your Monthly Progress",
+  "@dashboardPage_Monthly_Progress": {},
   "cropImagePage_Title": "Crop Image",
   "@cropImagePage_Title": {},
   "cropImagePage_CropButton": "Crop",
@@ -217,6 +219,10 @@
   "@groupPopup_RenameGroup": {
     "description": "Button label to rename a group"
   },
+  "groupPopup_DeleteGroup_Confirm": "Are you sure you want to delete this group?",
+  "@groupPopup_DeleteGroup_Confirm": {
+    "description": "Confirmation message to confirm deleting a group (shown to owners)"
+  },
   "groupPopup_DeleteGroup": "Delete Group",
   "@groupPopup_DeleteGroup": {
     "description": "Button label to delete a group (shown to owners)"
@@ -224,6 +230,10 @@
   "groupPopup_LeaveGroup": "Leave Group",
   "@groupPopup_LeaveGroup": {
     "description": "Button label to leave a group (shown to non-owners)"
+  },
+  "groupPopup_LeaveGroup_Confirm": "Are you sure you want to leave this group?",
+  "@groupPopup_LeaveGroup_Confirm": {
+    "description": "Confirmation message to confirm leaving a group (shown to non-owners)"
   },
   "groupPopup_Alert_NoUsersSelected": "No users selected",
   "@groupPopup_Alert_NoUsersSelected": {
@@ -292,6 +302,34 @@
   "validation_Username_Invalid": "Invalid username",
   "@validation_Username_Invalid": {
     "description": "Validation error when the username format is invalid"
+  },
+  "validation_Name_Empty": "Empty Name",
+  "@validation_Name_Empty": {
+    "description": "Validation error when the Name field is empty"
+  },
+  "validation_Name_Invalid": "Invalid Name",
+  "@validation_Name_Invalid": {
+    "description": "Validation error when the Name format is invalid"
+  },
+  "validation_Email_Empty": "Empty Email",
+  "@validation_Email_Empty": {
+    "description": "Validation error when the Email field is empty"
+  },
+  "validation_Email_Invalid": "Invalid Email",
+  "@validation_Email_Invalid": {
+    "description": "Validation error when the Email format is invalid"
+  },
+  "validation_Password_Empty": "Empty Password",
+  "@validation_Password_Empty": {
+    "description": "Validation error when the Password field is empty"
+  },
+  "validation_Password_Invalid": "Invalid Password, Password must be between 6 and 16 characters",
+  "@validation_Password_Invalid": {
+    "description": "Validation error when the Password format is invalid"
+  },
+  "validation_Password_Not_Matching": "Password is not matching",
+  "@validation_Password_Not_Matching": {
+    "description": "Validation error when the Password format is Not Matching"
   },
   "appError_GroupNotFound": "Group not found",
   "@appError_GroupNotFound": {

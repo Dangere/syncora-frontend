@@ -131,7 +131,7 @@ class AppTheme {
       );
 
   static ThemeData _theme(ColorScheme colorScheme, bool isDark) => ThemeData(
-      fontFamily: GoogleFonts.lato().fontFamily,
+      fontFamily: GoogleFonts.cairo().fontFamily,
       useMaterial3: true,
       colorScheme: colorScheme,
       cardColor: colorScheme.surfaceContainer,
