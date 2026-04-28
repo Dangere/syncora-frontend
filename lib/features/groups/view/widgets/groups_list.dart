@@ -4,9 +4,6 @@ import 'package:go_router/go_router.dart';
 import 'package:sliver_tools/sliver_tools.dart';
 import 'package:syncora_frontend/common/providers/common_providers.dart';
 import 'package:syncora_frontend/common/themes/app_spacing.dart';
-import 'package:syncora_frontend/common/widgets/filter_list.dart';
-import 'package:syncora_frontend/common/widgets/overlay_loader.dart';
-import 'package:syncora_frontend/core/localization/generated/l10n/app_localizations.dart';
 import 'package:syncora_frontend/features/groups/models/group.dart';
 import 'package:syncora_frontend/features/groups/view/widgets/group_panel.dart';
 import 'package:syncora_frontend/features/groups/groups_provider.dart';
@@ -22,7 +19,7 @@ class GroupsList extends ConsumerWidget {
     List<Group> groups =
         ref.watch(groupsListProvider).valueOrNull ?? List.empty();
     // List<Group> groupsList = groups ? groups.value! : List.empty();
-
+    ref.watch(groupsListProvider);
     return MultiSliver(
       children: [
         SliverClip(

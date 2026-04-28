@@ -24,8 +24,7 @@ import 'package:syncora_frontend/core/image/crop_image_page.dart';
 import 'package:syncora_frontend/features/users/view/profile_view_page.dart';
 
 class MyNavObserver extends NavigatorObserver {
-  MyNavObserver({required this.ref, required this.onPush, required this.onPop});
-  final Ref ref;
+  MyNavObserver({required this.onPush, required this.onPop});
   final Func<String, void> onPush;
   final Func<String, void> onPop;
 
@@ -231,7 +230,6 @@ class RouteNotifier extends Notifier<GoRouter> {
       },
       observers: [
         MyNavObserver(
-          ref: ref,
           onPop: (arg) {
             _routeController.add(state.state.name ?? '');
           },

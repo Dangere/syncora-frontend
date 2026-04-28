@@ -24,6 +24,7 @@ class _GroupTotalProgressCardState
   @override
   Widget build(BuildContext context) {
     ref.watch(groupsListProvider);
+
     return FutureBuilder(
       future: ref
           .read(groupsListProvider.notifier)
@@ -40,7 +41,7 @@ class _GroupTotalProgressCardState
         if (asyncSnapshot.hasData && asyncSnapshot.requireData == null)
           return Container();
 
-        ref.read(loggerProvider).f(groupProgress.toString());
+        ref.read(loggerProvider).d("Building Group total progress card");
 
         return GroupProgressCard(
           groupProgress: groupProgress!.copyWith(

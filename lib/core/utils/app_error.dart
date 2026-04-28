@@ -27,8 +27,10 @@ class AppError {
 
   // Takes exceptions and localizes it to a user friendly message, or when undefined, return a generic error
   factory AppError.fromException(Object e, StackTrace stackTrace) {
-    String rawMessage =
-        e is DioException ? e.response.toString() : e.toString();
+    String rawMessage = e.toString();
+
+    if (e is DioException && e.response != null)
+      rawMessage = e.response.toString();
     return AppError(
         errorCode: ErrorMapper.mapError(e),
         rawMessage: rawMessage,
