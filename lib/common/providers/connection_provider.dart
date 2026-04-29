@@ -38,7 +38,12 @@ class ConnectionNotifier extends Notifier<ConnectionStatus> {
             );
 
             if (!running) break;
-            state = response.statusCode == 204
+
+            if (response.statusCode == null) {
+              state = ConnectionStatus.disconnected;
+            }
+
+            state = (response.statusCode! >= 200 && response.statusCode! < 300)
                 ? ConnectionStatus.connected
                 : ConnectionStatus.disconnected;
           } catch (_) {
