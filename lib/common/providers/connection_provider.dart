@@ -1,3 +1,5 @@
+import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:internet_connection_checker/internet_connection_checker.dart';
 
@@ -17,34 +19,67 @@ class ConnectionNotifier extends Notifier<ConnectionStatus> {
       }
     });
 
-    final connectionChecker = InternetConnectionChecker.createInstance(
-      addresses: [
-        AddressCheckOption(
-          uri: Uri.parse('https://google.com'),
-          timeout: const Duration(seconds: 3),
-        ),
-        AddressCheckOption(
-          uri: Uri.parse('https://flutter.dev'),
-          timeout: const Duration(seconds: 3),
-        ),
-      ],
-    );
+    if (kIsWeb) {
+      var running = true;
 
-    connectionChecker.onStatusChange.listen(
-      (InternetConnectionStatus status) {
-        switch (status) {
-          case InternetConnectionStatus.disconnected:
+      ref.onDispose(() => running = false);
+
+      Future.microtask(() async {
+        while (running) {
+          await Future.delayed(const Duration(seconds: 3));
+          if (!running) break;
+
+          try {
+            final response = await Dio().get(
+              'https://www.gstatic.com/generate_204',
+              options: Options(
+                receiveTimeout: const Duration(seconds: 5),
+              ),
+            );
+
+            if (!running) break;
+            state = response.statusCode == 204
+                ? ConnectionStatus.connected
+                : ConnectionStatus.disconnected;
+          } catch (_) {
+            if (!running) break;
             state = ConnectionStatus.disconnected;
-            break;
-          case InternetConnectionStatus.connected:
-            state = ConnectionStatus.connected;
-            break;
-          case InternetConnectionStatus.slow:
-            state = ConnectionStatus.slow;
-            break;
+          }
         }
-      },
-    );
+      });
+      return ConnectionStatus.checking;
+    }
+
+    if (!kIsWeb) {
+      final connectionChecker = InternetConnectionChecker.createInstance(
+        addresses: [
+          AddressCheckOption(
+            uri: Uri.parse('https://google.com'),
+            timeout: const Duration(seconds: 3),
+          ),
+          AddressCheckOption(
+            uri: Uri.parse('https://flutter.dev'),
+            timeout: const Duration(seconds: 3),
+          ),
+        ],
+      );
+
+      connectionChecker.onStatusChange.listen(
+        (InternetConnectionStatus status) {
+          switch (status) {
+            case InternetConnectionStatus.disconnected:
+              state = ConnectionStatus.disconnected;
+              break;
+            case InternetConnectionStatus.connected:
+              state = ConnectionStatus.connected;
+              break;
+            case InternetConnectionStatus.slow:
+              state = ConnectionStatus.connected;
+              break;
+          }
+        },
+      );
+    }
     return ConnectionStatus.checking;
   }
 }
@@ -56,8 +91,7 @@ final _connectionProvider =
 
 final isOnlineProvider = Provider<bool>((ref) {
   var status = ref.watch(_connectionProvider);
-  return status == ConnectionStatus.connected ||
-      status == ConnectionStatus.slow;
+  return status == ConnectionStatus.connected;
 });
 
 // final connectionAsyncProvider = FutureProvider<ConnectionStatus>((ref) async {
@@ -90,4 +124,4 @@ final isOnlineProvider = Provider<bool>((ref) {
 //   return currentStatus;
 // });
 
-enum ConnectionStatus { checking, connected, disconnected, slow }
+enum ConnectionStatus { checking, connected, disconnected }
