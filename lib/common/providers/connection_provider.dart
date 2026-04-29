@@ -31,7 +31,7 @@ class ConnectionNotifier extends Notifier<ConnectionStatus> {
 
           try {
             final response = await Dio().get(
-              'https://www.gstatic.com/generate_204',
+              'https://httpbin.org/get',
               options: Options(
                 receiveTimeout: const Duration(seconds: 5),
               ),
