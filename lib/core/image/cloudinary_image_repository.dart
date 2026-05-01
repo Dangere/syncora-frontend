@@ -31,12 +31,8 @@ class CloudinaryImageRepository implements ImageRepository {
     });
     final formData = FormData.fromMap(map);
 
-    final uploadResponse = await _dio
-        .post(
-          CLOUDINARY_UPLOAD_URL,
-          data: formData,
-          options: Options(headers: {'Authorization': null}),
-        )
+    final uploadResponse = await Dio()
+        .post(CLOUDINARY_UPLOAD_URL, data: formData)
         .timeout(const Duration(seconds: 240));
 
     return uploadResponse.data['secure_url'] as String;
