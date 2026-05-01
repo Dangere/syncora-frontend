@@ -35,7 +35,7 @@ class _PasswordResetPageState extends ConsumerState<PasswordResetPage> {
     }
     setState(() {
       isLoading = true;
-      ref.read(resetPasswordTimerProvider.notifier).startTimer(30);
+      ref.read(resetPasswordTimerProvider.notifier).startTimer(60);
     });
     Result result = await ref
         .read(authProvider.notifier)

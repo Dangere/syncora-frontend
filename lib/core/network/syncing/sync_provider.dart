@@ -89,7 +89,7 @@ class SyncBackendNotifier extends AsyncNotifier<SyncState>
 
   // TODO: We could potentially ignore events coming from this device and only process events from other devices
   void _receiveData(Object? parameter) async {
-    return;
+    // return;
     if (parameter == null || parameter is! Map<String, dynamic>) return;
     if (!ref.read(isOnlineProvider)) return;
     if (ref.read(isAuthenticatedProvider) == false) return;

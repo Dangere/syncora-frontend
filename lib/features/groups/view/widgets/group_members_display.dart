@@ -84,33 +84,32 @@ class GroupMembersDisplay extends ConsumerWidget {
                   direction: AxisDirection.left,
                   // ownerId: group.ownerUserId,
                   radius: 21,
-                  spacing: (21 * 2) - 12,
+                  spacing: (21 * 2) - 18,
                   maxMembers: 5,
                 ),
               ),
               // Add member
               if (isOwner)
-                Container(
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.secondary,
-                      borderRadius: BorderRadius.circular(22),
-                      border: Border.all(
-                          color: Theme.of(context).colorScheme.surfaceContainer,
-                          width: 1),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    CircleAvatar(
+                      radius: 21,
+                      backgroundColor: Theme.of(context).colorScheme.secondary,
+                      child: IconButton(
+                          onPressed: () {
+                            onAddingMember();
+                          },
+                          icon: Icon(
+                            Icons.person_add_alt_1,
+                            color: Theme.of(context).colorScheme.onSecondary,
+                          )),
                     ),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        IconButton(
-                            onPressed: () {
-                              onAddingMember();
-                            },
-                            icon: Icon(
-                              Icons.person_add_alt_1,
-                              color: Theme.of(context).colorScheme.onPrimary,
-                            )),
-                      ],
-                    ))
+                  ],
+                ),
+              const SizedBox(
+                width: 13,
+              ),
             ],
           ),
         ),

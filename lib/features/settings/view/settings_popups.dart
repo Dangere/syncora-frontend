@@ -43,7 +43,7 @@ class _PasswordResetPopupState extends ConsumerState<PasswordResetPopup> {
       return;
     }
 
-    ref.read(resetPasswordTimerProvider.notifier).startTimer(3);
+    ref.read(resetPasswordTimerProvider.notifier).startTimer(60);
 
     if (!ref.read(isAuthenticatedProvider)) {
       return;

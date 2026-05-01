@@ -35,6 +35,6 @@ class CloudinaryImageRepository implements ImageRepository {
         .post(CLOUDINARY_UPLOAD_URL, data: formData)
         .timeout(const Duration(seconds: 240));
 
-    return uploadResponse.data['url'] as String;
+    return uploadResponse.data['secure_url'] as String;
   }
 }
