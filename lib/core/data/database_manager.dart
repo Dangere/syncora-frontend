@@ -106,6 +106,7 @@ class DatabaseManager {
         id INTEGER PRIMARY KEY,
         groupId INTEGER NOT NULL,
         userId INTEGER NOT NULL,
+        UNIQUE(groupId, userId),
         FOREIGN KEY(groupId) REFERENCES  ${DatabaseTables.groups}(id) ON DELETE CASCADE ON UPDATE CASCADE,
         FOREIGN KEY(userId) REFERENCES  ${DatabaseTables.users}(id) ON DELETE CASCADE ON UPDATE CASCADE
       )
