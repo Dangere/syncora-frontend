@@ -27,6 +27,22 @@
   "@groupPage_AddTaskButton": {
     "description": "The add task button"
   },
+  "groupInfoPage_Title": "Group Info",
+  "@groupInfoPage_Title": {
+    "description": "Title for the group info"
+  },
+  "groupInfoPage_NoDescription": "No description",
+  "@groupInfoPage_NoDescription": {
+    "description": "Label when a group doesn't have a description"
+  },
+  "groupInfoPage_CreatedIn": "Created in",
+  "@groupInfoPage_CreatedIn": {
+    "description": "Label when to show group creation date"
+  },
+  "groupInfoPopup_Alert_NoMembers": "Group has no members",
+  "@groupInfoPopup_Alert_NoMembers": {
+    "description": "Alert when no members are in the group"
+  },
   "onboardingPage_Title": "Welcome To CoTask",
   "@onboardingPage_Title": {
     "description": "The title of the onboarding page"
@@ -78,6 +94,26 @@
   "create": "Create",
   "@create": {
     "description": "Generic create action label"
+  },
+  "edit": "Edit",
+  "@edit": {
+    "description": "Generic Edit action label"
+  },
+  "general": "General",
+  "@general": {
+    "description": "Generic General label"
+  },
+  "name": "Name",
+  "@name": {
+    "description": "Generic Name label"
+  },
+  "description": "Description",
+  "@description": {
+    "description": "Generic Description label"
+  },
+  "members": "Members",
+  "@members": {
+    "description": "Generic Members label"
   },
   "moreOptions": "More Options",
   "@moreOptions": {
@@ -250,6 +286,26 @@
   "groupPopup_Error_UserNotFound": "User not found",
   "@groupPopup_Error_UserNotFound": {
     "description": "Error shown when a searched user does not exist"
+  },
+  "settingsPopup_Password_Reset_title": "Password Reset Link",
+  "@settingsPopup_Password_Reset_title": {
+    "description": "Title of the password reset alert"
+  },
+  "settingsPopup_Password_Reset": "A link has been sent to your email to change your password",
+  "@settingsPopup_Password_Reset": {
+    "description": "Alert shown when the password reset email has been sent"
+  },
+  "settingsPopup_Password_NotSent": "Didn’t receive a link?",
+  "@settingsPopup_Password_NotSent": {
+    "description": "Button in the password reset alert that email has not been sent"
+  },
+  "settingsPopup_Password_Resend": "Resend Email",
+  "@settingsPopup_Password_Resend": {
+    "description": "Button in the password reset alert to resend the email"
+  },
+  "settingsPopup_Password_Alert": "Password reset email sent",
+  "@settingsPopup_Password_Alert": {
+    "description": "Alert shown when the password reset email has been sent"
   },
   "notification_Backend_Connected": "Connected to server",
   "@notification_Backend_Connected": {

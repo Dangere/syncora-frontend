@@ -11,7 +11,6 @@ import 'package:syncora_frontend/common/widgets/profile_picture.dart';
 import 'package:syncora_frontend/core/localization/generated/l10n/app_localizations.dart';
 import 'package:syncora_frontend/core/utils/app_error.dart';
 import 'package:syncora_frontend/core/utils/date_utilities.dart';
-import 'package:syncora_frontend/core/utils/error_mapper.dart';
 import 'package:syncora_frontend/core/utils/snack_bar_alerts.dart';
 import 'package:syncora_frontend/features/users/models/user.dart';
 import 'package:syncora_frontend/features/groups/groups_provider.dart';
@@ -43,7 +42,8 @@ class _GroupInfoPageState extends ConsumerState<GroupInfoPage> {
 
   void onMembersEdit() async {
     if (displayedMembers.length <= 1) {
-      SnackBarAlerts.showAlertSnackBar("Group has no members", context);
+      SnackBarAlerts.showAlertSnackBar(
+          AppLocalizations.of(context).groupInfoPopup_Alert_NoMembers, context);
       isEditingMembers = false;
       return;
     }
@@ -76,14 +76,16 @@ class _GroupInfoPageState extends ConsumerState<GroupInfoPage> {
       appBar: AppBar(
         centerTitle: true,
         title: Text(
-            "Group Info${kDebugMode ? " [${widget.groupId.toString()}]" : ""}"),
+            "${AppLocalizations.of(context).groupInfoPage_Title}${kDebugMode ? " [${widget.groupId.toString()}]" : ""}"),
       ),
       body: ref.watch(groupProvider(widget.groupId)).when(
             skipLoadingOnRefresh: true,
             skipLoadingOnReload: true,
             data: (data) {
               if (data == null) {
-                return const Center(child: Text("Group not found"));
+                return Center(
+                    child: Text(
+                        AppLocalizations.of(context).appError_GroupNotFound));
               }
 
               isOwner = ref
@@ -115,7 +117,7 @@ class _GroupInfoPageState extends ConsumerState<GroupInfoPage> {
                             Row(
                               children: [
                                 Text(
-                                  "General",
+                                  AppLocalizations.of(context).general,
                                   style: Theme.of(context)
                                       .textTheme
                                       .titleSmall!
@@ -131,7 +133,8 @@ class _GroupInfoPageState extends ConsumerState<GroupInfoPage> {
                             RichText(
                                 text: TextSpan(children: [
                               TextSpan(
-                                  text: 'Name: ',
+                                  text:
+                                      '${AppLocalizations.of(context).name}: ',
                                   style: Theme.of(context)
                                       .textTheme
                                       .bodyLarge!
@@ -152,13 +155,16 @@ class _GroupInfoPageState extends ConsumerState<GroupInfoPage> {
                             RichText(
                                 text: TextSpan(children: [
                               TextSpan(
-                                  text: 'Description: ',
+                                  text:
+                                      '${AppLocalizations.of(context).description}: ',
                                   style: Theme.of(context)
                                       .textTheme
                                       .bodyLarge!
                                       .copyWith(fontWeight: FontWeight.w600)),
                               TextSpan(
-                                  text: data.description ?? "No description",
+                                  text: data.description ??
+                                      AppLocalizations.of(context)
+                                          .groupInfoPage_NoDescription,
                                   style: Theme.of(context)
                                       .textTheme
                                       .bodyLarge!
@@ -171,7 +177,8 @@ class _GroupInfoPageState extends ConsumerState<GroupInfoPage> {
                                     recognizer: TapGestureRecognizer()
                                       ..onTap = () => onGroupDescriptionEdit(
                                           data.description),
-                                    text: " Edit",
+                                    text:
+                                        " ${AppLocalizations.of(context).edit}",
                                     style: Theme.of(context)
                                         .textTheme
                                         .bodyLarge!
@@ -187,7 +194,8 @@ class _GroupInfoPageState extends ConsumerState<GroupInfoPage> {
                             RichText(
                                 text: TextSpan(children: [
                               TextSpan(
-                                  text: 'Created in: ',
+                                  text:
+                                      '${AppLocalizations.of(context).groupInfoPage_CreatedIn}: ',
                                   style: Theme.of(context)
                                       .textTheme
                                       .bodyLarge!
@@ -240,7 +248,7 @@ class _GroupInfoPageState extends ConsumerState<GroupInfoPage> {
                                     MainAxisAlignment.spaceBetween,
                                 children: [
                                   Text(
-                                    "Members",
+                                    AppLocalizations.of(context).members,
                                     style: Theme.of(context)
                                         .textTheme
                                         .titleSmall!
@@ -255,7 +263,8 @@ class _GroupInfoPageState extends ConsumerState<GroupInfoPage> {
                                       text: TextSpan(
                                           recognizer: TapGestureRecognizer()
                                             ..onTap = () => onMembersEdit(),
-                                          text: "Edit",
+                                          text:
+                                              AppLocalizations.of(context).edit,
                                           style: Theme.of(context)
                                               .textTheme
                                               .bodyLarge!
@@ -316,7 +325,8 @@ class _GroupInfoPageState extends ConsumerState<GroupInfoPage> {
                                               // If its the first element (the owner)
                                               if (index == 0)
                                                 Text(
-                                                  "OWNER",
+                                                  AppLocalizations.of(context)
+                                                      .owner,
                                                   style: Theme.of(context)
                                                       .textTheme
                                                       .bodyMedium!

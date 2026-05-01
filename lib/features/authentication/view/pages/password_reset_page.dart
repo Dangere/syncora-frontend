@@ -41,8 +41,9 @@ class _PasswordResetPageState extends ConsumerState<PasswordResetPage> {
         .read(authProvider.notifier)
         .requestPasswordReset(emailController.text.trim());
 
-    if (result.isSuccess) {
-      SnackBarAlerts.showSuccessSnackBar("Password reset email sent", context);
+    if (result.isSuccess && mounted) {
+      SnackBarAlerts.showSuccessSnackBar(
+          AppLocalizations.of(context).settingsPopup_Password_Alert, context);
     }
 
     if (!mounted) return;
@@ -97,11 +98,13 @@ class _PasswordResetPageState extends ConsumerState<PasswordResetPage> {
                       controller: emailController,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Email cannot be empty';
+                          return AppLocalizations.of(context)
+                              .validation_Email_Empty;
                         }
 
                         if (Validators.validateEmail(value.trim()) == false) {
-                          return 'Invalid email';
+                          return AppLocalizations.of(context)
+                              .validation_Email_Invalid;
                         }
                         return null;
                       },

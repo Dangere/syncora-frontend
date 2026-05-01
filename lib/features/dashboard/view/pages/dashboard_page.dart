@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:sliver_tools/sliver_tools.dart';
 import 'package:syncora_frontend/common/providers/common_providers.dart';
 import 'package:syncora_frontend/common/providers/connection_provider.dart';
 import 'package:syncora_frontend/common/themes/app_spacing.dart';
@@ -95,19 +96,6 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
             intent: AppButtonIntent.warning,
             child: const Icon(Icons.table_bar),
           ),
-          // AppButton(
-          //   width: 80,
-          //   onPressed: () {
-          //     setState(() {
-          //       TEMPPPPPPPPPPPPP = true;
-          //     });
-          //     Tests.populate_groups_and_tasks(ref);
-          //   },
-          //   size: AppButtonSize.mini,
-          //   style: AppButtonStyle.filled,
-          //   intent: AppButtonIntent.warning,
-          //   child: const Icon(Icons.price_change_outlined),
-          // )
         ],
       ),
       body: Stack(
@@ -133,82 +121,57 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                 "assets/images/background_dashboard.png"),
           ),
 
-          Padding(
+          RefreshIndicator(
+            onRefresh: onRefresh,
+            child: Padding(
               padding: const EdgeInsets.only(top: AppSpacing.xl),
-              child: RefreshIndicator(
-                onRefresh: onRefresh,
-                child: CustomScrollView(
-                  clipBehavior: Clip.hardEdge,
-                  slivers: [
-                    SliverPersistentHeader(
-                      delegate: MySliverPersistentHeaderDelegate(
-                          child: Center(
-                              child: Text(
-                                  "Connection is ${ref.watch(isOnlineProvider) ? "online" : "offline"}")),
-                          height: 30),
-                      pinned: true,
-                    ),
-                    // PROFILE AND SETTINGS HEADER
-                    SliverToBoxAdapter(
-                      child: Padding(
-                        padding: AppSpacing.paddingHorizontalLg,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            const SizedBox(
-                              width: 90,
-                              height: 38,
-                              child: Icon(
-                                Icons.logo_dev_outlined,
-                                size: 40,
+              child: CustomScrollView(
+                clipBehavior: Clip.hardEdge,
+                slivers: [
+                  // SliverPersistentHeader(
+                  //   delegate: MySliverPersistentHeaderDelegate(
+                  //       child: Center(
+                  //           child: Text(
+                  //               "Connection is ${ref.watch(isOnlineProvider) ? "online" : "offline"}")),
+                  //       height: 30),
+                  //   pinned: true,
+                  // ),
+                  // PROFILE AND SETTINGS HEADER
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: AppSpacing.paddingHorizontalLg,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const SizedBox(
+                            width: 90,
+                            height: 38,
+                            child: Icon(
+                              Icons.logo_dev_outlined,
+                              size: 40,
+                            ),
+                          ),
+                          Container(
+                            width: 110,
+                            height: 55,
+                            decoration: ShapeDecoration(
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .surfaceContainer
+                                  .withValues(alpha: 0.45),
+                              shape: RoundedRectangleBorder(
+                                side: BorderSide(
+                                    width: 3,
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .surfaceContainer),
+                                borderRadius: BorderRadius.circular(30),
                               ),
                             ),
-                            Container(
-                              width: 110,
-                              height: 55,
-                              decoration: ShapeDecoration(
-                                color: Theme.of(context)
-                                    .colorScheme
-                                    .surfaceContainer
-                                    .withValues(alpha: 0.45),
-                                shape: RoundedRectangleBorder(
-                                  side: BorderSide(
-                                      width: 3,
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .surfaceContainer),
-                                  borderRadius: BorderRadius.circular(30),
-                                ),
-                              ),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  SizedBox.square(
-                                      dimension: 48,
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(2.3),
-                                        child: Container(
-                                          decoration: BoxDecoration(
-                                              color: Theme.of(context)
-                                                  .colorScheme
-                                                  .surfaceContainer,
-                                              shape: BoxShape.circle),
-                                          child: IconButton(
-                                            padding: const EdgeInsets.all(0),
-                                            onPressed: () =>
-                                                context.pushNamed("settings"),
-                                            icon: Icon(
-                                              color: Theme.of(context)
-                                                  .colorScheme
-                                                  .onSurface,
-                                              Icons.settings_outlined,
-                                              size: 30,
-                                            ),
-                                          ),
-                                        ),
-                                      )),
-                                  SizedBox.square(
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                SizedBox.square(
                                     dimension: 48,
                                     child: Padding(
                                       padding: const EdgeInsets.all(2.3),
@@ -216,58 +179,81 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                                         decoration: BoxDecoration(
                                             color: Theme.of(context)
                                                 .colorScheme
-                                                .primary,
+                                                .surfaceContainer,
                                             shape: BoxShape.circle),
                                         child: IconButton(
                                           padding: const EdgeInsets.all(0),
-                                          onPressed: () => context.pushNamed(
-                                              "profile-view",
-                                              pathParameters: {
-                                                "id": userId.toString()
-                                              }),
-                                          icon: ProfilePicture(
-                                            userId: userId,
-                                            radius: 48 / 2,
+                                          onPressed: () =>
+                                              context.pushNamed("settings"),
+                                          icon: Icon(
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .onSurface,
+                                            Icons.settings_outlined,
+                                            size: 30,
                                           ),
                                         ),
                                       ),
+                                    )),
+                                SizedBox.square(
+                                  dimension: 48,
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(2.3),
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .primary,
+                                          shape: BoxShape.circle),
+                                      child: IconButton(
+                                        padding: const EdgeInsets.all(0),
+                                        onPressed: () => context.pushNamed(
+                                            "profile-view",
+                                            pathParameters: {
+                                              "id": userId.toString()
+                                            }),
+                                        icon: ProfilePicture(
+                                          userId: userId,
+                                          radius: 48 / 2,
+                                        ),
+                                      ),
                                     ),
-                                  )
-                                ],
-                              ),
+                                  ),
+                                )
+                              ],
                             ),
-                          ],
-                        ),
-                      ), // disappears on scroll
-                    ),
-                    // GROUPS PROGRESS
-                    SliverToBoxAdapter(
-                      child: Container(
-                        // color: Colors.blue,
-                        child: Padding(
-                            padding: EdgeInsets.only(
-                                top: AppSpacing.paddingVerticalXl.top,
-                                left: AppSpacing.paddingHorizontalLg.left,
-                                right: AppSpacing.paddingHorizontalLg.right),
-                            child: const GroupTotalProgressCard()),
-                      ), // disappears on scroll
-                    ),
+                          ),
+                        ],
+                      ),
+                    ), // disappears on scroll
+                  ),
+                  // GROUPS PROGRESS
+                  SliverToBoxAdapter(
+                    child: Container(
+                      // color: Colors.blue,
+                      child: Padding(
+                          padding: EdgeInsets.only(
+                              top: AppSpacing.paddingVerticalXl.top,
+                              left: AppSpacing.paddingHorizontalLg.left,
+                              right: AppSpacing.paddingHorizontalLg.right),
+                          child: const GroupTotalProgressCard()),
+                    ), // disappears on scroll
+                  ),
 
-                    // SEARCH BAR
-                    SliverPersistentHeader(
-                        delegate: MySliverPersistentHeaderDelegate(
-                            child: const Padding(
-                              padding: AppSpacing.paddingVerticalLg,
-                              child: DashboardSearchBar(),
-                            ),
-                            height: 100),
-                        pinned: true),
+                  // SEARCH BAR
+                  SliverPersistentHeader(
+                      delegate: MySliverPersistentHeaderDelegate(
+                          child: const Padding(
+                            padding: AppSpacing.paddingVerticalLg,
+                            child: DashboardSearchBar(),
+                          ),
+                          height: 100),
+                      pinned: true),
 
-                    // CREATE GROUP BUTTON AND FILTERS
+                  MultiSliver(children: [
                     SliverPersistentHeader(
                         delegate: MySliverPersistentHeaderDelegate(
                             child: Container(
-                              // padding: AppSpacing.paddingVerticalLg,
                               decoration: BoxDecoration(
                                 color: Theme.of(context).colorScheme.surface,
                                 borderRadius: const BorderRadius.only(
@@ -300,7 +286,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                                       ),
                                       // CREATE GROUP
                                       AppButton(
-                                        width: 152,
+                                        width: null,
                                         padding: const EdgeInsets.symmetric(
                                             horizontal: AppSpacing.lg),
                                         // variant: AppButtonVariant.wide,
@@ -314,6 +300,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                                               MainAxisAlignment.spaceBetween,
                                           children: [
                                             const Icon(Icons.add),
+                                            AppSpacing.horizontalSpaceSm,
                                             Text(
                                               AppLocalizations.of(context)
                                                   .dashboardPage_CreateGroup,
@@ -388,12 +375,12 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                             ),
                             height: 130),
                         pinned: true),
-
-                    // GROUPS LIST
-                    const GroupsList()
-                  ],
-                ),
-              ))
+                    const GroupsList(),
+                  ])
+                ],
+              ),
+            ),
+          )
         ],
       ),
     );

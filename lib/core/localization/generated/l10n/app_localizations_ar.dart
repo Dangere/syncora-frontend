@@ -22,13 +22,25 @@ class AppLocalizationsAr extends AppLocalizations {
   String get loginPage_guestPopError_invalid => 'تنسيق اسم المستخدم غير صالح';
 
   @override
-  String get groupsList_Title => 'Groups';
+  String get groupsList_Title => 'المجموعات';
 
   @override
-  String get groupPage_TasksTitle => 'Group Tasks';
+  String get groupPage_TasksTitle => 'مهام المجموعة';
 
   @override
-  String get groupPage_AddTaskButton => 'Add Task';
+  String get groupPage_AddTaskButton => 'إضافة مهمة';
+
+  @override
+  String get groupInfoPage_Title => 'معلومات المجموعة';
+
+  @override
+  String get groupInfoPage_NoDescription => 'لا يوجد وصف';
+
+  @override
+  String get groupInfoPage_CreatedIn => 'تاريخ الإنشاء';
+
+  @override
+  String get groupInfoPopup_Alert_NoMembers => 'لا يوجد أعضاء في المجموعة';
 
   @override
   String get onboardingPage_Title => 'مرحبًا بك في CoTask';
@@ -68,52 +80,67 @@ class AppLocalizationsAr extends AppLocalizations {
   String get logout => 'تسجيل الخروج';
 
   @override
-  String get save => 'Save';
+  String get save => 'حفظ';
 
   @override
-  String get owner => 'Owner';
+  String get owner => 'المالك';
 
   @override
-  String get rename => 'Rename';
+  String get rename => 'إعادة التسمية';
 
   @override
-  String get remove => 'Remove';
+  String get remove => 'إزالة';
 
   @override
-  String get add => 'Add';
+  String get add => 'إضافة';
 
   @override
-  String get create => 'Create';
+  String get create => 'إنشاء';
 
   @override
-  String get moreOptions => 'More Options';
+  String get edit => 'تعديل';
 
   @override
-  String get filter_Completed => 'Completed';
+  String get general => 'عام';
 
   @override
-  String get filter_InProgress => 'In Progress';
+  String get name => 'الاسم';
 
   @override
-  String get filter_Owned => 'Owned';
+  String get description => 'الوصف';
 
   @override
-  String get filter_Shared => 'Shared';
+  String get members => 'الأعضاء';
 
   @override
-  String get filter_Newest => 'Newest';
+  String get moreOptions => 'خيارات إضافية';
 
   @override
-  String get filter_Oldest => 'Oldest';
+  String get filter_Completed => 'مكتملة';
 
   @override
-  String get filter_Pending => 'Pending';
+  String get filter_InProgress => 'قيد التنفيذ';
 
   @override
-  String get filter_Assigned => 'Assigned';
+  String get filter_Owned => 'الخاصة بي';
 
   @override
-  String get filter_All => 'All';
+  String get filter_Shared => 'مشتركة';
+
+  @override
+  String get filter_Newest => 'الأحدث';
+
+  @override
+  String get filter_Oldest => 'الأقدم';
+
+  @override
+  String get filter_Pending => 'جارية';
+
+  @override
+  String get filter_Assigned => 'مُعيَّنة';
+
+  @override
+  String get filter_All => 'الكل';
 
   @override
   String get signInPage_Title => 'تسجيل الدخول إلى حسابك';
@@ -186,303 +213,317 @@ class AppLocalizationsAr extends AppLocalizations {
   String get settingsPage_ChangeMyPassword => 'تغيير كلمة المرور';
 
   @override
-  String get settingsPage_ConfirmLogout => 'Are you sure you want to logout?';
+  String get settingsPage_ConfirmLogout =>
+      'هل أنت متأكد أنك تريد تسجيل الخروج؟';
 
   @override
   String get settingsPage_ConfirmGuestLogout =>
-      'If you log out as a guest your data will be deleted';
+      'إذا خرجت كضيف سيتم حذف بياناتك';
 
   @override
-  String get dashboardPage_MyGroups => 'My Groups';
+  String get dashboardPage_MyGroups => 'مجموعاتي';
 
   @override
-  String get dashboardPage_CreateGroup => 'Create Group';
+  String get dashboardPage_CreateGroup => 'إنشاء مجموعة';
 
   @override
-  String get dashboardPage_SearchGroups => 'Search for a group';
+  String get dashboardPage_SearchGroups => 'البحث عن مجموعة';
 
   @override
-  String get dashboardPage_Monthly_Progress => 'Your Monthly Progress';
+  String get dashboardPage_Monthly_Progress => 'تقدمك الشهري';
 
   @override
-  String get cropImagePage_Title => 'Crop Image';
+  String get cropImagePage_Title => 'قص الصورة';
 
   @override
-  String get cropImagePage_CropButton => 'Crop';
+  String get cropImagePage_CropButton => 'قص';
 
   @override
-  String get profileViewPage_TitleMyProfile => 'My Profile';
+  String get profileViewPage_TitleMyProfile => 'ملفي الشخصي';
 
   @override
-  String get profileViewPage_TitleProfile => 'Profile';
+  String get profileViewPage_TitleProfile => 'الملف الشخصي';
 
   @override
-  String get profileViewPage_MyInfoTitle => 'My Information';
+  String get profileViewPage_MyInfoTitle => 'معلوماتي';
 
   @override
-  String get profileViewPage_InfoTitle => 'Information';
+  String get profileViewPage_InfoTitle => 'المعلومات';
 
   @override
-  String get profileViewPage_ProfileChange => 'Your profile has been updated';
+  String get profileViewPage_ProfileChange => 'تم تحديث ملفك الشخصي';
 
   @override
-  String get image_NoImagePicked => 'No image picked';
+  String get image_NoImagePicked => 'لم يتم اختيار صورة';
 
   @override
-  String get groupPopup_EditTitle => 'Edit Group Title';
+  String get groupPopup_EditTitle => 'تعديل عنوان المجموعة';
 
   @override
-  String get groupPopup_EditDescription => 'Edit Group Description';
+  String get groupPopup_EditDescription => 'تعديل وصف المجموعة';
 
   @override
   String get groupPopup_RemoveUser_Title =>
-      'Are you sure you want to remove this user from the group?';
+      'هل أنت متأكد أنك تريد إزالة هذا المستخدم من المجموعة؟';
 
   @override
-  String get groupPopup_CreateGroup_Title => 'New Group';
+  String get groupPopup_CreateGroup_Title => 'مجموعة جديدة';
 
   @override
-  String get groupPopup_AddMember_Title => 'Add a New Member';
+  String get groupPopup_AddMember_Title => 'إضافة عضو جديد';
 
   @override
-  String get groupPopup_GroupTitle_Label => 'Group Title';
+  String get groupPopup_GroupTitle_Label => 'عنوان المجموعة';
 
   @override
-  String get groupPopup_GroupTitle_Hint => 'Enter the title';
+  String get groupPopup_GroupTitle_Hint => 'أدخل العنوان';
 
   @override
-  String get groupPopup_GroupDescription_Label => 'Group Description';
+  String get groupPopup_GroupDescription_Label => 'وصف المجموعة';
 
   @override
-  String get groupPopup_GroupDescription_Hint => 'Enter the description';
+  String get groupPopup_GroupDescription_Hint => 'أدخل الوصف';
 
   @override
-  String get groupPopup_MoreInfo => 'More Info About This Group';
+  String get groupPopup_MoreInfo => 'مزيد من المعلومات';
 
   @override
-  String get groupPopup_RenameGroup => 'Rename Group';
+  String get groupPopup_RenameGroup => 'إعادة تسمية المجموعة';
 
   @override
   String get groupPopup_DeleteGroup_Confirm =>
-      'Are you sure you want to delete this group?';
+      'هل أنت متأكد أنك تريد حذف هذه المجموعة؟';
 
   @override
-  String get groupPopup_DeleteGroup => 'Delete Group';
+  String get groupPopup_DeleteGroup => 'حذف المجموعة';
 
   @override
-  String get groupPopup_LeaveGroup => 'Leave Group';
+  String get groupPopup_LeaveGroup => 'مغادرة المجموعة';
 
   @override
   String get groupPopup_LeaveGroup_Confirm =>
-      'Are you sure you want to leave this group?';
+      'هل أنت متأكد أنك تريد مغادرة هذه المجموعة؟';
 
   @override
-  String get groupPopup_Alert_NoUsersSelected => 'No users selected';
+  String get groupPopup_Alert_NoUsersSelected => 'لم يتم تحديد أي مستخدمين';
 
   @override
-  String get groupPopup_Alert_CantAddSelf => 'You can\'t add yourself';
+  String get groupPopup_Alert_CantAddSelf => 'لا يمكنك إضافة نفسك';
 
   @override
-  String get groupPopup_Alert_UserAlreadyAdded => 'User already added';
+  String get groupPopup_Alert_UserAlreadyAdded => 'المستخدم مضاف بالفعل';
 
   @override
-  String get groupPopup_Error_UserNotFound => 'User not found';
+  String get groupPopup_Error_UserNotFound => 'المستخدم غير موجود';
 
   @override
-  String get notification_Backend_Connected => 'Connected to server';
+  String get settingsPopup_Password_Reset_title =>
+      'رابط إعادة تعيين كلمة المرور';
 
   @override
-  String get validation_GroupTitle_Empty => 'Empty title';
+  String get settingsPopup_Password_Reset =>
+      'تم إرسال رابط إلى بريدك الإلكتروني لتغيير كلمة المرور';
 
   @override
-  String get validation_GroupTitle_Unchanged => 'Title is not changed';
+  String get settingsPopup_Password_NotSent => 'لم تستلم الرابط؟';
 
   @override
-  String get validation_GroupTitle_Invalid => 'Invalid title';
+  String get settingsPopup_Password_Resend => 'إعادة إرسال البريد';
 
   @override
-  String get validation_GroupTitle_Create_Empty => 'Empty group title';
+  String get settingsPopup_Password_Alert =>
+      'تم إرسال بريد إعادة تعيين كلمة المرور';
 
   @override
-  String get validation_GroupTitle_Create_Invalid => 'Invalid group title';
+  String get notification_Backend_Connected => 'متصل بالخادم';
 
   @override
-  String get validation_GroupDescription_Empty => 'Empty description';
+  String get validation_GroupTitle_Empty => 'العنوان فارغ';
 
   @override
-  String get validation_GroupDescription_Unchanged =>
-      'Description is not changed';
+  String get validation_GroupTitle_Unchanged => 'العنوان لم يتغير';
 
   @override
-  String get validation_GroupDescription_Invalid => 'Invalid description';
+  String get validation_GroupTitle_Invalid => 'عنوان غير صالح';
 
   @override
-  String get validation_GroupDescription_Create_Empty =>
-      'Empty group description';
+  String get validation_GroupTitle_Create_Empty => 'عنوان المجموعة فارغ';
+
+  @override
+  String get validation_GroupTitle_Create_Invalid => 'عنوان المجموعة غير صالح';
+
+  @override
+  String get validation_GroupDescription_Empty => 'الوصف فارغ';
+
+  @override
+  String get validation_GroupDescription_Unchanged => 'الوصف لم يتغير';
+
+  @override
+  String get validation_GroupDescription_Invalid => 'وصف غير صالح';
+
+  @override
+  String get validation_GroupDescription_Create_Empty => 'وصف المجموعة فارغ';
 
   @override
   String get validation_GroupDescription_Create_Invalid =>
-      'Invalid group description';
+      'وصف المجموعة غير صالح';
 
   @override
-  String get validation_Username_Empty => 'Empty username';
+  String get validation_Username_Empty => 'اسم المستخدم فارغ';
 
   @override
-  String get validation_Username_Invalid => 'Invalid username';
+  String get validation_Username_Invalid => 'اسم مستخدم غير صالح';
 
   @override
-  String get validation_Name_Empty => 'Empty Name';
+  String get validation_Name_Empty => 'الاسم فارغ';
 
   @override
-  String get validation_Name_Invalid => 'Invalid Name';
+  String get validation_Name_Invalid => 'اسم غير صالح';
 
   @override
-  String get validation_Email_Empty => 'Empty Email';
+  String get validation_Email_Empty => 'البريد الإلكتروني فارغ';
 
   @override
-  String get validation_Email_Invalid => 'Invalid Email';
+  String get validation_Email_Invalid => 'بريد إلكتروني غير صالح';
 
   @override
-  String get validation_Password_Empty => 'Empty Password';
+  String get validation_Password_Empty => 'كلمة المرور فارغة';
 
   @override
   String get validation_Password_Invalid =>
-      'Invalid Password, Password must be between 6 and 16 characters';
+      'كلمة مرور غير صالحة، يجب أن تكون بين 6 و16 حرفًا';
 
   @override
-  String get validation_Password_Not_Matching => 'Password is not matching';
+  String get validation_Password_Not_Matching => 'كلمتا المرور غير متطابقتين';
 
   @override
-  String get appError_GroupNotFound => 'Group not found';
+  String get appError_GroupNotFound => 'المجموعة غير موجودة';
 
   @override
-  String get appError_GroupDetailsUnchanged => 'Group details are unchanged';
+  String get appError_GroupDetailsUnchanged => 'تفاصيل المجموعة لم تتغير';
 
   @override
-  String get appError_TaskNotFound => 'Task not found';
+  String get appError_TaskNotFound => 'المهمة غير موجودة';
 
   @override
-  String get appError_AccessDenied =>
-      'You don\'t have permission to perform this action';
+  String get appError_AccessDenied => 'ليس لديك صلاحية لتنفيذ هذا الإجراء';
 
   @override
   String get appError_OwnerCannotPerformAction =>
-      'The group owner cannot perform this action';
+      'مالك المجموعة لا يمكنه تنفيذ هذا الإجراء';
 
   @override
   String get appError_SharedUserCannotPerformAction =>
-      'You don\'t have permission to perform this action';
+      'ليس لديك صلاحية لتنفيذ هذا الإجراء';
 
   @override
-  String get appError_UserNotFound => 'User not found';
+  String get appError_UserNotFound => 'المستخدم غير موجود';
 
   @override
-  String get appError_UserAlreadyVerified => 'This account is already verified';
+  String get appError_UserAlreadyVerified => 'هذا الحساب تم التحقق منه بالفعل';
 
   @override
   String get appError_UserNotAssignedToTask =>
-      'This user is not assigned to the task';
+      'هذا المستخدم غير مُعيَّن للمهمة';
 
   @override
-  String get appError_InvalidUrl => 'The provided URL is invalid';
+  String get appError_InvalidUrl => 'الرابط المُدخل غير صالح';
 
   @override
-  String get appError_InvalidCredentials => 'Incorrect email or password';
+  String get appError_InvalidCredentials =>
+      'البريد الإلكتروني أو كلمة المرور غير صحيحة';
 
   @override
   String get appError_EmailAlreadyInUse =>
-      'This email address is already in use';
+      'هذا البريد الإلكتروني مُستخدم بالفعل';
 
   @override
-  String get appError_UsernameAlreadyInUse => 'This username is already taken';
+  String get appError_UsernameAlreadyInUse => 'اسم المستخدم هذا محجوز بالفعل';
 
   @override
   String get appError_CredentialsAlreadyInUse =>
-      'These credentials are already associated with an account';
+      'هذه البيانات مرتبطة بحساب موجود بالفعل';
 
   @override
   String get appError_InvalidToken =>
-      'This link has expired or is no longer valid';
+      'انتهت صلاحية هذا الرابط أو لم يعد صالحًا';
 
   @override
   String get appError_InvalidGoogleToken =>
-      'Google sign-in failed. Please try again';
+      'فشل تسجيل الدخول بـ Google. يرجى المحاولة مجددًا';
 
   @override
   String get appError_UserAlreadyGranted =>
-      'This user is already a member of the group';
+      'هذا المستخدم عضو في المجموعة بالفعل';
 
   @override
   String get appError_UserAlreadyRevoked =>
-      'This user is not a member of the group';
+      'هذا المستخدم ليس عضوًا في المجموعة';
 
   @override
-  String get appError_NoUsernamesProvided => 'No usernames were provided';
+  String get appError_NoUsernamesProvided => 'لم يتم تقديم أي أسماء مستخدمين';
 
   @override
   String get appError_InternalError =>
-      'Something went wrong. Please try again later';
+      'حدث خطأ ما. يرجى المحاولة مجددًا لاحقًا';
 
   @override
   String get appError_EmailSendFailed =>
-      'We couldn\'t send the email. Please try again later';
+      'تعذّر إرسال البريد الإلكتروني. يرجى المحاولة مجددًا لاحقًا';
 
   @override
-  String get appError_NoFilePicked => 'No file was selected';
+  String get appError_NoFilePicked => 'لم يتم اختيار أي ملف';
 
   @override
-  String get appError_SessionExpired =>
-      'Your session has ended. Please log in again';
+  String get appError_SessionExpired => 'انتهت جلستك. يرجى تسجيل الدخول مجددًا';
 
   @override
   String get appError_OfflineAccessDenied =>
-      'You must be online to perform this action';
+      'يجب أن تكون متصلًا بالإنترنت لتنفيذ هذا الإجراء';
 
   @override
-  String get appError_Unknown =>
-      'An unexpected error occurred. Please try again';
+  String get appError_Unknown => 'حدث خطأ غير متوقع. يرجى المحاولة مجددًا';
 
   @override
   String get appError_Dio_ConnectionTimeout =>
-      'Connection timed out. Please check your internet and try again';
+      'انتهت مهلة الاتصال. يرجى التحقق من اتصالك بالإنترنت والمحاولة مجددًا';
 
   @override
-  String get appError_Dio_SendTimeout =>
-      'Failed to send your request. Please try again';
+  String get appError_Dio_SendTimeout => 'فشل إرسال طلبك. يرجى المحاولة مجددًا';
 
   @override
   String get appError_Dio_ReceiveTimeout =>
-      'The server is taking too long to respond. Please try again later';
+      'الخادم يستغرق وقتًا طويلًا للرد. يرجى المحاولة مجددًا لاحقًا';
 
   @override
   String get appError_Dio_BadCertificate =>
-      'Unable to verify the server. Please try again on a secure network';
+      'تعذّر التحقق من الخادم. يرجى المحاولة على شبكة آمنة';
 
   @override
   String get appError_Dio_RequestCancelled =>
-      'Request was cancelled. Please try again';
+      'تم إلغاء الطلب. يرجى المحاولة مجددًا';
 
   @override
   String get appError_Dio_ConnectionError =>
-      'Unable to reach the server. Please check your connection';
+      'تعذّر الوصول إلى الخادم. يرجى التحقق من اتصالك';
 
   @override
   String get appError_HTTP_BadRequest =>
-      'Your request could not be processed. Please try again';
+      'تعذّر معالجة طلبك. يرجى المحاولة مجددًا';
 
   @override
   String get appError_HTTP_ResourceNotFound =>
-      'The requested resource could not be found';
+      'تعذّر العثور على المورد المطلوب';
 
   @override
   String get appError_HTTP_RequestTimeout =>
-      'The request timed out. Please try again';
+      'انتهت مهلة الطلب. يرجى المحاولة مجددًا';
 
   @override
   String get appError_HTTP_UnprocessableData =>
-      'The submitted data is invalid. Please check your input and try again';
+      'البيانات المُرسلة غير صالحة. يرجى مراجعة مدخلاتك والمحاولة مجددًا';
 
   @override
   String get appError_HTTP_TooManyRequests =>
-      'Too many requests. Please wait a moment and try again';
+      'طلبات كثيرة جدًا. يرجى الانتظار قليلًا والمحاولة مجددًا';
 }

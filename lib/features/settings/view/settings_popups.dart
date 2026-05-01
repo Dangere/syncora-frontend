@@ -13,7 +13,7 @@ class SettingsPopups {
     Dialogs.showContentDialog(context,
         barrierDismissible: true,
         blurBackground: false,
-        title: "Password Reset Link",
+        title: AppLocalizations.of(context).settingsPopup_Password_Reset_title,
         content: const PasswordResetPopup());
   }
 }
@@ -54,7 +54,8 @@ class _PasswordResetPopupState extends ConsumerState<PasswordResetPopup> {
         await ref.read(authProvider.notifier).requestPasswordReset(email);
 
     if (result.isSuccess && mounted) {
-      SnackBarAlerts.showSuccessSnackBar("Password reset email sent", context);
+      SnackBarAlerts.showSuccessSnackBar(
+          AppLocalizations.of(context).settingsPopup_Password_Alert, context);
     }
   }
 
@@ -70,7 +71,7 @@ class _PasswordResetPopupState extends ConsumerState<PasswordResetPopup> {
         const SizedBox(
           height: 12,
         ),
-        Text("A link has been sent to your email to change your password",
+        Text(AppLocalizations.of(context).settingsPopup_Password_Reset,
             textAlign: TextAlign.center,
             style:
                 Theme.of(context).textTheme.titleSmall!.copyWith(fontSize: 18)),
@@ -78,7 +79,7 @@ class _PasswordResetPopupState extends ConsumerState<PasswordResetPopup> {
           height: 27,
         ),
         Text(
-          "Didn’t receive a link?",
+          AppLocalizations.of(context).settingsPopup_Password_NotSent,
           style: Theme.of(context).textTheme.bodyMedium!.copyWith(
               fontWeight: FontWeight.w500,
               color: Theme.of(context).colorScheme.outline),
@@ -93,7 +94,8 @@ class _PasswordResetPopupState extends ConsumerState<PasswordResetPopup> {
                   child: GestureDetector(
                     onTap: sendEmail,
                     child: Text(
-                      "Resend Email",
+                      AppLocalizations.of(context)
+                          .settingsPopup_Password_Resend,
                       style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                           color: Theme.of(context).colorScheme.primary),
                     ),

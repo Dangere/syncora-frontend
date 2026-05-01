@@ -15,9 +15,33 @@
     "@loginPage_guestPopError_invalid": {
         "description": "خطأ عند إدخال اسم مستخدم غير صالح"
     },
-    "groupsFrontPageTitle": "المجموعات",
-    "@groupsFrontPageTitle": {
+    "groupsList_Title": "المجموعات",
+    "@groupsList_Title": {
         "description": "عنوان صفحة المجموعات الرئيسية"
+    },
+    "groupPage_TasksTitle": "مهام المجموعة",
+    "@groupPage_TasksTitle": {
+        "description": "عنوان مهام صفحة المجموعة"
+    },
+    "groupPage_AddTaskButton": "إضافة مهمة",
+    "@groupPage_AddTaskButton": {
+        "description": "زر إضافة مهمة"
+    },
+    "groupInfoPage_Title": "معلومات المجموعة",
+    "@groupInfoPage_Title": {
+        "description": "عنوان صفحة معلومات المجموعة"
+    },
+    "groupInfoPage_NoDescription": "لا يوجد وصف",
+    "@groupInfoPage_NoDescription": {
+        "description": "تسمية تظهر عند عدم وجود وصف للمجموعة"
+    },
+    "groupInfoPage_CreatedIn": "تاريخ الإنشاء",
+    "@groupInfoPage_CreatedIn": {
+        "description": "تسمية لعرض تاريخ إنشاء المجموعة"
+    },
+    "groupInfoPopup_Alert_NoMembers": "لا يوجد أعضاء في المجموعة",
+    "@groupInfoPopup_Alert_NoMembers": {
+        "description": "تنبيه عند عدم وجود أعضاء في المجموعة"
     },
     "onboardingPage_Title": "مرحبًا بك في CoTask",
     "@onboardingPage_Title": {
@@ -38,7 +62,9 @@
     "signUp": "إنشاء حساب",
     "@signUp": {},
     "confirm": "تأكيد",
-    "@confirm": {},
+    "@confirm": {
+        "description": "تسمية إجراء التأكيد العامة"
+    },
     "tasks": "المهام",
     "@tasks": {},
     "language": "اللغة",
@@ -47,6 +73,70 @@
     "@darkMode": {},
     "logout": "تسجيل الخروج",
     "@logout": {},
+    "save": "حفظ",
+    "@save": {
+        "description": "تسمية إجراء الحفظ العامة"
+    },
+    "owner": "المالك",
+    "@owner": {},
+    "rename": "إعادة التسمية",
+    "@rename": {
+        "description": "تسمية إجراء إعادة التسمية العامة"
+    },
+    "remove": "إزالة",
+    "@remove": {
+        "description": "تسمية إجراء الإزالة العامة"
+    },
+    "add": "إضافة",
+    "@add": {
+        "description": "تسمية إجراء الإضافة العامة"
+    },
+    "create": "إنشاء",
+    "@create": {
+        "description": "تسمية إجراء الإنشاء العامة"
+    },
+    "edit": "تعديل",
+    "@edit": {
+        "description": "تسمية إجراء التعديل العامة"
+    },
+    "general": "عام",
+    "@general": {
+        "description": "تسمية عامة"
+    },
+    "name": "الاسم",
+    "@name": {
+        "description": "تسمية الاسم العامة"
+    },
+    "description": "الوصف",
+    "@description": {
+        "description": "تسمية الوصف العامة"
+    },
+    "members": "الأعضاء",
+    "@members": {
+        "description": "تسمية الأعضاء العامة"
+    },
+    "moreOptions": "خيارات إضافية",
+    "@moreOptions": {
+        "description": "تسمية الخيارات الإضافية العامة"
+    },
+    "filter_Completed": "مكتملة",
+    "@filter_Completed": {},
+    "filter_InProgress": "قيد التنفيذ",
+    "@filter_InProgress": {},
+    "filter_Owned": "الخاصة بي",
+    "@filter_Owned": {},
+    "filter_Shared": "مشتركة",
+    "@filter_Shared": {},
+    "filter_Newest": "الأحدث",
+    "@filter_Newest": {},
+    "filter_Oldest": "الأقدم",
+    "@filter_Oldest": {},
+    "filter_Pending": "جارية",
+    "@filter_Pending": {},
+    "filter_Assigned": "مُعيَّنة",
+    "@filter_Assigned": {},
+    "filter_All": "الكل",
+    "@filter_All": {},
     "signInPage_Title": "تسجيل الدخول إلى حسابك",
     "@signInPage_Title": {},
     "email": "البريد الإلكتروني",
@@ -92,5 +182,353 @@
     "settingsPage_Title": "الإعدادات",
     "@settingsPage_Title": {},
     "settingsPage_ChangeMyPassword": "تغيير كلمة المرور",
-    "@settingsPage_ChangeMyPassword": {}
+    "@settingsPage_ChangeMyPassword": {},
+    "settingsPage_ConfirmLogout": "هل أنت متأكد أنك تريد تسجيل الخروج؟",
+    "@settingsPage_ConfirmLogout": {},
+    "settingsPage_ConfirmGuestLogout": "إذا خرجت كضيف سيتم حذف بياناتك",
+    "@settingsPage_ConfirmGuestLogout": {},
+    "dashboardPage_MyGroups": "مجموعاتي",
+    "@dashboardPage_MyGroups": {},
+    "dashboardPage_CreateGroup": "إنشاء مجموعة",
+    "@dashboardPage_CreateGroup": {},
+    "dashboardPage_SearchGroups": "البحث عن مجموعة",
+    "@dashboardPage_SearchGroups": {},
+    "dashboardPage_Monthly_Progress": "تقدمك الشهري",
+    "@dashboardPage_Monthly_Progress": {},
+    "cropImagePage_Title": "قص الصورة",
+    "@cropImagePage_Title": {},
+    "cropImagePage_CropButton": "قص",
+    "@cropImagePage_CropButton": {},
+    "profileViewPage_TitleMyProfile": "ملفي الشخصي",
+    "@profileViewPage_TitleMyProfile": {},
+    "profileViewPage_TitleProfile": "الملف الشخصي",
+    "@profileViewPage_TitleProfile": {},
+    "profileViewPage_MyInfoTitle": "معلوماتي",
+    "@profileViewPage_MyInfoTitle": {},
+    "profileViewPage_InfoTitle": "المعلومات",
+    "@profileViewPage_InfoTitle": {},
+    "profileViewPage_ProfileChange": "تم تحديث ملفك الشخصي",
+    "@profileViewPage_ProfileChange": {},
+    "image_NoImagePicked": "لم يتم اختيار صورة",
+    "@image_NoImagePicked": {},
+    "groupPopup_EditTitle": "تعديل عنوان المجموعة",
+    "@groupPopup_EditTitle": {
+        "description": "عنوان نافذة تعديل عنوان المجموعة"
+    },
+    "groupPopup_EditDescription": "تعديل وصف المجموعة",
+    "@groupPopup_EditDescription": {
+        "description": "عنوان نافذة تعديل وصف المجموعة"
+    },
+    "groupPopup_RemoveUser_Title": "هل أنت متأكد أنك تريد إزالة هذا المستخدم من المجموعة؟",
+    "@groupPopup_RemoveUser_Title": {
+        "description": "عنوان نافذة تأكيد إزالة مستخدم من المجموعة"
+    },
+    "groupPopup_CreateGroup_Title": "مجموعة جديدة",
+    "@groupPopup_CreateGroup_Title": {
+        "description": "عنوان نافذة إنشاء مجموعة جديدة"
+    },
+    "groupPopup_AddMember_Title": "إضافة عضو جديد",
+    "@groupPopup_AddMember_Title": {
+        "description": "عنوان نافذة إضافة عضو جديد إلى المجموعة"
+    },
+    "groupPopup_GroupTitle_Label": "عنوان المجموعة",
+    "@groupPopup_GroupTitle_Label": {
+        "description": "تسمية حقل إدخال عنوان المجموعة"
+    },
+    "groupPopup_GroupTitle_Hint": "أدخل العنوان",
+    "@groupPopup_GroupTitle_Hint": {
+        "description": "نص تلميح حقل إدخال عنوان المجموعة"
+    },
+    "groupPopup_GroupDescription_Label": "وصف المجموعة",
+    "@groupPopup_GroupDescription_Label": {
+        "description": "تسمية حقل إدخال وصف المجموعة"
+    },
+    "groupPopup_GroupDescription_Hint": "أدخل الوصف",
+    "@groupPopup_GroupDescription_Hint": {
+        "description": "نص تلميح حقل إدخال وصف المجموعة"
+    },
+    "groupPopup_MoreInfo": "مزيد من المعلومات",
+    "@groupPopup_MoreInfo": {
+        "description": "تسمية زر عرض مزيد من المعلومات عن المجموعة"
+    },
+    "groupPopup_RenameGroup": "إعادة تسمية المجموعة",
+    "@groupPopup_RenameGroup": {
+        "description": "تسمية زر إعادة تسمية المجموعة"
+    },
+    "groupPopup_DeleteGroup_Confirm": "هل أنت متأكد أنك تريد حذف هذه المجموعة؟",
+    "@groupPopup_DeleteGroup_Confirm": {
+        "description": "رسالة تأكيد حذف المجموعة (تظهر للمالك)"
+    },
+    "groupPopup_DeleteGroup": "حذف المجموعة",
+    "@groupPopup_DeleteGroup": {
+        "description": "تسمية زر حذف المجموعة (تظهر للمالك)"
+    },
+    "groupPopup_LeaveGroup": "مغادرة المجموعة",
+    "@groupPopup_LeaveGroup": {
+        "description": "تسمية زر مغادرة المجموعة (تظهر لغير المالك)"
+    },
+    "groupPopup_LeaveGroup_Confirm": "هل أنت متأكد أنك تريد مغادرة هذه المجموعة؟",
+    "@groupPopup_LeaveGroup_Confirm": {
+        "description": "رسالة تأكيد مغادرة المجموعة (تظهر لغير المالك)"
+    },
+    "groupPopup_Alert_NoUsersSelected": "لم يتم تحديد أي مستخدمين",
+    "@groupPopup_Alert_NoUsersSelected": {
+        "description": "تنبيه يظهر عند التأكيد دون تحديد مستخدمين"
+    },
+    "groupPopup_Alert_CantAddSelf": "لا يمكنك إضافة نفسك",
+    "@groupPopup_Alert_CantAddSelf": {
+        "description": "تنبيه يظهر عند محاولة المستخدم إضافة نفسه"
+    },
+    "groupPopup_Alert_UserAlreadyAdded": "المستخدم مضاف بالفعل",
+    "@groupPopup_Alert_UserAlreadyAdded": {
+        "description": "تنبيه يظهر عند محاولة إضافة مستخدم موجود بالفعل"
+    },
+    "groupPopup_Error_UserNotFound": "المستخدم غير موجود",
+    "@groupPopup_Error_UserNotFound": {
+        "description": "خطأ يظهر عند عدم العثور على المستخدم المبحوث عنه"
+    },
+    "settingsPopup_Password_Reset_title": "رابط إعادة تعيين كلمة المرور",
+    "@settingsPopup_Password_Reset_title": {
+        "description": "عنوان تنبيه إعادة تعيين كلمة المرور"
+    },
+    "settingsPopup_Password_Reset": "تم إرسال رابط إلى بريدك الإلكتروني لتغيير كلمة المرور",
+    "@settingsPopup_Password_Reset": {
+        "description": "تنبيه يظهر عند إرسال بريد إعادة تعيين كلمة المرور"
+    },
+    "settingsPopup_Password_NotSent": "لم تستلم الرابط؟",
+    "@settingsPopup_Password_NotSent": {
+        "description": "زر في تنبيه إعادة التعيين عند عدم استلام البريد"
+    },
+    "settingsPopup_Password_Resend": "إعادة إرسال البريد",
+    "@settingsPopup_Password_Resend": {
+        "description": "زر في تنبيه إعادة التعيين لإعادة إرسال البريد"
+    },
+    "settingsPopup_Password_Alert": "تم إرسال بريد إعادة تعيين كلمة المرور",
+    "@settingsPopup_Password_Alert": {
+        "description": "تنبيه يظهر عند إرسال بريد إعادة تعيين كلمة المرور"
+    },
+    "notification_Backend_Connected": "متصل بالخادم",
+    "@notification_Backend_Connected": {
+        "description": "إشعار يظهر عند اتصال العميل بالخادم عبر SignalR"
+    },
+    "validation_GroupTitle_Empty": "العنوان فارغ",
+    "@validation_GroupTitle_Empty": {
+        "description": "خطأ التحقق عند ترك حقل عنوان المجموعة فارغًا"
+    },
+    "validation_GroupTitle_Unchanged": "العنوان لم يتغير",
+    "@validation_GroupTitle_Unchanged": {
+        "description": "خطأ التحقق عند تطابق العنوان الجديد مع القديم"
+    },
+    "validation_GroupTitle_Invalid": "عنوان غير صالح",
+    "@validation_GroupTitle_Invalid": {
+        "description": "خطأ التحقق عند إدخال عنوان مجموعة بتنسيق غير صالح"
+    },
+    "validation_GroupTitle_Create_Empty": "عنوان المجموعة فارغ",
+    "@validation_GroupTitle_Create_Empty": {
+        "description": "خطأ التحقق عند ترك عنوان المجموعة فارغًا أثناء الإنشاء"
+    },
+    "validation_GroupTitle_Create_Invalid": "عنوان المجموعة غير صالح",
+    "@validation_GroupTitle_Create_Invalid": {
+        "description": "خطأ التحقق عند إدخال عنوان مجموعة بتنسيق غير صالح أثناء الإنشاء"
+    },
+    "validation_GroupDescription_Empty": "الوصف فارغ",
+    "@validation_GroupDescription_Empty": {
+        "description": "خطأ التحقق عند ترك حقل وصف المجموعة فارغًا"
+    },
+    "validation_GroupDescription_Unchanged": "الوصف لم يتغير",
+    "@validation_GroupDescription_Unchanged": {
+        "description": "خطأ التحقق عند تطابق الوصف الجديد مع القديم"
+    },
+    "validation_GroupDescription_Invalid": "وصف غير صالح",
+    "@validation_GroupDescription_Invalid": {
+        "description": "خطأ التحقق عند إدخال وصف مجموعة بتنسيق غير صالح"
+    },
+    "validation_GroupDescription_Create_Empty": "وصف المجموعة فارغ",
+    "@validation_GroupDescription_Create_Empty": {
+        "description": "خطأ التحقق عند ترك وصف المجموعة فارغًا أثناء الإنشاء"
+    },
+    "validation_GroupDescription_Create_Invalid": "وصف المجموعة غير صالح",
+    "@validation_GroupDescription_Create_Invalid": {
+        "description": "خطأ التحقق عند إدخال وصف مجموعة بتنسيق غير صالح أثناء الإنشاء"
+    },
+    "validation_Username_Empty": "اسم المستخدم فارغ",
+    "@validation_Username_Empty": {
+        "description": "خطأ التحقق عند ترك حقل اسم المستخدم فارغًا"
+    },
+    "validation_Username_Invalid": "اسم مستخدم غير صالح",
+    "@validation_Username_Invalid": {
+        "description": "خطأ التحقق عند إدخال اسم مستخدم بتنسيق غير صالح"
+    },
+    "validation_Name_Empty": "الاسم فارغ",
+    "@validation_Name_Empty": {
+        "description": "خطأ التحقق عند ترك حقل الاسم فارغًا"
+    },
+    "validation_Name_Invalid": "اسم غير صالح",
+    "@validation_Name_Invalid": {
+        "description": "خطأ التحقق عند إدخال اسم بتنسيق غير صالح"
+    },
+    "validation_Email_Empty": "البريد الإلكتروني فارغ",
+    "@validation_Email_Empty": {
+        "description": "خطأ التحقق عند ترك حقل البريد الإلكتروني فارغًا"
+    },
+    "validation_Email_Invalid": "بريد إلكتروني غير صالح",
+    "@validation_Email_Invalid": {
+        "description": "خطأ التحقق عند إدخال بريد إلكتروني بتنسيق غير صالح"
+    },
+    "validation_Password_Empty": "كلمة المرور فارغة",
+    "@validation_Password_Empty": {
+        "description": "خطأ التحقق عند ترك حقل كلمة المرور فارغًا"
+    },
+    "validation_Password_Invalid": "كلمة مرور غير صالحة، يجب أن تكون بين 6 و16 حرفًا",
+    "@validation_Password_Invalid": {
+        "description": "خطأ التحقق عند إدخال كلمة مرور بتنسيق غير صالح"
+    },
+    "validation_Password_Not_Matching": "كلمتا المرور غير متطابقتين",
+    "@validation_Password_Not_Matching": {
+        "description": "خطأ التحقق عند عدم تطابق كلمتي المرور"
+    },
+    "appError_GroupNotFound": "المجموعة غير موجودة",
+    "@appError_GroupNotFound": {
+        "description": "خطأ عند عدم وجود المجموعة المطلوبة"
+    },
+    "appError_GroupDetailsUnchanged": "تفاصيل المجموعة لم تتغير",
+    "@appError_GroupDetailsUnchanged": {
+        "description": "خطأ عند تطابق تفاصيل المجموعة المُرسلة مع الموجودة"
+    },
+    "appError_TaskNotFound": "المهمة غير موجودة",
+    "@appError_TaskNotFound": {
+        "description": "خطأ عند عدم وجود المهمة المطلوبة"
+    },
+    "appError_AccessDenied": "ليس لديك صلاحية لتنفيذ هذا الإجراء",
+    "@appError_AccessDenied": {
+        "description": "خطأ عند افتقار المستخدم للصلاحية اللازمة"
+    },
+    "appError_OwnerCannotPerformAction": "مالك المجموعة لا يمكنه تنفيذ هذا الإجراء",
+    "@appError_OwnerCannotPerformAction": {
+        "description": "خطأ عند محاولة المالك تنفيذ إجراء محظور عليه تحديدًا"
+    },
+    "appError_SharedUserCannotPerformAction": "ليس لديك صلاحية لتنفيذ هذا الإجراء",
+    "@appError_SharedUserCannotPerformAction": {
+        "description": "خطأ عند محاولة عضو غير مالك تنفيذ إجراء محظور عليه"
+    },
+    "appError_UserNotFound": "المستخدم غير موجود",
+    "@appError_UserNotFound": {
+        "description": "خطأ عند عدم وجود المستخدم المطلوب"
+    },
+    "appError_UserAlreadyVerified": "هذا الحساب تم التحقق منه بالفعل",
+    "@appError_UserAlreadyVerified": {
+        "description": "خطأ عند محاولة التحقق من حساب محقق مسبقًا"
+    },
+    "appError_UserNotAssignedToTask": "هذا المستخدم غير مُعيَّن للمهمة",
+    "@appError_UserNotAssignedToTask": {
+        "description": "خطأ عند تنفيذ إجراء يتطلب تعيين المستخدم للمهمة وهو غير مُعيَّن"
+    },
+    "appError_InvalidUrl": "الرابط المُدخل غير صالح",
+    "@appError_InvalidUrl": {
+        "description": "خطأ عند فشل التحقق من الرابط المُرسل"
+    },
+    "appError_InvalidCredentials": "البريد الإلكتروني أو كلمة المرور غير صحيحة",
+    "@appError_InvalidCredentials": {
+        "description": "خطأ عند عدم تطابق بيانات الدخول مع أي حساب"
+    },
+    "appError_EmailAlreadyInUse": "هذا البريد الإلكتروني مُستخدم بالفعل",
+    "@appError_EmailAlreadyInUse": {
+        "description": "خطأ عند محاولة التسجيل ببريد إلكتروني موجود مسبقًا"
+    },
+    "appError_UsernameAlreadyInUse": "اسم المستخدم هذا محجوز بالفعل",
+    "@appError_UsernameAlreadyInUse": {
+        "description": "خطأ عند محاولة التسجيل باسم مستخدم موجود مسبقًا"
+    },
+    "appError_CredentialsAlreadyInUse": "هذه البيانات مرتبطة بحساب موجود بالفعل",
+    "@appError_CredentialsAlreadyInUse": {
+        "description": "خطأ عند استخدام بريد إلكتروني واسم مستخدم مُستخدمَين معًا"
+    },
+    "appError_InvalidToken": "انتهت صلاحية هذا الرابط أو لم يعد صالحًا",
+    "@appError_InvalidToken": {
+        "description": "خطأ عند انتهاء صلاحية رمز التحديث أو التحقق أو إعادة تعيين كلمة المرور"
+    },
+    "appError_InvalidGoogleToken": "فشل تسجيل الدخول بـ Google. يرجى المحاولة مجددًا",
+    "@appError_InvalidGoogleToken": {
+        "description": "خطأ عند فشل التحقق من رمز JWT الخاص بـ Google"
+    },
+    "appError_UserAlreadyGranted": "هذا المستخدم عضو في المجموعة بالفعل",
+    "@appError_UserAlreadyGranted": {
+        "description": "خطأ عند محاولة إضافة مستخدم موجود في المجموعة"
+    },
+    "appError_UserAlreadyRevoked": "هذا المستخدم ليس عضوًا في المجموعة",
+    "@appError_UserAlreadyRevoked": {
+        "description": "خطأ عند محاولة إزالة مستخدم غير موجود في المجموعة"
+    },
+    "appError_NoUsernamesProvided": "لم يتم تقديم أي أسماء مستخدمين",
+    "@appError_NoUsernamesProvided": {
+        "description": "خطأ عند إرسال طلب إدارة أعضاء بقائمة أسماء مستخدمين فارغة"
+    },
+    "appError_InternalError": "حدث خطأ ما. يرجى المحاولة مجددًا لاحقًا",
+    "@appError_InternalError": {
+        "description": "رسالة خطأ عامة من جانب الخادم"
+    },
+    "appError_EmailSendFailed": "تعذّر إرسال البريد الإلكتروني. يرجى المحاولة مجددًا لاحقًا",
+    "@appError_EmailSendFailed": {
+        "description": "خطأ عند فشل الخادم في إرسال البريد الإلكتروني"
+    },
+    "appError_NoFilePicked": "لم يتم اختيار أي ملف",
+    "@appError_NoFilePicked": {
+        "description": "خطأ عند عدم اختيار ملف للرفع"
+    },
+    "appError_SessionExpired": "انتهت جلستك. يرجى تسجيل الدخول مجددًا",
+    "@appError_SessionExpired": {
+        "description": "خطأ عند انتهاء صلاحية جلسة المستخدم"
+    },
+    "appError_OfflineAccessDenied": "يجب أن تكون متصلًا بالإنترنت لتنفيذ هذا الإجراء",
+    "@appError_OfflineAccessDenied": {
+        "description": "خطأ عند محاولة المستخدم تنفيذ إجراء أثناء عدم الاتصال"
+    },
+    "appError_Unknown": "حدث خطأ غير متوقع. يرجى المحاولة مجددًا",
+    "@appError_Unknown": {
+        "description": "خطأ احتياطي لرموز خطأ غير معروفة أو غير مُعيَّنة"
+    },
+    "appError_Dio_ConnectionTimeout": "انتهت مهلة الاتصال. يرجى التحقق من اتصالك بالإنترنت والمحاولة مجددًا",
+    "@appError_Dio_ConnectionTimeout": {
+        "description": "خطأ عند فشل الطلب بسبب انتهاء مهلة الاتصال"
+    },
+    "appError_Dio_SendTimeout": "فشل إرسال طلبك. يرجى المحاولة مجددًا",
+    "@appError_Dio_SendTimeout": {
+        "description": "خطأ عند فشل الطلب بسبب انتهاء مهلة الإرسال"
+    },
+    "appError_Dio_ReceiveTimeout": "الخادم يستغرق وقتًا طويلًا للرد. يرجى المحاولة مجددًا لاحقًا",
+    "@appError_Dio_ReceiveTimeout": {
+        "description": "خطأ عند فشل الطلب بسبب انتهاء مهلة الاستقبال"
+    },
+    "appError_Dio_BadCertificate": "تعذّر التحقق من الخادم. يرجى المحاولة على شبكة آمنة",
+    "@appError_Dio_BadCertificate": {
+        "description": "خطأ عند فشل التحقق من شهادة SSL/TLS"
+    },
+    "appError_Dio_RequestCancelled": "تم إلغاء الطلب. يرجى المحاولة مجددًا",
+    "@appError_Dio_RequestCancelled": {
+        "description": "خطأ عند إلغاء الطلب صراحةً"
+    },
+    "appError_Dio_ConnectionError": "تعذّر الوصول إلى الخادم. يرجى التحقق من اتصالك",
+    "@appError_Dio_ConnectionError": {
+        "description": "خطأ عند حدوث فشل في الاتصال على مستوى الشبكة"
+    },
+    "appError_HTTP_BadRequest": "تعذّر معالجة طلبك. يرجى المحاولة مجددًا",
+    "@appError_HTTP_BadRequest": {
+        "description": "خطأ عند عدم قدرة الخادم على فهم الطلب أو معالجته (HTTP 400)"
+    },
+    "appError_HTTP_ResourceNotFound": "تعذّر العثور على المورد المطلوب",
+    "@appError_HTTP_ResourceNotFound": {
+        "description": "خطأ عند عدم وجود المورد المطلوب (HTTP 404)"
+    },
+    "appError_HTTP_RequestTimeout": "انتهت مهلة الطلب. يرجى المحاولة مجددًا",
+    "@appError_HTTP_RequestTimeout": {
+        "description": "خطأ عند انتهاء مهلة الخادم في انتظار الطلب (HTTP 408)"
+    },
+    "appError_HTTP_UnprocessableData": "البيانات المُرسلة غير صالحة. يرجى مراجعة مدخلاتك والمحاولة مجددًا",
+    "@appError_HTTP_UnprocessableData": {
+        "description": "خطأ عند عدم قدرة الخادم على معالجة البيانات المُرسلة (HTTP 422)"
+    },
+    "appError_HTTP_TooManyRequests": "طلبات كثيرة جدًا. يرجى الانتظار قليلًا والمحاولة مجددًا",
+    "@appError_HTTP_TooManyRequests": {
+        "description": "خطأ عند تجاوز العميل حد معدل الطلبات المسموح به (HTTP 429)"
+    }
 }

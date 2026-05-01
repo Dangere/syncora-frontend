@@ -217,27 +217,29 @@ class GroupPageState extends ConsumerState<GroupPage> {
                                       if (isOwner)
                                         // CREATE TASK
                                         AppButton(
-                                            width: 120,
-                                            padding: const EdgeInsets.symmetric(
-                                                horizontal: AppSpacing.lg),
-                                            // variant: AppButtonVariant.wide,
-                                            onPressed: createTaskPopup,
-                                            size: AppButtonSize.mini,
-                                            style: AppButtonStyle.filled,
-                                            intent: AppButtonIntent.primary,
-                                            fontSize: 16,
-                                            child: Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment
-                                                      .spaceBetween,
-                                              children: [
-                                                Icon(Icons.add),
-                                                Text(
-                                                  AppLocalizations.of(context)
-                                                      .groupPage_AddTaskButton,
-                                                ),
-                                              ],
-                                            )),
+                                          width: null,
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: AppSpacing.lg),
+                                          // variant: AppButtonVariant.wide,
+                                          onPressed: createTaskPopup,
+                                          size: AppButtonSize.mini,
+                                          style: AppButtonStyle.filled,
+                                          intent: AppButtonIntent.primary,
+                                          fontSize: 16,
+                                          child: Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              const Icon(Icons.add),
+                                              AppSpacing.horizontalSpaceSm,
+                                              Text(
+                                                AppLocalizations.of(context)
+                                                    .groupPage_AddTaskButton,
+                                              ),
+                                            ],
+                                          ),
+                                        ),
                                     ],
                                   ),
                                   AppSpacing.verticalSpaceLg,

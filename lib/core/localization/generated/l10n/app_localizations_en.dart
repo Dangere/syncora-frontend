@@ -30,6 +30,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get groupPage_AddTaskButton => 'Add Task';
 
   @override
+  String get groupInfoPage_Title => 'Group Info';
+
+  @override
+  String get groupInfoPage_NoDescription => 'No description';
+
+  @override
+  String get groupInfoPage_CreatedIn => 'Created in';
+
+  @override
+  String get groupInfoPopup_Alert_NoMembers => 'Group has no members';
+
+  @override
   String get onboardingPage_Title => 'Welcome To CoTask';
 
   @override
@@ -83,6 +95,21 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get create => 'Create';
+
+  @override
+  String get edit => 'Edit';
+
+  @override
+  String get general => 'General';
+
+  @override
+  String get name => 'Name';
+
+  @override
+  String get description => 'Description';
+
+  @override
+  String get members => 'Members';
 
   @override
   String get moreOptions => 'More Options';
@@ -286,6 +313,22 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get groupPopup_Error_UserNotFound => 'User not found';
+
+  @override
+  String get settingsPopup_Password_Reset_title => 'Password Reset Link';
+
+  @override
+  String get settingsPopup_Password_Reset =>
+      'A link has been sent to your email to change your password';
+
+  @override
+  String get settingsPopup_Password_NotSent => 'Didn’t receive a link?';
+
+  @override
+  String get settingsPopup_Password_Resend => 'Resend Email';
+
+  @override
+  String get settingsPopup_Password_Alert => 'Password reset email sent';
 
   @override
   String get notification_Backend_Connected => 'Connected to server';

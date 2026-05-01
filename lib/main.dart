@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:device_preview/device_preview.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -19,11 +20,11 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   runApp(ProviderScope(
-      overrides: await providerOverrides(), child: const MyApp()));
-  // runApp(ProviderScope(
-  //     overrides: await providerOverrides(),
-  //     child: DevicePreview(
-  //         enabled: !kReleaseMode, builder: (context) => const MyApp())));
+      //     overrides: await providerOverrides(), child: const MyApp()));
+      // runApp(ProviderScope(
+      overrides: await providerOverrides(),
+      child: DevicePreview(
+          enabled: !kReleaseMode, builder: (context) => const MyApp())));
 }
 
 class MyApp extends ConsumerWidget {
@@ -43,7 +44,7 @@ class MyApp extends ConsumerWidget {
       useInheritedMediaQuery: true,
       debugShowCheckedModeBanner: false,
       locale: locale,
-      // locale: locale,
+      builder: DevicePreview.appBuilder,
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
       routerConfig: router,

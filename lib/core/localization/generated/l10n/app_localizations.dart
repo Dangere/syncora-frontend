@@ -140,6 +140,30 @@ abstract class AppLocalizations {
   /// **'Add Task'**
   String get groupPage_AddTaskButton;
 
+  /// Title for the group info
+  ///
+  /// In en, this message translates to:
+  /// **'Group Info'**
+  String get groupInfoPage_Title;
+
+  /// Label when a group doesn't have a description
+  ///
+  /// In en, this message translates to:
+  /// **'No description'**
+  String get groupInfoPage_NoDescription;
+
+  /// Label when to show group creation date
+  ///
+  /// In en, this message translates to:
+  /// **'Created in'**
+  String get groupInfoPage_CreatedIn;
+
+  /// Alert when no members are in the group
+  ///
+  /// In en, this message translates to:
+  /// **'Group has no members'**
+  String get groupInfoPopup_Alert_NoMembers;
+
   /// The title of the onboarding page
   ///
   /// In en, this message translates to:
@@ -247,6 +271,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Create'**
   String get create;
+
+  /// Generic Edit action label
+  ///
+  /// In en, this message translates to:
+  /// **'Edit'**
+  String get edit;
+
+  /// Generic General label
+  ///
+  /// In en, this message translates to:
+  /// **'General'**
+  String get general;
+
+  /// Generic Name label
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get name;
+
+  /// Generic Description label
+  ///
+  /// In en, this message translates to:
+  /// **'Description'**
+  String get description;
+
+  /// Generic Members label
+  ///
+  /// In en, this message translates to:
+  /// **'Members'**
+  String get members;
 
   /// Generic more options label
   ///
@@ -643,6 +697,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'User not found'**
   String get groupPopup_Error_UserNotFound;
+
+  /// Title of the password reset alert
+  ///
+  /// In en, this message translates to:
+  /// **'Password Reset Link'**
+  String get settingsPopup_Password_Reset_title;
+
+  /// Alert shown when the password reset email has been sent
+  ///
+  /// In en, this message translates to:
+  /// **'A link has been sent to your email to change your password'**
+  String get settingsPopup_Password_Reset;
+
+  /// Button in the password reset alert that email has not been sent
+  ///
+  /// In en, this message translates to:
+  /// **'Didn’t receive a link?'**
+  String get settingsPopup_Password_NotSent;
+
+  /// Button in the password reset alert to resend the email
+  ///
+  /// In en, this message translates to:
+  /// **'Resend Email'**
+  String get settingsPopup_Password_Resend;
+
+  /// Alert shown when the password reset email has been sent
+  ///
+  /// In en, this message translates to:
+  /// **'Password reset email sent'**
+  String get settingsPopup_Password_Alert;
 
   /// notification that pops up when the client has signalR connection to the backend
   ///
