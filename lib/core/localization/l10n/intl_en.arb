@@ -235,9 +235,9 @@
   "@groupPopup_GroupTitle_Label": {
     "description": "Label for the group title input field"
   },
-  "groupPopup_GroupTitle_Hint": "Enter the title",
-  "@groupPopup_GroupTitle_Hint": {
-    "description": "Hint text for the group title input field"
+  "alert_Title_Enter": "Enter the title",
+  "@alert_Title_Enter": {
+    "description": "Hint text for the title input field"
   },
   "groupPopup_GroupDescription_Label": "Group Description",
   "@groupPopup_GroupDescription_Label": {
@@ -287,6 +287,10 @@
   "@groupPopup_Error_UserNotFound": {
     "description": "Error shown when a searched user does not exist"
   },
+  "tasksPopup_Title_Label": "Task title",
+  "@tasksPopup_Title_Label": {
+    "description": "Label for task title alert"
+  },
   "settingsPopup_Password_Reset_title": "Password Reset Link",
   "@settingsPopup_Password_Reset_title": {
     "description": "Title of the password reset alert"
@@ -311,25 +315,25 @@
   "@notification_Backend_Connected": {
     "description": "notification that pops up when the client has signalR connection to the backend"
   },
-  "validation_GroupTitle_Empty": "Empty title",
-  "@validation_GroupTitle_Empty": {
-    "description": "Validation error when the group title field is empty"
+  "validation_Title_Empty": "Empty title",
+  "@validation_Title_Empty": {
+    "description": "Validation error when the title field is empty"
   },
   "validation_GroupTitle_Unchanged": "Title is not changed",
   "@validation_GroupTitle_Unchanged": {
     "description": "Validation error when the new group title matches the old one"
   },
-  "validation_GroupTitle_Invalid": "Invalid title",
-  "@validation_GroupTitle_Invalid": {
-    "description": "Validation error when the group title format is invalid"
-  },
   "validation_GroupTitle_Create_Empty": "Empty group title",
   "@validation_GroupTitle_Create_Empty": {
     "description": "Validation error when the group title is empty during creation"
   },
-  "validation_GroupTitle_Create_Invalid": "Invalid group title",
-  "@validation_GroupTitle_Create_Invalid": {
+  "validation_Title_Invalid": "Title must be between 3 and 110 valid characters",
+  "@validation_Title_Invalid": {
     "description": "Validation error when the group title format is invalid during creation"
+  },
+  "validation_Description_Invalid": "Description must be between 6 and 255 valid characters",
+  "@validation_Description_Invalid": {
+    "description": "Validation error when the description format is invalid"
   },
   "validation_GroupDescription_Empty": "Empty description",
   "@validation_GroupDescription_Empty": {
@@ -339,23 +343,11 @@
   "@validation_GroupDescription_Unchanged": {
     "description": "Validation error when the new description matches the old one"
   },
-  "validation_GroupDescription_Invalid": "Invalid description",
-  "@validation_GroupDescription_Invalid": {
-    "description": "Validation error when the group description format is invalid"
-  },
-  "validation_GroupDescription_Create_Empty": "Empty group description",
-  "@validation_GroupDescription_Create_Empty": {
-    "description": "Validation error when the group description is empty during creation"
-  },
-  "validation_GroupDescription_Create_Invalid": "Invalid group description",
-  "@validation_GroupDescription_Create_Invalid": {
-    "description": "Validation error when the group description format is invalid during creation"
-  },
-  "validation_Username_Empty": "Empty username",
+  "validation_Username_Empty": "Empty Username",
   "@validation_Username_Empty": {
     "description": "Validation error when the username field is empty"
   },
-  "validation_Username_Invalid": "Invalid username",
+  "validation_Username_Invalid": "Invalid Username",
   "@validation_Username_Invalid": {
     "description": "Validation error when the username format is invalid"
   },

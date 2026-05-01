@@ -19,12 +19,12 @@ class GroupPopups {
             autofocus: true,
             validation: (p0) {
               if (p0 == null || p0.trim().isEmpty)
-                return l10n.validation_GroupTitle_Empty;
+                return l10n.validation_Title_Empty;
               if (p0.trim() == defaultText)
                 return l10n.validation_GroupTitle_Unchanged;
               return Validators.validateGroupTitle(p0)
                   ? null
-                  : l10n.validation_GroupTitle_Invalid;
+                  : l10n.validation_Title_Invalid;
             },
             label: l10n.groupPopup_GroupTitle_Label,
             defaultText: defaultText)
@@ -54,7 +54,7 @@ class GroupPopups {
               return l10n.validation_GroupDescription_Unchanged;
             return Validators.validateGroupDescription(p0)
                 ? null
-                : l10n.validation_GroupDescription_Invalid;
+                : l10n.validation_Description_Invalid;
           },
           label: l10n.groupPopup_GroupDescription_Label,
           defaultText: defaultText,
@@ -96,7 +96,7 @@ class GroupPopups {
     return data.isEmpty ? null : data[0];
   }
 
-  static Future<({String title, String description})?> createGroupPopup(
+  static Future<({String title, String? description})?> createGroupPopup(
       BuildContext context) async {
     final l10n = AppLocalizations.of(context);
     List<String> data = await Dialogs.showTextFieldDialog(
@@ -104,25 +104,25 @@ class GroupPopups {
       fields: [
         DialogFieldData(
             autofocus: true,
-            label: l10n.groupPopup_GroupTitle_Label,
-            defaultHintText: l10n.groupPopup_GroupTitle_Hint,
+            label: l10n.groupPopup_GroupTitle_Label + "*",
+            defaultHintText: l10n.alert_Title_Enter,
             validation: (p0) {
               if (p0 == null || p0.trim().isEmpty)
                 return l10n.validation_GroupTitle_Create_Empty;
               return Validators.validateGroupTitle(p0)
                   ? null
-                  : l10n.validation_GroupTitle_Create_Invalid;
+                  : l10n.validation_Title_Invalid;
             }),
         DialogFieldData(
             multiLine: true,
             label: l10n.groupPopup_GroupDescription_Label,
             defaultHintText: l10n.groupPopup_GroupDescription_Hint,
             validation: (p0) {
-              if (p0 == null || p0.trim().isEmpty)
-                return l10n.validation_GroupDescription_Create_Empty;
+              // Description can be empty
+              if (p0 == null || p0.trim().isEmpty) return null;
               return Validators.validateGroupDescription(p0)
                   ? null
-                  : l10n.validation_GroupDescription_Create_Invalid;
+                  : l10n.validation_Description_Invalid;
             })
       ],
       barrierDismissible: true,
@@ -133,7 +133,9 @@ class GroupPopups {
 
     if (data.isEmpty) return null;
 
-    return (title: data[0], description: data[1]);
+    String? description = data.length > 1 ? data[1] : null;
+
+    return (title: data[0], description: description);
   }
 
   // Void popups / Content Pop ups

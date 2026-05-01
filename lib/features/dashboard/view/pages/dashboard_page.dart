@@ -52,9 +52,11 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
       final result = await GroupPopups.createGroupPopup(context);
 
       if (result != null) {
-        ref
+        int newGroupId = await ref
             .read(groupsListProvider.notifier)
             .createGroup(title: result.title, description: result.description);
+
+        if (context.mounted) context.push('/group/${newGroupId}');
       }
     }
 
@@ -249,7 +251,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                           ),
                           height: 100),
                       pinned: true),
-
+                  // FILTERS AND CREATE GROUP
                   MultiSliver(children: [
                     SliverPersistentHeader(
                         delegate: MySliverPersistentHeaderDelegate(
@@ -322,9 +324,26 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                                     items: [
                                       FilterListItem(
                                         title: AppLocalizations.of(context)
+                                            .filter_All,
+                                        value: GroupsFilter.all,
+                                        opposites: [
+                                          GroupsFilter.inProgress,
+                                          GroupsFilter.completed,
+                                          GroupsFilter.owned,
+                                          GroupsFilter.shared
+                                        ],
+                                        countFactory: (arg) => ref
+                                            .read(groupsListProvider.notifier)
+                                            .getGroupsCount([arg]),
+                                      ),
+                                      FilterListItem(
+                                        title: AppLocalizations.of(context)
                                             .filter_Completed,
                                         value: GroupsFilter.completed,
-                                        opposites: [GroupsFilter.inProgress],
+                                        opposites: [
+                                          GroupsFilter.inProgress,
+                                          GroupsFilter.all,
+                                        ],
                                         countFactory: (arg) => ref
                                             .read(groupsListProvider.notifier)
                                             .getGroupsCount([arg]),
@@ -333,7 +352,10 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                                         title: AppLocalizations.of(context)
                                             .filter_InProgress,
                                         value: GroupsFilter.inProgress,
-                                        opposites: [GroupsFilter.completed],
+                                        opposites: [
+                                          GroupsFilter.completed,
+                                          GroupsFilter.all,
+                                        ],
                                         countFactory: (arg) => ref
                                             .read(groupsListProvider.notifier)
                                             .getGroupsCount([arg]),
@@ -342,13 +364,19 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                                         title: AppLocalizations.of(context)
                                             .filter_Owned,
                                         value: GroupsFilter.owned,
-                                        opposites: [GroupsFilter.shared],
+                                        opposites: [
+                                          GroupsFilter.shared,
+                                          GroupsFilter.all,
+                                        ],
                                       ),
                                       FilterListItem(
                                         title: AppLocalizations.of(context)
                                             .filter_Shared,
                                         value: GroupsFilter.shared,
-                                        opposites: [GroupsFilter.owned],
+                                        opposites: [
+                                          GroupsFilter.owned,
+                                          GroupsFilter.all,
+                                        ],
                                       ),
                                       FilterListItem(
                                         title: AppLocalizations.of(context)

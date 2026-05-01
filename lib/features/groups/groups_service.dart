@@ -56,7 +56,7 @@ class GroupsService {
     }
   }
 
-  Future<Result<Group>> createGroup(String title, String description) async {
+  Future<Result<Group>> createGroup(String title, String? description) async {
     int userId = _authStateFactory().userId!;
     final now = DateTime.now().toUtc();
 

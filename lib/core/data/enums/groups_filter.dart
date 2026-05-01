@@ -1,1 +1,1 @@
-enum GroupsFilter { inProgress, completed, shared, owned, newest, oldest }
+enum GroupsFilter { all, inProgress, completed, shared, owned, newest, oldest }

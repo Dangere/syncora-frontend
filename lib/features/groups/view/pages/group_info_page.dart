@@ -12,6 +12,7 @@ import 'package:syncora_frontend/core/localization/generated/l10n/app_localizati
 import 'package:syncora_frontend/core/utils/app_error.dart';
 import 'package:syncora_frontend/core/utils/date_utilities.dart';
 import 'package:syncora_frontend/core/utils/snack_bar_alerts.dart';
+import 'package:syncora_frontend/features/groups/models/group.dart';
 import 'package:syncora_frontend/features/users/models/user.dart';
 import 'package:syncora_frontend/features/groups/groups_provider.dart';
 import 'package:syncora_frontend/features/groups/view/popups/group_popups.dart';
@@ -92,10 +93,14 @@ class _GroupInfoPageState extends ConsumerState<GroupInfoPage> {
                   .read(groupProvider(widget.groupId).notifier)
                   .isGroupOwner();
 
+              Group group = data;
+
+              print(group.toString());
+
               return Padding(
                 padding: AppSpacing.paddingHorizontalLg +
                     AppSpacing.paddingVerticalMd +
-                    EdgeInsets.only(bottom: 60),
+                    const EdgeInsets.only(bottom: 60),
                 child: Column(
                   children: [
                     // GROUP INFO
@@ -140,7 +145,7 @@ class _GroupInfoPageState extends ConsumerState<GroupInfoPage> {
                                       .bodyLarge!
                                       .copyWith(fontWeight: FontWeight.w600)),
                               TextSpan(
-                                  text: data.title,
+                                  text: group.title,
                                   style: Theme.of(context)
                                       .textTheme
                                       .bodyLarge!
@@ -162,8 +167,10 @@ class _GroupInfoPageState extends ConsumerState<GroupInfoPage> {
                                       .bodyLarge!
                                       .copyWith(fontWeight: FontWeight.w600)),
                               TextSpan(
-                                  text: data.description ??
-                                      AppLocalizations.of(context)
+                                  text: group.description != null &&
+                                          !group.description!.isEmpty
+                                      ? group.description
+                                      : AppLocalizations.of(context)
                                           .groupInfoPage_NoDescription,
                                   style: Theme.of(context)
                                       .textTheme
@@ -176,7 +183,7 @@ class _GroupInfoPageState extends ConsumerState<GroupInfoPage> {
                                 TextSpan(
                                     recognizer: TapGestureRecognizer()
                                       ..onTap = () => onGroupDescriptionEdit(
-                                          data.description),
+                                          group.description),
                                     text:
                                         " ${AppLocalizations.of(context).edit}",
                                     style: Theme.of(context)
@@ -202,7 +209,7 @@ class _GroupInfoPageState extends ConsumerState<GroupInfoPage> {
                                       .copyWith(fontWeight: FontWeight.w600)),
                               TextSpan(
                                   text: DateUtilities.getFormattedDate(
-                                      data.creationDate),
+                                      group.creationDate),
                                   style: Theme.of(context)
                                       .textTheme
                                       .bodyLarge!

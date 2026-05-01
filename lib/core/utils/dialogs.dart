@@ -221,6 +221,17 @@ class Dialogs {
 
     final formKey = GlobalKey<FormState>();
 
+    void onConfirm() {
+      if (formKey.currentState!.validate()) {
+        Navigator.of(context).pop(List.generate(
+          textControllers.length,
+          (index) {
+            return textControllers[index].text.trim();
+          },
+        ));
+      }
+    }
+
     List<String>? dialog = await showDialog<List<String>>(
       barrierDismissible: barrierDismissible,
       context: context,
@@ -298,22 +309,13 @@ class Dialogs {
                       const SizedBox(
                         height: 24,
                       ),
-                      // ADD BUTTON
+                      // CONFIRM BUTTON
                       AppButton(
                           size: AppButtonSize.small,
                           style: AppButtonStyle.filled,
                           intent: AppButtonIntent.primary,
                           fontSize: 20,
-                          onPressed: () {
-                            if (formKey.currentState!.validate()) {
-                              Navigator.of(context).pop(List.generate(
-                                textControllers.length,
-                                (index) {
-                                  return textControllers[index].text.trim();
-                                },
-                              ));
-                            }
-                          },
+                          onPressed: onConfirm,
                           child: Text(confirmText))
                     ],
                   ),

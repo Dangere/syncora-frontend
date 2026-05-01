@@ -274,7 +274,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get groupPopup_GroupTitle_Label => 'Group Title';
 
   @override
-  String get groupPopup_GroupTitle_Hint => 'Enter the title';
+  String get alert_Title_Enter => 'Enter the title';
 
   @override
   String get groupPopup_GroupDescription_Label => 'Group Description';
@@ -315,6 +315,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get groupPopup_Error_UserNotFound => 'User not found';
 
   @override
+  String get tasksPopup_Title_Label => 'Task title';
+
+  @override
   String get settingsPopup_Password_Reset_title => 'Password Reset Link';
 
   @override
@@ -334,19 +337,21 @@ class AppLocalizationsEn extends AppLocalizations {
   String get notification_Backend_Connected => 'Connected to server';
 
   @override
-  String get validation_GroupTitle_Empty => 'Empty title';
+  String get validation_Title_Empty => 'Empty title';
 
   @override
   String get validation_GroupTitle_Unchanged => 'Title is not changed';
 
   @override
-  String get validation_GroupTitle_Invalid => 'Invalid title';
-
-  @override
   String get validation_GroupTitle_Create_Empty => 'Empty group title';
 
   @override
-  String get validation_GroupTitle_Create_Invalid => 'Invalid group title';
+  String get validation_Title_Invalid =>
+      'Title must be between 3 and 110 valid characters';
+
+  @override
+  String get validation_Description_Invalid =>
+      'Description must be between 6 and 255 valid characters';
 
   @override
   String get validation_GroupDescription_Empty => 'Empty description';
@@ -356,21 +361,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'Description is not changed';
 
   @override
-  String get validation_GroupDescription_Invalid => 'Invalid description';
+  String get validation_Username_Empty => 'Empty Username';
 
   @override
-  String get validation_GroupDescription_Create_Empty =>
-      'Empty group description';
-
-  @override
-  String get validation_GroupDescription_Create_Invalid =>
-      'Invalid group description';
-
-  @override
-  String get validation_Username_Empty => 'Empty username';
-
-  @override
-  String get validation_Username_Invalid => 'Invalid username';
+  String get validation_Username_Invalid => 'Invalid Username';
 
   @override
   String get validation_Name_Empty => 'Empty Name';

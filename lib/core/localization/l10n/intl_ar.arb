@@ -235,9 +235,9 @@
     "@groupPopup_GroupTitle_Label": {
         "description": "تسمية حقل إدخال عنوان المجموعة"
     },
-    "groupPopup_GroupTitle_Hint": "أدخل العنوان",
-    "@groupPopup_GroupTitle_Hint": {
-        "description": "نص تلميح حقل إدخال عنوان المجموعة"
+    "alert_Title_Enter": "أدخل العنوان",
+    "@alert_Title_Enter": {
+        "description": "نص تلميح حقل إدخال العنوان"
     },
     "groupPopup_GroupDescription_Label": "وصف المجموعة",
     "@groupPopup_GroupDescription_Label": {
@@ -287,6 +287,10 @@
     "@groupPopup_Error_UserNotFound": {
         "description": "خطأ يظهر عند عدم العثور على المستخدم المبحوث عنه"
     },
+    "tasksPopup_Title_Label": "عنوان المهمة",
+    "@tasksPopup_Title_Label": {
+        "description": "تسمية حقل عنوان المهمة"
+    },
     "settingsPopup_Password_Reset_title": "رابط إعادة تعيين كلمة المرور",
     "@settingsPopup_Password_Reset_title": {
         "description": "عنوان تنبيه إعادة تعيين كلمة المرور"
@@ -311,25 +315,25 @@
     "@notification_Backend_Connected": {
         "description": "إشعار يظهر عند اتصال العميل بالخادم عبر SignalR"
     },
-    "validation_GroupTitle_Empty": "العنوان فارغ",
-    "@validation_GroupTitle_Empty": {
-        "description": "خطأ التحقق عند ترك حقل عنوان المجموعة فارغًا"
+    "validation_Title_Empty": "العنوان فارغ",
+    "@validation_Title_Empty": {
+        "description": "خطأ التحقق عند ترك حقل العنوان فارغًا"
     },
     "validation_GroupTitle_Unchanged": "العنوان لم يتغير",
     "@validation_GroupTitle_Unchanged": {
         "description": "خطأ التحقق عند تطابق العنوان الجديد مع القديم"
     },
-    "validation_GroupTitle_Invalid": "عنوان غير صالح",
-    "@validation_GroupTitle_Invalid": {
-        "description": "خطأ التحقق عند إدخال عنوان مجموعة بتنسيق غير صالح"
-    },
     "validation_GroupTitle_Create_Empty": "عنوان المجموعة فارغ",
     "@validation_GroupTitle_Create_Empty": {
         "description": "خطأ التحقق عند ترك عنوان المجموعة فارغًا أثناء الإنشاء"
     },
-    "validation_GroupTitle_Create_Invalid": "عنوان المجموعة غير صالح",
-    "@validation_GroupTitle_Create_Invalid": {
-        "description": "خطأ التحقق عند إدخال عنوان مجموعة بتنسيق غير صالح أثناء الإنشاء"
+    "validation_Title_Invalid": "يجب أن يكون العنوان بين 3 و110 أحرف صالحة",
+    "@validation_Title_Invalid": {
+        "description": "خطأ التحقق عند إدخال عنوان بتنسيق غير صالح"
+    },
+    "validation_Description_Invalid": "يجب أن يكون الوصف بين 6 و255 حرفًا صالحًا",
+    "@validation_Description_Invalid": {
+        "description": "خطأ التحقق عند إدخال وصف بتنسيق غير صالح"
     },
     "validation_GroupDescription_Empty": "الوصف فارغ",
     "@validation_GroupDescription_Empty": {
@@ -338,18 +342,6 @@
     "validation_GroupDescription_Unchanged": "الوصف لم يتغير",
     "@validation_GroupDescription_Unchanged": {
         "description": "خطأ التحقق عند تطابق الوصف الجديد مع القديم"
-    },
-    "validation_GroupDescription_Invalid": "وصف غير صالح",
-    "@validation_GroupDescription_Invalid": {
-        "description": "خطأ التحقق عند إدخال وصف مجموعة بتنسيق غير صالح"
-    },
-    "validation_GroupDescription_Create_Empty": "وصف المجموعة فارغ",
-    "@validation_GroupDescription_Create_Empty": {
-        "description": "خطأ التحقق عند ترك وصف المجموعة فارغًا أثناء الإنشاء"
-    },
-    "validation_GroupDescription_Create_Invalid": "وصف المجموعة غير صالح",
-    "@validation_GroupDescription_Create_Invalid": {
-        "description": "خطأ التحقق عند إدخال وصف مجموعة بتنسيق غير صالح أثناء الإنشاء"
     },
     "validation_Username_Empty": "اسم المستخدم فارغ",
     "@validation_Username_Empty": {

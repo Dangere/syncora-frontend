@@ -28,11 +28,8 @@ import 'package:syncora_frontend/router.dart';
 class GroupsListNotifier extends AutoDisposeAsyncNotifier<List<Group>> {
   List<GroupsFilter> get filters => _filters;
 
-  List<GroupsFilter> _filters = [GroupsFilter.inProgress];
+  List<GroupsFilter> _filters = [GroupsFilter.all, GroupsFilter.newest];
   String? _search;
-
-  // A bool that gets set to true when the groups list needs to be reloaded but the user is not viewing it yet
-  bool _waitingToReloadGroupList = false;
 
   /// Gets called when the task provider modifies a task (create/modify/delete) to update the displayed list of groups
   void onTasksModification(int groupId) {
@@ -71,8 +68,7 @@ class GroupsListNotifier extends AutoDisposeAsyncNotifier<List<Group>> {
   void onOutboxGroupSynced(
       {required int tempId, required int serverId}) async {}
 
-  Future<void> createGroup(
-      {required String title, required String description}) async {
+  Future<int> createGroup({required String title, String? description}) async {
     // state = const AsyncValue.loading();
 
     Result<Group> newGroupResult =
@@ -80,10 +76,11 @@ class GroupsListNotifier extends AutoDisposeAsyncNotifier<List<Group>> {
 
     if (!newGroupResult.isSuccess) {
       ref.read(appErrorProvider.notifier).state = newGroupResult.error;
-      return;
+      return 0;
     }
 
     reloadGroupsList();
+    return newGroupResult.data!.id;
   }
 
   // Checks if the current user is the owner of the group, uses in-memory cache

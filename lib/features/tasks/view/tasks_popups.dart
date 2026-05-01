@@ -182,20 +182,21 @@ class TasksPopups {
         DialogFieldData(
             multiLine: true,
             autofocus: true,
-            label: "Task Title",
-            defaultHintText: "Enter the title",
+            label: AppLocalizations.of(context).tasksPopup_Title_Label,
+            defaultHintText: AppLocalizations.of(context).alert_Title_Enter,
             validation: (p0) {
-              if (p0 == null || p0.trim().isEmpty) return "Empty task title";
+              if (p0 == null || p0.trim().isEmpty)
+                return AppLocalizations.of(context).validation_Title_Empty;
 
               return Validators.validateGroupTitle(p0)
                   ? null
-                  : "Invalid task title";
+                  : AppLocalizations.of(context).validation_Title_Invalid;
             })
       ],
       barrierDismissible: true,
       blurBackground: false,
-      title: "Add a New Task",
-      confirmText: "Add",
+      title: AppLocalizations.of(context).groupPage_AddTaskButton,
+      confirmText: AppLocalizations.of(context).add,
     );
 
     return data.isEmpty ? null : data[0];

@@ -55,7 +55,7 @@ final tasksServiceProvider = Provider<TasksService>((ref) {
 class TasksNotifier extends AutoDisposeFamilyAsyncNotifier<List<Task>, int> {
   List<TasksFilter> get filters => _filters;
 
-  List<TasksFilter> _filters = [TasksFilter.all];
+  List<TasksFilter> _filters = [TasksFilter.all, TasksFilter.newest];
   int get _groupResolvedId => ref.read(outboxIdMapperProvider).resolveId(arg);
 
   bool get isGroupOwner => ref.read(groupProvider(arg).notifier).isGroupOwner();

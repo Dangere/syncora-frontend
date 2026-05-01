@@ -61,11 +61,13 @@ class RouteNotifier extends Notifier<GoRouter> {
     Logger logger = ref.read(loggerProvider);
     logger.w('Refreshing routes, isLogged: $isLogged');
 
-    // const publicRoutes = {
-    //   'login',
-    //   'register',
-    //   'reset-password',
-    // };
+    const publicPaths = {
+      '/onboarding/sign-in',
+      '/onboarding/sign-in/reset-password',
+      '/onboarding/sign-up',
+      '/onboarding/google-sign-up',
+      '/onboarding'
+    };
 
     return GoRouter(
       initialLocation: '/',
@@ -215,15 +217,23 @@ class RouteNotifier extends Notifier<GoRouter> {
       ],
       // TODO: Check the public routes and implement them in the redirection
       redirect: (context, state) {
-        if (!isLogged &&
-            state.fullPath != "/onboarding/sign-in" &&
-            state.fullPath != "/onboarding/sign-in/reset-password" &&
-            state.fullPath != "/onboarding/sign-up" &&
-            state.fullPath != "/onboarding/google-sign-up" &&
-            state.fullPath != "/onboarding") {
+        String currentPath = state.fullPath ?? "";
+        bool isWithinPublicPath = publicPaths.any(
+          (element) {
+            return currentPath == element;
+          },
+        );
+
+        if (!isLogged && !isWithinPublicPath) {
           logger.d(
               "You were on ${state.fullPath} and getting redirected to login page");
           return '/onboarding';
+        }
+
+        if (isLogged && isWithinPublicPath) {
+          logger.d(
+              "You were on ${state.fullPath} and getting redirected to dashboard");
+          return '/';
         }
 
         return null;

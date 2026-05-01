@@ -620,11 +620,11 @@ abstract class AppLocalizations {
   /// **'Group Title'**
   String get groupPopup_GroupTitle_Label;
 
-  /// Hint text for the group title input field
+  /// Hint text for the title input field
   ///
   /// In en, this message translates to:
   /// **'Enter the title'**
-  String get groupPopup_GroupTitle_Hint;
+  String get alert_Title_Enter;
 
   /// Label for the group description input field
   ///
@@ -698,6 +698,12 @@ abstract class AppLocalizations {
   /// **'User not found'**
   String get groupPopup_Error_UserNotFound;
 
+  /// Label for task title alert
+  ///
+  /// In en, this message translates to:
+  /// **'Task title'**
+  String get tasksPopup_Title_Label;
+
   /// Title of the password reset alert
   ///
   /// In en, this message translates to:
@@ -734,23 +740,17 @@ abstract class AppLocalizations {
   /// **'Connected to server'**
   String get notification_Backend_Connected;
 
-  /// Validation error when the group title field is empty
+  /// Validation error when the title field is empty
   ///
   /// In en, this message translates to:
   /// **'Empty title'**
-  String get validation_GroupTitle_Empty;
+  String get validation_Title_Empty;
 
   /// Validation error when the new group title matches the old one
   ///
   /// In en, this message translates to:
   /// **'Title is not changed'**
   String get validation_GroupTitle_Unchanged;
-
-  /// Validation error when the group title format is invalid
-  ///
-  /// In en, this message translates to:
-  /// **'Invalid title'**
-  String get validation_GroupTitle_Invalid;
 
   /// Validation error when the group title is empty during creation
   ///
@@ -761,8 +761,14 @@ abstract class AppLocalizations {
   /// Validation error when the group title format is invalid during creation
   ///
   /// In en, this message translates to:
-  /// **'Invalid group title'**
-  String get validation_GroupTitle_Create_Invalid;
+  /// **'Title must be between 3 and 110 valid characters'**
+  String get validation_Title_Invalid;
+
+  /// Validation error when the description format is invalid
+  ///
+  /// In en, this message translates to:
+  /// **'Description must be between 6 and 255 valid characters'**
+  String get validation_Description_Invalid;
 
   /// Validation error when the group description field is empty
   ///
@@ -776,34 +782,16 @@ abstract class AppLocalizations {
   /// **'Description is not changed'**
   String get validation_GroupDescription_Unchanged;
 
-  /// Validation error when the group description format is invalid
-  ///
-  /// In en, this message translates to:
-  /// **'Invalid description'**
-  String get validation_GroupDescription_Invalid;
-
-  /// Validation error when the group description is empty during creation
-  ///
-  /// In en, this message translates to:
-  /// **'Empty group description'**
-  String get validation_GroupDescription_Create_Empty;
-
-  /// Validation error when the group description format is invalid during creation
-  ///
-  /// In en, this message translates to:
-  /// **'Invalid group description'**
-  String get validation_GroupDescription_Create_Invalid;
-
   /// Validation error when the username field is empty
   ///
   /// In en, this message translates to:
-  /// **'Empty username'**
+  /// **'Empty Username'**
   String get validation_Username_Empty;
 
   /// Validation error when the username format is invalid
   ///
   /// In en, this message translates to:
-  /// **'Invalid username'**
+  /// **'Invalid Username'**
   String get validation_Username_Invalid;
 
   /// Validation error when the Name field is empty

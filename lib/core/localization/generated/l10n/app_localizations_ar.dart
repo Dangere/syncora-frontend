@@ -276,7 +276,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get groupPopup_GroupTitle_Label => 'عنوان المجموعة';
 
   @override
-  String get groupPopup_GroupTitle_Hint => 'أدخل العنوان';
+  String get alert_Title_Enter => 'أدخل العنوان';
 
   @override
   String get groupPopup_GroupDescription_Label => 'وصف المجموعة';
@@ -317,6 +317,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get groupPopup_Error_UserNotFound => 'المستخدم غير موجود';
 
   @override
+  String get tasksPopup_Title_Label => 'عنوان المهمة';
+
+  @override
   String get settingsPopup_Password_Reset_title =>
       'رابط إعادة تعيين كلمة المرور';
 
@@ -338,35 +341,27 @@ class AppLocalizationsAr extends AppLocalizations {
   String get notification_Backend_Connected => 'متصل بالخادم';
 
   @override
-  String get validation_GroupTitle_Empty => 'العنوان فارغ';
+  String get validation_Title_Empty => 'العنوان فارغ';
 
   @override
   String get validation_GroupTitle_Unchanged => 'العنوان لم يتغير';
 
   @override
-  String get validation_GroupTitle_Invalid => 'عنوان غير صالح';
-
-  @override
   String get validation_GroupTitle_Create_Empty => 'عنوان المجموعة فارغ';
 
   @override
-  String get validation_GroupTitle_Create_Invalid => 'عنوان المجموعة غير صالح';
+  String get validation_Title_Invalid =>
+      'يجب أن يكون العنوان بين 3 و110 أحرف صالحة';
+
+  @override
+  String get validation_Description_Invalid =>
+      'يجب أن يكون الوصف بين 6 و255 حرفًا صالحًا';
 
   @override
   String get validation_GroupDescription_Empty => 'الوصف فارغ';
 
   @override
   String get validation_GroupDescription_Unchanged => 'الوصف لم يتغير';
-
-  @override
-  String get validation_GroupDescription_Invalid => 'وصف غير صالح';
-
-  @override
-  String get validation_GroupDescription_Create_Empty => 'وصف المجموعة فارغ';
-
-  @override
-  String get validation_GroupDescription_Create_Invalid =>
-      'وصف المجموعة غير صالح';
 
   @override
   String get validation_Username_Empty => 'اسم المستخدم فارغ';
