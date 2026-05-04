@@ -315,6 +315,18 @@
     "@notification_Backend_Connected": {
         "description": "إشعار يظهر عند اتصال العميل بالخادم عبر SignalR"
     },
+    "notification_Backend_Disconnected": "فقد الاتصال بالخادم",
+    "@notification_Backend_Disconnected": {
+        "description": "إشعار يظهر عند فقد الاتصال بالخادم عبر SignalR"
+    },
+    "notification_Online_Connected": "متصل بالانترنت",
+    "@notification_Online_Connected": {
+        "description": "إشعار يظهر عند اتصال العميل بالانترنت"
+    },
+    "notification_Online_Disconnected": "فقد الاتصال بالانترنت",
+    "@notification_Online_Disconnected": {
+        "description": "إشعار يظهر عند فقد الاتصال بالانترنت"
+    },
     "validation_Title_Empty": "العنوان فارغ",
     "@validation_Title_Empty": {
         "description": "خطأ التحقق عند ترك حقل العنوان فارغًا"
@@ -347,7 +359,7 @@
     "@validation_Username_Empty": {
         "description": "خطأ التحقق عند ترك حقل اسم المستخدم فارغًا"
     },
-    "validation_Username_Invalid": "اسم مستخدم غير صالح",
+    "validation_Username_Invalid": "الاسم المستخدم يجب ان يكون بين 3 و20 حرفًا صالحًا",
     "@validation_Username_Invalid": {
         "description": "خطأ التحقق عند إدخال اسم مستخدم بتنسيق غير صالح"
     },
@@ -355,7 +367,7 @@
     "@validation_Name_Empty": {
         "description": "خطأ التحقق عند ترك حقل الاسم فارغًا"
     },
-    "validation_Name_Invalid": "اسم غير صالح",
+    "validation_Name_Invalid": "الاسم يجب ان يكون بين 3 و20 حرفًا صالحًا",
     "@validation_Name_Invalid": {
         "description": "خطأ التحقق عند إدخال اسم بتنسيق غير صالح"
     },

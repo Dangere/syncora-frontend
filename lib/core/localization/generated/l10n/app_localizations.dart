@@ -740,6 +740,24 @@ abstract class AppLocalizations {
   /// **'Connected to server'**
   String get notification_Backend_Connected;
 
+  /// notification that pops up when the client has signalR disconnection to the backend
+  ///
+  /// In en, this message translates to:
+  /// **'Disconnected to server'**
+  String get notification_Backend_Disconnected;
+
+  /// notification that pops up when the client has connection to the internet
+  ///
+  /// In en, this message translates to:
+  /// **'Connected Online'**
+  String get notification_Online_Connected;
+
+  /// notification that pops up when the client loses connection to the internet
+  ///
+  /// In en, this message translates to:
+  /// **'Online connection Lost'**
+  String get notification_Online_Disconnected;
+
   /// Validation error when the title field is empty
   ///
   /// In en, this message translates to:
@@ -791,7 +809,7 @@ abstract class AppLocalizations {
   /// Validation error when the username format is invalid
   ///
   /// In en, this message translates to:
-  /// **'Invalid Username'**
+  /// **'Username must be between 3 and 20 valid characters'**
   String get validation_Username_Invalid;
 
   /// Validation error when the Name field is empty
@@ -803,7 +821,7 @@ abstract class AppLocalizations {
   /// Validation error when the Name format is invalid
   ///
   /// In en, this message translates to:
-  /// **'Invalid Name'**
+  /// **'Name must be between 3 and 20 valid characters'**
   String get validation_Name_Invalid;
 
   /// Validation error when the Email field is empty

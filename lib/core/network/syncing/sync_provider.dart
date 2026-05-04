@@ -84,7 +84,7 @@ class SyncBackendNotifier extends AsyncNotifier<SyncState>
 
     ref.onDispose(() => WidgetsBinding.instance.removeObserver(this));
 
-    return const SyncIdle();
+    return const SyncDisconnected();
   }
 
   // TODO: We could potentially ignore events coming from this device and only process events from other devices
@@ -241,4 +241,8 @@ final signalRClientProvider = Provider<SignalRClient>((ref) {
     }
   });
   return client;
+});
+
+final connectedToBackendProvider = Provider.autoDispose<bool>((ref) {
+  return ref.watch(syncBackendProvider).valueOrNull is! SyncDisconnected;
 });

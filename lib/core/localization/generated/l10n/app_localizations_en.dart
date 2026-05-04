@@ -337,6 +337,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get notification_Backend_Connected => 'Connected to server';
 
   @override
+  String get notification_Backend_Disconnected => 'Disconnected to server';
+
+  @override
+  String get notification_Online_Connected => 'Connected Online';
+
+  @override
+  String get notification_Online_Disconnected => 'Online connection Lost';
+
+  @override
   String get validation_Title_Empty => 'Empty title';
 
   @override
@@ -364,13 +373,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get validation_Username_Empty => 'Empty Username';
 
   @override
-  String get validation_Username_Invalid => 'Invalid Username';
+  String get validation_Username_Invalid =>
+      'Username must be between 3 and 20 valid characters';
 
   @override
   String get validation_Name_Empty => 'Empty Name';
 
   @override
-  String get validation_Name_Invalid => 'Invalid Name';
+  String get validation_Name_Invalid =>
+      'Name must be between 3 and 20 valid characters';
 
   @override
   String get validation_Email_Empty => 'Empty Email';

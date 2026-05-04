@@ -13,12 +13,12 @@ class Validators {
   }
 
   static bool validateUsername(String username) {
-    final regex = RegExp(r'^[a-zA-Z0-9]{3,16}$');
+    final regex = RegExp(r'^[a-zA-Z0-9]{3,20}$');
     return regex.hasMatch(username);
   }
 
   static bool validateName(String name) {
-    final regex = RegExp(r"^[^';<>\s\\]{1,20}$");
+    final regex = RegExp(r"^[^';<>\s\\]{3,20}$");
     return regex.hasMatch(name);
   }
 

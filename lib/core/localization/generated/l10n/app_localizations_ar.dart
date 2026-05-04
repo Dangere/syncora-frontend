@@ -341,6 +341,15 @@ class AppLocalizationsAr extends AppLocalizations {
   String get notification_Backend_Connected => 'متصل بالخادم';
 
   @override
+  String get notification_Backend_Disconnected => 'فقد الاتصال بالخادم';
+
+  @override
+  String get notification_Online_Connected => 'متصل بالانترنت';
+
+  @override
+  String get notification_Online_Disconnected => 'فقد الاتصال بالانترنت';
+
+  @override
   String get validation_Title_Empty => 'العنوان فارغ';
 
   @override
@@ -367,13 +376,15 @@ class AppLocalizationsAr extends AppLocalizations {
   String get validation_Username_Empty => 'اسم المستخدم فارغ';
 
   @override
-  String get validation_Username_Invalid => 'اسم مستخدم غير صالح';
+  String get validation_Username_Invalid =>
+      'الاسم المستخدم يجب ان يكون بين 3 و20 حرفًا صالحًا';
 
   @override
   String get validation_Name_Empty => 'الاسم فارغ';
 
   @override
-  String get validation_Name_Invalid => 'اسم غير صالح';
+  String get validation_Name_Invalid =>
+      'الاسم يجب ان يكون بين 3 و20 حرفًا صالحًا';
 
   @override
   String get validation_Email_Empty => 'البريد الإلكتروني فارغ';

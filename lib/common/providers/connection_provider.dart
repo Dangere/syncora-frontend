@@ -9,6 +9,11 @@ final debug_fakeBeingOnlineProvider = StateProvider<bool>((ref) {
 });
 
 class ConnectionNotifier extends Notifier<ConnectionStatus> {
+  // for web only implementation
+  int _reconnectionFailCount = 0;
+  // Number of times for the reconnection to fail before deciding we are disconnected
+  final int _disconnectOnFailCount = 3;
+  final Duration _checkInterval = const Duration(seconds: 3);
   @override
   build() {
     ref.listen(debug_fakeBeingOnlineProvider, (previous, next) {
@@ -19,6 +24,7 @@ class ConnectionNotifier extends Notifier<ConnectionStatus> {
       }
     });
 
+    // The web implementation for checking the connection
     if (kIsWeb) {
       var running = true;
 
@@ -26,7 +32,7 @@ class ConnectionNotifier extends Notifier<ConnectionStatus> {
 
       Future.microtask(() async {
         while (running) {
-          await Future.delayed(const Duration(seconds: 3));
+          await Future.delayed(_checkInterval);
           if (!running) break;
 
           try {
@@ -40,21 +46,28 @@ class ConnectionNotifier extends Notifier<ConnectionStatus> {
             if (!running) break;
 
             if (response.statusCode == null) {
-              state = ConnectionStatus.disconnected;
+              _reconnectionFailCount++;
+            } else if ((response.statusCode! >= 200 &&
+                response.statusCode! < 300)) {
+              state = ConnectionStatus.connected;
+              _reconnectionFailCount = 0;
+            } else {
+              _reconnectionFailCount++;
             }
-
-            state = (response.statusCode! >= 200 && response.statusCode! < 300)
-                ? ConnectionStatus.connected
-                : ConnectionStatus.disconnected;
           } catch (_) {
             if (!running) break;
-            state = ConnectionStatus.disconnected;
+            _reconnectionFailCount++;
+          } finally {
+            if (_reconnectionFailCount >= _disconnectOnFailCount) {
+              state = ConnectionStatus.disconnected;
+            }
           }
         }
       });
       return ConnectionStatus.checking;
     }
 
+    // The non-web implementation
     if (!kIsWeb) {
       final connectionChecker = InternetConnectionChecker.createInstance(
         addresses: [
@@ -69,7 +82,7 @@ class ConnectionNotifier extends Notifier<ConnectionStatus> {
         ],
       );
 
-      connectionChecker.onStatusChange.listen(
+      var sub = connectionChecker.onStatusChange.listen(
         (InternetConnectionStatus status) {
           switch (status) {
             case InternetConnectionStatus.disconnected:
@@ -84,12 +97,13 @@ class ConnectionNotifier extends Notifier<ConnectionStatus> {
           }
         },
       );
+
+      ref.onDispose(() => sub.cancel());
     }
     return ConnectionStatus.checking;
   }
 }
 
-// TODO: Randomly says disconnected dispite the emulator being connected to the internet
 final _connectionProvider =
     NotifierProvider<ConnectionNotifier, ConnectionStatus>(
         ConnectionNotifier.new);
@@ -98,35 +112,5 @@ final isOnlineProvider = Provider<bool>((ref) {
   var status = ref.watch(_connectionProvider);
   return status == ConnectionStatus.connected;
 });
-
-// final connectionAsyncProvider = FutureProvider<ConnectionStatus>((ref) async {
-//   ConnectionStatus currentStatus = ref.read(connectionProvider);
-//   bool doneChecking = currentStatus != ConnectionStatus.checking;
-
-//   if (!doneChecking) {
-//     var sub = ref.listen(
-//       connectionProvider,
-//       (previous, next) async {
-//         if (next != ConnectionStatus.checking) {
-//           currentStatus = next;
-//           doneChecking = true;
-//         }
-//       },
-//     );
-//     await Future.doWhile(() async {
-//       if (!doneChecking) {
-//         await Future.delayed(Durations.extralong4);
-//         ref.read(loggerProvider).w("We are checking status");
-//         return true;
-//       } else {
-//         ref.read(loggerProvider).w("We got status");
-//         sub.close();
-//         return false;
-//       }
-//     });
-//   }
-
-//   return currentStatus;
-// });
 
 enum ConnectionStatus { checking, connected, disconnected }

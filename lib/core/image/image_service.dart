@@ -10,14 +10,17 @@ class ImageService {
   final ImageRepository _imageRepository;
   final CacheManager _cacheManager;
   final ImagePicker _picker;
+  final bool Function() _isOnlineFactory;
 
   ImageService(
       {required ImageRepository imageRepository,
       required CacheManager cacheManager,
-      required ImagePicker picker})
+      required ImagePicker picker,
+      required bool Function() isOnlineFactory})
       : _imageRepository = imageRepository,
         _cacheManager = cacheManager,
-        _picker = picker;
+        _picker = picker,
+        _isOnlineFactory = isOnlineFactory;
 
   Future<Result<String>> uploadImage(Uint8List imageBytes) async {
     try {
@@ -28,6 +31,10 @@ class ImageService {
   }
 
   Future<Result<Uint8List>> getImageFromUrl(String url) async {
+    if (!_isOnlineFactory()) {
+      return Result.canceled(
+          "Tried to get image when offline", StackTrace.current);
+    }
     try {
       final file = await _cacheManager.getSingleFile(url);
 

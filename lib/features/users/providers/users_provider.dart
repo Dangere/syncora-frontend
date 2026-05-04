@@ -223,8 +223,8 @@ final userLocalProvider =
 
 // This provider is used to get the profile picture of a user, either from the cache or from a url
 // One thing to note, when getting the image with imageUrl or without it, two different providers are used but reference the same image in cache
-final userProfileImageProvider =
-    FutureProvider.family<Uint8List?, ({int userId, String? imageUrl})>(
+final userProfileImageProvider = FutureProvider.family
+    .autoDispose<Uint8List?, ({int userId, String? imageUrl})>(
         (ref, user) async {
   String? url;
   // If there is not imageUrl provided, we look locally for one with the userId
@@ -240,8 +240,10 @@ final userProfileImageProvider =
     url = user.imageUrl!;
   }
 
-  Result<Uint8List?> result =
+  Result<Uint8List> result =
       await ref.read(imageServiceProvider).getImageFromUrl(url);
+
+  if (result.isCancelled) return null;
 
   if (!result.isSuccess) {
     ref.read(appErrorProvider.notifier).state = result.error;

@@ -31,7 +31,7 @@ extension AuthStateX on AuthState {
   bool get isGuest => this is AuthGuest;
   int? get userId => switch (this) {
         AuthAuthenticated u => u.userId,
-        AuthGuest g => -1,
+        AuthGuest _ => -1,
         _ => null,
       };
 }

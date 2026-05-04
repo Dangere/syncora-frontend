@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:signalr_netcore/hub_connection.dart';
 import 'package:syncora_frontend/common/providers/common_providers.dart';
+import 'package:syncora_frontend/common/providers/connection_provider.dart';
 import 'package:syncora_frontend/core/localization/generated/l10n/app_localizations.dart';
 import 'package:syncora_frontend/core/network/syncing/sync_provider.dart';
 
 class SnackBarAlerts {
+  static bool _initialized = false;
   static void showSnackBar(String message, BuildContext context) {
     if (!context.mounted) return;
 
@@ -88,10 +90,11 @@ class SnackBarAlerts {
     ref.read(signalRClientProvider).onStateChanged.listen((event) {
       switch (event) {
         case HubConnectionState.Connected:
-          if (context.mounted) {
+          if (context.mounted && !_initialized) {
             showSuccessSnackBar(
                 AppLocalizations.of(context).notification_Backend_Connected,
                 context);
+            _initialized = true;
           }
           break;
         case HubConnectionState.Disconnected:
@@ -111,6 +114,19 @@ class SnackBarAlerts {
           // showAlertSnackBar("Disconnecting from server", context);
 
           break;
+      }
+    });
+    // Listening for internet connectivity
+
+    ref.listen(isOnlineProvider, (previous, next) {
+      if (next && context.mounted) {
+        showSuccessSnackBar(
+            AppLocalizations.of(context).notification_Online_Connected,
+            context);
+      } else if (!next && context.mounted) {
+        showAlertSnackBar(
+            AppLocalizations.of(context).notification_Online_Disconnected,
+            context);
       }
     });
   }

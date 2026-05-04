@@ -315,6 +315,18 @@
   "@notification_Backend_Connected": {
     "description": "notification that pops up when the client has signalR connection to the backend"
   },
+  "notification_Backend_Disconnected": "Disconnected to server",
+  "@notification_Backend_Disconnected": {
+    "description": "notification that pops up when the client has signalR disconnection to the backend"
+  },
+  "notification_Online_Connected": "Connected Online",
+  "@notification_Online_Connected": {
+    "description": "notification that pops up when the client has connection to the internet"
+  },
+  "notification_Online_Disconnected": "Online connection Lost",
+  "@notification_Online_Disconnected": {
+    "description": "notification that pops up when the client loses connection to the internet"
+  },
   "validation_Title_Empty": "Empty title",
   "@validation_Title_Empty": {
     "description": "Validation error when the title field is empty"
@@ -347,7 +359,7 @@
   "@validation_Username_Empty": {
     "description": "Validation error when the username field is empty"
   },
-  "validation_Username_Invalid": "Invalid Username",
+  "validation_Username_Invalid": "Username must be between 3 and 20 valid characters",
   "@validation_Username_Invalid": {
     "description": "Validation error when the username format is invalid"
   },
@@ -355,7 +367,7 @@
   "@validation_Name_Empty": {
     "description": "Validation error when the Name field is empty"
   },
-  "validation_Name_Invalid": "Invalid Name",
+  "validation_Name_Invalid": "Name must be between 3 and 20 valid characters",
   "@validation_Name_Invalid": {
     "description": "Validation error when the Name format is invalid"
   },
