@@ -21,7 +21,7 @@ jobs:
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v3
         with:
-          name: "Syncora v1.0.0"
-          body: "Release Notes!!"
+          name: "Syncora (ADD VERSON!)"
+          body: "(GENERATE RELEASE NOTES!)"
           files: build/app/outputs/flutter-apk/app-release.apk
           draft: true
