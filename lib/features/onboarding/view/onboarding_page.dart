@@ -6,9 +6,11 @@ import 'package:syncora_frontend/common/themes/app_spacing.dart';
 import 'package:syncora_frontend/common/widgets/app_button.dart';
 import 'package:syncora_frontend/common/widgets/language_button.dart';
 import 'package:syncora_frontend/common/widgets/overlay_loader.dart';
+import 'package:syncora_frontend/common/widgets/version_display.dart';
 import 'package:syncora_frontend/core/localization/generated/l10n/app_localizations.dart';
 import 'package:syncora_frontend/features/authentication/auth_provider.dart';
 import 'package:syncora_frontend/features/onboarding/view/onboarding_popups.dart';
+import 'package:transparent_image/transparent_image.dart';
 
 class OnboardingPage extends ConsumerWidget {
   const OnboardingPage({super.key});
@@ -31,6 +33,16 @@ class OnboardingPage extends ConsumerWidget {
         body: Stack(
           children: [
             // BACKGROUND GRAPHIC
+            //TODO: Update background graphic to png and use the fade in widget
+            //             Positioned.fill(
+            //   child: FadeInImage(
+            //     width: double.infinity,
+            //     alignment: Alignment.topCenter,
+            //     fit: BoxFit.fitWidth,
+            //     placeholder: MemoryImage(kTransparentImage),
+            //     image: const AssetImage("assets/images/background.svg"),
+            //   ),
+            // ),
             Positioned.fill(
               child: SvgPicture.asset(
                   width: double.infinity,
@@ -152,6 +164,9 @@ class OnboardingPage extends ConsumerWidget {
                 ],
               ),
             ),
+
+            // APP VERSION
+            const VersionDisplay()
           ],
         ),
       ),

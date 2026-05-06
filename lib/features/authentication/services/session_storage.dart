@@ -14,7 +14,7 @@ class SessionStorage {
   static const _accessTokenKey = 'jwt_token';
   static const _refreshTokenKey = 'refresh_token';
   static const _userIdKey = 'user';
-  static const _isVerifiedKey = 'isVerified';
+  static const _isVerifiedKey = 'is_verified';
 
   Tokens? _cachedTokens;
 

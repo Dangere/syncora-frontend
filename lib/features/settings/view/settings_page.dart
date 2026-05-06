@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
@@ -6,11 +7,13 @@ import 'package:syncora_frontend/common/providers/common_providers.dart';
 import 'package:syncora_frontend/common/themes/app_spacing.dart';
 import 'package:syncora_frontend/common/themes/app_theme.dart';
 import 'package:syncora_frontend/common/widgets/app_button.dart';
+import 'package:syncora_frontend/common/widgets/version_display.dart';
 import 'package:syncora_frontend/core/localization/generated/l10n/app_localizations.dart';
 import 'package:syncora_frontend/core/typedef.dart';
 import 'package:syncora_frontend/core/utils/dialogs.dart';
 import 'package:syncora_frontend/core/utils/snack_bar_alerts.dart';
 import 'package:syncora_frontend/features/authentication/auth_provider.dart';
+import 'package:syncora_frontend/features/dashboard/dashboard_popups.dart';
 import 'package:syncora_frontend/features/settings/view/settings_popups.dart';
 
 class SettingsPage extends ConsumerStatefulWidget {
@@ -51,10 +54,11 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
   Widget build(BuildContext context) {
     SnackBarAlerts.registerNotificationListener(ref, context);
 
-    Locale currentLocale = ref.watch(localeProvider);
+    final Locale currentLocale = ref.watch(localeProvider);
     // bool isDarkMode = ref.watch(themeModeProvider);7
 
-    bool isDarkMode = ref.watch(themeModeProvider) == ThemeMode.dark;
+    final bool isDarkMode = ref.watch(themeModeProvider) == ThemeMode.dark;
+    final isLTR = Directionality.of(context) == TextDirection.ltr;
 
     passwordResetPopup(BuildContext context) =>
         SettingsPopups.passwordResetPopup(context);
@@ -70,102 +74,138 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
         slivers: [
           SliverFillRemaining(
             hasScrollBody: false,
-            child: Padding(
-              padding: AppSpacing.paddingHorizontalLg +
-                  AppSpacing.paddingVerticalXl +
-                  const EdgeInsets.only(top: 80),
-              child: Column(
-                children: [
-                  // LANGUAGE
-                  LanguageExpandableCard(
-                    currentLocale: currentLocale,
-                    onTap: updateLanguage,
-                  ),
-                  const SizedBox(height: 16),
-                  // TOGGLE DARK MODE
-                  AppButton(
-                    fontSize: 16,
-                    size: AppButtonSize.huge,
-                    style: AppButtonStyle.filled,
-                    onPressed: () {
-                      toggleDarkMode(!isDarkMode);
-                    },
-                    child: Row(
-                      children: [
-                        const Icon(Icons.dark_mode_sharp, size: 24),
-
-                        // Icon(Icons.dark_mode_sharp, size: 24),
-                        // Icon(Icons.dark_mode_sharp, size: 24),
-
-                        const SizedBox(width: 17),
-                        Text(
-                          AppLocalizations.of(context).darkMode,
-                        ),
-
-                        const Spacer(),
-                        FlutterSwitch(
-                          // padding: const EdgeInsets.all(0),
-                          toggleColor:
-                              Theme.of(context).colorScheme.surfaceContainer,
-                          activeColor: Theme.of(context).colorScheme.primary,
-                          inactiveColor: Theme.of(context).colorScheme.scrim,
-                          toggleSize: 16,
-                          height: 24,
-                          width: 44,
-                          value: isDarkMode,
-                          onToggle: toggleDarkMode,
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-
-                  if (ref.read(isAuthenticatedProvider))
-                    // CHANGE PASSWORD
-                    AppButton(
-                      fontSize: 16,
-                      size: AppButtonSize.huge,
-                      style: AppButtonStyle.filled,
-                      onPressed: () => passwordResetPopup(context),
-                      child: Row(
-                        children: [
-                          const Icon(Icons.lock, size: 24),
-
-                          // Icon(Icons.dark_mode_sharp, size: 24),
-                          // Icon(Icons.dark_mode_sharp, size: 24),
-
-                          const SizedBox(width: 17),
-                          Text(
-                            AppLocalizations.of(context)
-                                .settingsPage_ChangeMyPassword,
-                          ),
-
-                          const Spacer(),
-                          Transform.rotate(
-                              angle: 3.14 * (3 / 2),
-                              child: const Icon(Icons.expand_more, size: 24)),
-                        ],
+            child: Stack(
+              children: [
+                Padding(
+                  padding: AppSpacing.paddingHorizontalLg +
+                      AppSpacing.paddingVerticalXl +
+                      const EdgeInsets.only(top: 80),
+                  child: Column(
+                    children: [
+                      // LANGUAGE
+                      LanguageExpandableCard(
+                        currentLocale: currentLocale,
+                        onTap: updateLanguage,
                       ),
-                    ),
-                  const Spacer(),
-                  // LOGOUT BUTTON
-                  AppButton(
-                      size: AppButtonSize.huge,
-                      style: AppButtonStyle.filled,
-                      intent: AppButtonIntent.destructive,
-                      onPressed: logout,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(AppLocalizations.of(context).logout),
-                          const Icon(
-                            Icons.logout,
-                            size: 26,
+                      AppSpacing.verticalSpaceMd,
+                      // TOGGLE DARK MODE
+                      AppButton(
+                        fontSize: 16,
+                        size: AppButtonSize.huge,
+                        style: AppButtonStyle.filled,
+                        onPressed: () {
+                          toggleDarkMode(!isDarkMode);
+                        },
+                        child: Row(
+                          children: [
+                            const Icon(Icons.dark_mode_sharp, size: 24),
+
+                            // Icon(Icons.dark_mode_sharp, size: 24),
+                            // Icon(Icons.dark_mode_sharp, size: 24),
+
+                            const SizedBox(width: 17),
+                            Text(
+                              AppLocalizations.of(context).darkMode,
+                            ),
+
+                            const Spacer(),
+                            FlutterSwitch(
+                              // padding: const EdgeInsets.all(0),
+                              toggleColor: Theme.of(context)
+                                  .colorScheme
+                                  .surfaceContainer,
+                              activeColor:
+                                  Theme.of(context).colorScheme.primary,
+                              inactiveColor:
+                                  Theme.of(context).colorScheme.scrim,
+                              toggleSize: 16,
+                              height: 24,
+                              width: 44,
+                              value: isDarkMode,
+                              onToggle: toggleDarkMode,
+                            ),
+                          ],
+                        ),
+                      ),
+                      AppSpacing.verticalSpaceMd,
+
+                      if (ref.read(isAuthenticatedProvider))
+                        // CHANGE PASSWORD
+                        ...[
+                        AppButton(
+                          fontSize: 16,
+                          size: AppButtonSize.huge,
+                          style: AppButtonStyle.filled,
+                          onPressed: () => passwordResetPopup(context),
+                          child: Row(
+                            children: [
+                              const Icon(Icons.lock, size: 24),
+
+                              // Icon(Icons.dark_mode_sharp, size: 24),
+                              // Icon(Icons.dark_mode_sharp, size: 24),
+
+                              const SizedBox(width: 17),
+                              Text(
+                                AppLocalizations.of(context)
+                                    .settingsPage_ChangeMyPassword,
+                              ),
+
+                              const Spacer(),
+                              Transform.rotate(
+                                  angle: 3.14 / 180 * (isLTR ? -90 : 90),
+                                  child:
+                                      const Icon(Icons.expand_more, size: 24)),
+                            ],
                           ),
-                        ],
-                      )),
-                ],
-              ),
+                        ),
+                        AppSpacing.verticalSpaceMd
+                      ],
+
+                      if (kIsWeb)
+                        AppButton(
+                          fontSize: 16,
+                          size: AppButtonSize.huge,
+                          style: AppButtonStyle.filled,
+                          onPressed: () => DashboardPopups.webAlert(context),
+                          child: Row(
+                            children: [
+                              Icon(Icons.download, size: 24),
+                              const SizedBox(width: 17),
+                              Text(
+                                AppLocalizations.of(context)
+                                    .settingsPage_WebAlert,
+                              ),
+                              const Spacer(),
+                              Transform.rotate(
+                                  angle: 3.14 / 180 * (isLTR ? -90 : 90),
+                                  child:
+                                      const Icon(Icons.expand_more, size: 24)),
+                            ],
+                          ),
+                        ),
+                      const Spacer(),
+                      // LOGOUT BUTTON
+                      AppButton(
+                          size: AppButtonSize.huge,
+                          style: AppButtonStyle.filled,
+                          intent: AppButtonIntent.destructive,
+                          onPressed: logout,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(AppLocalizations.of(context).logout),
+                              const Icon(
+                                Icons.logout,
+                                size: 26,
+                              ),
+                            ],
+                          )),
+                    ],
+                  ),
+                ),
+                // APP VERSION
+                const VersionDisplay()
+              ],
             ),
           )
         ],

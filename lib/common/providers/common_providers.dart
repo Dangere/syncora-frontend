@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:logger/logger.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:syncora_frontend/common/interceptors/auth_interceptor.dart';
 import 'package:syncora_frontend/common/interceptors/connection_interceptor.dart';
@@ -197,3 +198,34 @@ final searchBarSuggestionsProvider =
 final localizeAppErrorsProvider = Provider<LocalizeAppErrors>((ref) {
   return LocalizeAppErrors();
 });
+
+// final versionProvider = StateProvider<String>((ref) {
+//   PackageInfo.fromPlatform().then(
+//     (value) {
+//       print("got tttse");
+//  state = value.version;
+//     },
+//   );
+
+// // String appName = packageInfo.appName;
+// // String packageName = packageInfo.packageName;
+// // String version = packageInfo.version;
+// // String buildNumber = packageInfo.buildNumber;
+
+//   return "";
+// });
+
+class VersionNotifier extends Notifier<String> {
+  @override
+  String build() {
+    PackageInfo.fromPlatform().then(
+      (value) {
+        state = "${value.version}+${value.buildNumber}";
+      },
+    );
+    return "";
+  }
+}
+
+final versionProvider =
+    NotifierProvider<VersionNotifier, String>(VersionNotifier.new);

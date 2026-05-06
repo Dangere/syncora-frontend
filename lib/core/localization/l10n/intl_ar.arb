@@ -67,6 +67,8 @@
     },
     "tasks": "المهام",
     "@tasks": {},
+    "warning": "تنبيه",
+    "@warning": {},
     "language": "اللغة",
     "@language": {},
     "darkMode": "الوضع الداكن",
@@ -187,6 +189,8 @@
     "@settingsPage_ConfirmLogout": {},
     "settingsPage_ConfirmGuestLogout": "إذا خرجت كضيف سيتم حذف بياناتك",
     "@settingsPage_ConfirmGuestLogout": {},
+    "settingsPage_WebAlert": "حمل Syncora للـAndroid",
+    "@settingsPage_WebAlert": {},
     "dashboardPage_MyGroups": "مجموعاتي",
     "@dashboardPage_MyGroups": {},
     "dashboardPage_CreateGroup": "إنشاء مجموعة",
@@ -534,5 +538,17 @@
     "appError_HTTP_TooManyRequests": "طلبات كثيرة جدًا. يرجى الانتظار قليلًا والمحاولة مجددًا",
     "@appError_HTTP_TooManyRequests": {
         "description": "خطأ عند تجاوز العميل حد معدل الطلبات المسموح به (HTTP 429)"
+    },
+    "dashboard_alert_web": "Syncora تطبيق مصمَّم للهاتف، وأنت تشاهده الآن عبر المتصفح للاستعراض فقط. قد تبدو بعض الأجزاء غير مرتبة على شاشة الحاسوب، وقد لا تعمل بعض الخصائص بالطريقة نفسها كما هو الحال على الهاتف.",
+    "@dashboard_alert_web": {
+        "description": "تنبيه يُعلم المستخدم بأن التجربة الأفضل تكون عبر تطبيق الجوال"
+    },
+    "dashboard_alert_web_part2": "للحصول على التجربة الكاملة، يمكنك تنزيل التطبيق وتشغيله على أي هاتف Android من هنا",
+    "@dashboard_alert_web_part2": {
+        "description": "الجزء الثاني من التنبيه الذي يُعلم المستخدم بإمكانية تنزيل التطبيق"
+    },
+    "dashboard_alert_bugReport": "إذا واجهت أي مشكلة أو لديك اقتراح، يمكنك إرساله عبر الإعدادات ثم الإبلاغ عن خطأ",
+    "@dashboard_alert_bugReport": {
+        "description": "تنبيه يُعلم المستخدم بإمكانية الإبلاغ عن الأخطاء وإرسال الاقتراحات"
     }
 }

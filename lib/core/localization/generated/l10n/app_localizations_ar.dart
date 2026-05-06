@@ -71,6 +71,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get tasks => 'المهام';
 
   @override
+  String get warning => 'تنبيه';
+
+  @override
   String get language => 'اللغة';
 
   @override
@@ -219,6 +222,9 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get settingsPage_ConfirmGuestLogout =>
       'إذا خرجت كضيف سيتم حذف بياناتك';
+
+  @override
+  String get settingsPage_WebAlert => 'حمل Syncora للـAndroid';
 
   @override
   String get dashboardPage_MyGroups => 'مجموعاتي';
@@ -532,4 +538,16 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get appError_HTTP_TooManyRequests =>
       'طلبات كثيرة جدًا. يرجى الانتظار قليلًا والمحاولة مجددًا';
+
+  @override
+  String get dashboard_alert_web =>
+      'Syncora تطبيق مصمَّم للهاتف، وأنت تشاهده الآن عبر المتصفح للاستعراض فقط. قد تبدو بعض الأجزاء غير مرتبة على شاشة الحاسوب، وقد لا تعمل بعض الخصائص بالطريقة نفسها كما هو الحال على الهاتف.';
+
+  @override
+  String get dashboard_alert_web_part2 =>
+      'للحصول على التجربة الكاملة، يمكنك تنزيل التطبيق وتشغيله على أي هاتف Android من هنا';
+
+  @override
+  String get dashboard_alert_bugReport =>
+      'إذا واجهت أي مشكلة أو لديك اقتراح، يمكنك إرساله عبر الإعدادات ثم الإبلاغ عن خطأ';
 }

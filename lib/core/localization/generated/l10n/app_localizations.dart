@@ -218,6 +218,12 @@ abstract class AppLocalizations {
   /// **'Tasks'**
   String get tasks;
 
+  /// No description provided for @warning.
+  ///
+  /// In en, this message translates to:
+  /// **'Warning'**
+  String get warning;
+
   /// No description provided for @language.
   ///
   /// In en, this message translates to:
@@ -511,6 +517,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'If you log out as a guest your data will be deleted'**
   String get settingsPage_ConfirmGuestLogout;
+
+  /// No description provided for @settingsPage_WebAlert.
+  ///
+  /// In en, this message translates to:
+  /// **'Download Syncora for Android'**
+  String get settingsPage_WebAlert;
 
   /// No description provided for @dashboardPage_MyGroups.
   ///
@@ -1069,6 +1081,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Too many requests. Please wait a moment and try again'**
   String get appError_HTTP_TooManyRequests;
+
+  /// Alert that pops up to inform the user that for best experience they should try the mobile app
+  ///
+  /// In en, this message translates to:
+  /// **'Syncora is a mobile app, you\'re viewing it from the web for showcase only. Since this is a mobile-first UI, things may look a little off on a desktop screen, and a few features behave differently on web than they do natively.'**
+  String get dashboard_alert_web;
+
+  /// Part 2 of the alert that pops up to inform the user that for best experience they should try the mobile app
+  ///
+  /// In en, this message translates to:
+  /// **'For the real experience, you can download the APK directly and run it on any Android device from here'**
+  String get dashboard_alert_web_part2;
+
+  /// Alert that pops up to inform the user that they can report any bugs or submit suggestions
+  ///
+  /// In en, this message translates to:
+  /// **'You can report any bugs or submit suggestions through the settings then bug report'**
+  String get dashboard_alert_bugReport;
 }
 
 class _AppLocalizationsDelegate

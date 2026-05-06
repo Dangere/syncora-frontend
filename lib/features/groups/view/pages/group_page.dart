@@ -94,9 +94,11 @@ class GroupPageState extends ConsumerState<GroupPage> {
             confirmText: AppLocalizations.of(context).confirm);
 
         if (confirmDeletion) {
-          await ref
+          bool didDelete = await ref
               .read(groupProvider(widget.groupId).notifier)
               .deleteGroup(widget.groupId);
+
+          if (didDelete && mounted) Navigator.pop(context);
         }
       },
     );

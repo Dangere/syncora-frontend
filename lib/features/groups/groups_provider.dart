@@ -333,7 +333,7 @@ class GroupNotifier extends AutoDisposeFamilyAsyncNotifier<Group?, int> {
     await _refreshState();
   }
 
-  Future<void> deleteGroup(int groupId) async {
+  Future<bool> deleteGroup(int groupId) async {
     int resolvedId = ref.read(outboxIdMapperProvider).resolveId(groupId);
 
     Result<void> deleteResult =
@@ -341,10 +341,12 @@ class GroupNotifier extends AutoDisposeFamilyAsyncNotifier<Group?, int> {
 
     if (!deleteResult.isSuccess) {
       ref.read(appErrorProvider.notifier).state = deleteResult.error;
-      return;
+      return false;
     }
 
     await _refreshState();
+
+    return true;
   }
 
   Future<void> leaveGroup() async {

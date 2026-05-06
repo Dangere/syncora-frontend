@@ -39,6 +39,7 @@ class MyApp extends ConsumerWidget {
     ref.read(isOnlineProvider);
     ref.read(syncBackendProvider);
     ref.read(googleSignInProvider);
+    ref.read(versionProvider);
 
     return MaterialApp.router(
       useInheritedMediaQuery: true,

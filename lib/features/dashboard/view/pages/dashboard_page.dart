@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -15,6 +16,8 @@ import 'package:syncora_frontend/core/network/syncing/sync_provider.dart';
 import 'package:syncora_frontend/core/utils/snack_bar_alerts.dart';
 import 'package:syncora_frontend/features/authentication/models/auth_state.dart';
 import 'package:syncora_frontend/features/authentication/auth_provider.dart';
+import 'package:syncora_frontend/features/dashboard/dashboard_popups.dart';
+import 'package:syncora_frontend/features/dashboard/dashboard_provider.dart';
 import 'package:syncora_frontend/features/dashboard/view/widgets/connection_header.dart';
 import 'package:syncora_frontend/features/dashboard/view/widgets/dashboard_search_bar.dart';
 import 'package:syncora_frontend/features/groups/groups_provider.dart';
@@ -22,6 +25,7 @@ import 'package:syncora_frontend/features/groups/view/popups/group_popups.dart';
 import 'package:syncora_frontend/features/groups/view/widgets/group_total_progress_card.dart';
 import 'package:syncora_frontend/features/groups/view/widgets/groups_list.dart';
 import 'package:syncora_frontend/features/users/providers/users_provider.dart';
+import 'package:transparent_image/transparent_image.dart';
 
 class DashboardPage extends ConsumerStatefulWidget {
   const DashboardPage({super.key});
@@ -36,6 +40,14 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
 
   @override
   void initState() {
+    Future.microtask(
+      () async {
+        // await Future.delayed(const Duration(seconds: 1));
+        if (ref.read(displayDashboardAlertProvider) && kIsWeb) {
+          if (mounted) DashboardPopups.webAlert(context);
+        }
+      },
+    );
     super.initState();
   }
 
@@ -69,61 +81,58 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
     ref.read(loggerProvider).d("Building dashboard page");
     return Scaffold(
       resizeToAvoidBottomInset: false,
-      floatingActionButton: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [
-          AppButton(
-            width: 80,
-            onPressed: () {
-              ref
-                  .read(debug_fakeBeingOnlineProvider.notifier)
-                  .update((state) => !state);
-            },
-            size: AppButtonSize.mini,
-            style: AppButtonStyle.filled,
-            intent: AppButtonIntent.warning,
-            child: const Icon(Icons.add),
-          ),
-          AppButton(
-            width: 80,
-            onPressed: () async {
-              (await ref.read(outboxRepositoryProvider).getPendingEntries())
-                  .forEach(
-                (element) {
-                  print(element.toString());
-                },
-              );
-            },
-            size: AppButtonSize.mini,
-            style: AppButtonStyle.filled,
-            intent: AppButtonIntent.warning,
-            child: const Icon(Icons.table_bar),
-          ),
-        ],
-      ),
+      // floatingActionButton: Row(
+      //   mainAxisAlignment: MainAxisAlignment.spaceAround,
+      //   children: [
+      //     // AppButton(
+      //     //   width: 80,
+      //     //   onPressed: () {
+      //     //     ref
+      //     //         .read(debug_fakeBeingOnlineProvider.notifier)
+      //     //         .update((state) => !state);
+      //     //   },
+      //     //   size: AppButtonSize.mini,
+      //     //   style: AppButtonStyle.filled,
+      //     //   intent: AppButtonIntent.warning,
+      //     //   child: const Icon(Icons.add),
+      //     // ),
+      //     AppButton(
+      //       width: 80,
+      //       onPressed: () async {
+      //         if (ref.read(displayDashboardAlertProvider) && kIsWeb) {
+      //           if (mounted) DashboardPopups.webAlert(context);
+      //         }
+      //       },
+      //       size: AppButtonSize.mini,
+      //       style: AppButtonStyle.filled,
+      //       intent: AppButtonIntent.warning,
+      //       child: const Icon(Icons.settings_display_sharp),
+      //     ),
+      //   ],
+      // ),
       body: Stack(
         children: [
           // BACKGROUND GRAPHIC COLORS
           Positioned.fill(
-            child: Image.asset(
-                width: double.infinity,
-                // height: 371,
-                // fit: BoxFit.fitWidth,
-                alignment: Alignment.topCenter,
-                fit: BoxFit.fitWidth,
-                "assets/images/background_dashboard_effect.png"),
+            child: FadeInImage(
+              width: double.infinity,
+              alignment: Alignment.topCenter,
+              fit: BoxFit.fitWidth,
+              placeholder: MemoryImage(kTransparentImage),
+              image: const AssetImage(
+                  "assets/images/background_dashboard_effect.png"),
+            ),
           ),
           //BACKGROUND GRAPHIC
           Positioned.fill(
-            child: Image.asset(
-                width: double.infinity,
-                // height: 371,
-                // fit: BoxFit.fitWidth,
-                alignment: Alignment.topCenter,
-                fit: BoxFit.fitWidth,
-                "assets/images/background_dashboard.png"),
+            child: FadeInImage(
+              width: double.infinity,
+              alignment: Alignment.topCenter,
+              fit: BoxFit.fitWidth,
+              placeholder: MemoryImage(kTransparentImage),
+              image: const AssetImage("assets/images/background_dashboard.png"),
+            ),
           ),
-
           RefreshIndicator(
             onRefresh: onRefresh,
             child: CustomScrollView(
@@ -137,7 +146,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                   child: Padding(
                     padding: AppSpacing.paddingHorizontalLg,
                     child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      // mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         const SizedBox(
                           width: 90,
@@ -147,6 +156,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                             size: 40,
                           ),
                         ),
+                        Spacer(),
                         Container(
                           width: 110,
                           height: 55,

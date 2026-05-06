@@ -70,6 +70,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get tasks => 'Tasks';
 
   @override
+  String get warning => 'Warning';
+
+  @override
   String get language => 'Language';
 
   @override
@@ -217,6 +220,9 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get settingsPage_ConfirmGuestLogout =>
       'If you log out as a guest your data will be deleted';
+
+  @override
+  String get settingsPage_WebAlert => 'Download Syncora for Android';
 
   @override
   String get dashboardPage_MyGroups => 'My Groups';
@@ -532,4 +538,16 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get appError_HTTP_TooManyRequests =>
       'Too many requests. Please wait a moment and try again';
+
+  @override
+  String get dashboard_alert_web =>
+      'Syncora is a mobile app, you\'re viewing it from the web for showcase only. Since this is a mobile-first UI, things may look a little off on a desktop screen, and a few features behave differently on web than they do natively.';
+
+  @override
+  String get dashboard_alert_web_part2 =>
+      'For the real experience, you can download the APK directly and run it on any Android device from here';
+
+  @override
+  String get dashboard_alert_bugReport =>
+      'You can report any bugs or submit suggestions through the settings then bug report';
 }
