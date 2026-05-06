@@ -1,4 +1,4 @@
-name: Build apk and put it in a release
+name: Build apk and draft a release
 
 on:
   workflow_dispatch:
