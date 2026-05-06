@@ -18,5 +18,10 @@ jobs:
       - run: flutter pub get
       - run: flutter build apk --release
 
-      - name: Debug via SSH
-        uses: mxschmitt/action-tmate@v3
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v3
+        with:
+          name: "Syncora v1.0.0"
+          body: "Release Notes!!"
+          files: build/app/outputs/flutter-apk/app-release.apk
+          draft: true
