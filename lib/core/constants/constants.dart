@@ -14,4 +14,7 @@ class Constants {
 
   static String BASE_API_URL = "$BASE_URL/api";
   static String BASE_HUB_URL = "$BASE_URL/hubs";
+
+  static String APK_DOWNLOAD_URL =
+      'https://github.com/Dangere/syncora-frontend/releases/latest';
 }

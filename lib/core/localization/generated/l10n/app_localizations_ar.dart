@@ -68,6 +68,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get confirm => 'تأكيد';
 
   @override
+  String get okay => 'حسنا';
+
+  @override
   String get tasks => 'المهام';
 
   @override

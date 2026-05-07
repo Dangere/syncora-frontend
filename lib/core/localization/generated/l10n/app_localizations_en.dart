@@ -67,6 +67,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get confirm => 'Confirm';
 
   @override
+  String get okay => 'Okay';
+
+  @override
   String get tasks => 'Tasks';
 
   @override

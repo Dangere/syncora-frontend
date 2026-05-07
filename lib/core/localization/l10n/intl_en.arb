@@ -65,6 +65,10 @@
   "@confirm": {
     "description": "Generic confirm action label"
   },
+  "okay": "Okay",
+  "@okay": {
+    "description": "Generic Okay action label"
+  },
   "tasks": "Tasks",
   "@tasks": {},
   "warning": "Warning",

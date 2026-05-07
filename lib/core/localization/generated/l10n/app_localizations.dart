@@ -212,6 +212,12 @@ abstract class AppLocalizations {
   /// **'Confirm'**
   String get confirm;
 
+  /// Generic Okay action label
+  ///
+  /// In en, this message translates to:
+  /// **'Okay'**
+  String get okay;
+
   /// No description provided for @tasks.
   ///
   /// In en, this message translates to:
