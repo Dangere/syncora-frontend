@@ -38,8 +38,10 @@ flutter pub get
 ```
 
 ### Environment Setup
- Update `BASE_URL` in lib/core/constants.dart to point to your backend URL. <br/>
- Update `CLOUDINARY_API_KEY` and `CLOUDINARY_UPLOAD_URL` in lib/core/image/cloudinary_image_repository.dart to point to your [Cloudinary API](https://cloudinary.com).
+ Update `BASE_URL` in `lib/core/constants.dart` to point to your backend URL. <br/>
+ Update `CLOUDINARY_API_KEY` and `CLOUDINARY_UPLOAD_URL` in `lib/core/image/cloudinary_image_repository.dart` to point to your [Cloudinary API](https://cloudinary.com).
+
+ Update `apk_release_qr.png` in `assets/images` and update `APK_DOWNLOAD_URL` in `lib/core/constants.dart` to point to your android APK site. <br/>
 
 ### Running
 
