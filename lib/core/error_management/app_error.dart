@@ -2,7 +2,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:syncora_frontend/core/data/enums/app_error_code.dart';
-import 'package:syncora_frontend/core/utils/error_mapper.dart';
+import 'package:syncora_frontend/core/error_management/error_mapper.dart';
 
 // Currently there is no way to know if we should ignore this error and not print it, so far it will always have a value to print
 class AppError {

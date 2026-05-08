@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:dio/dio.dart';
 import 'package:syncora_frontend/core/network/outbox/exception/outbox_exception.dart';
 import 'package:syncora_frontend/core/network/outbox/interface/outbox_processor_interface.dart';
 import 'package:syncora_frontend/core/network/outbox/model/outbox_entry.dart';
@@ -146,10 +145,7 @@ class TasksProcessor extends OutboxProcessor {
         break;
 
       case OutboxActionType.leave:
-        // TODO: Handle this case.
         break;
-      default:
-        return groupId;
     }
 
     return groupId;

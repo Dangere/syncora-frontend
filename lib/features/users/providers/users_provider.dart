@@ -11,7 +11,7 @@ import 'package:syncora_frontend/core/network/outbox/outbox_provider.dart';
 import 'package:syncora_frontend/core/network/syncing/sync_state.dart';
 import 'package:syncora_frontend/core/network/syncing/sync_provider.dart';
 import 'package:syncora_frontend/core/typedef.dart';
-import 'package:syncora_frontend/core/utils/app_error.dart';
+import 'package:syncora_frontend/core/error_management/app_error.dart';
 import 'package:syncora_frontend/core/utils/result.dart';
 import 'package:syncora_frontend/features/authentication/models/auth_state.dart';
 import 'package:syncora_frontend/features/users/models/user.dart';

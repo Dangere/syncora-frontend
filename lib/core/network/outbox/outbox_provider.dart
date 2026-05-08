@@ -13,8 +13,7 @@ import 'package:syncora_frontend/core/network/outbox/processors/tasks_processor.
 import 'package:syncora_frontend/core/network/outbox/processors/user_processor.dart';
 import 'package:syncora_frontend/core/network/outbox/repository/outbox_repository.dart';
 import 'package:syncora_frontend/core/network/syncing/sync_provider.dart';
-import 'package:syncora_frontend/core/utils/app_error.dart';
-import 'package:syncora_frontend/core/utils/error_mapper.dart';
+import 'package:syncora_frontend/core/error_management/app_error.dart';
 import 'package:syncora_frontend/core/utils/result.dart';
 import 'package:syncora_frontend/features/authentication/auth_provider.dart';
 import 'package:syncora_frontend/features/groups/groups_provider.dart';

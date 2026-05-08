@@ -12,8 +12,6 @@ import 'package:syncora_frontend/core/network/outbox/model/outbox_entry.dart';
 import 'package:syncora_frontend/core/network/outbox/outbox_id_mapper.dart';
 import 'package:syncora_frontend/core/network/outbox/outbox_sorter.dart';
 import 'package:syncora_frontend/core/network/outbox/repository/outbox_repository.dart';
-import 'package:syncora_frontend/core/typedef.dart';
-import 'package:syncora_frontend/core/utils/app_error.dart';
 import 'package:syncora_frontend/core/utils/result.dart';
 
 enum OutboxErrorQueueAction {
