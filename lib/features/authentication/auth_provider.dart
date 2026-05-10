@@ -4,6 +4,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:syncora_frontend/common/providers/common_providers.dart';
+import 'package:syncora_frontend/core/analytics/breadcrumb_type.dart';
+import 'package:syncora_frontend/core/analytics/breadcrumbs_service.dart';
 import 'package:syncora_frontend/core/data/enums/app_error_code.dart';
 import 'package:syncora_frontend/core/error_management/app_error.dart';
 import 'package:syncora_frontend/core/utils/result.dart';
@@ -244,6 +246,8 @@ class AuthNotifier extends AsyncNotifier<AuthState> {
           "Tokens are empty, cannot refresh them", StackTrace.current);
     }
 
+    BreadcrumbService.instance
+        .add(BreadcrumbType.state, "Auth provider: Updating tokens");
     if (_refreshTokenCompleter != null) {
       await _refreshTokenCompleter?.future;
       // Right now second callers to this method will only wait for the first caller to finish refreshing the tokens

@@ -90,6 +90,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                       AppSpacing.verticalSpaceMd,
                       // TOGGLE DARK MODE
                       AppButton(
+                        breadcrumbLabel: () =>
+                            "Toggle dark mode to ${!isDarkMode}",
                         fontSize: 16,
                         size: AppButtonSize.huge,
                         style: AppButtonStyle.filled,
@@ -133,6 +135,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                         // CHANGE PASSWORD
                         ...[
                         AppButton(
+                          breadcrumbLabel: () => "Send password reset",
                           fontSize: 16,
                           size: AppButtonSize.huge,
                           style: AppButtonStyle.filled,
@@ -163,6 +166,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
 
                       if (kIsWeb)
                         AppButton(
+                          breadcrumbLabel: () => "Download APK",
                           fontSize: 16,
                           size: AppButtonSize.huge,
                           style: AppButtonStyle.filled,
@@ -186,6 +190,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                       const Spacer(),
                       // LOGOUT BUTTON
                       AppButton(
+                          breadcrumbLabel: () => "Logout",
                           size: AppButtonSize.huge,
                           style: AppButtonStyle.filled,
                           intent: AppButtonIntent.destructive,
@@ -267,6 +272,7 @@ class LanguageExpandableCard extends StatelessWidget {
               child: Column(
                 children: [
                   AppButton(
+                    breadcrumbLabel: () => "Change lang to en",
                     highlighted: currentLocale.languageCode == "en",
                     size: AppButtonSize.medium,
                     style: AppButtonStyle.dropdown,
@@ -278,6 +284,7 @@ class LanguageExpandableCard extends StatelessWidget {
                   ),
                   const SizedBox(height: 8),
                   AppButton(
+                    breadcrumbLabel: () => "Change lang to ar",
                     highlighted: currentLocale.languageCode == "ar",
                     size: AppButtonSize.medium,
                     style: AppButtonStyle.dropdown,

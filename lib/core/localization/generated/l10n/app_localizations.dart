@@ -167,7 +167,7 @@ abstract class AppLocalizations {
   /// The title of the onboarding page
   ///
   /// In en, this message translates to:
-  /// **'Welcome To CoTask'**
+  /// **'Welcome To Syncora'**
   String get onboardingPage_Title;
 
   /// The description of the onboarding page
@@ -217,6 +217,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Okay'**
   String get okay;
+
+  /// Generic cancel action label
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get cancel;
 
   /// No description provided for @tasks.
   ///
@@ -319,6 +325,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'More Options'**
   String get moreOptions;
+
+  /// Generic gallery action label for image picking
+  ///
+  /// In en, this message translates to:
+  /// **'Gallery'**
+  String get gallery;
+
+  /// Generic camera action label for image picking
+  ///
+  /// In en, this message translates to:
+  /// **'Camera'**
+  String get camera;
 
   /// No description provided for @filter_Completed.
   ///
@@ -719,8 +737,20 @@ abstract class AppLocalizations {
   /// Label for task title alert
   ///
   /// In en, this message translates to:
-  /// **'Task title'**
+  /// **'Task Title'**
   String get tasksPopup_Title_Label;
+
+  /// Dialog title for editing a task's title
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Task Title'**
+  String get tasksPopup_TitleEdit;
+
+  /// Label for task assigned members alert
+  ///
+  /// In en, this message translates to:
+  /// **'Assigned Members'**
+  String get tasksPopup_AssignedMembers;
 
   /// Title of the password reset alert
   ///

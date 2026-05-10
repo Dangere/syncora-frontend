@@ -82,11 +82,11 @@ class OutboxIdMapper {
 
   /// Cache the retrieved server id to temp id (when task and group are synced to backend) to avoid unnecessary db calls
   void cacheId({required int tempId, required int serverId}) {
-    _tempToServer.forEach(
-      (key, value) {
-        print("tempId: $key, serverId: $value");
-      },
-    );
+    // _tempToServer.forEach(
+    //   (key, value) {
+    //     print("tempId: $key, serverId: $value");
+    //   },
+    // );
     _tempToServer[tempId] = serverId;
     _serverToTemp[serverId] = tempId;
   }

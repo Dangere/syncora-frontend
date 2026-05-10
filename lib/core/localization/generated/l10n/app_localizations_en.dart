@@ -42,7 +42,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get groupInfoPopup_Alert_NoMembers => 'Group has no members';
 
   @override
-  String get onboardingPage_Title => 'Welcome To CoTask';
+  String get onboardingPage_Title => 'Welcome To Syncora';
 
   @override
   String get onboardingPage_Description =>
@@ -68,6 +68,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get okay => 'Okay';
+
+  @override
+  String get cancel => 'Cancel';
 
   @override
   String get tasks => 'Tasks';
@@ -119,6 +122,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get moreOptions => 'More Options';
+
+  @override
+  String get gallery => 'Gallery';
+
+  @override
+  String get camera => 'Camera';
 
   @override
   String get filter_Completed => 'Completed';
@@ -324,7 +333,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get groupPopup_Error_UserNotFound => 'User not found';
 
   @override
-  String get tasksPopup_Title_Label => 'Task title';
+  String get tasksPopup_Title_Label => 'Task Title';
+
+  @override
+  String get tasksPopup_TitleEdit => 'Edit Task Title';
+
+  @override
+  String get tasksPopup_AssignedMembers => 'Assigned Members';
 
   @override
   String get settingsPopup_Password_Reset_title => 'Password Reset Link';

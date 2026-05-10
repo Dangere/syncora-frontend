@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:syncora_frontend/common/widgets/app_button.dart';
 import 'package:syncora_frontend/common/widgets/profile_picture.dart';
+import 'package:syncora_frontend/core/analytics/breadcrumb.dart';
+import 'package:syncora_frontend/core/analytics/breadcrumb_type.dart';
+import 'package:syncora_frontend/core/analytics/breadcrumbs_service.dart';
 import 'package:syncora_frontend/core/localization/generated/l10n/app_localizations.dart';
 import 'package:syncora_frontend/core/utils/dialogs.dart';
 import 'package:syncora_frontend/core/utils/validators.dart';
@@ -25,13 +28,18 @@ class TasksPopups {
 
     void onUserToggle(int userId, void Function(void Function()) setState) {
       if (!isOwner) return;
+
       bool isSelected =
           selectedUsers.where((user) => user.id == userId).isNotEmpty;
 
       setState(() {
         if (!isSelected) {
+          BreadcrumbService.instance
+              .add(BreadcrumbType.tap, 'Assigned user $userId');
           selectedUsers.add(members.firstWhere((user) => user.id == userId));
         } else {
+          BreadcrumbService.instance
+              .add(BreadcrumbType.tap, 'Unassigned user $userId');
           selectedUsers.removeWhere((user) => user.id == userId);
         }
       });
@@ -57,7 +65,7 @@ class TasksPopups {
         disableKeyboardAdjustment: true,
         barrierDismissible: true,
         blurBackground: false,
-        title: "Assigned users",
+        title: AppLocalizations.of(context).tasksPopup_AssignedMembers,
         content: StatefulBuilder(builder: (context, setState) {
       return Column(
         mainAxisSize: MainAxisSize.min,
@@ -137,6 +145,7 @@ class TasksPopups {
           // CONFIRM
           if (isOwner)
             AppButton(
+                breadcrumbLabel: () => "Confirmed assigned members",
                 size: AppButtonSize.small,
                 style: AppButtonStyle.filled,
                 intent: AppButtonIntent.primary,
@@ -159,17 +168,24 @@ class TasksPopups {
             multiLine: true,
             autofocus: true,
             validation: (p0) {
-              if (p0 == null || p0.trim().isEmpty) return "Empty title";
-              if (p0.trim() == defaultText) return "New title is not changed";
-              return Validators.validateGroupTitle(p0) ? null : "Invalid title";
+              if (p0 == null || p0.trim().isEmpty) {
+                return AppLocalizations.of(context).validation_Title_Empty;
+              }
+              if (p0.trim() == defaultText) {
+                return AppLocalizations.of(context)
+                    .validation_GroupTitle_Unchanged;
+              }
+              return Validators.validateGroupTitle(p0)
+                  ? null
+                  : AppLocalizations.of(context).validation_Title_Invalid;
             },
-            label: "Task Title",
+            label: AppLocalizations.of(context).tasksPopup_Title_Label,
             defaultText: defaultText)
       ],
       barrierDismissible: true,
       blurBackground: false,
-      title: "Edit task title",
-      confirmText: "Rename",
+      title: AppLocalizations.of(context).tasksPopup_TitleEdit,
+      confirmText: AppLocalizations.of(context).rename,
     );
 
     return data.isEmpty ? null : data[0];
@@ -185,8 +201,9 @@ class TasksPopups {
             label: AppLocalizations.of(context).tasksPopup_Title_Label,
             defaultHintText: AppLocalizations.of(context).alert_Title_Enter,
             validation: (p0) {
-              if (p0 == null || p0.trim().isEmpty)
+              if (p0 == null || p0.trim().isEmpty) {
                 return AppLocalizations.of(context).validation_Title_Empty;
+              }
 
               return Validators.validateGroupTitle(p0)
                   ? null

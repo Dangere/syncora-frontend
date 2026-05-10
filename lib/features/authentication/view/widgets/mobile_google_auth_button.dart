@@ -5,7 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:syncora_frontend/common/widgets/app_button.dart';
 import 'package:syncora_frontend/core/localization/generated/l10n/app_localizations.dart';
 import 'package:syncora_frontend/features/authentication/auth_provider.dart';
-import 'package:syncora_frontend/features/authentication/google_auth_type_enum.dart';
+import 'package:syncora_frontend/features/authentication/google_auth_type.dart';
 import 'package:syncora_frontend/features/authentication/models/google_user_info.dart';
 
 // Mobile implementation of the google auth button
@@ -41,6 +41,7 @@ class GoogleAuthButton extends ConsumerWidget {
     });
 
     return AppButton(
+        breadcrumbLabel: () => "Mobile google auth",
         size: AppButtonSize.large,
         style: AppButtonStyle.glow,
         onPressed: () async {

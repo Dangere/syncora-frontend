@@ -27,6 +27,8 @@ class OnboardingPage extends ConsumerWidget {
       }
     }
 
+    final lightMode = Theme.of(context).brightness == Brightness.light;
+
     return Scaffold(
       body: OverlayLoader(
         isLoading: user.isLoading,
@@ -69,16 +71,25 @@ class OnboardingPage extends ConsumerWidget {
                   // LOGO
                   Center(
                     child: Container(
+                      alignment: Alignment.center,
                       width: 205 - (MediaQuery.of(context).size.height * 0.01),
                       height: 205 - (MediaQuery.of(context).size.height * 0.01),
-                      decoration: const BoxDecoration(
-                        color: Colors.white,
+                      decoration: BoxDecoration(
+                        color: lightMode
+                            ? Colors.white
+                            : Colors.deepPurple.shade900.withValues(alpha: 0.3),
                         borderRadius: BorderRadius.all(Radius.circular(32)),
                       ),
-                      child: Icon(
-                        Icons.person_3,
-                        size: 150,
-                        color: Theme.of(context).colorScheme.onBackground,
+                      child: SizedBox.square(
+                        child: SvgPicture.asset(
+                          "assets/logos/syncora-logo.svg",
+                          height: 115,
+                          colorFilter: ColorFilter.mode(
+                              lightMode
+                                  ? Theme.of(context).colorScheme.secondary
+                                  : Theme.of(context).colorScheme.primary,
+                              BlendMode.srcIn),
+                        ),
                       ),
                     ),
                   ),
@@ -110,6 +121,7 @@ class OnboardingPage extends ConsumerWidget {
                   const SizedBox(height: 48),
                   // CREATE ACCOUNT BUTTON
                   AppButton(
+                    breadcrumbLabel: () => "Create new account",
                     // highlighted: true,
                     fontSize: 16,
                     // variant: AppButtonVariant.wide,
@@ -123,6 +135,8 @@ class OnboardingPage extends ConsumerWidget {
                   const SizedBox(height: 24),
                   // CONTINUE AS A GUEST
                   AppButton(
+                    breadcrumbLabel: () => "Continue as guest",
+
                     fontSize: 16,
                     size: AppButtonSize.large,
                     style: AppButtonStyle.glow,

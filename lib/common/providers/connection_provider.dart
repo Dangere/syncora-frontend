@@ -2,6 +2,8 @@ import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:internet_connection_checker/internet_connection_checker.dart';
+import 'package:syncora_frontend/core/analytics/breadcrumb_type.dart';
+import 'package:syncora_frontend/core/analytics/breadcrumbs_service.dart';
 
 // ignore: non_constant_identifier_names
 final debug_fakeBeingOnlineProvider = StateProvider<bool>((ref) {
@@ -110,6 +112,7 @@ final _connectionProvider =
 
 final isOnlineProvider = Provider<bool>((ref) {
   var status = ref.watch(_connectionProvider);
+  BreadcrumbService.instance.add(BreadcrumbType.connection, status.name);
   return status == ConnectionStatus.connected;
 });
 

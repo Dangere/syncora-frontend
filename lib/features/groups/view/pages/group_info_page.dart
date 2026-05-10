@@ -8,6 +8,8 @@ import 'package:syncora_frontend/common/themes/app_sizes.dart';
 import 'package:syncora_frontend/common/themes/app_spacing.dart';
 import 'package:syncora_frontend/common/themes/app_theme.dart';
 import 'package:syncora_frontend/common/widgets/profile_picture.dart';
+import 'package:syncora_frontend/core/analytics/breadcrumb_type.dart';
+import 'package:syncora_frontend/core/analytics/breadcrumbs_service.dart';
 import 'package:syncora_frontend/core/localization/generated/l10n/app_localizations.dart';
 import 'package:syncora_frontend/core/error_management/app_error.dart';
 import 'package:syncora_frontend/core/utils/date_utilities.dart';
@@ -30,6 +32,9 @@ class _GroupInfoPageState extends ConsumerState<GroupInfoPage> {
   bool isEditingMembers = false;
 
   void onGroupDescriptionEdit(String? defaultDescription) async {
+    BreadcrumbService.instance
+        .add(BreadcrumbType.tap, 'Group description edit');
+
     String? newDescription = await GroupPopups.groupDescriptionEditPopup(
         context, defaultDescription ?? "");
 
@@ -42,6 +47,8 @@ class _GroupInfoPageState extends ConsumerState<GroupInfoPage> {
   }
 
   void onMembersEdit() async {
+    BreadcrumbService.instance.add(BreadcrumbType.tap, 'Group member edit');
+
     if (displayedMembers.length <= 1) {
       SnackBarAlerts.showAlertSnackBar(
           AppLocalizations.of(context).groupInfoPopup_Alert_NoMembers, context);
@@ -55,6 +62,7 @@ class _GroupInfoPageState extends ConsumerState<GroupInfoPage> {
   }
 
   void onDeleteMember(String username) {
+    BreadcrumbService.instance.add(BreadcrumbType.tap, 'Delete user $username');
     ref
         .read(groupProvider(widget.groupId).notifier)
         .removeUserAccessToGroup(username);
@@ -94,8 +102,6 @@ class _GroupInfoPageState extends ConsumerState<GroupInfoPage> {
                   .isGroupOwner();
 
               Group group = data;
-
-              print(group.toString());
 
               return Padding(
                 padding: AppSpacing.paddingHorizontalLg +

@@ -6,6 +6,9 @@ import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:logger/logger.dart';
 import 'package:syncora_frontend/common/providers/common_providers.dart';
+import 'package:syncora_frontend/core/analytics/breadcrumb.dart';
+import 'package:syncora_frontend/core/analytics/breadcrumb_type.dart';
+import 'package:syncora_frontend/core/analytics/breadcrumbs_service.dart';
 import 'package:syncora_frontend/core/typedef.dart';
 import 'package:syncora_frontend/features/authentication/models/google_register_filled_info.dart';
 import 'package:syncora_frontend/features/authentication/models/google_user_info.dart';
@@ -215,8 +218,12 @@ class RouteNotifier extends Notifier<GoRouter> {
           },
         ),
       ],
-      // TODO: Check the public routes and implement them in the redirection
+
+      // TODO(DONE): Check the public routes and implement them in the redirection
       redirect: (context, state) {
+        BreadcrumbService.instance
+            .add(BreadcrumbType.navigation, "Path: ${state.uri}");
+
         String currentPath = state.fullPath ?? "";
         bool isWithinPublicPath = publicPaths.any(
           (element) {
@@ -242,6 +249,11 @@ class RouteNotifier extends Notifier<GoRouter> {
         MyNavObserver(
           onPop: (arg) {
             _routeController.add(state.state.name ?? '');
+
+            if (state.state.name != null) {
+              BreadcrumbService.instance.add(
+                  BreadcrumbType.navigation, "Popped out: ${state.state.name}");
+            }
           },
           onPush: (arg) {
             _routeController.add(state.state.name ?? '');

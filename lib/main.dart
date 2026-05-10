@@ -11,6 +11,7 @@ import 'package:syncora_frontend/common/providers/connection_provider.dart';
 import 'package:syncora_frontend/common/themes/app_theme.dart';
 import 'package:syncora_frontend/core/localization/generated/l10n/app_localizations.dart';
 import 'package:syncora_frontend/core/network/syncing/sync_provider.dart';
+import 'package:syncora_frontend/debug/breadcrumb_log.dart';
 import 'package:syncora_frontend/features/authentication/auth_provider.dart';
 import 'package:syncora_frontend/router.dart';
 
@@ -42,10 +43,19 @@ class MyApp extends ConsumerWidget {
     ref.read(versionProvider);
 
     return MaterialApp.router(
-      useInheritedMediaQuery: true,
       debugShowCheckedModeBanner: false,
       locale: locale,
-      builder: DevicePreview.appBuilder,
+      builder: (context, child) {
+        return Directionality(
+          textDirection: ref.read(localeProvider.notifier).getTextDirection(),
+          child: Stack(
+            children: [
+              DevicePreview.appBuilder(context, child),
+              if (kDebugMode) BreadcrumbLog()
+            ],
+          ),
+        );
+      },
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
       routerConfig: router,
@@ -62,18 +72,3 @@ Future<List<Override>> providerOverrides() async {
 
   return [sharedPreferencesProvider.overrideWith((ref) => sharedPreferences)];
 }
-
-// void registerSyncListeners(WidgetRef ref) {
-//   ref.listen(isAuthenticatedProvider, (previous, next) {
-//     if (next) {
-//       if (ref.exists(syncBackendNotifierProvider)) {
-//         ref.read(syncBackendNotifierProvider.notifier).initializeConnection();
-//       }
-//       ref.read(syncBackendNotifierProvider.notifier);
-
-//       // ref.read(syncBackendNotifierProvider.notifier);
-//     } else {
-//       ref.read(syncBackendNotifierProvider.notifier).dispose();
-//     }
-//   });
-// }

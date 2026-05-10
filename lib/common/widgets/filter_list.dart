@@ -1,4 +1,3 @@
-import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:syncora_frontend/common/themes/app_spacing.dart';
@@ -91,6 +90,8 @@ class _FilterListState<T extends Enum> extends ConsumerState<FilterList<T>> {
             bool isSelected =
                 selectedValues.contains(widget.items[index].value);
             return AppButton(
+              breadcrumbLabel: () =>
+                  "Filter ${widget.items[index].title.toString()}",
               ignoreContentPadding: true,
               width: null,
               fontSize: 14,

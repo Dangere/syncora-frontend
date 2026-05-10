@@ -43,7 +43,7 @@
     "@groupInfoPopup_Alert_NoMembers": {
         "description": "تنبيه عند عدم وجود أعضاء في المجموعة"
     },
-    "onboardingPage_Title": "مرحبًا بك في CoTask",
+    "onboardingPage_Title": "مرحبًا بك في Syncora",
     "@onboardingPage_Title": {
         "description": "عنوان صفحة الترحيب"
     },
@@ -68,6 +68,10 @@
     "okay": "حسنا",
     "@okay": {
         "description": "تسمية إجراء حسنا العامة"
+    },
+    "cancel": "الغاء",
+    "@cancel": {
+        "description": "تسمية إجراء الغاء العامة"
     },
     "tasks": "المهام",
     "@tasks": {},
@@ -124,6 +128,14 @@
     "moreOptions": "خيارات إضافية",
     "@moreOptions": {
         "description": "تسمية الخيارات الإضافية العامة"
+    },
+    "gallery": "المعرض",
+    "@gallery": {
+        "description": "تسمية المعرض العامة لتحديد الصور"
+    },
+    "camera": "الكاميرا",
+    "@camera": {
+        "description": "تسمية الكاميرا العامة لتحديد الصور"
     },
     "filter_Completed": "مكتملة",
     "@filter_Completed": {},
@@ -298,6 +310,14 @@
     "tasksPopup_Title_Label": "عنوان المهمة",
     "@tasksPopup_Title_Label": {
         "description": "تسمية حقل عنوان المهمة"
+    },
+    "tasksPopup_TitleEdit": "تعديل عنوان المهمة",
+    "@tasksPopup_TitleEdit": {
+        "description": "عنوان تنبيه تعديل عنوان المهمة"
+    },
+    "tasksPopup_AssignedMembers": "المستخدمين المعينين",
+    "@tasksPopup_AssignedMembers": {
+        "description": "تسمية لقاء المستخدمين المعينين على المهمة"
     },
     "settingsPopup_Password_Reset_title": "رابط إعادة تعيين كلمة المرور",
     "@settingsPopup_Password_Reset_title": {

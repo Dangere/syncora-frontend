@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:syncora_frontend/common/widgets/profile_picture.dart';
+import 'package:syncora_frontend/core/analytics/breadcrumb_type.dart';
+import 'package:syncora_frontend/core/analytics/breadcrumbs_service.dart';
 import 'package:syncora_frontend/core/localization/generated/l10n/app_localizations.dart';
 import 'package:syncora_frontend/features/groups/models/group.dart';
 import 'package:syncora_frontend/features/groups/view/widgets/compressed_members_display.dart';
@@ -98,6 +100,8 @@ class GroupMembersDisplay extends ConsumerWidget {
                       backgroundColor: Theme.of(context).colorScheme.secondary,
                       child: IconButton(
                           onPressed: () {
+                            BreadcrumbService.instance
+                                .add(BreadcrumbType.tap, "Add member");
                             onAddingMember();
                           },
                           icon: Icon(

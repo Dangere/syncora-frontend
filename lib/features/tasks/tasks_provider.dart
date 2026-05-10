@@ -2,6 +2,8 @@ import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:syncora_frontend/common/providers/common_providers.dart';
+import 'package:syncora_frontend/core/analytics/breadcrumb_type.dart';
+import 'package:syncora_frontend/core/analytics/breadcrumbs_service.dart';
 import 'package:syncora_frontend/core/data/enums/tasks_filter.dart';
 import 'package:syncora_frontend/core/network/outbox/outbox_provider.dart';
 import 'package:syncora_frontend/core/network/syncing/sync_state.dart';
@@ -72,6 +74,9 @@ class TasksNotifier extends AutoDisposeFamilyAsyncNotifier<List<Task>, int> {
     _reloadTasks();
     ref.read(groupsListProvider.notifier).onTasksModification(_groupResolvedId);
 
+    BreadcrumbService.instance
+        .add(BreadcrumbType.state, "Task $title, created");
+
     // _reloadGroupsList();
     // reloadViewedGroups([groupId]);
   }
@@ -92,6 +97,8 @@ class TasksNotifier extends AutoDisposeFamilyAsyncNotifier<List<Task>, int> {
 
     ref.read(groupsListProvider.notifier).onTasksModification(_groupResolvedId);
 
+    BreadcrumbService.instance
+        .add(BreadcrumbType.state, "Task $taskId, deleted");
     // _reloadGroupsList();
     // reloadViewedGroups([groupId]);
   }
@@ -112,6 +119,8 @@ class TasksNotifier extends AutoDisposeFamilyAsyncNotifier<List<Task>, int> {
 
     ref.read(groupsListProvider.notifier).onTasksModification(_groupResolvedId);
 
+    BreadcrumbService.instance
+        .add(BreadcrumbType.state, "Task $taskId, updated");
     // reloadViewedGroups([groupId]);
   }
 
@@ -176,7 +185,8 @@ class TasksNotifier extends AutoDisposeFamilyAsyncNotifier<List<Task>, int> {
     }
     _reloadTasks();
     ref.read(groupsListProvider.notifier).onTasksModification(_groupResolvedId);
-
+    BreadcrumbService.instance.add(BreadcrumbType.state,
+        "Task ${task.id}, ${isDone ? "marked" : "unmarked"}");
     // reloadViewedGroups([groupId]);
   }
 

@@ -4,10 +4,12 @@ import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:intl/intl.dart' as intl;
 import 'package:logger/logger.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:syncora_frontend/common/interceptors/auth_interceptor.dart';
+import 'package:syncora_frontend/common/interceptors/breadcrumb_interceptor.dart';
 import 'package:syncora_frontend/common/interceptors/connection_interceptor.dart';
 import 'package:syncora_frontend/common/providers/connection_provider.dart';
 import 'package:syncora_frontend/core/data/database_manager.dart';
@@ -33,7 +35,7 @@ final loggerProvider = Provider<Logger>((ref) {
 
 final dioProvider = Provider<Dio>((ref) {
   Dio dio = Dio();
-
+  dio.interceptors.add(BreadcrumbInterceptor());
   dio.interceptors.add(ConnectionInterceptor(() => ref.read(isOnlineProvider)));
   dio.interceptors.add(AuthInterceptor(
       tokensFactory: () => ref.read(sessionStorageProvider).tokens,
@@ -91,6 +93,12 @@ class LocaleNotifier extends Notifier<Locale> {
     if (!result.isSuccess && !result.isCancelled) {
       ref.read(appErrorProvider.notifier).state = result.error;
     }
+  }
+
+  TextDirection getTextDirection() {
+    return intl.Bidi.isRtlLanguage(state.languageCode)
+        ? TextDirection.rtl
+        : TextDirection.ltr;
   }
 
   @override

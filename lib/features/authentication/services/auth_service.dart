@@ -5,7 +5,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:syncora_frontend/core/utils/result.dart';
-import 'package:syncora_frontend/features/authentication/google_auth_type_enum.dart';
+import 'package:syncora_frontend/features/authentication/google_auth_type.dart';
 import 'package:syncora_frontend/features/authentication/models/auth_response_dto.dart';
 import 'package:syncora_frontend/features/authentication/models/google_register_filled_info.dart';
 import 'package:syncora_frontend/features/authentication/models/google_user_info.dart';
@@ -30,7 +30,6 @@ class AuthService {
           .loginWithEmailAndPassword(email: email, password: password);
       return Result.success(loginResponse);
     } catch (e, stackTrace) {
-      // print("ERRORRRR");
       return Result.failureError(e, stackTrace);
     }
   }

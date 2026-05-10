@@ -57,6 +57,7 @@ class DashboardPopups {
             ),
             AppSpacing.verticalSpaceMd,
             AppButton(
+              breadcrumbLabel: () => "Okay",
               size: AppButtonSize.mini,
               style: AppButtonStyle.filled,
               intent: AppButtonIntent.primary,
@@ -69,6 +70,7 @@ class DashboardPopups {
             ),
             AppSpacing.verticalSpaceMd,
             AppButton(
+              breadcrumbLabel: () => "Download APK link",
               size: AppButtonSize.mini,
               style: AppButtonStyle.filled,
               intent: AppButtonIntent.secondary,

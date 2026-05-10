@@ -2,6 +2,8 @@ import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:syncora_frontend/common/providers/common_providers.dart';
 import 'package:syncora_frontend/common/providers/connection_provider.dart';
+import 'package:syncora_frontend/core/analytics/breadcrumb_type.dart';
+import 'package:syncora_frontend/core/analytics/breadcrumbs_service.dart';
 import 'package:syncora_frontend/core/data/enums/groups_filter.dart';
 import 'package:syncora_frontend/core/network/outbox/outbox_provider.dart';
 import 'package:syncora_frontend/core/network/syncing/sync_state.dart';
@@ -80,6 +82,9 @@ class GroupsListNotifier extends AutoDisposeAsyncNotifier<List<Group>> {
     }
 
     reloadGroupsList();
+    BreadcrumbService.instance
+        .add(BreadcrumbType.state, "Group $title, created");
+
     return newGroupResult.data!.id;
   }
 
@@ -272,12 +277,6 @@ class GroupsListNotifier extends AutoDisposeAsyncNotifier<List<Group>> {
       },
     );
 
-    ref.onDispose(
-      () {
-        print("Groups list provider: Disposing");
-      },
-    );
-
     // There was some weird bug, both the if (data.isAuthenticated) and if(data.isUnauthenticated) would get triggered in the same time? even if isUnauthenticated is false....
 
     // Okay i think i found the issue, when the user logs out and isUnauthenticated is actually set to true, it doesn't throw the error, but the moment the notifier is built again when isUnauthenticated is false, it throws the old exception from during the logout when it was true
@@ -329,6 +328,8 @@ class GroupNotifier extends AutoDisposeFamilyAsyncNotifier<Group?, int> {
       ref.read(appErrorProvider.notifier).state = updateResult.error;
       return;
     }
+    BreadcrumbService.instance
+        .add(BreadcrumbType.state, "Group $resolvedId, updated");
 
     await _refreshState();
   }
@@ -346,6 +347,9 @@ class GroupNotifier extends AutoDisposeFamilyAsyncNotifier<Group?, int> {
 
     await _refreshState();
 
+    BreadcrumbService.instance
+        .add(BreadcrumbType.state, "Group $resolvedId, deleted");
+
     return true;
   }
 
@@ -359,6 +363,9 @@ class GroupNotifier extends AutoDisposeFamilyAsyncNotifier<Group?, int> {
       ref.read(appErrorProvider.notifier).state = leaveResult.error;
       return;
     }
+
+    BreadcrumbService.instance
+        .add(BreadcrumbType.state, "Group $resolvedId, left");
     await _refreshState();
   }
 

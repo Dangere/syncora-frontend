@@ -292,6 +292,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                                     ),
                                     // CREATE GROUP
                                     AppButton(
+                                      breadcrumbLabel: () => "Create group",
                                       width: null,
                                       padding: const EdgeInsets.symmetric(
                                           horizontal: AppSpacing.lg),

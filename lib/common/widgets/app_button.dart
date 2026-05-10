@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:syncora_frontend/common/themes/app_theme.dart';
+import 'package:syncora_frontend/core/analytics/breadcrumb_type.dart';
+import 'package:syncora_frontend/core/analytics/breadcrumbs_service.dart';
 
 // enum AppButtonVariant {
 //   wide,
@@ -58,8 +60,11 @@ class AppButton extends StatelessWidget {
   final VoidCallback onPressed;
   final Widget child;
 
+  final String Function() breadcrumbLabel;
+
   const AppButton({
     super.key,
+    required this.breadcrumbLabel,
     required this.size,
     required this.style,
     this.intent = AppButtonIntent.normal,
@@ -221,7 +226,11 @@ class AppButton extends StatelessWidget {
           absorbing: disabled,
           child: TextButton(
             style: disabled ? disabledStyle : buttonColor,
-            onPressed: onPressed,
+            onPressed: () {
+              BreadcrumbService.instance
+                  .add(BreadcrumbType.tap, breadcrumbLabel());
+              onPressed();
+            },
             child: child,
           ),
         ),

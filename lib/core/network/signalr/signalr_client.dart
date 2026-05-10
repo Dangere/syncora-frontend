@@ -68,7 +68,6 @@ class SignalRClient {
     }
     _cancelationToken = CancellationToken();
     Result result = await _connectToServer();
-    print(result);
 
     if (result.isSuccess) {
       _logger.i("SignalRClient: established");

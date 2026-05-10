@@ -18,10 +18,12 @@ class GroupPopups {
         DialogFieldData(
             autofocus: true,
             validation: (p0) {
-              if (p0 == null || p0.trim().isEmpty)
+              if (p0 == null || p0.trim().isEmpty) {
                 return l10n.validation_Title_Empty;
-              if (p0.trim() == defaultText)
+              }
+              if (p0.trim() == defaultText) {
                 return l10n.validation_GroupTitle_Unchanged;
+              }
               return Validators.validateGroupTitle(p0)
                   ? null
                   : l10n.validation_Title_Invalid;
@@ -48,10 +50,12 @@ class GroupPopups {
           autofocus: true,
           multiLine: true,
           validation: (p0) {
-            if (p0 == null || p0.trim().isEmpty)
+            if (p0 == null || p0.trim().isEmpty) {
               return l10n.validation_GroupDescription_Empty;
-            if (p0.trim() == defaultText)
+            }
+            if (p0.trim() == defaultText) {
               return l10n.validation_GroupDescription_Unchanged;
+            }
             return Validators.validateGroupDescription(p0)
                 ? null
                 : l10n.validation_Description_Invalid;
@@ -77,8 +81,9 @@ class GroupPopups {
       fields: [
         DialogFieldData(
           validation: (p0) {
-            if (p0 == null || p0.trim().isEmpty)
+            if (p0 == null || p0.trim().isEmpty) {
               return l10n.validation_Username_Empty;
+            }
             return Validators.validateUsername(p0.trim())
                 ? null
                 : l10n.validation_Username_Invalid;
@@ -107,8 +112,9 @@ class GroupPopups {
             label: l10n.groupPopup_GroupTitle_Label + "*",
             defaultHintText: l10n.alert_Title_Enter,
             validation: (p0) {
-              if (p0 == null || p0.trim().isEmpty)
+              if (p0 == null || p0.trim().isEmpty) {
                 return l10n.validation_GroupTitle_Create_Empty;
+              }
               return Validators.validateGroupTitle(p0)
                   ? null
                   : l10n.validation_Title_Invalid;
@@ -156,6 +162,7 @@ class GroupPopups {
         children: [
           // Group info
           AppButton(
+              breadcrumbLabel: () => "More group info",
               fontSize: 14,
               fontWeight: FontWeight.normal,
               size: AppButtonSize.mini,
@@ -183,6 +190,7 @@ class GroupPopups {
             Padding(
               padding: const EdgeInsets.only(bottom: 8.0),
               child: AppButton(
+                  breadcrumbLabel: () => "Rename group",
                   fontSize: 14,
                   fontWeight: FontWeight.normal,
                   size: AppButtonSize.mini,
@@ -208,6 +216,7 @@ class GroupPopups {
 
           // DELETE / LEAVE GROUP
           AppButton(
+              breadcrumbLabel: () => isOwner ? "Delete group" : "Leave group",
               fontSize: 14,
               fontWeight: FontWeight.normal,
               size: AppButtonSize.mini,
@@ -411,6 +420,9 @@ class GroupPopups {
           if (users.isNotEmpty) const SizedBox(height: 24),
           // ADD
           AppButton(
+              breadcrumbLabel: () => textEditingController.text.isEmpty
+                  ? "Confirming new members"
+                  : "Adding member",
               size: AppButtonSize.small,
               style: AppButtonStyle.filled,
               intent: AppButtonIntent.primary,

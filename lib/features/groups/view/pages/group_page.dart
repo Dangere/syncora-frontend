@@ -216,6 +216,8 @@ class GroupPageState extends ConsumerState<GroupPage> {
                                       if (isOwner)
                                         // CREATE TASK
                                         AppButton(
+                                          breadcrumbLabel: () => "Create task",
+
                                           width: null,
                                           padding: const EdgeInsets.symmetric(
                                               horizontal: AppSpacing.lg),

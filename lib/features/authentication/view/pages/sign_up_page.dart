@@ -9,7 +9,7 @@ import 'package:syncora_frontend/core/localization/generated/l10n/app_localizati
 import 'package:syncora_frontend/core/utils/snack_bar_alerts.dart';
 import 'package:syncora_frontend/core/utils/validators.dart';
 import 'package:syncora_frontend/features/authentication/auth_provider.dart';
-import 'package:syncora_frontend/features/authentication/google_auth_type_enum.dart';
+import 'package:syncora_frontend/features/authentication/google_auth_type.dart';
 
 import '../widgets/google_auth_button_stud.dart';
 
@@ -283,6 +283,7 @@ class _SignUpPageState extends ConsumerState<SignUpPage> {
 
                     // SIGN UP
                     AppButton(
+                        breadcrumbLabel: () => "Sign up",
                         size: AppButtonSize.large,
                         style: AppButtonStyle.filled,
                         intent: AppButtonIntent.primary,

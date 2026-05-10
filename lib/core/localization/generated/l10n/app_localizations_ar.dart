@@ -43,7 +43,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get groupInfoPopup_Alert_NoMembers => 'لا يوجد أعضاء في المجموعة';
 
   @override
-  String get onboardingPage_Title => 'مرحبًا بك في CoTask';
+  String get onboardingPage_Title => 'مرحبًا بك في Syncora';
 
   @override
   String get onboardingPage_Description =>
@@ -69,6 +69,9 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get okay => 'حسنا';
+
+  @override
+  String get cancel => 'الغاء';
 
   @override
   String get tasks => 'المهام';
@@ -120,6 +123,12 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get moreOptions => 'خيارات إضافية';
+
+  @override
+  String get gallery => 'المعرض';
+
+  @override
+  String get camera => 'الكاميرا';
 
   @override
   String get filter_Completed => 'مكتملة';
@@ -327,6 +336,12 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get tasksPopup_Title_Label => 'عنوان المهمة';
+
+  @override
+  String get tasksPopup_TitleEdit => 'تعديل عنوان المهمة';
+
+  @override
+  String get tasksPopup_AssignedMembers => 'المستخدمين المعينين';
 
   @override
   String get settingsPopup_Password_Reset_title =>

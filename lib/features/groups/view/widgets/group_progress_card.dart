@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:syncora_frontend/common/themes/app_theme.dart';
 import 'package:syncora_frontend/common/widgets/marquee_widget.dart';
 import 'package:syncora_frontend/common/widgets/progress_bar.dart';
+import 'package:syncora_frontend/core/analytics/breadcrumb.dart';
+import 'package:syncora_frontend/core/analytics/breadcrumb_type.dart';
+import 'package:syncora_frontend/core/analytics/breadcrumbs_service.dart';
 import 'package:syncora_frontend/core/localization/generated/l10n/app_localizations.dart';
 import 'package:syncora_frontend/features/groups/models/group_progress.dart';
 
@@ -75,7 +78,11 @@ class GroupProgressCard extends StatelessWidget {
               // EXPAND BUTTON
               IconButton(
                   padding: EdgeInsets.zero,
-                  onPressed: onExpand,
+                  onPressed: () {
+                    BreadcrumbService.instance.add(BreadcrumbType.tap,
+                        "Expand Group Progress for ${groupProgress.groupId}");
+                    onExpand();
+                  },
                   icon: Container(
                     height: 48,
                     width: 48,

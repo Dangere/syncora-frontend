@@ -153,6 +153,7 @@ class _PasswordResetPageState extends ConsumerState<PasswordResetPage> {
 
                             // RESET PASSWORD
                             AppButton(
+                                breadcrumbLabel: () => "Reset password",
                                 disabled: resendTimer != null || isLoading,
                                 size: AppButtonSize.large,
                                 style: AppButtonStyle.filled,

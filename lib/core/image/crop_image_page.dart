@@ -148,6 +148,8 @@ class _CropImagePageState extends ConsumerState<CropImagePage> {
                                           MainAxisAlignment.spaceEvenly,
                                       children: [
                                         AppButton(
+                                            breadcrumbLabel: () =>
+                                                "Crop rotate left",
                                             width: 50,
                                             size: AppButtonSize.small,
                                             style: AppButtonStyle.dropdown,
@@ -159,6 +161,8 @@ class _CropImagePageState extends ConsumerState<CropImagePage> {
                                                   .rotate_90_degrees_cw_rounded),
                                             )),
                                         AppButton(
+                                            breadcrumbLabel: () =>
+                                                "Crop confirm",
                                             width: 120,
                                             size: AppButtonSize.medium,
                                             style: AppButtonStyle.filled,
@@ -168,6 +172,8 @@ class _CropImagePageState extends ConsumerState<CropImagePage> {
                                                 AppLocalizations.of(context)
                                                     .confirm)),
                                         AppButton(
+                                            breadcrumbLabel: () =>
+                                                "Crop rotate right",
                                             width: 50,
                                             size: AppButtonSize.small,
                                             style: AppButtonStyle.dropdown,

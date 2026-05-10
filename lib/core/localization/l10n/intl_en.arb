@@ -43,7 +43,7 @@
   "@groupInfoPopup_Alert_NoMembers": {
     "description": "Alert when no members are in the group"
   },
-  "onboardingPage_Title": "Welcome To CoTask",
+  "onboardingPage_Title": "Welcome To Syncora",
   "@onboardingPage_Title": {
     "description": "The title of the onboarding page"
   },
@@ -68,6 +68,10 @@
   "okay": "Okay",
   "@okay": {
     "description": "Generic Okay action label"
+  },
+  "cancel": "Cancel",
+  "@cancel": {
+    "description": "Generic cancel action label"
   },
   "tasks": "Tasks",
   "@tasks": {},
@@ -124,6 +128,14 @@
   "moreOptions": "More Options",
   "@moreOptions": {
     "description": "Generic more options label"
+  },
+  "gallery": "Gallery",
+  "@gallery": {
+    "description": "Generic gallery action label for image picking"
+  },
+  "camera": "Camera",
+  "@camera": {
+    "description": "Generic camera action label for image picking"
   },
   "filter_Completed": "Completed",
   "@filter_Completed": {},
@@ -295,9 +307,17 @@
   "@groupPopup_Error_UserNotFound": {
     "description": "Error shown when a searched user does not exist"
   },
-  "tasksPopup_Title_Label": "Task title",
+  "tasksPopup_Title_Label": "Task Title",
   "@tasksPopup_Title_Label": {
     "description": "Label for task title alert"
+  },
+  "tasksPopup_TitleEdit": "Edit Task Title",
+  "@tasksPopup_TitleEdit": {
+    "description": "Dialog title for editing a task's title"
+  },
+  "tasksPopup_AssignedMembers": "Assigned Members",
+  "@tasksPopup_AssignedMembers": {
+    "description": "Label for task assigned members alert"
   },
   "settingsPopup_Password_Reset_title": "Password Reset Link",
   "@settingsPopup_Password_Reset_title": {

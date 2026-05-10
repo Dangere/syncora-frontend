@@ -11,6 +11,9 @@ import 'package:syncora_frontend/common/widgets/app_button.dart';
 import 'package:syncora_frontend/common/widgets/input_field.dart';
 import 'package:syncora_frontend/common/widgets/overlay_loader.dart';
 import 'package:syncora_frontend/common/widgets/profile_picture.dart';
+import 'package:syncora_frontend/core/analytics/breadcrumb.dart';
+import 'package:syncora_frontend/core/analytics/breadcrumb_type.dart';
+import 'package:syncora_frontend/core/analytics/breadcrumbs_service.dart';
 import 'package:syncora_frontend/core/localization/generated/l10n/app_localizations.dart';
 import 'package:syncora_frontend/core/error_management/app_error.dart';
 import 'package:syncora_frontend/core/utils/snack_bar_alerts.dart';
@@ -47,6 +50,8 @@ class _ProfileViewPageState extends ConsumerState<ProfileViewPage> {
   final TextEditingController emailController = TextEditingController();
 
   Future changeProfilePicture() async {
+    BreadcrumbService.instance
+        .add(BreadcrumbType.tap, "Change profile picture");
     if (ref.read(userProvider).isLoading) return;
 
     ImageSource? source = await ProfilePopups.chooseImageSource(context);
@@ -90,6 +95,9 @@ class _ProfileViewPageState extends ConsumerState<ProfileViewPage> {
   void onEditButton(void Function(void Function()) setState) {
     if (editMode) resetFields();
     setEditMode(!editMode, setState);
+
+    BreadcrumbService.instance
+        .add(BreadcrumbType.tap, "Toggled edit mode to ${!editMode}");
   }
 
   void onSaveButton(void Function(void Function()) setState) async {
@@ -430,6 +438,7 @@ class _ProfileViewPageState extends ConsumerState<ProfileViewPage> {
                     ? Padding(
                         padding: const EdgeInsets.only(bottom: 30.0),
                         child: AppButton(
+                            breadcrumbLabel: () => "Save profile",
                             size: AppButtonSize.large,
                             style: AppButtonStyle.filled,
                             intent: AppButtonIntent.primary,

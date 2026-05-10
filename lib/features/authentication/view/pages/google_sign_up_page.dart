@@ -304,6 +304,7 @@ class _GoogleSignUpPageState extends ConsumerState<GoogleSignUpPage> {
 
                     // SIGN UP
                     AppButton(
+                        breadcrumbLabel: () => "Sign up",
                         size: AppButtonSize.large,
                         style: AppButtonStyle.filled,
                         intent: AppButtonIntent.primary,

@@ -4,6 +4,10 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:syncora_frontend/common/widgets/app_button.dart';
 import 'package:syncora_frontend/common/widgets/input_field.dart';
+import 'package:syncora_frontend/core/analytics/breadcrumb.dart';
+import 'package:syncora_frontend/core/analytics/breadcrumb_type.dart';
+import 'package:syncora_frontend/core/analytics/breadcrumbs_service.dart';
+import 'package:syncora_frontend/core/localization/generated/l10n/app_localizations.dart';
 import 'package:syncora_frontend/core/typedef.dart';
 
 class DialogFieldData {
@@ -32,6 +36,7 @@ class Dialogs {
       required String title,
       required Widget content,
       bool disableKeyboardAdjustment = false}) async {
+    BreadcrumbService.instance.add(BreadcrumbType.dialog, title);
     return await showDialog<T?>(
       barrierDismissible: barrierDismissible,
       context: context,
@@ -98,11 +103,16 @@ class Dialogs {
           );
         });
       },
+    ).whenComplete(
+      () {
+        BreadcrumbService.instance.add(BreadcrumbType.dialog, "closed");
+      },
     );
   }
 
   static Future<bool> showConfirmationDialog(context,
       {required String message, required String confirmText}) async {
+    BreadcrumbService.instance.add(BreadcrumbType.dialog, message);
     bool? result = await showDialog(
       barrierDismissible: true,
       context: context,
@@ -158,6 +168,7 @@ class Dialogs {
                     ),
                     // CONFIRM BUTTON
                     AppButton(
+                      breadcrumbLabel: () => "Dialog confirm",
                       size: AppButtonSize.mini,
                       style: AppButtonStyle.filled,
                       intent: AppButtonIntent.destructive,
@@ -176,6 +187,8 @@ class Dialogs {
 
                     // CANCEL BUTTON
                     AppButton(
+                      breadcrumbLabel: () => "Dialog cancel",
+
                       size: AppButtonSize.mini,
                       style: AppButtonStyle.outlined,
                       // intent: AppButtonIntent.secondary,
@@ -184,9 +197,7 @@ class Dialogs {
                       onPressed: () {
                         Navigator.of(context).pop();
                       },
-                      child: Text(
-                        "Cancel",
-                      ),
+                      child: Text(AppLocalizations.of(context).cancel),
                     )
                   ],
                 ),
@@ -197,6 +208,7 @@ class Dialogs {
       },
     );
 
+    BreadcrumbService.instance.add(BreadcrumbType.dialog, "closed");
     if (result != null) {
       return result;
     }
@@ -232,6 +244,7 @@ class Dialogs {
       }
     }
 
+    BreadcrumbService.instance.add(BreadcrumbType.dialog, title);
     List<String>? dialog = await showDialog<List<String>>(
       barrierDismissible: barrierDismissible,
       context: context,
@@ -311,6 +324,7 @@ class Dialogs {
                       ),
                       // CONFIRM BUTTON
                       AppButton(
+                          breadcrumbLabel: () => "Dialog confirm",
                           size: AppButtonSize.small,
                           style: AppButtonStyle.filled,
                           intent: AppButtonIntent.primary,
@@ -326,6 +340,8 @@ class Dialogs {
         });
       },
     );
+
+    BreadcrumbService.instance.add(BreadcrumbType.dialog, "closed");
 
     if (dialog == null) return [];
 
