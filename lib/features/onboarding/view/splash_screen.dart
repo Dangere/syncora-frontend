@@ -13,22 +13,51 @@ class SplashScreen extends ConsumerStatefulWidget {
 }
 
 class _SplashScreenState extends ConsumerState<SplashScreen> {
-  @override
-  void initState() {
-    // once loading is done navigate to the home screen
+  Object? error;
 
-    ref.read(appInitializeProvider.future).then((_) async {
-      await Future.delayed(Duration(seconds: 3));
+  void goToApp() async {
+    await Future.delayed(Duration(seconds: 3));
 
-      if (mounted) context.pushReplacement('/');
-    });
-
-    super.initState();
+    print("Going to home");
+    if (mounted) context.pushReplacement('/');
   }
+
+  // @override
+  // void initState() {
+  //   // once loading is done navigate to the home screen
+
+  //   Future.microtask(
+  //     () {
+  //       ref.watch(appInitializeProvider).when(
+  //             data: (data) {
+  //               goToApp();
+  //             },
+  //             error: (error, stackTrace) {
+  //               print("Got error");
+
+  //               setState(() {
+  //                 this.error = error;
+  //               });
+  //             },
+  //             loading: () {},
+  //           );
+  //     },
+  //   );
+
+  //   super.initState();
+  // }
 
   @override
   Widget build(BuildContext context) {
     final lightMode = Theme.of(context).brightness == Brightness.light;
+    var initialize = ref.watch(appInitializeProvider);
+
+    if (initialize.hasError) {
+      error = initialize.error;
+    }
+    if (initialize.hasValue && !initialize.hasError) {
+      goToApp();
+    }
 
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
@@ -53,31 +82,39 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
                   "assets/images/background_dashboard_effect.png"),
             ),
           ),
-          Center(
-            child: Container(
-              alignment: Alignment.center,
-              width: 205 - (MediaQuery.of(context).size.height * 0.01),
-              height: 205 - (MediaQuery.of(context).size.height * 0.01),
-              decoration: BoxDecoration(
-                color: lightMode
-                    ? Colors.white
-                    : Colors.deepPurple.shade900.withValues(alpha: 0.3),
-                borderRadius: BorderRadius.all(Radius.circular(32)),
+          if (error != null)
+            Center(
+              child: Text(
+                error.toString(),
+                style: TextStyle(color: Theme.of(context).colorScheme.error),
               ),
-              child: SizedBox.square(
-                child: FadeInImage(
-                  width: double.infinity,
-                  alignment: Alignment.topCenter,
+            ),
+          if (error == null)
+            Center(
+              child: Container(
+                alignment: Alignment.center,
+                width: 205 - (MediaQuery.of(context).size.height * 0.01),
+                height: 205 - (MediaQuery.of(context).size.height * 0.01),
+                decoration: BoxDecoration(
                   color: lightMode
-                      ? Theme.of(context).colorScheme.secondary
-                      : Theme.of(context).colorScheme.primary,
-                  height: 115,
-                  placeholder: MemoryImage(kTransparentImage),
-                  image: const AssetImage("assets/logos/syncora-logo.png"),
+                      ? Colors.white
+                      : Colors.deepPurple.shade900.withValues(alpha: 0.3),
+                  borderRadius: BorderRadius.all(Radius.circular(32)),
+                ),
+                child: SizedBox.square(
+                  child: FadeInImage(
+                    width: double.infinity,
+                    alignment: Alignment.topCenter,
+                    color: lightMode
+                        ? Theme.of(context).colorScheme.secondary
+                        : Theme.of(context).colorScheme.primary,
+                    height: 115,
+                    placeholder: MemoryImage(kTransparentImage),
+                    image: const AssetImage("assets/logos/syncora-logo.png"),
+                  ),
                 ),
               ),
             ),
-          ),
         ],
       ),
     );
