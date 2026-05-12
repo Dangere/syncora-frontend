@@ -7,12 +7,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:syncora_frontend/common/providers/common_providers.dart';
-import 'package:syncora_frontend/common/providers/connection_provider.dart';
 import 'package:syncora_frontend/common/themes/app_theme.dart';
 import 'package:syncora_frontend/core/localization/generated/l10n/app_localizations.dart';
-import 'package:syncora_frontend/core/network/syncing/sync_provider.dart';
 import 'package:syncora_frontend/debug/breadcrumb_log.dart';
-import 'package:syncora_frontend/features/authentication/auth_provider.dart';
 import 'package:syncora_frontend/router.dart';
 
 void main() async {
@@ -21,8 +18,6 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   runApp(ProviderScope(
-      //     overrides: await providerOverrides(), child: const MyApp()));
-      // runApp(ProviderScope(
       overrides: await providerOverrides(),
       child: DevicePreview(
           enabled: !kReleaseMode, builder: (context) => const MyApp())));
@@ -36,11 +31,6 @@ class MyApp extends ConsumerWidget {
     GoRouter router = ref.watch(routeProvider);
     ThemeMode themeMode = ref.watch(themeModeProvider);
     Locale locale = ref.watch(localeProvider);
-    // Warming providers
-    ref.read(isOnlineProvider);
-    ref.read(syncBackendProvider);
-    ref.read(googleSignInProvider);
-    ref.read(versionProvider);
 
     return MaterialApp.router(
       debugShowCheckedModeBanner: false,
@@ -51,7 +41,7 @@ class MyApp extends ConsumerWidget {
           child: Stack(
             children: [
               DevicePreview.appBuilder(context, child),
-              if (kDebugMode) BreadcrumbLog()
+              if (kDebugMode) const BreadcrumbLog()
             ],
           ),
         );

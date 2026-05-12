@@ -1,11 +1,11 @@
-import 'package:syncora_frontend/core/data/enums/tasks_filter.dart';
+import 'package:syncora_frontend/features/tasks/tasks_filter.dart';
 import 'package:syncora_frontend/core/network/outbox/model/enqueue_request.dart';
 import 'package:syncora_frontend/core/network/outbox/model/outbox_entry.dart';
 import 'package:syncora_frontend/core/network/outbox/model/outbox_payload.dart';
 import 'package:syncora_frontend/core/typedef.dart';
 import 'package:syncora_frontend/core/utils/result.dart';
 import 'package:syncora_frontend/features/authentication/models/auth_state.dart';
-import 'package:syncora_frontend/features/tasks/models/task.dart';
+import 'package:syncora_frontend/features/tasks/task.dart';
 import 'package:syncora_frontend/features/tasks/repositories/local_tasks_repository.dart';
 import 'package:syncora_frontend/features/tasks/repositories/remote_tasks_repository.dart';
 import 'package:syncora_frontend/features/tasks/tasks_provider.dart';

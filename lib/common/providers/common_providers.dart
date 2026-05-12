@@ -12,6 +12,7 @@ import 'package:syncora_frontend/common/interceptors/auth_interceptor.dart';
 import 'package:syncora_frontend/common/interceptors/breadcrumb_interceptor.dart';
 import 'package:syncora_frontend/common/interceptors/connection_interceptor.dart';
 import 'package:syncora_frontend/common/providers/connection_provider.dart';
+import 'package:syncora_frontend/core/analytics/diagnostics_service.dart';
 import 'package:syncora_frontend/core/data/database_manager.dart';
 import 'package:syncora_frontend/core/localization/localize_app_errors.dart';
 import 'package:syncora_frontend/core/error_management/app_error.dart';
@@ -223,17 +224,8 @@ final localizeAppErrorsProvider = Provider<LocalizeAppErrors>((ref) {
 //   return "";
 // });
 
-class VersionNotifier extends Notifier<String> {
-  @override
-  String build() {
-    PackageInfo.fromPlatform().then(
-      (value) {
-        state = "${value.version}+${value.buildNumber}";
-      },
-    );
-    return "";
-  }
-}
-
-final versionProvider =
-    NotifierProvider<VersionNotifier, String>(VersionNotifier.new);
+final diagnosticsServiceProvider = Provider<DiagnosticsService>((ref) {
+  return DiagnosticsService(
+    languageCode: () => ref.read(localeProvider).languageCode,
+  );
+});

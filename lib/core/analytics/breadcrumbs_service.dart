@@ -14,7 +14,7 @@ class BreadcrumbService {
   List<Breadcrumb> get getCrumbs => List.unmodifiable(_crumbs);
   Stream<Breadcrumb> get crumbStream => _controller.stream;
 
-  final int maxCrumbs = 50;
+  final int maxCrumbs = 20;
 
   void add(BreadcrumbType type, String context) {
     Breadcrumb crumb =

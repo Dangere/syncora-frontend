@@ -4,7 +4,7 @@ import 'package:syncora_frontend/common/themes/app_theme.dart';
 import 'package:syncora_frontend/common/widgets/marquee_widget.dart';
 import 'package:syncora_frontend/common/widgets/profile_picture.dart';
 import 'package:syncora_frontend/features/groups/view/widgets/compressed_members_display.dart';
-import 'package:syncora_frontend/features/tasks/models/task.dart';
+import 'package:syncora_frontend/features/tasks/task.dart';
 
 class TaskPanel extends StatelessWidget {
   const TaskPanel(

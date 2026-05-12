@@ -19,4 +19,7 @@ class DatabaseTables {
 
   /// outbox
   static const String outbox = 'outbox';
+
+  /// reports
+  static const String reports = 'reports';
 }

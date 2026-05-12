@@ -115,6 +115,9 @@ class OutboxEntry {
           default:
             return null;
         }
+      // Report payloads are null and only carry the id in the entity id
+      case OutboxEntityType.report:
+        throw UnimplementedError();
     }
   }
 
@@ -125,6 +128,6 @@ class OutboxEntry {
 
 enum OutboxStatus { pending, complete, inProcess, failed, ignored }
 
-enum OutboxEntityType { group, task, user }
+enum OutboxEntityType { group, task, user, report }
 
 enum OutboxActionType { create, delete, update, mark, leave }

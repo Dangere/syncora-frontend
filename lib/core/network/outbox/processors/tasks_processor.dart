@@ -5,7 +5,7 @@ import 'package:syncora_frontend/core/network/outbox/interface/outbox_processor_
 import 'package:syncora_frontend/core/network/outbox/model/outbox_entry.dart';
 import 'package:syncora_frontend/core/network/outbox/model/outbox_payload.dart';
 import 'package:syncora_frontend/core/utils/result.dart';
-import 'package:syncora_frontend/features/tasks/models/task.dart';
+import 'package:syncora_frontend/features/tasks/task.dart';
 import 'package:syncora_frontend/features/tasks/repositories/local_tasks_repository.dart';
 import 'package:syncora_frontend/features/tasks/repositories/remote_tasks_repository.dart';
 

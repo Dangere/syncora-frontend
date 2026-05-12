@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:dio/dio.dart';
 import 'package:stack_trace/stack_trace.dart';
-import 'package:syncora_frontend/core/data/enums/app_error_code.dart';
+import 'package:syncora_frontend/core/error_management/app_error_code.dart';
 
 class ErrorMapper {
   static AppErrorCode mapError(Object e) {

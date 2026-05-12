@@ -15,4 +15,11 @@ class Breadcrumb {
       sinceLastCrumbMilliseconds = diff.inMilliseconds;
     }
   }
+
+  Map<String, dynamic> toJson() => <String, dynamic>{
+        'type': type.name,
+        'context': context,
+        'timestamp': timestamp.toIso8601String(),
+        'afterMs': sinceLastCrumbMilliseconds
+      };
 }

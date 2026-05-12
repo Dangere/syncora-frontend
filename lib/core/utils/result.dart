@@ -1,6 +1,6 @@
 import 'package:cancellation_token/cancellation_token.dart';
 import 'package:flutter/foundation.dart';
-import 'package:syncora_frontend/core/data/enums/app_error_code.dart';
+import 'package:syncora_frontend/core/error_management/app_error_code.dart';
 import 'package:syncora_frontend/core/error_management/app_error.dart';
 
 class Result<T> {

@@ -8,7 +8,7 @@ import 'package:syncora_frontend/core/localization/generated/l10n/app_localizati
 import 'package:syncora_frontend/core/utils/dialogs.dart';
 import 'package:syncora_frontend/core/utils/validators.dart';
 import 'package:syncora_frontend/features/users/models/user.dart';
-import 'package:syncora_frontend/features/tasks/models/task.dart';
+import 'package:syncora_frontend/features/tasks/task.dart';
 import 'package:syncora_frontend/features/tasks/view/widgets/task_search_bar.dart';
 
 class TasksPopups {

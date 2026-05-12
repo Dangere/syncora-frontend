@@ -1,5 +1,5 @@
 import 'package:flutter/widgets.dart';
-import 'package:syncora_frontend/core/data/enums/app_error_code.dart';
+import 'package:syncora_frontend/core/error_management/app_error_code.dart';
 import 'package:syncora_frontend/core/localization/generated/l10n/app_localizations.dart';
 
 class LocalizeAppErrors {

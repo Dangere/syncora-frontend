@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:logger/logger.dart';
+import 'package:syncora_frontend/common/providers/app_init_provider.dart';
 import 'package:syncora_frontend/common/providers/common_providers.dart';
 import 'package:syncora_frontend/core/analytics/breadcrumb.dart';
 import 'package:syncora_frontend/core/analytics/breadcrumb_type.dart';
@@ -22,6 +23,7 @@ import 'package:syncora_frontend/features/groups/view/pages/group_info_page.dart
 import 'package:syncora_frontend/features/groups/view/pages/group_page.dart';
 import 'package:syncora_frontend/features/groups/view/pages/groups_progress_page.dart';
 import 'package:syncora_frontend/features/onboarding/view/onboarding_page.dart';
+import 'package:syncora_frontend/features/onboarding/view/splash_screen.dart';
 import 'package:syncora_frontend/features/settings/view/settings_page.dart';
 import 'package:syncora_frontend/core/image/crop_image_page.dart';
 import 'package:syncora_frontend/features/users/view/profile_view_page.dart';
@@ -62,6 +64,7 @@ class RouteNotifier extends Notifier<GoRouter> {
     bool isLogged = ref.watch(isLoggedProvider);
 
     Logger logger = ref.read(loggerProvider);
+
     logger.w('Refreshing routes, isLogged: $isLogged');
 
     const publicPaths = {
@@ -75,6 +78,13 @@ class RouteNotifier extends Notifier<GoRouter> {
     return GoRouter(
       initialLocation: '/',
       routes: [
+        GoRoute(
+          name: 'splash-screen',
+          path: '/splash-screen',
+          builder: (context, state) {
+            return const SplashScreen();
+          },
+        ),
         GoRoute(
             name:
                 'home', // Optional, add name to your routes. Allows you navigate by name instead of path
@@ -223,6 +233,12 @@ class RouteNotifier extends Notifier<GoRouter> {
       redirect: (context, state) {
         BreadcrumbService.instance
             .add(BreadcrumbType.navigation, "Path: ${state.uri}");
+
+        // If we are in the initializing state, we show the splash screen
+        if (ref.read(appInitializeProvider).isLoading) {
+          print("going to splash");
+          return '/splash-screen';
+        }
 
         String currentPath = state.fullPath ?? "";
         bool isWithinPublicPath = publicPaths.any(

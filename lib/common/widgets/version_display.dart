@@ -7,7 +7,7 @@ class VersionDisplay extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    String version = ref.watch(versionProvider);
+    String version = ref.read(diagnosticsServiceProvider).appVersion;
 
     return Positioned.fill(
       bottom: 10,

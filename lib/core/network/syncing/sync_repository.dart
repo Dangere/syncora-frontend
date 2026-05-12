@@ -2,7 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:syncora_frontend/core/constants/constants.dart';
 import 'package:syncora_frontend/core/data/database_manager.dart';
-import 'package:syncora_frontend/core/data/enums/database_tables.dart';
+import 'package:syncora_frontend/core/data/database_tables.dart';
 import 'package:syncora_frontend/core/network/syncing/model/sync_payload.dart';
 
 class SyncRepository {

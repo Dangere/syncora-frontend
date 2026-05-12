@@ -1,6 +1,7 @@
 // a quick and dirty class used to test different parts of the app
 // ignore_for_file: non_constant_identifier_names
 
+import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
 import 'dart:typed_data';
@@ -12,8 +13,9 @@ import 'package:logger/logger.dart';
 import 'package:lorem_ipsum/lorem_ipsum.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:syncora_frontend/common/providers/common_providers.dart';
-import 'package:syncora_frontend/core/data/enums/database_tables.dart';
-import 'package:syncora_frontend/core/data/enums/groups_filter.dart';
+import 'package:syncora_frontend/core/data/database_tables.dart';
+import 'package:syncora_frontend/features/groups/groups_filter.dart';
+import 'package:syncora_frontend/core/report/report_provider.dart';
 import 'package:syncora_frontend/core/image/image_providers.dart';
 import 'package:syncora_frontend/core/network/outbox/model/outbox_entry.dart';
 import 'package:syncora_frontend/core/network/outbox/outbox_sorter.dart';
@@ -28,7 +30,7 @@ import 'package:syncora_frontend/features/groups/models/group_dto.dart';
 import 'package:syncora_frontend/features/groups/models/group_progress.dart';
 import 'package:syncora_frontend/features/groups/repositories/statistics_repository.dart';
 import 'package:syncora_frontend/features/groups/groups_provider.dart';
-import 'package:syncora_frontend/features/tasks/models/task.dart';
+import 'package:syncora_frontend/features/tasks/task.dart';
 import 'package:syncora_frontend/features/tasks/tasks_provider.dart';
 import 'package:syncora_frontend/features/users/providers/users_provider.dart';
 
@@ -440,22 +442,25 @@ class Tests {
   // }
 
   static Future<void> printDb(Database db) async {
-    var tasksRawQuery =
-        await db.rawQuery("SELECT * FROM ${DatabaseTables.tasks}");
-    var groupsRawQuery =
-        await db.rawQuery("SELECT * FROM ${DatabaseTables.groups}");
-    var usersRawQuery =
-        await db.rawQuery("SELECT * FROM ${DatabaseTables.users}");
-    var groupMembersRawQuery =
-        await db.rawQuery("SELECT * FROM ${DatabaseTables.groupsMembers}");
+    // var tasksRawQuery =
+    //     await db.rawQuery("SELECT * FROM ${DatabaseTables.tasks}");
+    // var groupsRawQuery =
+    //     await db.rawQuery("SELECT * FROM ${DatabaseTables.groups}");
+    // var usersRawQuery =
+    //     await db.rawQuery("SELECT * FROM ${DatabaseTables.users}");
+    // var groupMembersRawQuery =
+    //     await db.rawQuery("SELECT * FROM ${DatabaseTables.groupsMembers}");
 
-    var outboxRawQuery =
-        await db.rawQuery("SELECT * FROM ${DatabaseTables.outbox}");
+    // var outboxRawQuery =
+    //     await db.rawQuery("SELECT * FROM ${DatabaseTables.outbox}");
 
-    var pendingOutboxQuery = await db.rawQuery(
-        "SELECT * FROM ${DatabaseTables.outbox} WHERE status = '${OutboxStatus.pending.index}'");
-    List<OutboxEntry> pendingOutboxEntires =
-        pendingOutboxQuery.map((e) => OutboxEntry.fromTable(e)).toList();
+    var reportsRawQuery =
+        await db.rawQuery("SELECT * FROM ${DatabaseTables.reports}");
+
+    // var pendingOutboxQuery = await db.rawQuery(
+    //     "SELECT * FROM ${DatabaseTables.outbox} WHERE status = '${OutboxStatus.pending.index}'");
+    // List<OutboxEntry> pendingOutboxEntires =
+    //     pendingOutboxQuery.map((e) => OutboxEntry.fromTable(e)).toList();
 
     // Logger().f(groupsRawQuery, stackTrace: StackTrace.fromString("GROUPS"));
     // Logger().f(usersRawQuery, stackTrace: StackTrace.fromString("USERS"));
@@ -465,7 +470,12 @@ class Tests {
     // Logger().f(tasksRawQuery, stackTrace: StackTrace.fromString("TASKS"));
     // Logger().f(outboxRawQuery, stackTrace: StackTrace.fromString("OUTBOX"));
 
-    Logger().f(pendingOutboxEntires.map((e) => e.toString()).toList(),
-        stackTrace: StackTrace.fromString("PENDING OUTBOX"));
+    // Logger().f(pendingOutboxEntires.map((e) => e.toString()).toList(),
+    //     stackTrace: StackTrace.fromString("PENDING OUTBOX"));
+    Logger().f(reportsRawQuery, stackTrace: StackTrace.fromString("REPORTS"));
+  }
+
+  static void error_report_test(WidgetRef ref, BuildContext context) {
+    ref.read(reportProvider).reportError(TimeoutException("NOOOOOOOO"));
   }
 }

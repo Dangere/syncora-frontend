@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
@@ -10,7 +11,6 @@ import 'package:syncora_frontend/common/widgets/version_display.dart';
 import 'package:syncora_frontend/core/localization/generated/l10n/app_localizations.dart';
 import 'package:syncora_frontend/features/authentication/auth_provider.dart';
 import 'package:syncora_frontend/features/onboarding/view/onboarding_popups.dart';
-import 'package:transparent_image/transparent_image.dart';
 
 class OnboardingPage extends ConsumerWidget {
   const OnboardingPage({super.key});
@@ -100,6 +100,9 @@ class OnboardingPage extends ConsumerWidget {
                   // TITLE
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: kIsWeb
+                        ? MainAxisAlignment.center
+                        : MainAxisAlignment.start,
                     children: [
                       Text(
                         AppLocalizations.of(context).onboardingPage_Title,

@@ -3,7 +3,7 @@ import 'package:logger/logger.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:sqflite_common_ffi_web/sqflite_ffi_web.dart';
-import 'package:syncora_frontend/core/data/enums/database_tables.dart';
+import 'package:syncora_frontend/core/data/database_tables.dart';
 
 class DatabaseManager {
   final Logger _logger;
@@ -155,6 +155,24 @@ class DatabaseManager {
         payload TEXT, 
         status INTEGER NOT NULL,
         creationDate TEXT NOT NULL
+      )
+    ''');
+
+    await db.execute('''
+      CREATE TABLE ${DatabaseTables.reports} (
+        id INTEGER PRIMARY KEY,
+        type INTEGER NOT NULL,
+        message TEXT NOT NULL,
+        appVersion TEXT NOT NULL,
+        platform TEXT NOT NULL,
+        osVersion TEXT NOT NULL,
+        deviceModel TEXT NOT NULL,
+        locale TEXT NOT NULL,
+        userSession TEXT NOT NULL,
+        appState TEXT NOT NULL,
+        breadcrumbs TEXT NOT NULL,
+        creationDate TEXT NOT NULL,
+        isSent INTEGER NOT NULL
       )
     ''');
 

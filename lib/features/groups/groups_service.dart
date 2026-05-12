@@ -1,5 +1,5 @@
-import 'package:syncora_frontend/core/data/enums/app_error_code.dart';
-import 'package:syncora_frontend/core/data/enums/groups_filter.dart';
+import 'package:syncora_frontend/core/error_management/app_error_code.dart';
+import 'package:syncora_frontend/features/groups/groups_filter.dart';
 import 'package:syncora_frontend/core/network/outbox/model/enqueue_request.dart';
 import 'package:syncora_frontend/core/network/outbox/model/outbox_entry.dart';
 import 'package:syncora_frontend/core/network/outbox/model/outbox_payload.dart';

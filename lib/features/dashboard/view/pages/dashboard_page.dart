@@ -9,10 +9,11 @@ import 'package:syncora_frontend/common/themes/app_spacing.dart';
 import 'package:syncora_frontend/common/widgets/app_button.dart';
 import 'package:syncora_frontend/common/widgets/filter_list.dart';
 import 'package:syncora_frontend/common/widgets/profile_picture.dart';
-import 'package:syncora_frontend/core/data/enums/groups_filter.dart';
+import 'package:syncora_frontend/features/groups/groups_filter.dart';
 import 'package:syncora_frontend/core/localization/generated/l10n/app_localizations.dart';
 import 'package:syncora_frontend/core/network/outbox/outbox_provider.dart';
 import 'package:syncora_frontend/core/network/syncing/sync_provider.dart';
+import 'package:syncora_frontend/core/tests.dart';
 import 'package:syncora_frontend/core/utils/snack_bar_alerts.dart';
 import 'package:syncora_frontend/features/authentication/models/auth_state.dart';
 import 'package:syncora_frontend/features/authentication/auth_provider.dart';
@@ -81,35 +82,36 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
     ref.read(loggerProvider).d("Building dashboard page");
     return Scaffold(
       resizeToAvoidBottomInset: false,
-      // floatingActionButton: Row(
-      //   mainAxisAlignment: MainAxisAlignment.spaceAround,
-      //   children: [
-      //     // AppButton(
-      //     //   width: 80,
-      //     //   onPressed: () {
-      //     //     ref
-      //     //         .read(debug_fakeBeingOnlineProvider.notifier)
-      //     //         .update((state) => !state);
-      //     //   },
-      //     //   size: AppButtonSize.mini,
-      //     //   style: AppButtonStyle.filled,
-      //     //   intent: AppButtonIntent.warning,
-      //     //   child: const Icon(Icons.add),
-      //     // ),
-      //     AppButton(
-      //       width: 80,
-      //       onPressed: () async {
-      //         if (ref.read(displayDashboardAlertProvider) && kIsWeb) {
-      //           if (mounted) DashboardPopups.webAlert(context);
-      //         }
-      //       },
-      //       size: AppButtonSize.mini,
-      //       style: AppButtonStyle.filled,
-      //       intent: AppButtonIntent.warning,
-      //       child: const Icon(Icons.settings_display_sharp),
-      //     ),
-      //   ],
-      // ),
+      floatingActionButton: !kDebugMode
+          ? null
+          : Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                // AppButton(
+                //   width: 80,
+                //   onPressed: () {
+                //     ref
+                //         .read(debug_fakeBeingOnlineProvider.notifier)
+                //         .update((state) => !state);
+                //   },
+                //   size: AppButtonSize.mini,
+                //   style: AppButtonStyle.filled,
+                //   intent: AppButtonIntent.warning,
+                //   child: const Icon(Icons.add),
+                // ),
+                IconButton(
+                    onPressed: () {
+                      Tests.error_report_test(ref, context);
+                    },
+                    icon: Icon(Icons.report)),
+                IconButton(
+                    onPressed: () async {
+                      Tests.printDb(
+                          await (ref.read(localDbProvider).getDatabase()));
+                    },
+                    icon: Icon(Icons.print))
+              ],
+            ),
       body: Stack(
         children: [
           // BACKGROUND GRAPHIC COLORS

@@ -2,7 +2,7 @@ import 'dart:collection';
 
 import 'package:syncora_frontend/features/users/models/user.dart';
 import 'package:syncora_frontend/features/groups/models/group_dto.dart';
-import 'package:syncora_frontend/features/tasks/models/task.dart';
+import 'package:syncora_frontend/features/tasks/task.dart';
 import 'dart:convert';
 
 class SyncPayload {

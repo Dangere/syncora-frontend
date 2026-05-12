@@ -1,9 +1,9 @@
 import 'package:logger/logger.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:syncora_frontend/core/data/database_manager.dart';
-import 'package:syncora_frontend/core/data/enums/database_tables.dart';
-import 'package:syncora_frontend/core/data/enums/tasks_filter.dart';
-import 'package:syncora_frontend/features/tasks/models/task.dart';
+import 'package:syncora_frontend/core/data/database_tables.dart';
+import 'package:syncora_frontend/features/tasks/tasks_filter.dart';
+import 'package:syncora_frontend/features/tasks/task.dart';
 
 class LocalTasksRepository {
   final DatabaseManager _databaseManager;

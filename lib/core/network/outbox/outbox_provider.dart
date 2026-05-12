@@ -9,11 +9,13 @@ import 'package:syncora_frontend/core/network/outbox/model/outbox_entry.dart';
 import 'package:syncora_frontend/core/network/outbox/outbox_id_mapper.dart';
 import 'package:syncora_frontend/core/network/outbox/outbox_service.dart';
 import 'package:syncora_frontend/core/network/outbox/processors/groups_processor.dart';
+import 'package:syncora_frontend/core/network/outbox/processors/report_processor.dart';
 import 'package:syncora_frontend/core/network/outbox/processors/tasks_processor.dart';
 import 'package:syncora_frontend/core/network/outbox/processors/user_processor.dart';
 import 'package:syncora_frontend/core/network/outbox/repository/outbox_repository.dart';
 import 'package:syncora_frontend/core/network/syncing/sync_provider.dart';
 import 'package:syncora_frontend/core/error_management/app_error.dart';
+import 'package:syncora_frontend/core/report/report_provider.dart';
 import 'package:syncora_frontend/core/utils/result.dart';
 import 'package:syncora_frontend/features/authentication/auth_provider.dart';
 import 'package:syncora_frontend/features/groups/groups_provider.dart';
@@ -190,14 +192,15 @@ final outboxProvider =
 
 final outboxServiceProvider = Provider<OutboxService>((ref) {
   return OutboxService(
-      rateLimitDelay: Duration(seconds: 10),
-      timeoutDelay: Duration(seconds: 10),
+      rateLimitDelay: const Duration(seconds: 10),
+      timeoutDelay: const Duration(seconds: 10),
       logger: ref.read(loggerProvider),
       outboxRepository: ref.watch(outboxRepositoryProvider),
       processors: {
         OutboxEntityType.task: ref.watch(tasksProcessorProvider),
         OutboxEntityType.group: ref.watch(groupsProcessorProvider),
-        OutboxEntityType.user: ref.watch(userProcessorProvider)
+        OutboxEntityType.user: ref.watch(userProcessorProvider),
+        OutboxEntityType.report: ref.watch(reportProcessorProvider)
       },
       idMapper: ref.watch(outboxIdMapperProvider));
 });
@@ -234,5 +237,14 @@ final userProcessorProvider = Provider<UserProcessor>((ref) {
     ref.read(loggerProvider),
     ref.watch(localUsersRepositoryProvider),
     ref.watch(remoteUsersRepositoryProvider),
+  );
+});
+
+final reportProcessorProvider = Provider<ReportProcessor>((ref) {
+  return ReportProcessor(
+    ref.watch(outboxIdMapperProvider),
+    ref.read(loggerProvider),
+    ref.watch(localReportRepositoryProvider),
+    ref.watch(remoteReportRepositoryProvider),
   );
 });
