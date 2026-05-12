@@ -34,17 +34,6 @@ class OnboardingPage extends ConsumerWidget {
         isLoading: user.isLoading,
         body: Stack(
           children: [
-            // BACKGROUND GRAPHIC
-            //TODO: Update background graphic to png and use the fade in widget
-            //             Positioned.fill(
-            //   child: FadeInImage(
-            //     width: double.infinity,
-            //     alignment: Alignment.topCenter,
-            //     fit: BoxFit.fitWidth,
-            //     placeholder: MemoryImage(kTransparentImage),
-            //     image: const AssetImage("assets/images/background.svg"),
-            //   ),
-            // ),
             Positioned.fill(
               child: SvgPicture.asset(
                   width: double.infinity,

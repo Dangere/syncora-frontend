@@ -2,6 +2,7 @@ import 'dart:typed_data';
 import 'dart:ui' as ui;
 
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:syncora_frontend/core/image/image_repository.dart';
 import 'package:syncora_frontend/core/utils/result.dart';
@@ -67,6 +68,14 @@ class ImageService {
     } catch (e) {
       // An error occurred during decoding, so it's not a valid image
       return false;
+    }
+  }
+
+  Future<void> preloadSvg(List<String> paths) async {
+    for (var path in paths) {
+      var loader = SvgAssetLoader(path);
+      await svg.cache
+          .putIfAbsent(loader.cacheKey(null), () => loader.loadBytes(null));
     }
   }
 }
