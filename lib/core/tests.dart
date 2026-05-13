@@ -14,6 +14,8 @@ import 'package:lorem_ipsum/lorem_ipsum.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:syncora_frontend/common/providers/common_providers.dart';
 import 'package:syncora_frontend/core/data/database_tables.dart';
+import 'package:syncora_frontend/core/error_management/app_error.dart';
+import 'package:syncora_frontend/core/error_management/error_mapper.dart';
 import 'package:syncora_frontend/features/groups/groups_filter.dart';
 import 'package:syncora_frontend/core/report/report_provider.dart';
 import 'package:syncora_frontend/core/image/image_providers.dart';
@@ -476,6 +478,7 @@ class Tests {
   }
 
   static void error_report_test(WidgetRef ref, BuildContext context) {
-    ref.read(reportProvider).reportError(TimeoutException("NOOOOOOOO"));
+    ref.read(reportProvider).reportError(
+        AppError.fromException(Exception("NOOOOOOOO"), StackTrace.current));
   }
 }

@@ -5,6 +5,9 @@ import 'package:syncora_frontend/core/report/repositories/local_report_repositor
 import 'package:syncora_frontend/core/report/report_service.dart';
 import 'package:syncora_frontend/core/network/outbox/outbox_provider.dart';
 import 'package:syncora_frontend/core/report/repositories/remote_report_repository.dart';
+import 'package:syncora_frontend/features/authentication/auth_provider.dart';
+import 'package:syncora_frontend/features/authentication/models/auth_state.dart';
+import 'package:syncora_frontend/features/authentication/models/session.dart';
 
 final localReportRepositoryProvider = Provider<LocalReportRepository>((ref) {
   return LocalReportRepository(ref.read(localDbProvider));
@@ -21,5 +24,9 @@ final reportProvider = Provider<ReportService>((ref) {
     enqueueEntry: (enqueueRequest) =>
         ref.read(outboxProvider.notifier).enqueue(enqueueRequest),
     crumbs: () => BreadcrumbService.instance.getCrumbs,
+    sessionFactory: () => Session(
+        userId: ref.read(authProvider).value?.userId ?? -9999,
+        isVerified: ref.read(isVerifiedProvider),
+        tokens: ref.read(sessionStorageProvider).tokens),
   );
 });

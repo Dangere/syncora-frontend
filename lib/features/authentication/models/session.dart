@@ -7,4 +7,11 @@ class Session {
   Tokens? tokens;
 
   Session({required this.userId, required this.isVerified, this.tokens});
+
+  Map<String, dynamic> toJson() => {
+        "userId": userId,
+        "isVerified": isVerified,
+        if (tokens != null) "accessToken": tokens!.accessToken,
+        if (tokens != null) "refreshToken": tokens!.refreshToken
+      };
 }

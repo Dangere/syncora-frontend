@@ -18,34 +18,8 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
   void goToApp() async {
     await Future.delayed(Duration(seconds: 3));
 
-    print("Going to home");
     if (mounted) context.pushReplacement('/');
   }
-
-  // @override
-  // void initState() {
-  //   // once loading is done navigate to the home screen
-
-  //   Future.microtask(
-  //     () {
-  //       ref.watch(appInitializeProvider).when(
-  //             data: (data) {
-  //               goToApp();
-  //             },
-  //             error: (error, stackTrace) {
-  //               print("Got error");
-
-  //               setState(() {
-  //                 this.error = error;
-  //               });
-  //             },
-  //             loading: () {},
-  //           );
-  //     },
-  //   );
-
-  //   super.initState();
-  // }
 
   @override
   Widget build(BuildContext context) {
