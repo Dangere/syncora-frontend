@@ -45,6 +45,12 @@ class Report {
     }
   }
 
+  void failedToReport(String reason) {
+    appState['reportFailureToSend'] = true;
+    appState['reportFailureReason'] = reason;
+    appState['manualReport'] = true;
+  }
+
   Map<String, dynamic> toJson() {
     return {
       'id': id,

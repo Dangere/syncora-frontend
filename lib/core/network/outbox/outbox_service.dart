@@ -5,6 +5,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:logger/logger.dart';
+import 'package:syncora_frontend/core/error_management/app_error.dart';
 import 'package:syncora_frontend/core/network/outbox/exception/outbox_exception.dart';
 import 'package:syncora_frontend/core/network/outbox/model/enqueue_request.dart';
 import 'package:syncora_frontend/core/network/outbox/interface/outbox_processor_interface.dart';
@@ -15,9 +16,9 @@ import 'package:syncora_frontend/core/network/outbox/repository/outbox_repositor
 import 'package:syncora_frontend/core/utils/result.dart';
 
 enum OutboxErrorQueueAction {
-  stopQueue,
-  timeoutQueue,
-  skipAndRevertEntry,
+  failAndStopQueue,
+  cancelAndStopQueue,
+  failAndRevertThenContinueQueue,
   retryEntry
 }
 
@@ -80,7 +81,8 @@ class OutboxService {
   Future<Result<void>> processQueue(
       {required void Function({required int tempId, required int serverId})
           onEntityIdSync,
-      required void Function(Object error, StackTrace stackTrace) onFail,
+      required void Function(OutboxEntry entry, AppError error) onFail,
+      required void Function(OutboxEntry entry, AppError error) onFetalFail,
       required void Function(OutboxEntry entry) onRevert,
       required void Function(OutboxEntry entry) onSync,
       required VoidCallback requireSecondPass}) async {
@@ -101,8 +103,10 @@ class OutboxService {
 
     for (final entry in entries) {
       if (_processors[entry.entityType] == null) {
-        return Result.canceled(
-            'No processor found for ${entry.entityType}', StackTrace.current);
+        return Result.failureError(
+            OutboxNoProcessorException(
+                'No processor found for ${entry.entityType}'),
+            StackTrace.current);
       }
 
       if (_cancelationToken!.isCancelled) {
@@ -149,7 +153,7 @@ class OutboxService {
             case OutboxErrorQueueAction.retryEntry:
               continue;
             // await _outboxRepository.markEntryPending(entry.id!);
-            case OutboxErrorQueueAction.skipAndRevertEntry:
+            case OutboxErrorQueueAction.failAndRevertThenContinueQueue:
               {
                 // Reverting
                 Result<bool> revertResult = await _revertEntry(entry);
@@ -161,23 +165,24 @@ class OutboxService {
 
                 if (!revertResult.isSuccess) {
                   _logger.e("Outbox debug: reverting failed");
-                  break;
+                  onFetalFail(entry, AppError.fromException(e, stackTrace));
+                  return Result.failureError(e, stackTrace);
                 }
 
                 // callbacks
                 onRevert(entry);
-                onFail(e, stackTrace);
+                onFail(entry, AppError.fromException(e, stackTrace));
               }
               break;
-            case OutboxErrorQueueAction.stopQueue:
-              await _outboxRepository.markEntryPending(entry.id!);
+            case OutboxErrorQueueAction.failAndStopQueue:
+              _logger.f("Fetal error, stopping queue");
+              await _outboxRepository.failEntry(entry.id!);
+              onFetalFail(entry, AppError.fromException(e, stackTrace));
+
               return Result.failureError(e, stackTrace);
-            case OutboxErrorQueueAction.timeoutQueue:
-              {
-                await _outboxRepository.markEntryPending(entry.id!);
-                _logger.d('Outbox debug: Timeout error, stopping queue');
-                return Result.canceled('Timeout error', StackTrace.current);
-              }
+            case OutboxErrorQueueAction.cancelAndStopQueue:
+              await _outboxRepository.markEntryPending(entry.id!);
+              return Result.canceled('canceling queue', StackTrace.current);
           }
         }
 
@@ -196,14 +201,14 @@ class OutboxService {
   Future<OutboxErrorQueueAction> _handleError(
       Object e, StackTrace stackTrace) async {
     if (e is TimeoutException) {
-      return OutboxErrorQueueAction.stopQueue;
+      return OutboxErrorQueueAction.cancelAndStopQueue;
     }
 
     if (e is DioException) {
       // Connection error
       if (e.type == DioExceptionType.connectionError) {
         _logger.d('Outbox debug: unable to reach server, stopping queue');
-        return OutboxErrorQueueAction.stopQueue;
+        return OutboxErrorQueueAction.cancelAndStopQueue;
       }
 
       // Rate limit
@@ -217,23 +222,21 @@ class OutboxService {
         }
         secondsToWait =
             retryAfter != null ? secondsToWait : _rateLimitDelay.inSeconds;
-        _logger
-            .d('Outbox debug: 429 error, retrying in $secondsToWait seconds');
 
-        await Future.delayed(Duration(seconds: secondsToWait));
         _logger.d(
             'Outbox debug: Rate limit error, retrying in $secondsToWait seconds');
+        await Future.delayed(Duration(seconds: secondsToWait));
         return OutboxErrorQueueAction.retryEntry;
       }
 
-      return OutboxErrorQueueAction.skipAndRevertEntry;
+      // return OutboxErrorQueueAction.failAndRevertThenContinueQueue;
     }
 
-    if (e is OutboxException) {
-      return OutboxErrorQueueAction.skipAndRevertEntry;
-    }
+    // if (e is OutboxException) {
+    //   return OutboxErrorQueueAction.failAndRevertThenContinueQueue;
+    // }
 
-    return OutboxErrorQueueAction.stopQueue;
+    return OutboxErrorQueueAction.failAndRevertThenContinueQueue;
   }
 
   Future<Result<bool>> _revertEntry(OutboxEntry entry) async {

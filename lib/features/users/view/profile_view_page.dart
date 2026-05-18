@@ -16,6 +16,7 @@ import 'package:syncora_frontend/core/analytics/breadcrumb_type.dart';
 import 'package:syncora_frontend/core/analytics/breadcrumbs_service.dart';
 import 'package:syncora_frontend/core/localization/generated/l10n/app_localizations.dart';
 import 'package:syncora_frontend/core/error_management/app_error.dart';
+import 'package:syncora_frontend/core/localization/localize_app_errors.dart';
 import 'package:syncora_frontend/core/utils/snack_bar_alerts.dart';
 import 'package:syncora_frontend/core/utils/validators.dart';
 import 'package:syncora_frontend/features/authentication/models/auth_state.dart';
@@ -236,7 +237,7 @@ class _ProfileViewPageState extends ConsumerState<ProfileViewPage> {
       error: (error, stackTrace) {
         return Center(
           child: Text(
-            ref.read(localizeAppErrorsProvider).localizeErrorCode(
+            LocalizeAppErrors.localizeErrorCode(
                 AppError.fromException(error, stackTrace).errorCode, context),
           ),
         );

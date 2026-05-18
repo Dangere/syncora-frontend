@@ -6,6 +6,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:syncora_frontend/common/providers/common_providers.dart';
 import 'package:syncora_frontend/common/providers/connection_provider.dart';
 import 'package:syncora_frontend/core/error_management/app_error_code.dart';
+import 'package:syncora_frontend/core/error_management/error_provider.dart';
 import 'package:syncora_frontend/core/image/image_providers.dart';
 import 'package:syncora_frontend/core/network/outbox/outbox_provider.dart';
 import 'package:syncora_frontend/core/network/syncing/sync_state.dart';
@@ -41,7 +42,7 @@ class UserNotifier extends AsyncNotifier<void> {
         username: username, firstName: firstName, lastName: lastName);
 
     if (!result.isSuccess) {
-      ref.read(appErrorProvider.notifier).state = result.error;
+      ref.read(appErrorProvider.notifier).setError(result.error!);
     }
     state = const AsyncValue.data(null);
 
@@ -61,15 +62,15 @@ class UserNotifier extends AsyncNotifier<void> {
         await ref.read(imageServiceProvider).pickImage(source);
 
     if (!imagePicked.isSuccess) {
-      ref.read(appErrorProvider.notifier).state = imagePicked.error;
+      ref.read(appErrorProvider.notifier).setError(imagePicked.error!);
       state = const AsyncValue.data(null);
 
       return null;
     }
 
     if (imagePicked.data == null) {
-      ref.read(appErrorProvider.notifier).state =
-          AppError.fromCode(AppErrorCode.NO_FILE_PICKED, StackTrace.current);
+      ref.read(appErrorProvider.notifier).setError(
+          AppError.fromCode(AppErrorCode.NO_FILE_PICKED, StackTrace.current));
       state = const AsyncValue.data(null);
 
       return null;
@@ -79,8 +80,8 @@ class UserNotifier extends AsyncNotifier<void> {
     Uint8List? imageBytes = await cropImageScreen(imagePicked.data!);
 
     if (imageBytes == null) {
-      ref.read(appErrorProvider.notifier).state =
-          AppError.fromCode(AppErrorCode.NO_FILE_PICKED, StackTrace.current);
+      ref.read(appErrorProvider.notifier).setError(
+          AppError.fromCode(AppErrorCode.NO_FILE_PICKED, StackTrace.current));
 
       state = const AsyncValue.data(null);
       return null;
@@ -91,7 +92,7 @@ class UserNotifier extends AsyncNotifier<void> {
         await ref.read(imageServiceProvider).uploadImage(imageBytes);
 
     if (!uploadedImageUrl.isSuccess) {
-      ref.read(appErrorProvider.notifier).state = uploadedImageUrl.error;
+      ref.read(appErrorProvider.notifier).setError(uploadedImageUrl.error!);
 
       state = const AsyncValue.data(null);
       return null;
@@ -103,8 +104,9 @@ class UserNotifier extends AsyncNotifier<void> {
         .updateProfilePicture(uploadedImageUrl.data!);
 
     if (!profilePictureUpdateResult.isSuccess) {
-      ref.read(appErrorProvider.notifier).state =
-          profilePictureUpdateResult.error;
+      ref
+          .read(appErrorProvider.notifier)
+          .setError(profilePictureUpdateResult.error!);
 
       return null;
     }
@@ -126,7 +128,7 @@ class UserNotifier extends AsyncNotifier<void> {
         await ref.read(usersServiceProvider).findUser(username);
 
     if (!result.isSuccess) {
-      ref.read(appErrorProvider.notifier).state = result.error;
+      ref.read(appErrorProvider.notifier).setError(result.error!);
       return null;
     }
 
@@ -137,8 +139,8 @@ class UserNotifier extends AsyncNotifier<void> {
     int? userId = ref.read(authStateProvider).userId;
 
     if (userId == null) {
-      ref.read(appErrorProvider.notifier).state =
-          AppError.fromCode(AppErrorCode.USER_NOT_FOUND, StackTrace.current);
+      ref.read(appErrorProvider.notifier).setError(
+          AppError.fromCode(AppErrorCode.USER_NOT_FOUND, StackTrace.current));
 
       throw Exception("User id is null");
     }
@@ -147,14 +149,14 @@ class UserNotifier extends AsyncNotifier<void> {
         await ref.read(usersServiceProvider).getCachedUser(userId);
 
     if (result.data == null) {
-      ref.read(appErrorProvider.notifier).state =
-          AppError.fromCode(AppErrorCode.USER_NOT_FOUND, StackTrace.current);
+      ref.read(appErrorProvider.notifier).setError(
+          AppError.fromCode(AppErrorCode.USER_NOT_FOUND, StackTrace.current));
 
       throw Exception("User is null");
     }
 
     if (!result.isSuccess) {
-      ref.read(appErrorProvider.notifier).state = result.error;
+      ref.read(appErrorProvider.notifier).setError(result.error!);
       throw result.error!.exception!;
     }
 
@@ -213,7 +215,7 @@ final userLocalProvider =
       ref.read(loggerProvider).d("Auto disposing user provider of $userId"));
 
   if (!result.isSuccess) {
-    ref.read(appErrorProvider.notifier).state = result.error;
+    ref.read(appErrorProvider.notifier).setError(result.error!);
 
     throw result.error!.exception!;
   }
@@ -246,7 +248,7 @@ final userProfileImageProvider = FutureProvider.family
   if (result.isCancelled) return null;
 
   if (!result.isSuccess) {
-    ref.read(appErrorProvider.notifier).state = result.error;
+    ref.read(appErrorProvider.notifier).setError(result.error!);
     return null;
   }
 

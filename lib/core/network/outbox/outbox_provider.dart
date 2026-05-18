@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:signalr_netcore/hub_connection.dart';
 import 'package:syncora_frontend/common/providers/common_providers.dart';
 import 'package:syncora_frontend/common/providers/connection_provider.dart';
+import 'package:syncora_frontend/core/error_management/error_provider.dart';
 import 'package:syncora_frontend/core/network/outbox/model/enqueue_request.dart';
 import 'package:syncora_frontend/core/network/outbox/model/outbox_entry.dart';
 import 'package:syncora_frontend/core/network/outbox/outbox_id_mapper.dart';
@@ -81,9 +82,26 @@ class OutboxNotifier extends AsyncNotifier<OutboxStatus>
     state = const AsyncValue.loading();
 
     Result<void> result = await ref.read(outboxServiceProvider).processQueue(
-        onFail: (error, stackTrace) {
-      ref.read(appErrorProvider.notifier).state =
-          AppError.fromException(error, stackTrace);
+        onFail: (entry, error) {
+      if (entry.entityType == OutboxEntityType.report) {
+        // If we failed to send our report
+        ref
+            .read(appErrorProvider.notifier)
+            .setReportError(entry.entityId, error);
+      } else {
+        // If we failed to manage anything else
+        ref.read(appErrorProvider.notifier).setError(error, fetal: false);
+      }
+    }, onFetalFail: (entry, error) {
+      if (entry.entityType == OutboxEntityType.report) {
+        // If we failed to send our report
+        ref
+            .read(appErrorProvider.notifier)
+            .setReportError(entry.entityId, error);
+      } else {
+        // If we failed to manage anything else
+        ref.read(appErrorProvider.notifier).setError(error, fetal: true);
+      }
     }, requireSecondPass: () {
       ref
           .read(loggerProvider)
@@ -113,7 +131,6 @@ class OutboxNotifier extends AsyncNotifier<OutboxStatus>
     });
 
     if (!result.isSuccess && !result.isCancelled) {
-      ref.read(appErrorProvider.notifier).state = result.error;
       state = result.error!.toAsyncValue();
     } else if (result.isCancelled) {
       state = const AsyncValue.data(OutboxStatus.pending);

@@ -8,6 +8,7 @@ import 'package:syncora_frontend/core/analytics/breadcrumb_type.dart';
 import 'package:syncora_frontend/core/analytics/breadcrumbs_service.dart';
 import 'package:syncora_frontend/core/error_management/app_error_code.dart';
 import 'package:syncora_frontend/core/error_management/app_error.dart';
+import 'package:syncora_frontend/core/error_management/error_provider.dart';
 import 'package:syncora_frontend/core/utils/result.dart';
 import 'package:syncora_frontend/features/authentication/models/auth_response_dto.dart';
 import 'package:syncora_frontend/features/authentication/models/auth_state.dart';
@@ -39,7 +40,7 @@ class AuthNotifier extends AsyncNotifier<AuthState> {
     }
 
     if (!result.isSuccess) {
-      ref.read(appErrorProvider.notifier).state = result.error!;
+      ref.read(appErrorProvider.notifier).setError(result.error!);
       state = const AsyncValue.data(AuthUnauthenticated());
       return;
     }
@@ -51,7 +52,7 @@ class AuthNotifier extends AsyncNotifier<AuthState> {
         result.data!.userPreferences);
 
     if (!saveSessionResult.isSuccess) {
-      ref.read(appErrorProvider.notifier).state = saveSessionResult.error!;
+      ref.read(appErrorProvider.notifier).setError(saveSessionResult.error!);
       state = const AsyncValue.data(AuthUnauthenticated());
       return;
     }
@@ -71,7 +72,7 @@ class AuthNotifier extends AsyncNotifier<AuthState> {
     Result<UserPreferences> preferencesResult =
         ref.read(usersServiceProvider).getPreferences();
     if (!preferencesResult.isSuccess) {
-      ref.read(appErrorProvider.notifier).state = preferencesResult.error!;
+      ref.read(appErrorProvider.notifier).setError(preferencesResult.error!);
       state = const AsyncValue.data(AuthUnauthenticated());
       return;
     }
@@ -82,7 +83,7 @@ class AuthNotifier extends AsyncNotifier<AuthState> {
             googleUserInfo, userFilledInfo, preferencesResult.data!);
 
     if (!result.isSuccess) {
-      ref.read(appErrorProvider.notifier).state = result.error!;
+      ref.read(appErrorProvider.notifier).setError(result.error!);
       state = const AsyncValue.data(AuthUnauthenticated());
 
       return;
@@ -96,7 +97,7 @@ class AuthNotifier extends AsyncNotifier<AuthState> {
         result.data!.userPreferences);
 
     if (!saveSessionResult.isSuccess) {
-      ref.read(appErrorProvider.notifier).state = saveSessionResult.error!;
+      ref.read(appErrorProvider.notifier).setError(saveSessionResult.error!);
       state = const AsyncValue.data(AuthUnauthenticated());
       return;
     }
@@ -117,7 +118,7 @@ class AuthNotifier extends AsyncNotifier<AuthState> {
         .loginWithEmailAndPassword(email: email, password: password);
 
     if (!result.isSuccess) {
-      ref.read(appErrorProvider.notifier).state = result.error!;
+      ref.read(appErrorProvider.notifier).setError(result.error!);
       state = const AsyncValue.data(AuthUnauthenticated());
       return;
     }
@@ -132,7 +133,7 @@ class AuthNotifier extends AsyncNotifier<AuthState> {
         result.data!.userPreferences);
 
     if (!saveSessionResult.isSuccess) {
-      ref.read(appErrorProvider.notifier).state = saveSessionResult.error!;
+      ref.read(appErrorProvider.notifier).setError(saveSessionResult.error!);
       state = const AsyncValue.data(AuthUnauthenticated());
       return;
     }
@@ -155,7 +156,7 @@ class AuthNotifier extends AsyncNotifier<AuthState> {
     Result<UserPreferences> preferencesResult =
         ref.read(usersServiceProvider).getPreferences();
     if (!preferencesResult.isSuccess) {
-      ref.read(appErrorProvider.notifier).state = preferencesResult.error!;
+      ref.read(appErrorProvider.notifier).setError(preferencesResult.error!);
       state = const AsyncValue.data(AuthUnauthenticated());
       return;
     }
@@ -171,7 +172,7 @@ class AuthNotifier extends AsyncNotifier<AuthState> {
             preferences: preferencesResult.data!);
 
     if (!result.isSuccess) {
-      ref.read(appErrorProvider.notifier).state = result.error!;
+      ref.read(appErrorProvider.notifier).setError(result.error!);
       state = const AsyncValue.data(AuthUnauthenticated());
 
       return;
@@ -185,7 +186,7 @@ class AuthNotifier extends AsyncNotifier<AuthState> {
         result.data!.userPreferences);
 
     if (!saveSessionResult.isSuccess) {
-      ref.read(appErrorProvider.notifier).state = saveSessionResult.error!;
+      ref.read(appErrorProvider.notifier).setError(saveSessionResult.error!);
       state = const AsyncValue.data(AuthUnauthenticated());
       return;
     }
@@ -204,7 +205,7 @@ class AuthNotifier extends AsyncNotifier<AuthState> {
         await _saveSession(User.guest(username), false, null, null);
 
     if (!saveSessionResult.isSuccess) {
-      ref.read(appErrorProvider.notifier).state = saveSessionResult.error!;
+      ref.read(appErrorProvider.notifier).setError(saveSessionResult.error!);
       state = const AsyncValue.data(AuthUnauthenticated());
       return;
     }
@@ -228,8 +229,8 @@ class AuthNotifier extends AsyncNotifier<AuthState> {
 
     // TODO: Show pop up instead of snackbar
     // TODO: in the future make it so you can differentiate between a revoked refresh token or an expired, and give different messages
-    ref.read(appErrorProvider.notifier).state =
-        AppError.fromCode(AppErrorCode.SESSION_EXPIRED, StackTrace.current);
+    ref.read(appErrorProvider.notifier).setError(
+        AppError.fromCode(AppErrorCode.SESSION_EXPIRED, StackTrace.current));
   }
 
   Future<Result> refreshTokens([CancellationToken? cancellationToken]) async {
@@ -290,7 +291,7 @@ class AuthNotifier extends AsyncNotifier<AuthState> {
     Result result = await ref.read(authServiceProvider).sendVerificationEmail();
 
     if (!result.isSuccess) {
-      ref.read(appErrorProvider.notifier).state = result.error!;
+      ref.read(appErrorProvider.notifier).setError(result.error!);
     }
 
     return result;
@@ -311,7 +312,7 @@ class AuthNotifier extends AsyncNotifier<AuthState> {
 
       // If theres an error, we display and return the error
       if (!result.isSuccess) {
-        ref.read(appErrorProvider.notifier).state = result.error!;
+        ref.read(appErrorProvider.notifier).setError(result.error!);
         return;
       }
       // If the result is true
@@ -337,7 +338,7 @@ class AuthNotifier extends AsyncNotifier<AuthState> {
         await ref.read(authServiceProvider).requestPasswordReset(email);
 
     if (!result.isSuccess) {
-      ref.read(appErrorProvider.notifier).state = result.error!;
+      ref.read(appErrorProvider.notifier).setError(result.error!);
     }
 
     return result;
@@ -383,7 +384,7 @@ class AuthNotifier extends AsyncNotifier<AuthState> {
     Result<Session?> session =
         await ref.read(sessionStorageProvider).loadSession();
     if (!session.isSuccess) {
-      ref.read(appErrorProvider.notifier).state = session.error!;
+      ref.read(appErrorProvider.notifier).setError(session.error!);
       return const AuthUnauthenticated();
     }
 

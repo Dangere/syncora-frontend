@@ -35,7 +35,7 @@ class TasksProcessor extends OutboxProcessor {
     int? taskId;
     if (entry.actionType != OutboxActionType.create) {
       Result taskIdResult = await idMapper.getDependency(entry.entityId);
-      if (!groupIdResult.isSuccess || groupIdResult.data == null) {
+      if (!taskIdResult.isSuccess || taskIdResult.data == null) {
         throw OutboxDependencyFailureException(
             "Task dependency failed to get, entry: ${entry.toTable()}");
       }
@@ -112,7 +112,7 @@ class TasksProcessor extends OutboxProcessor {
     int? taskId;
     if (entry.actionType != OutboxActionType.create) {
       Result taskIdResult = await idMapper.getDependency(entry.entityId);
-      if (!groupIdResult.isSuccess || groupIdResult.data == null) {
+      if (!taskIdResult.isSuccess || taskIdResult.data == null) {
         throw OutboxDependencyFailureException(
             "Task dependency failed to get, entry: ${entry.toTable()}");
       }

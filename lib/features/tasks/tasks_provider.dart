@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:syncora_frontend/common/providers/common_providers.dart';
 import 'package:syncora_frontend/core/analytics/breadcrumb_type.dart';
 import 'package:syncora_frontend/core/analytics/breadcrumbs_service.dart';
+import 'package:syncora_frontend/core/error_management/error_provider.dart';
 import 'package:syncora_frontend/features/tasks/tasks_filter.dart';
 import 'package:syncora_frontend/core/network/outbox/outbox_provider.dart';
 import 'package:syncora_frontend/core/network/syncing/sync_state.dart';
@@ -68,7 +69,7 @@ class TasksNotifier extends AutoDisposeFamilyAsyncNotifier<List<Task>, int> {
         title: title, description: description, groupId: _groupResolvedId);
 
     if (!createResult.isSuccess) {
-      ref.read(appErrorProvider.notifier).state = createResult.error;
+      ref.read(appErrorProvider.notifier).setError(createResult.error!);
       return;
     }
     _reloadTasks();
@@ -90,7 +91,7 @@ class TasksNotifier extends AutoDisposeFamilyAsyncNotifier<List<Task>, int> {
         .deleteTask(groupId: _groupResolvedId, taskId: taskId);
 
     if (!deleteResult.isSuccess) {
-      ref.read(appErrorProvider.notifier).state = deleteResult.error;
+      ref.read(appErrorProvider.notifier).setError(deleteResult.error!);
       return;
     }
     _reloadTasks();
@@ -112,7 +113,7 @@ class TasksNotifier extends AutoDisposeFamilyAsyncNotifier<List<Task>, int> {
         description: description);
 
     if (!updateResult.isSuccess) {
-      ref.read(appErrorProvider.notifier).state = updateResult.error;
+      ref.read(appErrorProvider.notifier).setError(updateResult.error!);
       return;
     }
     _reloadTasks();
@@ -130,7 +131,7 @@ class TasksNotifier extends AutoDisposeFamilyAsyncNotifier<List<Task>, int> {
         .assignTaskToUsers(groupId: _groupResolvedId, taskId: taskId, ids: ids);
 
     if (!updateResult.isSuccess) {
-      ref.read(appErrorProvider.notifier).state = updateResult.error;
+      ref.read(appErrorProvider.notifier).setError(updateResult.error!);
       return;
     }
     _reloadTasks();
@@ -145,7 +146,7 @@ class TasksNotifier extends AutoDisposeFamilyAsyncNotifier<List<Task>, int> {
         await ref.read(usersServiceProvider).getCachedUsers(assignedUsersIds);
 
     if (!usersResult.isSuccess) {
-      ref.read(appErrorProvider.notifier).state = usersResult.error;
+      ref.read(appErrorProvider.notifier).setError(usersResult.error!);
       return [];
     }
 
@@ -160,7 +161,7 @@ class TasksNotifier extends AutoDisposeFamilyAsyncNotifier<List<Task>, int> {
             taskId: taskId, groupId: _groupResolvedId, ids: ids);
 
     if (!updateResult.isSuccess) {
-      ref.read(appErrorProvider.notifier).state = updateResult.error;
+      ref.read(appErrorProvider.notifier).setError(updateResult.error!);
       return;
     }
     _reloadTasks();
@@ -180,7 +181,7 @@ class TasksNotifier extends AutoDisposeFamilyAsyncNotifier<List<Task>, int> {
         .markTask(taskId: task.id, groupId: _groupResolvedId, isDone: isDone);
 
     if (!updateResult.isSuccess) {
-      ref.read(appErrorProvider.notifier).state = updateResult.error;
+      ref.read(appErrorProvider.notifier).setError(updateResult.error!);
       return;
     }
     _reloadTasks();
@@ -213,7 +214,7 @@ class TasksNotifier extends AutoDisposeFamilyAsyncNotifier<List<Task>, int> {
     if (result.isSuccess) {
       state = AsyncValue.data(result.data!);
     } else {
-      ref.read(appErrorProvider.notifier).state = result.error;
+      ref.read(appErrorProvider.notifier).setError(result.error!);
       return;
     }
   }
@@ -258,7 +259,7 @@ class TasksNotifier extends AutoDisposeFamilyAsyncNotifier<List<Task>, int> {
     if (result.isSuccess) {
       return result.data!;
     } else {
-      ref.read(appErrorProvider.notifier).state = result.error!;
+      ref.read(appErrorProvider.notifier).setError(result.error!);
       return [];
     }
   }

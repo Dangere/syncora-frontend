@@ -23,3 +23,12 @@ class OutboxDependencyFailureException implements OutboxException {
   @override
   String toString() => 'OutboxException: $message';
 }
+
+class OutboxNoProcessorException implements OutboxException {
+  @override
+  final String message;
+  OutboxNoProcessorException(this.message);
+
+  @override
+  String toString() => 'OutboxException: $message';
+}

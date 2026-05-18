@@ -21,13 +21,13 @@ class ErrorMapper {
     return '''
       $message
 
-      ── Origin (where it was thrown) ──────────────────
+      ── Origin (where it was thrown) ──
 
       $origin
 
 
 
-      ── Caught at (your code) ─────────────────────────
+      ── Caught at (your code) ──
 
       $current
         '''

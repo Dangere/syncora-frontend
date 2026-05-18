@@ -9,6 +9,12 @@ import 'package:syncora_frontend/common/themes/app_spacing.dart';
 import 'package:syncora_frontend/common/widgets/app_button.dart';
 import 'package:syncora_frontend/common/widgets/filter_list.dart';
 import 'package:syncora_frontend/common/widgets/profile_picture.dart';
+import 'package:syncora_frontend/core/error_management/app_error.dart';
+import 'package:syncora_frontend/core/error_management/app_error_code.dart';
+import 'package:syncora_frontend/core/error_management/error_popups.dart';
+import 'package:syncora_frontend/core/error_management/error_provider.dart';
+import 'package:syncora_frontend/core/error_management/error_state.dart';
+import 'package:syncora_frontend/core/utils/result.dart';
 import 'package:syncora_frontend/features/groups/groups_filter.dart';
 import 'package:syncora_frontend/core/localization/generated/l10n/app_localizations.dart';
 import 'package:syncora_frontend/core/network/outbox/outbox_provider.dart';
@@ -66,11 +72,13 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
       final result = await GroupPopups.createGroupPopup(context);
 
       if (result != null) {
-        int newGroupId = await ref
+        int? newGroupId = await ref
             .read(groupsListProvider.notifier)
             .createGroup(title: result.title, description: result.description);
 
-        if (context.mounted) context.push('/group/${newGroupId}');
+        if (context.mounted && newGroupId != null) {
+          context.push('/group/$newGroupId');
+        }
       }
     }
 
@@ -109,7 +117,24 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                       Tests.printDb(
                           await (ref.read(localDbProvider).getDatabase()));
                     },
-                    icon: Icon(Icons.print))
+                    icon: Icon(Icons.print)),
+                IconButton(
+                    onPressed: () async {
+                      ErrorPopups.fetalErrorPopup(
+                        context,
+                        ErrorFetal(
+                          AppError.fromCode(
+                              AppErrorCode.CREDENTIALS_ALREADY_IN_USE,
+                              StackTrace.current),
+                        ),
+                        onManualSend: (state) async {
+                          return null;
+                          await Future.delayed(Duration(seconds: 2));
+                          return AppErrorCode.CREDENTIALS_ALREADY_IN_USE;
+                        },
+                      );
+                    },
+                    icon: Icon(Icons.fit_screen_sharp))
               ],
             ),
       body: Stack(

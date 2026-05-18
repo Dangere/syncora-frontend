@@ -6,6 +6,7 @@ import 'package:signalr_netcore/hub_connection.dart';
 import 'package:syncora_frontend/common/providers/common_providers.dart';
 import 'package:syncora_frontend/common/providers/connection_provider.dart';
 import 'package:syncora_frontend/core/constants/constants.dart';
+import 'package:syncora_frontend/core/error_management/error_provider.dart';
 import 'package:syncora_frontend/core/network/signalr/signalr_client.dart';
 import 'package:syncora_frontend/core/network/syncing/model/sync_payload.dart';
 import 'package:syncora_frontend/core/network/syncing/sync_repository.dart';
@@ -98,7 +99,7 @@ class SyncBackendNotifier extends AsyncNotifier<SyncState>
         await ref.read(syncServiceProvider).mapPayload(parameter);
 
     if (!result.isSuccess) {
-      ref.read(appErrorProvider.notifier).state = result.error;
+      ref.read(appErrorProvider.notifier).setError(result.error!);
       return;
     }
     _payloadQueue.add(result.data!);
@@ -113,7 +114,7 @@ class SyncBackendNotifier extends AsyncNotifier<SyncState>
         await ref.read(syncServiceProvider).fetchPayload();
 
     if (!result.isSuccess) {
-      ref.read(appErrorProvider.notifier).state = result.error;
+      ref.read(appErrorProvider.notifier).setError(result.error!);
       return;
     }
     _payloadQueue.add(result.data!);
@@ -133,7 +134,7 @@ class SyncBackendNotifier extends AsyncNotifier<SyncState>
           await ref.read(syncServiceProvider).processPayload(payload);
 
       if (!result.isSuccess) {
-        ref.read(appErrorProvider.notifier).state = result.error;
+        ref.read(appErrorProvider.notifier).setError(result.error!);
         return;
       }
       ref

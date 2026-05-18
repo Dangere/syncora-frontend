@@ -568,4 +568,17 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get dashboard_alert_bugReport =>
       'إذا واجهت أي مشكلة أو لديك اقتراح، يمكنك إرساله عبر الإعدادات ثم الإبلاغ عن خطأ';
+
+  @override
+  String get error_fetal_popup => 'حدث خطاء ولم يتم الابلاغ عنه بشكل صحيح';
+
+  @override
+  String get error_fetal_popup_send_button => 'الابلاغ عن الخطاء';
+
+  @override
+  String get error_report_popup_sent => 'تم الابلاغ عن الخطاء بنجاح';
+
+  @override
+  String get error_report_popup_manually =>
+      'اذا تكرر الخطاء، يرجى الابلاغ عنه يدويا للمطور في';
 }

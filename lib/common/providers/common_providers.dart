@@ -6,7 +6,6 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart' as intl;
 import 'package:logger/logger.dart';
-import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:syncora_frontend/common/interceptors/auth_interceptor.dart';
 import 'package:syncora_frontend/common/interceptors/breadcrumb_interceptor.dart';
@@ -14,8 +13,8 @@ import 'package:syncora_frontend/common/interceptors/connection_interceptor.dart
 import 'package:syncora_frontend/common/providers/connection_provider.dart';
 import 'package:syncora_frontend/core/analytics/diagnostics_service.dart';
 import 'package:syncora_frontend/core/data/database_manager.dart';
+import 'package:syncora_frontend/core/error_management/error_provider.dart';
 import 'package:syncora_frontend/core/localization/localize_app_errors.dart';
-import 'package:syncora_frontend/core/error_management/app_error.dart';
 import 'package:syncora_frontend/core/utils/result.dart';
 import 'package:syncora_frontend/features/authentication/auth_provider.dart';
 import 'package:syncora_frontend/features/users/models/user_preferences.dart';
@@ -76,7 +75,7 @@ class LocaleNotifier extends Notifier<Locale> {
         .updatePreferences(languageCode: state.languageCode);
 
     if (!result.isSuccess && !result.isCancelled) {
-      ref.read(appErrorProvider.notifier).state = result.error;
+      ref.read(appErrorProvider.notifier).setError(result.error!);
     }
   }
 
@@ -92,7 +91,7 @@ class LocaleNotifier extends Notifier<Locale> {
         .updatePreferences(languageCode: state.languageCode);
 
     if (!result.isSuccess && !result.isCancelled) {
-      ref.read(appErrorProvider.notifier).state = result.error;
+      ref.read(appErrorProvider.notifier).setError(result.error!);
     }
   }
 
@@ -120,7 +119,7 @@ class LocaleNotifier extends Notifier<Locale> {
         ref.read(usersServiceProvider).getPreferences();
 
     if (!preferences.isSuccess) {
-      ref.read(appErrorProvider.notifier).state = preferences.error;
+      ref.read(appErrorProvider.notifier).setError(preferences.error!);
     }
 
     return preferences.isSuccess
@@ -141,7 +140,7 @@ class ThemeModeNotifier extends Notifier<ThemeMode> {
         .updatePreferences(darkMode: state == ThemeMode.dark);
 
     if (!result.isSuccess && !result.isCancelled) {
-      ref.read(appErrorProvider.notifier).state = result.error;
+      ref.read(appErrorProvider.notifier).setError(result.error!);
     }
   }
 
@@ -163,7 +162,7 @@ class ThemeModeNotifier extends Notifier<ThemeMode> {
         ref.read(usersServiceProvider).getPreferences();
 
     if (!preferences.isSuccess) {
-      ref.read(appErrorProvider.notifier).state = preferences.error;
+      ref.read(appErrorProvider.notifier).setError(preferences.error!);
     }
 
     return preferences.isSuccess
@@ -177,10 +176,6 @@ class ThemeModeNotifier extends Notifier<ThemeMode> {
 final themeModeProvider =
     NotifierProvider<ThemeModeNotifier, ThemeMode>(ThemeModeNotifier.new);
 
-// TODO: Refactor this into a notifier that fires events at the root screen to display errors
-final appErrorProvider = StateProvider<AppError?>((ref) {
-  return null;
-});
 final localDbProvider = Provider<DatabaseManager>((ref) {
   ref.read(loggerProvider).d("Constructing database manager");
 
@@ -203,26 +198,6 @@ class SearchBarSuggestionsNotifier
 final searchBarSuggestionsProvider =
     NotifierProvider.family<SearchBarSuggestionsNotifier, List<String>, String>(
         SearchBarSuggestionsNotifier.new);
-
-final localizeAppErrorsProvider = Provider<LocalizeAppErrors>((ref) {
-  return LocalizeAppErrors();
-});
-
-// final versionProvider = StateProvider<String>((ref) {
-//   PackageInfo.fromPlatform().then(
-//     (value) {
-//       print("got tttse");
-//  state = value.version;
-//     },
-//   );
-
-// // String appName = packageInfo.appName;
-// // String packageName = packageInfo.packageName;
-// // String version = packageInfo.version;
-// // String buildNumber = packageInfo.buildNumber;
-
-//   return "";
-// });
 
 final diagnosticsServiceProvider = Provider<DiagnosticsService>((ref) {
   return DiagnosticsService(

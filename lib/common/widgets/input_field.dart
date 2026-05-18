@@ -39,7 +39,7 @@ class _InputFieldState extends State<InputField> {
   String? displayedErrorMessage = null;
   @override
   Widget build(BuildContext context) {
-    final isLTR = Directionality.of(context) == TextDirection.ltr;
+    // final isLTR = Directionality.of(context) == TextDirection.ltr;
 
     return Stack(
       // alignment: Alignment.bottomLeft,

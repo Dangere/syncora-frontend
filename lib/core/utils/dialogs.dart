@@ -110,7 +110,7 @@ class Dialogs {
     );
   }
 
-  static Future<bool> showConfirmationDialog(context,
+  static Future<bool> showConfirmationDialog(BuildContext context,
       {required String message, required String confirmText}) async {
     BreadcrumbService.instance.add(BreadcrumbType.dialog, message);
     bool? result = await showDialog(

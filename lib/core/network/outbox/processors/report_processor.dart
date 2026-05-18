@@ -20,11 +20,9 @@ class ReportProcessor extends OutboxProcessor {
           Report report =
               await _localReportRepository.getReport(entry.entityId);
 
-          print(report.toJson());
-          await _localReportRepository.updateReportToSent(entry.entityId);
-          print(report.toJson());
+          await _remoteReportRepository.submitErrorReport(report);
 
-          // _remoteReportRepository.sendErrorReport(report: report);
+          await _localReportRepository.updateReportToSent(entry.entityId);
         }
 
         break;

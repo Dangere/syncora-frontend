@@ -568,4 +568,18 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get dashboard_alert_bugReport =>
       'You can report any bugs or submit suggestions through the settings then bug report';
+
+  @override
+  String get error_fetal_popup =>
+      'Something went wrong and we couldn\'t report it automatically';
+
+  @override
+  String get error_fetal_popup_send_button => 'Send error details';
+
+  @override
+  String get error_report_popup_sent => 'Report been sent successfully';
+
+  @override
+  String get error_report_popup_manually =>
+      'If this error keeps happening, please report it manually to the developer at';
 }

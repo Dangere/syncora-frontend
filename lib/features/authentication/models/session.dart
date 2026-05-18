@@ -1,5 +1,4 @@
 import 'package:syncora_frontend/features/authentication/models/tokens.dart';
-import 'package:syncora_frontend/features/users/models/user_preferences.dart';
 
 class Session {
   final int userId;
@@ -8,10 +7,5 @@ class Session {
 
   Session({required this.userId, required this.isVerified, this.tokens});
 
-  Map<String, dynamic> toJson() => {
-        "userId": userId,
-        "isVerified": isVerified,
-        if (tokens != null) "accessToken": tokens!.accessToken,
-        if (tokens != null) "refreshToken": tokens!.refreshToken
-      };
+  Map<String, dynamic> toJson() => {"userId": userId, "isVerified": isVerified};
 }

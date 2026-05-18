@@ -1135,6 +1135,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'You can report any bugs or submit suggestions through the settings then bug report'**
   String get dashboard_alert_bugReport;
+
+  /// popup to inform the user that a fetal error occurred and couldn't be reported automatically
+  ///
+  /// In en, this message translates to:
+  /// **'Something went wrong and we couldn\'t report it automatically'**
+  String get error_fetal_popup;
+
+  /// button to send the error details to the developer
+  ///
+  /// In en, this message translates to:
+  /// **'Send error details'**
+  String get error_fetal_popup_send_button;
+
+  /// popup to inform the user that the error report was sent successfully
+  ///
+  /// In en, this message translates to:
+  /// **'Report been sent successfully'**
+  String get error_report_popup_sent;
+
+  /// text to inform the user to report the error manually to the developer
+  ///
+  /// In en, this message translates to:
+  /// **'If this error keeps happening, please report it manually to the developer at'**
+  String get error_report_popup_manually;
 }
 
 class _AppLocalizationsDelegate

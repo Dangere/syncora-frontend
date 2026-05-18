@@ -574,5 +574,21 @@
     "dashboard_alert_bugReport": "إذا واجهت أي مشكلة أو لديك اقتراح، يمكنك إرساله عبر الإعدادات ثم الإبلاغ عن خطأ",
     "@dashboard_alert_bugReport": {
         "description": "تنبيه يُعلم المستخدم بإمكانية الإبلاغ عن الأخطاء وإرسال الاقتراحات"
+    },
+    "error_fetal_popup": "حدث خطاء ولم يتم الابلاغ عنه بشكل صحيح",
+    "@error_fetal_popup": {
+        "description": "تنبيه يُعلم المستخدم بحدث خطاء ولم يتم الابلاغ عنه بشكل صحيح"
+    },
+    "error_fetal_popup_send_button": "الابلاغ عن الخطاء",
+    "@error_fetal_popup_send_button": {
+        "description": "زر الابلاغ عن الخطاء"
+    },
+    "error_report_popup_sent": "تم الابلاغ عن الخطاء بنجاح",
+    "@error_report_popup_sent": {
+        "description": "نص الابلاغ عن الخطاء بنجاح"
+    },
+    "error_report_popup_manually": "اذا تكرر الخطاء، يرجى الابلاغ عنه يدويا للمطور في",
+    "@error_report_popup_manually": {
+        "description": "نص الابلاغ عن الخطاء يدويا"
     }
 }

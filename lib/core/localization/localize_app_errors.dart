@@ -3,7 +3,7 @@ import 'package:syncora_frontend/core/error_management/app_error_code.dart';
 import 'package:syncora_frontend/core/localization/generated/l10n/app_localizations.dart';
 
 class LocalizeAppErrors {
-  String localizeErrorCode(AppErrorCode code, BuildContext context) {
+  static String localizeErrorCode(AppErrorCode code, BuildContext context) {
     AppLocalizations appLocalizations = AppLocalizations.of(context);
     switch (code) {
       case AppErrorCode.GROUP_NOT_FOUND:

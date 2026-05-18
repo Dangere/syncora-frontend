@@ -574,5 +574,21 @@
   "dashboard_alert_bugReport": "You can report any bugs or submit suggestions through the settings then bug report",
   "@dashboard_alert_bugReport": {
     "description": "Alert that pops up to inform the user that they can report any bugs or submit suggestions"
+  },
+  "error_fetal_popup": "Something went wrong and we couldn't report it automatically",
+  "@error_fetal_popup": {
+    "description": "popup to inform the user that a fetal error occurred and couldn't be reported automatically"
+  },
+  "error_fetal_popup_send_button": "Send error details",
+  "@error_fetal_popup_send_button": {
+    "description": "button to send the error details to the developer"
+  },
+  "error_report_popup_sent": "Report been sent successfully",
+  "@error_report_popup_sent": {
+    "description": "popup to inform the user that the error report was sent successfully"
+  },
+  "error_report_popup_manually": "If this error keeps happening, please report it manually to the developer at",
+  "@error_report_popup_manually": {
+    "description": "text to inform the user to report the error manually to the developer"
   }
 }
