@@ -47,7 +47,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get onboardingPage_Description =>
-      'أنشئ مهام شخصية أو تعاونية مع الآخرين في الوقت الحقيقي';
+      'أنشئ مهامك بشكل فردي أو اعمل عليها مع الآخرين بشكل مباشر';
 
   @override
   String get onboardingPage_CreateAccount => 'إنشاء حساب';

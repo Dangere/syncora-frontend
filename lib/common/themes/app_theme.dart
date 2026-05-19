@@ -16,6 +16,24 @@ class AppGrays {
 
   /// b8b7bb
   static const gray200 = Color(0xFFb8b7bb);
+
+  /// E4E4E4
+  static const gray100 = Color(0xFFE4E4E4);
+
+  /// DDDDDD
+  static const gray50 = Color(0xFFDDDDDD);
+
+  /// C5C5C5
+  static const gray25 = Color(0xFFC5C5C5);
+
+  /// EAEAEA
+  static const gray15 = Color(0xFFEAEAEA);
+
+  /// 575757
+  static const gray600 = Color(0xFF575757);
+
+  /// B8B8B8
+  static const gray400 = Color(0xFFB8B8B8);
 }
 
 class AppShadow {
@@ -95,16 +113,16 @@ class AppTheme {
     error: Color(0xFFB82426),
     onError: Color(0xFFEAEAEA),
     surface: Color(0xFF000000),
-    onSurface: Color(0xFFC5C5C5),
+    onSurface: AppGrays.gray15,
 
     surfaceContainer: Color(0xFF141414),
 
     tertiary: Color(0XFFFC9D5C),
     tertiaryContainer: Color(0xFF5E422E),
 
-    onSurfaceVariant: AppGrays.gray700, // secondary text, descriptions
-    outline: AppGrays.gray500, // muted text, metadata, captions
-    outlineVariant: AppGrays.gray300, // disabled text, hints, placeholders
+    onSurfaceVariant: AppGrays.gray50, // secondary text, descriptions
+    outline: AppGrays.gray50, // muted text, metadata, captions
+    outlineVariant: AppGrays.gray400, // disabled text, hints, placeholders
 
     // Optional
     scrim: AppGrays.gray200, // very low emphasis / separators
@@ -169,10 +187,10 @@ class AppTheme {
             color: colorScheme.outline,
             size: 24,
           ),
-          titleTextStyle: const TextStyle(
+          titleTextStyle: TextStyle(
             fontSize: 24,
             height: 1.1,
-            color: AppGrays.gray900,
+            color: colorScheme.onSurface,
             fontWeight: FontWeight.w700,
           )),
       // SEARCH BAR
@@ -243,37 +261,37 @@ class AppTheme {
           )),
 
       // TEXT THEMES
-      textTheme: const TextTheme(
+      textTheme: TextTheme(
         titleLarge: TextStyle(
           fontSize: 30,
           height: 1,
           fontWeight: FontWeight.w600,
-          color: AppGrays.gray900,
+          color: colorScheme.onSurface,
         ),
         titleMedium: TextStyle(
           fontSize: 24,
           height: 1.1,
-          color: AppGrays.gray900,
+          color: colorScheme.onSurface,
         ),
         titleSmall: TextStyle(
           fontSize: 20,
           height: 1.1,
-          color: AppGrays.gray500,
+          color: colorScheme.outline,
         ),
         bodyLarge: TextStyle(
           height: 1.1,
           fontSize: 16,
-          color: AppGrays.gray700,
+          color: colorScheme.onSurfaceVariant,
         ),
         bodyMedium: TextStyle(
           fontSize: 14,
           height: 1.1,
-          color: AppGrays.gray700,
+          color: colorScheme.onSurfaceVariant,
         ),
         bodySmall: TextStyle(
           fontSize: 12,
           height: 1.1,
-          color: AppGrays.gray700,
+          color: colorScheme.onSurfaceVariant,
         ),
       ));
 }

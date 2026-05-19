@@ -430,7 +430,10 @@ class GroupNotifier extends AutoDisposeFamilyAsyncNotifier<Group?, int> {
 
     Result<Group?> groupResult =
         await ref.read(groupsServiceProvider).getCachedGroup(resolvedId);
-    if (groupResult.isSuccess) state = AsyncData(groupResult.data);
+    if (groupResult.isSuccess) {
+      state = AsyncData(groupResult.data);
+      return;
+    }
 
     ref.read(appErrorProvider.notifier).setError(groupResult.error!);
   }

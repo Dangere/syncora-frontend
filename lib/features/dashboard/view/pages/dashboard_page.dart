@@ -134,7 +134,17 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                         },
                       );
                     },
-                    icon: Icon(Icons.fit_screen_sharp))
+                    icon: Icon(Icons.fit_screen_sharp)),
+                IconButton(
+                    onPressed: () async {
+                      GroupPopups.groupExtrasPopup(context,
+                          onGroupInfo: () {},
+                          onRenameGroup: () {},
+                          onDeleteGroup: () {},
+                          onLeaveGroup: () {},
+                          isOwner: true);
+                    },
+                    icon: Icon(Icons.colorize_sharp))
               ],
             ),
       body: Stack(

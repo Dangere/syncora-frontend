@@ -37,23 +37,33 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
       backgroundColor: Theme.of(context).colorScheme.surface,
       body: Stack(
         children: [
+          // Positioned.fill(
+          //   child: FadeInImage(
+          //     width: double.infinity,
+          //     alignment: Alignment.topCenter,
+          //     fit: BoxFit.fitWidth,
+          //     placeholder: MemoryImage(kTransparentImage),
+          //     image: const AssetImage("assets/images/background_dashboard.png"),
+          //   ),
+          // ),
+          // Positioned.fill(
+          //   child: FadeInImage(
+          //     width: double.infinity,
+          //     alignment: Alignment.topCenter,
+          //     fit: BoxFit.fitWidth,
+          //     placeholder: MemoryImage(kTransparentImage),
+          //     image: const AssetImage(
+          //         "assets/images/background_dashboard_effect.png"),
+          //   ),
+          // ),
           Positioned.fill(
             child: FadeInImage(
               width: double.infinity,
               alignment: Alignment.topCenter,
               fit: BoxFit.fitWidth,
               placeholder: MemoryImage(kTransparentImage),
-              image: const AssetImage("assets/images/background_dashboard.png"),
-            ),
-          ),
-          Positioned.fill(
-            child: FadeInImage(
-              width: double.infinity,
-              alignment: Alignment.topCenter,
-              fit: BoxFit.fitWidth,
-              placeholder: MemoryImage(kTransparentImage),
-              image: const AssetImage(
-                  "assets/images/background_dashboard_effect.png"),
+              image: AssetImage(
+                  "assets/images/${lightMode ? "onboarding_background_light" : "onboarding_background_dark"}.png"),
             ),
           ),
           if (error != null)

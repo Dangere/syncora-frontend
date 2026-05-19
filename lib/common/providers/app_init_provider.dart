@@ -8,7 +8,6 @@ import 'package:syncora_frontend/features/authentication/auth_provider.dart';
 final appInitializeProvider = FutureProvider<void>((ref) async {
   // Preloading SVGs
   await ref.read(imageServiceProvider).preloadSvg([
-    "assets/images/background.svg",
     "assets/logos/google-icon.svg",
     "assets/logos/syncora-logo.svg",
   ]);

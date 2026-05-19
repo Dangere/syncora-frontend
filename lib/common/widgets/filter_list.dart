@@ -76,6 +76,8 @@ class _FilterListState<T extends Enum> extends ConsumerState<FilterList<T>> {
 
   @override
   Widget build(BuildContext context) {
+    final lightMode = Theme.of(context).brightness == Brightness.light;
+
     if (widget.providerListenable != null) {
       ref.watch(widget.providerListenable!);
     }
@@ -99,7 +101,8 @@ class _FilterListState<T extends Enum> extends ConsumerState<FilterList<T>> {
                   ? AppButtonIntent.secondary
                   : AppButtonIntent.normal,
               size: AppButtonSize.mini,
-              style: AppButtonStyle.dropdown,
+              style:
+                  lightMode ? AppButtonStyle.dropdown : AppButtonStyle.filled,
               onPressed: () => _onSelect(widget.items[index]),
               child: Row(
                 children: [

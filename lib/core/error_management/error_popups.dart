@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:syncora_frontend/common/providers/common_providers.dart';
 import 'package:syncora_frontend/common/themes/app_spacing.dart';
 import 'package:syncora_frontend/common/widgets/app_button.dart';
+import 'package:syncora_frontend/core/constants/constants.dart';
 import 'package:syncora_frontend/core/error_management/app_error.dart';
 import 'package:syncora_frontend/core/error_management/app_error_code.dart';
 import 'package:syncora_frontend/core/error_management/error_state.dart';
@@ -123,7 +124,7 @@ class ErrorPopups {
               ),
               AppSpacing.verticalSpaceMd,
               Text(
-                AppLocalizations.of(context).error_report_popup_manually,
+                "${AppLocalizations.of(context).error_report_popup_manually}: ${Constants.CONTACT_EMAIL}",
                 textAlign: TextAlign.center,
                 style: const TextStyle(fontSize: 16),
               )
@@ -142,8 +143,15 @@ class ErrorPopups {
       barrierDismissible: true,
       blurBackground: false,
       title: "",
-      content: Center(
-          child: Text(AppLocalizations.of(context).error_report_popup_sent)),
+      content: SizedBox(
+        height: 100,
+        child: Column(
+          children: [
+            Text(AppLocalizations.of(context).error_report_popup_sent),
+            AppSpacing.verticalSpaceLg,
+          ],
+        ),
+      ),
     );
   }
 

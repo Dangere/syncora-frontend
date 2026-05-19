@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:syncora_frontend/common/themes/app_sizes.dart';
 import 'package:syncora_frontend/common/themes/app_theme.dart';
 import 'package:syncora_frontend/core/localization/generated/l10n/app_localizations.dart';
+import 'package:syncora_frontend/features/authentication/auth_provider.dart';
 import 'package:syncora_frontend/features/groups/models/group.dart';
 import 'package:syncora_frontend/features/groups/view/widgets/compressed_members_display.dart';
 
-class GroupPanel extends StatelessWidget {
+class GroupPanel extends ConsumerWidget {
   final Group group;
   final double memberIconsSpacing = 15;
   final double memberIconsRadius = 13;
@@ -13,7 +15,9 @@ class GroupPanel extends StatelessWidget {
   const GroupPanel({super.key, required this.group});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, ref) {
+    final isLTR = Directionality.of(context) == TextDirection.ltr;
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24),
       child: Stack(
@@ -84,12 +88,13 @@ class GroupPanel extends StatelessWidget {
               ],
             ),
           ),
-          if (group.isInLocalState())
+          if (group.isInLocalState() && ref.read(isAuthenticatedProvider))
             Positioned(
                 top: 10,
-                right: 10,
+                right: isLTR ? 10 : null,
+                left: isLTR ? null : 10,
                 child: Icon(
-                  Icons.sync,
+                  Icons.cloud_sync_outlined,
                   color: Theme.of(context).colorScheme.secondary,
                 )),
         ],

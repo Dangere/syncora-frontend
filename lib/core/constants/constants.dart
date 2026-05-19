@@ -17,4 +17,6 @@ class Constants {
 
   static String APK_DOWNLOAD_URL =
       'https://github.com/Dangere/syncora-frontend/releases/latest';
+
+  static String CONTACT_EMAIL = 'maowyt@gmail.com';
 }

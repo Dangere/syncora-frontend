@@ -42,6 +42,7 @@ class _ProfileViewPageState extends ConsumerState<ProfileViewPage> {
   User? user;
 
   late bool isAccountOwner;
+  late bool isGuest;
 
   // Result<User?> user =  ref.watch(usersServiceProvider).getUser(widget.userId).then(onValue);
 
@@ -128,6 +129,7 @@ class _ProfileViewPageState extends ConsumerState<ProfileViewPage> {
   @override
   void initState() {
     isAccountOwner = ref.read(authProvider).value!.userId! == widget.userId;
+    isGuest = ref.read(isGuestProvider);
     super.initState();
   }
 
@@ -191,7 +193,7 @@ class _ProfileViewPageState extends ConsumerState<ProfileViewPage> {
                     Stack(
                       children: [
                         ProfilePicture(userId: widget.userId, radius: 60),
-                        if (isAccountOwner)
+                        if (isAccountOwner && !isGuest)
                           Positioned(
                             bottom: 0,
                             right: 0,
@@ -287,7 +289,7 @@ class _ProfileViewPageState extends ConsumerState<ProfileViewPage> {
                   // EDIT BUTTON
                   SizedBox.square(
                     dimension: 40,
-                    child: !isAccountOwner
+                    child: (!isAccountOwner || isGuest)
                         ? null
                         : CircleAvatar(
                             radius: 20,

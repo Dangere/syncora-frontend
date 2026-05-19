@@ -50,6 +50,7 @@ class Dialogs {
                 removeBottom: disableKeyboardAdjustment,
               ),
               child: AlertDialog(
+                backgroundColor: Theme.of(context).colorScheme.surfaceContainer,
                 contentPadding: const EdgeInsets.all(0),
                 content: Padding(
                   padding: const EdgeInsets.all(20.0),
@@ -119,6 +120,7 @@ class Dialogs {
       builder: (context) {
         return StatefulBuilder(builder: (context, setState) {
           return AlertDialog(
+            backgroundColor: Theme.of(context).colorScheme.surfaceContainer,
             contentPadding: const EdgeInsets.all(0),
             content: Padding(
               padding: const EdgeInsets.all(20.0),
@@ -254,6 +256,7 @@ class Dialogs {
           return BackdropFilter(
             filter: ImageFilter.blur(sigmaX: blurAmount, sigmaY: blurAmount),
             child: AlertDialog(
+              backgroundColor: Theme.of(context).colorScheme.surfaceContainer,
               contentPadding: const EdgeInsets.all(0),
               content: Padding(
                 padding: const EdgeInsets.all(20.0),
