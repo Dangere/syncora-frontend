@@ -17,7 +17,7 @@ jobs:
           channel: stable
 
       - run: flutter pub get
-      - run: flutter build web --base-href /syncora-frontend/
+      - run: flutter build web --base-href /syncora-frontend/ --source-maps
 
       - uses: peaceiris/actions-gh-pages@v4
         with:
