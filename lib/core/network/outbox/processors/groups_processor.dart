@@ -46,7 +46,6 @@ class GroupsProcessor extends OutboxProcessor {
       // The create event
       case OutboxActionType.create:
         {
-          throw Exception("sdfsdf");
           GroupDTO newGroup = await _remoteGroupsRepository.createGroup(
               title: entry.payload!.asCreateGroupPayload!.title,
               description: entry.payload!.asCreateGroupPayload!.description);
