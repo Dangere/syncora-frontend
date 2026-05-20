@@ -5,7 +5,7 @@ import 'package:google_sign_in_web/web_only.dart';
 import 'package:syncora_frontend/common/providers/common_providers.dart';
 import 'package:syncora_frontend/features/authentication/auth_provider.dart';
 import 'package:syncora_frontend/features/authentication/google_auth_type.dart';
-import 'package:syncora_frontend/features/authentication/models/google_user_info.dart'; // ← this is where renderButton lives
+import 'package:syncora_frontend/features/authentication/models/google_user_info.dart';
 
 // Web implementation of the google auth button
 class GoogleAuthButton extends ConsumerWidget {

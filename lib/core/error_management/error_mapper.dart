@@ -1,10 +1,34 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
+import 'package:source_map_stack_trace/source_map_stack_trace.dart';
+import 'package:source_maps/parser.dart';
 import 'package:stack_trace/stack_trace.dart';
 import 'package:syncora_frontend/core/error_management/app_error_code.dart';
 
 class ErrorMapper {
+  static Map<String, dynamic>? _sourceMap;
+
+  static Future initializeSourceMap() async {
+    if (!kIsWeb) return;
+
+    try {
+      if (!kReleaseMode) {
+        final raw =
+            await rootBundle.loadString('assets/source_map/main.dart.js.map');
+        _sourceMap = jsonDecode(raw) as Map<String, dynamic>;
+      } else {
+        final response = await Dio().get('/main.dart.js.map');
+        _sourceMap = jsonDecode(response.data) as Map<String, dynamic>;
+      }
+    } catch (e) {
+      _sourceMap = null;
+    }
+  }
+
   static AppErrorCode mapError(Object e) {
     if (e is DioException) return _mapDioError(e);
 
@@ -35,7 +59,9 @@ class ErrorMapper {
   }
 
   static StackTrace _parseStackTrace(StackTrace stackTrace) {
-    // return stackTrace;
+    if (_sourceMap != null) {
+      stackTrace = mapStackTrace(parseJson(_sourceMap!), stackTrace);
+    }
     return Trace.from(stackTrace).foldFrames((p0) =>
         p0.toString().contains("dart-sdk") ||
         p0.toString().contains("flutter") ||

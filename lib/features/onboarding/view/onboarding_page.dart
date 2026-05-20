@@ -9,6 +9,7 @@ import 'package:syncora_frontend/common/widgets/language_button.dart';
 import 'package:syncora_frontend/common/widgets/overlay_loader.dart';
 import 'package:syncora_frontend/common/widgets/version_display.dart';
 import 'package:syncora_frontend/core/localization/generated/l10n/app_localizations.dart';
+import 'package:syncora_frontend/core/utils/snack_bar_alerts.dart';
 import 'package:syncora_frontend/features/authentication/auth_provider.dart';
 import 'package:syncora_frontend/features/onboarding/view/onboarding_popups.dart';
 import 'package:transparent_image/transparent_image.dart';
@@ -18,6 +19,8 @@ class OnboardingPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    SnackBarAlerts.registerNotificationListener(ref, context);
+
     final user = ref.watch(authProvider);
     void guestLogin() async {
       if (user.isLoading) return;

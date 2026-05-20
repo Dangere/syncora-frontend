@@ -5,6 +5,7 @@ import 'package:syncora_frontend/common/widgets/profile_picture.dart';
 import 'package:syncora_frontend/core/analytics/breadcrumb_type.dart';
 import 'package:syncora_frontend/core/analytics/breadcrumbs_service.dart';
 import 'package:syncora_frontend/core/localization/generated/l10n/app_localizations.dart';
+import 'package:syncora_frontend/features/authentication/auth_provider.dart';
 import 'package:syncora_frontend/features/groups/models/group.dart';
 import 'package:syncora_frontend/features/groups/view/widgets/compressed_members_display.dart';
 
@@ -91,7 +92,7 @@ class GroupMembersDisplay extends ConsumerWidget {
                 ),
               ),
               // Add member
-              if (isOwner)
+              if (isOwner && ref.read(isAuthenticatedProvider))
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [

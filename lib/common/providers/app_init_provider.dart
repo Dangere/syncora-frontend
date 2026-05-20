@@ -1,6 +1,8 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:syncora_frontend/common/providers/common_providers.dart';
 import 'package:syncora_frontend/common/providers/connection_provider.dart';
+import 'package:syncora_frontend/core/error_management/error_mapper.dart';
 import 'package:syncora_frontend/core/image/image_providers.dart';
 import 'package:syncora_frontend/core/network/syncing/sync_provider.dart';
 import 'package:syncora_frontend/features/authentication/auth_provider.dart';
@@ -20,4 +22,8 @@ final appInitializeProvider = FutureProvider<void>((ref) async {
   ref.read(googleSignInProvider);
 
   ref.read(syncBackendProvider);
+
+  if (kIsWeb) {
+    await ErrorMapper.initializeSourceMap();
+  }
 });

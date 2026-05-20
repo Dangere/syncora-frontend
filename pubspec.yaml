@@ -69,6 +69,8 @@ dependencies:
   transparent_image: ^2.0.1
   url_launcher: ^6.3.2
   device_info_plus: ^12.4.0
+  source_map_stack_trace: ^2.1.2
+  source_maps: ^0.10.13
 
 dev_dependencies:
   flutter_test:
@@ -95,6 +97,7 @@ flutter:
   assets:
     - assets/logos/
     - assets/images/
+    - assets/source_map/
 
   #   - images/a_dot_ham.jpeg
   # An image asset can refer to one or more resolution-specific "variants", see

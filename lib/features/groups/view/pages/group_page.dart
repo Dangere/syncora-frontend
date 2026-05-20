@@ -41,9 +41,9 @@ class GroupPageState extends ConsumerState<GroupPage> {
             .read(groupProvider(widget.groupId).notifier)
             .getGroupMembers(true));
 
-    ref
-        .read(loggerProvider)
-        .d("Selected users: ${users?.map((e) => e.username)}");
+    // ref
+    //     .read(loggerProvider)
+    //     .d("Selected users: ${users?.map((e) => e.username)}");
     if (users == null || users.isEmpty) return;
 
     await ref

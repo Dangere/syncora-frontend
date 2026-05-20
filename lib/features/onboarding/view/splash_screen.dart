@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:syncora_frontend/common/providers/app_init_provider.dart';
+import 'package:syncora_frontend/core/utils/snack_bar_alerts.dart';
 import 'package:transparent_image/transparent_image.dart';
 
 class SplashScreen extends ConsumerStatefulWidget {
@@ -23,6 +24,8 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
 
   @override
   Widget build(BuildContext context) {
+    SnackBarAlerts.registerNotificationListener(ref, context);
+
     final lightMode = Theme.of(context).brightness == Brightness.light;
     var initialize = ref.watch(appInitializeProvider);
 
