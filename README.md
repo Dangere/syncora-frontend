@@ -55,6 +55,8 @@ flutter run
 flutter run --release
 ```
 
+The flag `--source-maps` is needed for web release builds for converting stack traces to dart code when error reporting, excluding it will simply show dart2js-compiled JavaScript instead.
+
 ## Built With
 
 - [Flutter](https://flutter.dev)
