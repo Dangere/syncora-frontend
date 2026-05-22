@@ -214,7 +214,7 @@ class AuthNotifier extends AsyncNotifier<AuthState> {
   }
 
   void logout() async {
-    ref.read(loggerProvider).f("Logging out!");
+    ref.read(loggerProvider).i("Logging out!");
 
     // TODO: This should tell the user if theres unsynced data that will be lost/deleted if they log out
 
@@ -250,17 +250,20 @@ class AuthNotifier extends AsyncNotifier<AuthState> {
     BreadcrumbService.instance
         .add(BreadcrumbType.state, "Auth provider: Updating tokens");
     if (_refreshTokenCompleter != null) {
-      await _refreshTokenCompleter?.future;
       // Right now second callers to this method will only wait for the first caller to finish refreshing the tokens
-      // For all of them and it will return, but if it fails it will also return and the second callers wont know either.
-      // TODO: Refactor this part
-      return Result.success();
+      // For all of them and return the future wrapped in a result
+      ref
+          .read(loggerProvider)
+          .d("Auth provider: Trying to refresh tokens, already in progress");
+
+      return await Result.wrapAsync(
+        () => _refreshTokenCompleter!.future,
+      );
     }
 
     _refreshTokenCompleter = Completer();
 
-    ref.read(loggerProvider).d("Refreshing tokens");
-    ref.read(loggerProvider).d(state.value?.isAuthenticated);
+    ref.read(loggerProvider).d("Auth provider: Refreshing tokens");
 
     Result<Tokens> result = await ref
         .read(authServiceProvider)
@@ -270,18 +273,17 @@ class AuthNotifier extends AsyncNotifier<AuthState> {
             cancellationToken: cancellationToken);
 
     if (!result.isSuccess) {
-      if (!_refreshTokenCompleter!.isCompleted) {
-        //TODO: Throw error for other callers
-
-        // _refreshTokenCompleter?.completeError("failed to refresh tokens");
-      }
+      _refreshTokenCompleter!.future.ignore();
+      _refreshTokenCompleter!.completeError(result.error!.exception!);
+      ref.read(loggerProvider).d(
+          "Auth provider: Tokens failed to refresh with error: ${result.error!.exception}");
     } else {
-      ref.read(loggerProvider).d("Tokens refreshed");
+      ref.read(loggerProvider).d("Auth provider: Tokens refreshed");
       await ref.read(sessionStorageProvider).updateTokens(
           accessToken: result.data!.accessToken,
           refreshToken: result.data!.refreshToken);
+      _refreshTokenCompleter!.complete();
     }
-    _refreshTokenCompleter!.complete();
     _refreshTokenCompleter = null;
 
     return result;
@@ -379,7 +381,7 @@ class AuthNotifier extends AsyncNotifier<AuthState> {
 
   @override
   Future<AuthState> build() async {
-    ref.read(loggerProvider).w("building auth notifier");
+    ref.read(loggerProvider).d("Auth provider: building");
 
     Result<Session?> session =
         await ref.read(sessionStorageProvider).loadSession();
@@ -399,8 +401,9 @@ class AuthNotifier extends AsyncNotifier<AuthState> {
 final authProvider =
     AsyncNotifierProvider<AuthNotifier, AuthState>(AuthNotifier.new);
 
-final authRepositoryProvider = Provider<AuthRepository>(
-    (ref) => AuthRepository(dio: ref.watch(dioProvider)));
+final authRepositoryProvider = Provider<AuthRepository>((ref) => AuthRepository(
+    dio: ref.watch(dioProvider),
+    unauthenticatedDio: ref.watch(unauthenticatedDioProvider)));
 
 final authServiceProvider = Provider<AuthService>((ref) {
   return AuthService(authRepository: ref.watch(authRepositoryProvider));

@@ -29,8 +29,10 @@ class AppError {
   factory AppError.fromException(Object e, StackTrace stackTrace) {
     String rawMessage = e.toString();
 
-    if (e is DioException && e.response != null)
-      rawMessage = e.response.toString();
+    if (e is DioException && e.response != null) {
+      rawMessage +=
+          '\n' + e.response.toString() + '\n' + e.response!.data.toString();
+    }
     return AppError(
         errorCode: ErrorMapper.mapError(e),
         rawMessage: rawMessage,

@@ -14,7 +14,6 @@ import 'package:syncora_frontend/common/providers/connection_provider.dart';
 import 'package:syncora_frontend/core/analytics/diagnostics_service.dart';
 import 'package:syncora_frontend/core/data/database_manager.dart';
 import 'package:syncora_frontend/core/error_management/error_provider.dart';
-import 'package:syncora_frontend/core/localization/localize_app_errors.dart';
 import 'package:syncora_frontend/core/utils/result.dart';
 import 'package:syncora_frontend/features/authentication/auth_provider.dart';
 import 'package:syncora_frontend/features/users/models/user_preferences.dart';
@@ -33,8 +32,12 @@ final loggerProvider = Provider<Logger>((ref) {
   );
 });
 
+// This is the authenticated dio instance, we make separate instances when we need to make unauthenticated requests
 final dioProvider = Provider<Dio>((ref) {
   Dio dio = Dio();
+  dio.options.headers['Device-Id'] =
+      ref.read(diagnosticsServiceProvider).deviceId;
+
   dio.interceptors.add(BreadcrumbInterceptor());
   dio.interceptors.add(ConnectionInterceptor(() => ref.read(isOnlineProvider)));
   dio.interceptors.add(AuthInterceptor(
@@ -42,6 +45,17 @@ final dioProvider = Provider<Dio>((ref) {
       refreshTokens: () async =>
           ref.read(authProvider.notifier).refreshTokens(),
       dio: dio));
+
+  return dio;
+});
+
+final unauthenticatedDioProvider = Provider<Dio>((ref) {
+  Dio dio = Dio();
+  dio.options.headers['Device-Id'] =
+      ref.read(diagnosticsServiceProvider).deviceId;
+
+  dio.interceptors.add(BreadcrumbInterceptor());
+  dio.interceptors.add(ConnectionInterceptor(() => ref.read(isOnlineProvider)));
 
   return dio;
 });

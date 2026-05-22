@@ -188,14 +188,13 @@ final debug_disposeSignalRProvider = StateProvider<bool>((ref) {
 });
 
 final signalRClientProvider = Provider<SignalRClient>((ref) {
-  SignalRClient client = SignalRClient(
-    ref.read(loggerProvider),
-    hub: "sync",
-    serverUrl: Constants.BASE_HUB_URL,
-    accessTokenFactory: () async =>
-        Future.value(ref.read(sessionStorageProvider).tokens?.accessToken),
-    refreshTokenCallBack: ref.read(authProvider.notifier).refreshTokens,
-  );
+  SignalRClient client = SignalRClient(ref.read(loggerProvider),
+      hub: "sync",
+      serverUrl: Constants.BASE_HUB_URL,
+      accessTokenFactory: () async =>
+          Future.value(ref.read(sessionStorageProvider).tokens?.accessToken),
+      refreshTokenCallBack: ref.read(authProvider.notifier).refreshTokens,
+      deviceId: ref.read(diagnosticsServiceProvider).deviceId);
 
   ref.onDispose(() {
     ref.read(loggerProvider).d("Auto disposing connection to hub");

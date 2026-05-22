@@ -118,6 +118,8 @@ class OutboxNotifier extends AsyncNotifier<OutboxStatus>
       if (entry.entityType == OutboxEntityType.group) {
         ref.read(groupsListProvider.notifier).onOutboxRevert(entry.entityId);
       } else if (entry.entityType == OutboxEntityType.task) {
+        print("Reverting task ${entry.payload!.toJson()}");
+
         ref
             .read(groupsListProvider.notifier)
             .onOutboxRevert(entry.dependencyId!);

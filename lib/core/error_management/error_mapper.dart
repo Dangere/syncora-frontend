@@ -17,9 +17,9 @@ class ErrorMapper {
 
     try {
       if (!kReleaseMode) {
-        final raw =
-            await rootBundle.loadString('assets/source_map/main.dart.js.map');
-        _sourceMap = jsonDecode(raw) as Map<String, dynamic>;
+        // final raw =
+        //     await rootBundle.loadString('assets/source_map/main.dart.js.map');
+        // _sourceMap = jsonDecode(raw) as Map<String, dynamic>;
       } else {
         final response = await Dio().get('/main.dart.js.map');
         _sourceMap = jsonDecode(response.data) as Map<String, dynamic>;

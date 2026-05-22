@@ -18,7 +18,7 @@ import 'package:syncora_frontend/core/utils/result.dart';
 enum OutboxErrorQueueAction {
   failAndStopQueue,
   cancelAndStopQueue,
-  failAndRevertThenContinueQueue,
+  failAndContinueQueue,
   retryEntry
 }
 
@@ -146,31 +146,22 @@ class OutboxService {
           // if (entry.entityType != OutboxEntityType.user)
           onSync(entry);
         } catch (e, stackTrace) {
-          OutboxErrorQueueAction queueAction =
-              await _handleError(e, stackTrace);
+          OutboxErrorQueueAction queueAction = await _handleFailure(
+            entry,
+            e,
+            stackTrace,
+            requireSecondPass,
+            () => onRevert(entry),
+          );
 
           switch (queueAction) {
             case OutboxErrorQueueAction.retryEntry:
               continue;
             // await _outboxRepository.markEntryPending(entry.id!);
-            case OutboxErrorQueueAction.failAndRevertThenContinueQueue:
+            case OutboxErrorQueueAction.failAndContinueQueue:
               {
-                // Reverting
-                Result<bool> revertResult = await _revertEntry(entry);
-                if (revertResult.isSuccess && revertResult.data! == true) {
-                  requireSecondPass();
-                }
                 // Failing entry
                 await _outboxRepository.failEntry(entry.id!);
-
-                if (!revertResult.isSuccess) {
-                  _logger.e("Outbox debug: reverting failed");
-                  onFetalFail(entry, AppError.fromException(e, stackTrace));
-                  return Result.failureError(e, stackTrace);
-                }
-
-                // callbacks
-                onRevert(entry);
                 onFail(entry, AppError.fromException(e, stackTrace));
               }
               break;
@@ -198,8 +189,12 @@ class OutboxService {
     return Result.success();
   }
 
-  Future<OutboxErrorQueueAction> _handleError(
-      Object e, StackTrace stackTrace) async {
+  Future<OutboxErrorQueueAction> _handleFailure(
+      OutboxEntry entry,
+      Object e,
+      StackTrace stackTrace,
+      VoidCallback requireSecondPass,
+      VoidCallback onRevert) async {
     if (e is TimeoutException) {
       return OutboxErrorQueueAction.cancelAndStopQueue;
     }
@@ -228,15 +223,19 @@ class OutboxService {
         await Future.delayed(Duration(seconds: secondsToWait));
         return OutboxErrorQueueAction.retryEntry;
       }
-
-      // return OutboxErrorQueueAction.failAndRevertThenContinueQueue;
     }
 
-    // if (e is OutboxException) {
-    //   return OutboxErrorQueueAction.failAndRevertThenContinueQueue;
-    // }
+    // Reverting
+    Result<bool> revertResult = await _revertEntry(entry);
+    if (revertResult.isSuccess) {
+      onRevert();
+      if (revertResult.data! == true) requireSecondPass();
+    } else {
+      _logger.e("Outbox debug: reverting failed");
+      return OutboxErrorQueueAction.failAndStopQueue;
+    }
 
-    return OutboxErrorQueueAction.failAndRevertThenContinueQueue;
+    return OutboxErrorQueueAction.failAndContinueQueue;
   }
 
   Future<Result<bool>> _revertEntry(OutboxEntry entry) async {
@@ -245,9 +244,9 @@ class OutboxService {
     Result<int> revertResult = await Result.wrapAsync(() async =>
         await _processors[entry.entityType]!.revertLocalChange(entry));
 
-    if (!revertResult.isSuccess) {
-      return Result.failureError(
-          revertResult.error!, revertResult.error!.stackTrace);
+    if (!revertResult.isSuccess &&
+        revertResult.error!.exception is! OutboxDependencyFailureException) {
+      return Result.failureFrom(revertResult);
     }
 
     // If its a deletion fail, means it could've marked other entires as ignored, so we unignore them and call for a second pass

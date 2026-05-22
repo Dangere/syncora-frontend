@@ -25,7 +25,7 @@ class SyncService {
 
       await _syncRepository.storeSyncTimestamp(payload.timestamp);
       return Result.success(payload);
-    } on Exception catch (e, stackTrace) {
+    } catch (e, stackTrace) {
       return Result.failureError(e, stackTrace);
     }
   }

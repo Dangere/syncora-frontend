@@ -39,8 +39,6 @@ class GoogleAuthButton extends ConsumerWidget {
       }
     });
 
-    print(ref.read(localeProvider).languageCode);
-
     return SizedBox(
       height: 56.0,
       width: double.infinity,

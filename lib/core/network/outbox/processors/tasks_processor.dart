@@ -61,6 +61,7 @@ class TasksProcessor extends OutboxProcessor {
               title: entry.payload!.asCreateTaskPayload!.title,
               description: entry.payload!.asCreateTaskPayload!.description,
               groupId: groupId);
+          await Future.delayed(Duration(seconds: 2));
 
           await _localTasksRepository.updateTaskId(entry.entityId, newTask.id);
           idMapper.cacheId(tempId: entry.entityId, serverId: newTask.id);

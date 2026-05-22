@@ -26,9 +26,10 @@ class SignalRClient {
       {required String serverUrl,
       required String hub,
       required Future<String> Function() accessTokenFactory,
-      required Future<Result> Function(CancellationToken) refreshTokenCallBack})
+      required Future<Result> Function(CancellationToken) refreshTokenCallBack,
+      required String deviceId})
       : _connection = HubConnectionBuilder()
-            .withUrl("$serverUrl/$hub",
+            .withUrl("$serverUrl/$hub?deviceId=$deviceId",
                 // By default our backend allows connection to persists even if a token expires as long as it was valid at the first handshake
                 // This can be overwritten in the backend's signalR options
                 options: HttpConnectionOptions(

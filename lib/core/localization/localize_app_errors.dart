@@ -71,7 +71,7 @@ class LocalizeAppErrors {
       case AppErrorCode.HTTP_BAD_REQUEST:
         return appLocalizations.appError_HTTP_BadRequest;
       case AppErrorCode.HTTP_UNAUTHORIZED:
-        return appLocalizations.appError_SessionExpired;
+        return appLocalizations.appError_AccessDenied;
       case AppErrorCode.HTTP_FORBIDDEN:
         return appLocalizations.appError_AccessDenied;
       case AppErrorCode.HTTP_NOT_FOUND:

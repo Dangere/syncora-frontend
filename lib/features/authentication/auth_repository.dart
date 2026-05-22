@@ -9,7 +9,10 @@ import 'package:syncora_frontend/features/users/models/user_preferences.dart';
 
 class AuthRepository {
   final Dio _dio;
-  AuthRepository({required Dio dio}) : _dio = dio;
+  final Dio _unauthenticatedDio;
+  AuthRepository({required Dio dio, required Dio unauthenticatedDio})
+      : _dio = dio,
+        _unauthenticatedDio = unauthenticatedDio;
 
   Future<AuthResponseDTO> loginWithEmailAndPassword(
       {required String email, required String password}) async {
@@ -104,9 +107,8 @@ class AuthRepository {
   Future<Tokens> refreshAccessToken({required Tokens tokens}) async {
     // Using a different instance of Dio because the main instance is calling this method
     // To refresh tokens
-    Dio dio = Dio();
 
-    final response = await dio
+    final response = await _unauthenticatedDio
         .post("${Constants.BASE_API_URL}/authentication/refresh-token", data: {
       "RefreshToken": tokens.refreshToken,
       "AccessToken": tokens.accessToken

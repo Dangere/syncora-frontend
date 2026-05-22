@@ -14,12 +14,15 @@ class DiagnosticsService {
   late String _appVersion;
   late String _osVersion;
   late String _deviceModel;
+  final String _deviceId =
+      DateTime.now().toUtc().microsecondsSinceEpoch.toString();
 
   String get appVersion => _appVersion;
   String get platform => _platform;
   String get locale => _languageCode();
   String get osVersion => _osVersion;
   String get deviceModel => _deviceModel;
+  String get deviceId => _deviceId;
 
   Future<void> initialize() async {
     var packageInfo = await PackageInfo.fromPlatform();
