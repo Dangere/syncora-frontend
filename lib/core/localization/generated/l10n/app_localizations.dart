@@ -548,6 +548,12 @@ abstract class AppLocalizations {
   /// **'Download Syncora for Android'**
   String get settingsPage_WebAlert;
 
+  /// No description provided for @settingsPage_ReportBug.
+  ///
+  /// In en, this message translates to:
+  /// **'Report a bug'**
+  String get settingsPage_ReportBug;
+
   /// No description provided for @dashboardPage_MyGroups.
   ///
   /// In en, this message translates to:

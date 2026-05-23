@@ -24,8 +24,6 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
 
   @override
   Widget build(BuildContext context) {
-    SnackBarAlerts.registerNotificationListener(ref, context);
-
     final lightMode = Theme.of(context).brightness == Brightness.light;
     var initialize = ref.watch(appInitializeProvider);
 

@@ -26,7 +26,7 @@ class TasksList extends ConsumerWidget {
     bool isOwner = ref.read(tasksProvider(groupId).notifier).isGroupOwner;
 
     void assignUsersPopup(Task task) async {
-      List<int> newAssigneesSet = await TasksPopups.assignedUsersPopUp(
+      List<int> newAssigneesSet = await TasksPopups.assignedUsersPopup(
         context,
         isOwner: isOwner,
         task: task,

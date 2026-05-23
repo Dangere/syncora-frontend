@@ -19,8 +19,6 @@ class OnboardingPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    SnackBarAlerts.registerNotificationListener(ref, context);
-
     final user = ref.watch(authProvider);
     void guestLogin() async {
       if (user.isLoading) return;

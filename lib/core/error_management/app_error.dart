@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:syncora_frontend/core/error_management/app_error_code.dart';
 import 'package:syncora_frontend/core/error_management/error_mapper.dart';
 
-// Currently there is no way to know if we should ignore this error and not print it, so far it will always have a value to print
+/// A class to represent an error
 class AppError {
   // This is what gets used to from a localized message to the user
   final AppErrorCode errorCode;
@@ -25,7 +25,7 @@ class AppError {
       required this.stackTrace,
       this.exception});
 
-  // Takes exceptions and localizes it to a user friendly message, or when undefined, return a generic error
+  /// Creates an [AppError] from exception which gets mapped to an error code for further user localized messages
   factory AppError.fromException(Object e, StackTrace stackTrace) {
     String rawMessage = e.toString();
 
@@ -42,7 +42,7 @@ class AppError {
         exception: e is Exception ? e : null);
   }
 
-  // Takes an app error code and localizes it to a user friendly message
+  /// Creates an [AppError] from a code error directly
   factory AppError.fromCode(AppErrorCode code, StackTrace stackTrace) {
     return AppError(
         errorCode: code,
@@ -53,9 +53,7 @@ class AppError {
         exception: null);
   }
 
-//   String localizeError(BuildContext context) =>
-//       AppLocalizations.of(context).error(errorCode.toString());
-
+  /// Used to transform an [AppError] into an [AsyncValue] Error for Riverpod's notifiers
   AsyncValue<T> toAsyncValue<T>() =>
       AsyncValue<T>.error(Exception(errorCode.toString()), stackTrace);
 }

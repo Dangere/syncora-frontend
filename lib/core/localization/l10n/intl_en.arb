@@ -207,6 +207,8 @@
   "@settingsPage_ConfirmGuestLogout": {},
   "settingsPage_WebAlert": "Download Syncora for Android",
   "@settingsPage_WebAlert": {},
+  "settingsPage_ReportBug": "Report a bug",
+  "@settingsPage_ReportBug": {},
   "dashboardPage_MyGroups": "My Groups",
   "@dashboardPage_MyGroups": {},
   "dashboardPage_CreateGroup": "Create Group",

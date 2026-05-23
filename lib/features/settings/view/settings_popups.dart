@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:syncora_frontend/common/providers/common_providers.dart';
+import 'package:syncora_frontend/common/themes/app_spacing.dart';
+import 'package:syncora_frontend/common/widgets/app_button.dart';
+import 'package:syncora_frontend/common/widgets/input_field.dart';
 import 'package:syncora_frontend/core/localization/generated/l10n/app_localizations.dart';
 import 'package:syncora_frontend/core/utils/dialogs.dart';
 import 'package:syncora_frontend/core/utils/result.dart';
@@ -15,6 +18,49 @@ class SettingsPopups {
         blurBackground: false,
         title: AppLocalizations.of(context).settingsPopup_Password_Reset_title,
         content: const PasswordResetPopup());
+  }
+
+  static Future<String?> reportABugPopup(BuildContext context) async {
+    TextEditingController controller = TextEditingController();
+    final fieldKey = GlobalKey<FormFieldState>();
+
+    void onConfirm() {
+      if (fieldKey.currentState!.validate()) {
+        Navigator.of(context).pop(controller.text.trim());
+      }
+    }
+
+    return await Dialogs.showContentDialog(context,
+        barrierDismissible: true,
+        blurBackground: false,
+        title: AppLocalizations.of(context).settingsPage_ReportBug,
+        content: Column(children: [
+          InputField(
+              fieldKey: fieldKey,
+              multiline: true,
+              controller: controller,
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return AppLocalizations.of(context)
+                      .validation_GroupDescription_Empty;
+                }
+              },
+              labelText: AppLocalizations.of(context).description,
+              hintText: AppLocalizations.of(context).description,
+              keyboardType: TextInputType.multiline),
+
+          AppSpacing.verticalSpaceLg,
+
+          // CONFIRM BUTTON
+          AppButton(
+              breadcrumbLabel: () => "Dialog confirm",
+              size: AppButtonSize.small,
+              style: AppButtonStyle.filled,
+              intent: AppButtonIntent.primary,
+              fontSize: 20,
+              onPressed: onConfirm,
+              child: Text(AppLocalizations.of(context).confirm)),
+        ]));
   }
 }
 
@@ -61,8 +107,6 @@ class _PasswordResetPopupState extends ConsumerState<PasswordResetPopup> {
 
   @override
   Widget build(BuildContext context) {
-    SnackBarAlerts.registerNotificationListener(ref, context);
-
     int? resendTimer = ref.watch(resetPasswordTimerProvider);
     ref.read(loggerProvider).d("Building password pop up");
 

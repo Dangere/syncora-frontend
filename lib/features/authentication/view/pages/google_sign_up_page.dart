@@ -59,7 +59,6 @@ class _GoogleSignUpPageState extends ConsumerState<GoogleSignUpPage> {
   @override
   Widget build(BuildContext context) {
     final user = ref.watch(authProvider);
-    SnackBarAlerts.registerNotificationListener(ref, context);
 
     void signUp() {
       if (user.isLoading) return;

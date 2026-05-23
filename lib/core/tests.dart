@@ -152,6 +152,7 @@ class Tests {
   static void test_outbox_sorter() {
     List<OutboxEntry> entries = [
       OutboxEntry(
+        requiresAuthentication: true,
         id: 25789,
         entityType: OutboxEntityType.task,
         actionType: OutboxActionType.delete,
@@ -160,6 +161,7 @@ class Tests {
         creationDate: DateTime.now(),
       ),
       OutboxEntry(
+        requiresAuthentication: true,
         id: 57893,
         entityType: OutboxEntityType.group,
         actionType: OutboxActionType.update,
@@ -168,6 +170,7 @@ class Tests {
         creationDate: DateTime.now(),
       ),
       OutboxEntry(
+        requiresAuthentication: true,
         id: 8757894,
         entityType: OutboxEntityType.task,
         actionType: OutboxActionType.update,
@@ -176,6 +179,7 @@ class Tests {
         creationDate: DateTime.now(),
       ),
       OutboxEntry(
+        requiresAuthentication: true,
         id: 35789,
         entityType: OutboxEntityType.group,
         actionType: OutboxActionType.update,
@@ -184,6 +188,7 @@ class Tests {
         creationDate: DateTime.now(),
       ),
       OutboxEntry(
+        requiresAuthentication: true,
         id: 478,
         entityType: OutboxEntityType.task,
         actionType: OutboxActionType.update,
@@ -192,6 +197,7 @@ class Tests {
         creationDate: DateTime.now(),
       ),
       OutboxEntry(
+        requiresAuthentication: true,
         id: 5789,
         entityType: OutboxEntityType.task,
         actionType: OutboxActionType.mark,
@@ -200,6 +206,7 @@ class Tests {
         creationDate: DateTime.now(),
       ),
       OutboxEntry(
+        requiresAuthentication: true,
         id: 15789,
         entityType: OutboxEntityType.group,
         actionType: OutboxActionType.create,
@@ -208,6 +215,7 @@ class Tests {
         creationDate: DateTime.now(),
       ),
       OutboxEntry(
+        requiresAuthentication: true,
         id: 45,
         entityType: OutboxEntityType.task,
         actionType: OutboxActionType.create,
@@ -216,6 +224,7 @@ class Tests {
         creationDate: DateTime.now(),
       ),
       OutboxEntry(
+        requiresAuthentication: true,
         id: 4,
         entityType: OutboxEntityType.task,
         actionType: OutboxActionType.mark,
@@ -224,6 +233,7 @@ class Tests {
         creationDate: DateTime.now(),
       ),
       OutboxEntry(
+        requiresAuthentication: true,
         id: 5784,
         entityType: OutboxEntityType.task,
         actionType: OutboxActionType.create,
@@ -232,6 +242,7 @@ class Tests {
         creationDate: DateTime.now(),
       ),
       OutboxEntry(
+        requiresAuthentication: true,
         id: 19,
         entityType: OutboxEntityType.group,
         actionType: OutboxActionType.create,
@@ -478,7 +489,7 @@ class Tests {
   }
 
   static void error_report_test(WidgetRef ref, BuildContext context) {
-    ref.read(reportProvider).reportError(
+    ref.read(reportServiceProvider).reportError(
         AppError.fromException(Exception("NOOOOOOOO"), StackTrace.current));
   }
 }

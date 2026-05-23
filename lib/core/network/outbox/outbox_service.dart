@@ -79,7 +79,8 @@ class OutboxService {
   ///
   /// `requireSecondPass` gets called when the queue is done processing and possibly some new entries were undeleted so a second pass
   Future<Result<void>> processQueue(
-      {required void Function({required int tempId, required int serverId})
+      {required bool isAuthenticated,
+      required void Function({required int tempId, required int serverId})
           onEntityIdSync,
       required void Function(OutboxEntry entry, AppError error) onFail,
       required void Function(OutboxEntry entry, AppError error) onFetalFail,
@@ -122,7 +123,10 @@ class OutboxService {
 
       // We process the entry, it runs a while loop until it succeeds and returns the group that was modified or returns an error that we handle here
       while (_cancelationToken!.isCancelled == false) {
-        // Gets set if an entry fails and we need to revert local changes
+        // Skipping entry if it requires authentication and the user is not authenticated
+        if (entry.requiresAuthentication && !isAuthenticated) {
+          continue;
+        }
 
         try {
           await _outboxRepository.markEntryInProcess(entry.id!);
@@ -263,12 +267,12 @@ class OutboxService {
   }
 
   // // Gets called when the queue is running but client loses connection or the user logs out
-  // void forceShutQueue() {
-  //   // If _cancelationToken, it means we are not currently processing the queue
+  void shutQueue() {
+    // If _cancelationToken, it means we are not currently processing the queue
 
-  //   if (_cancelationToken == null) {
-  //     return;
-  //   }
-  //   _cancelationToken?.cancel();
-  // }
+    if (_cancelationToken == null) {
+      return;
+    }
+    _cancelationToken?.cancel();
+  }
 }

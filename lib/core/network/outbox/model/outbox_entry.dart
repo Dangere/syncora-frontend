@@ -4,6 +4,8 @@ import 'package:syncora_frontend/core/network/outbox/model/outbox_payload.dart';
 class OutboxEntry {
   final int? id;
   final int entityId;
+  // Whether the entry requires an authenticated user
+  final bool requiresAuthentication;
   final OutboxEntityType entityType;
   final OutboxActionType actionType;
   final OutboxPayload? payload;
@@ -22,7 +24,8 @@ class OutboxEntry {
       this.payload,
       required this.status,
       required this.creationDate,
-      this.dependencyId});
+      this.dependencyId,
+      required this.requiresAuthentication});
 
   Map<String, dynamic> toTable() => {
         "entityId": entityId,
@@ -30,6 +33,7 @@ class OutboxEntry {
         "actionType": actionType.index,
         "status": status.index,
         "creationDate": creationDate.toIso8601String(),
+        "requiresAuthentication": requiresAuthentication ? 1 : 0,
         if (payload != null) "payload": jsonEncode(payload!.toJson()),
         if (dependencyId != null) "dependencyId": dependencyId,
       };
@@ -56,20 +60,24 @@ class OutboxEntry {
         payload: payload,
         dependencyId: data["dependencyId"],
         status: OutboxStatus.values[data["status"] as int],
-        creationDate: DateTime.parse(data["creationDate"]));
+        creationDate: DateTime.parse(data["creationDate"]),
+        requiresAuthentication: data["requiresAuthentication"] == 1);
   }
 
-  factory OutboxEntry.entry(
-      {required int entityId,
-      required OutboxEntityType entityType,
-      required OutboxActionType actionType,
-      OutboxPayload? payload,
-      int? dependencyId}) {
+  factory OutboxEntry.entry({
+    required int entityId,
+    required OutboxEntityType entityType,
+    required OutboxActionType actionType,
+    bool requiresAuthentication = true,
+    OutboxPayload? payload,
+    int? dependencyId,
+  }) {
     // Making sure we have a dependencyId that references a group for tasks
     if (entityType == OutboxEntityType.task) {
       assert(dependencyId != null);
     }
     return OutboxEntry(
+        requiresAuthentication: requiresAuthentication,
         entityId: entityId,
         entityType: entityType,
         actionType: actionType,

@@ -144,8 +144,6 @@ class _ProfileViewPageState extends ConsumerState<ProfileViewPage> {
 
   @override
   Widget build(BuildContext context) {
-    SnackBarAlerts.registerNotificationListener(ref, context);
-
     AsyncValue<User?> userAsync = ref.watch(userLocalProvider(widget.userId));
     // bool isLoading = READ.read(userProvider).isLoading;
 

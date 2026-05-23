@@ -1,9 +1,13 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:internet_connection_checker/internet_connection_checker.dart';
 import 'package:syncora_frontend/core/analytics/breadcrumb_type.dart';
 import 'package:syncora_frontend/core/analytics/breadcrumbs_service.dart';
+import 'package:syncora_frontend/core/localization/generated/l10n/app_localizations.dart';
+import 'package:syncora_frontend/core/utils/snack_bar_alerts.dart';
+import 'package:syncora_frontend/router.dart';
 
 // ignore: non_constant_identifier_names
 final debug_fakeBeingOnlineProvider = StateProvider<bool>((ref) {
@@ -113,6 +117,19 @@ final _connectionProvider =
 final isOnlineProvider = Provider<bool>((ref) {
   var status = ref.watch(_connectionProvider);
   BreadcrumbService.instance.add(BreadcrumbType.connection, status.name);
+
+  ref.listen(_connectionProvider, (previous, next) {
+    BuildContext? context = navigatorKey.currentContext;
+    if (context == null || !context.mounted) return;
+    if (next == ConnectionStatus.connected) {
+      SnackBarAlerts.showSuccessSnackBar(
+          AppLocalizations.of(context).notification_Online_Connected, context);
+    } else {
+      SnackBarAlerts.showAlertSnackBar(
+          AppLocalizations.of(context).notification_Online_Disconnected,
+          context);
+    }
+  });
   return status == ConnectionStatus.connected;
 });
 

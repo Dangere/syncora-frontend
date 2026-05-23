@@ -62,8 +62,6 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
     // Warming user provider for the first time
     ref.read(userProvider);
 
-    SnackBarAlerts.registerNotificationListener(ref, context);
-
     void onCreateGroup() async {
       final result = await GroupPopups.createGroupPopup(context);
 

@@ -137,24 +137,6 @@ class ErrorPopups {
     return didSendError;
   }
 
-  static Future<void> reportBeenSent(BuildContext context) async {
-    await Dialogs.showContentDialog(
-      context,
-      barrierDismissible: true,
-      blurBackground: false,
-      title: "",
-      content: SizedBox(
-        height: 100,
-        child: Column(
-          children: [
-            Text(AppLocalizations.of(context).error_report_popup_sent),
-            AppSpacing.verticalSpaceLg,
-          ],
-        ),
-      ),
-    );
-  }
-
   static Future<void> _displayErrorLog(
       BuildContext context, String message) async {
     await Dialogs.showContentDialog(
@@ -168,4 +150,6 @@ class ErrorPopups {
       ),
     );
   }
+
+  static void reportBeenSent(BuildContext context) {}
 }

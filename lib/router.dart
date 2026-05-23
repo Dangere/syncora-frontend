@@ -48,6 +48,8 @@ class MyNavObserver extends NavigatorObserver {
   }
 }
 
+final navigatorKey = GlobalKey<NavigatorState>();
+
 class RouteNotifier extends Notifier<GoRouter> {
   final _routeController = StreamController<String>();
 
@@ -55,12 +57,6 @@ class RouteNotifier extends Notifier<GoRouter> {
 
   @override
   GoRouter build() {
-    // ref.onDispose(
-    //   () {
-    //     _routeController.close();
-    //   },
-    // );
-
     bool isLogged = ref.watch(isLoggedProvider);
 
     Logger logger = ref.read(loggerProvider);
@@ -76,6 +72,7 @@ class RouteNotifier extends Notifier<GoRouter> {
     };
 
     return GoRouter(
+      navigatorKey: navigatorKey,
       initialLocation: '/',
       routes: [
         GoRoute(
@@ -236,7 +233,6 @@ class RouteNotifier extends Notifier<GoRouter> {
 
         // If we are in the initializing state, we show the splash screen
         if (ref.read(appInitializeProvider).isLoading) {
-          print("going to splash");
           return '/splash-screen';
         }
 

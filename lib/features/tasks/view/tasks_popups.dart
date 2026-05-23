@@ -12,7 +12,7 @@ import 'package:syncora_frontend/features/tasks/task.dart';
 import 'package:syncora_frontend/features/tasks/view/widgets/task_search_bar.dart';
 
 class TasksPopups {
-  static Future<List<int>> assignedUsersPopUp(
+  static Future<List<int>> assignedUsersPopup(
     BuildContext context, {
     required bool isOwner,
     required Task task,

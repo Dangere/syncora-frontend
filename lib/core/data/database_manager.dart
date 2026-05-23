@@ -149,6 +149,7 @@ class DatabaseManager {
       CREATE TABLE ${DatabaseTables.outbox} (
         id INTEGER PRIMARY KEY,
         entityId INTEGER NOT NULL,
+        requiresAuthentication INTEGER NOT NULL,
         dependencyId INTEGER,
         entityType INTEGER NOT NULL,
         actionType INTEGER NOT NULL,

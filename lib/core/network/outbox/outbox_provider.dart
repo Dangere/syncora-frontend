@@ -59,14 +59,14 @@ class OutboxNotifier extends AsyncNotifier<OutboxStatus>
           "Cant process outbox queue when offline", StackTrace.current);
     }
 
-    if (ref.read(isGuestProvider) == true) {
-      state = const AsyncValue.data(OutboxStatus.pending);
-      ref
-          .read(loggerProvider)
-          .w("Outbox Queue: Not processing queue when guest!");
-      return Result.canceled(
-          "Cant process outbox queue when guest", StackTrace.current);
-    }
+    // if (ref.read(isGuestProvider) == true) {
+    //   state = const AsyncValue.data(OutboxStatus.pending);
+    //   ref
+    //       .read(loggerProvider)
+    //       .w("Outbox Queue: Not processing queue when guest!");
+    //   return Result.canceled(
+    //       "Cant process outbox queue when guest", StackTrace.current);
+    // }
 
     // If we are trying to process the queue while we are already processing it, we mark it as awaiting
     if (_isProcessing) {
@@ -77,60 +77,69 @@ class OutboxNotifier extends AsyncNotifier<OutboxStatus>
       return Result.success();
     }
     _isProcessing = true;
-    // await Future.delayed(Duration(seconds: 5));
 
     state = const AsyncValue.loading();
 
     Result<void> result = await ref.read(outboxServiceProvider).processQueue(
+        isAuthenticated: ref.read(isAuthenticatedProvider),
         onFail: (entry, error) {
-      if (entry.entityType == OutboxEntityType.report) {
-        // If we failed to send our report
-        ref
-            .read(appErrorProvider.notifier)
-            .setReportError(entry.entityId, error);
-      } else {
-        // If we failed to manage anything else
-        ref.read(appErrorProvider.notifier).setError(error, fetal: false);
-      }
-    }, onFetalFail: (entry, error) {
-      if (entry.entityType == OutboxEntityType.report) {
-        // If we failed to send our report
-        ref
-            .read(appErrorProvider.notifier)
-            .setReportError(entry.entityId, error);
-      } else {
-        // If we failed to manage anything else
-        ref.read(appErrorProvider.notifier).setError(error, fetal: true);
-      }
-    }, requireSecondPass: () {
-      ref
-          .read(loggerProvider)
-          .w("Outbox Queue: We are calling for a second pass!");
-      _isAwaiting = true;
-    }, onEntityIdSync: ({required serverId, required tempId}) {
-      ref
-          .read(outboxIdMapperProvider)
-          .cacheId(tempId: tempId, serverId: serverId);
-      ref
-          .read(groupsListProvider.notifier)
-          .onOutboxGroupSynced(serverId: serverId, tempId: tempId);
-    }, onRevert: (entry) {
-      if (entry.entityType == OutboxEntityType.group) {
-        ref.read(groupsListProvider.notifier).onOutboxRevert(entry.entityId);
-      } else if (entry.entityType == OutboxEntityType.task) {
-        print("Reverting task ${entry.payload!.toJson()}");
+          if (entry.entityType == OutboxEntityType.report) {
+            // If we failed to send our report
+            ref
+                .read(appErrorProvider.notifier)
+                .setReportError(entry.entityId, error);
+          } else {
+            // If we failed to manage anything else
+            ref.read(appErrorProvider.notifier).setError(error, fetal: false);
+          }
+        },
+        onFetalFail: (entry, error) {
+          if (entry.entityType == OutboxEntityType.report) {
+            // If we failed to send our report
+            ref
+                .read(appErrorProvider.notifier)
+                .setReportError(entry.entityId, error);
+          } else {
+            // If we failed to manage anything else
+            ref.read(appErrorProvider.notifier).setError(error, fetal: true);
+          }
+        },
+        requireSecondPass: () {
+          ref
+              .read(loggerProvider)
+              .w("Outbox Queue: We are calling for a second pass!");
+          _isAwaiting = true;
+        },
+        onEntityIdSync: ({required serverId, required tempId}) {
+          ref
+              .read(outboxIdMapperProvider)
+              .cacheId(tempId: tempId, serverId: serverId);
+          ref
+              .read(groupsListProvider.notifier)
+              .onOutboxGroupSynced(serverId: serverId, tempId: tempId);
+        },
+        onRevert: (entry) {
+          if (entry.entityType == OutboxEntityType.group) {
+            ref
+                .read(groupsListProvider.notifier)
+                .onOutboxRevert(entry.entityId);
+          } else if (entry.entityType == OutboxEntityType.task) {
+            print("Reverting task ${entry.payload!.toJson()}");
 
-        ref
-            .read(groupsListProvider.notifier)
-            .onOutboxRevert(entry.dependencyId!);
-      }
-    }, onSync: (entry) {
-      if (entry.entityType == OutboxEntityType.group) {
-        ref.read(groupsListProvider.notifier).onOutboxSync(entry.entityId);
-      } else if (entry.entityType == OutboxEntityType.task) {
-        ref.read(groupsListProvider.notifier).onOutboxSync(entry.dependencyId!);
-      }
-    });
+            ref
+                .read(groupsListProvider.notifier)
+                .onOutboxRevert(entry.dependencyId!);
+          }
+        },
+        onSync: (entry) {
+          if (entry.entityType == OutboxEntityType.group) {
+            ref.read(groupsListProvider.notifier).onOutboxSync(entry.entityId);
+          } else if (entry.entityType == OutboxEntityType.task) {
+            ref
+                .read(groupsListProvider.notifier)
+                .onOutboxSync(entry.dependencyId!);
+          }
+        });
 
     if (!result.isSuccess && !result.isCancelled) {
       state = result.error!.toAsyncValue();
@@ -182,6 +191,16 @@ class OutboxNotifier extends AsyncNotifier<OutboxStatus>
         await _processQueue();
       }
     });
+
+    ref.listen(
+      isLoggedProvider,
+      (previous, next) {
+        if (!next) {
+          ref.read(loggerProvider).d("Outbox Queue: User logged out, shutting");
+          ref.read(outboxServiceProvider).shutQueue();
+        }
+      },
+    );
 
     _isProcessing = false;
     _isAwaiting = false;

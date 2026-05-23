@@ -48,8 +48,6 @@ class _SignUpPageState extends ConsumerState<SignUpPage> {
   Widget build(BuildContext context) {
     final user = ref.watch(authProvider);
 
-    SnackBarAlerts.registerNotificationListener(ref, context);
-
     void signUp() {
       if (!_formKey.currentState!.validate() || user.isLoading) return;
       ref.read(authProvider.notifier).registerWithEmailAndPassword(

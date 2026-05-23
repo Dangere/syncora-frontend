@@ -1,7 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:flutter_switch/flutter_switch.dart';
 import 'package:syncora_frontend/common/providers/common_providers.dart';
 import 'package:syncora_frontend/common/themes/app_spacing.dart';
@@ -9,6 +8,8 @@ import 'package:syncora_frontend/common/themes/app_theme.dart';
 import 'package:syncora_frontend/common/widgets/app_button.dart';
 import 'package:syncora_frontend/common/widgets/version_display.dart';
 import 'package:syncora_frontend/core/localization/generated/l10n/app_localizations.dart';
+import 'package:syncora_frontend/core/report/report_popups.dart';
+import 'package:syncora_frontend/core/report/report_provider.dart';
 import 'package:syncora_frontend/core/typedef.dart';
 import 'package:syncora_frontend/core/utils/dialogs.dart';
 import 'package:syncora_frontend/core/utils/snack_bar_alerts.dart';
@@ -50,18 +51,25 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     ref.read(themeModeProvider.notifier).setThemDark(value);
   }
 
+  void onBugReport() async {
+    String? userMessage = await SettingsPopups.reportABugPopup(context);
+    if (userMessage == null) return;
+    bool didReport =
+        await ref.read(reportProvider.notifier).reportBug(userMessage);
+
+    if (didReport && mounted) ReportPopups.reportBeenSent(context);
+  }
+
+  void onPasswordReset(BuildContext context) =>
+      SettingsPopups.passwordResetPopup(context);
+
   @override
   Widget build(BuildContext context) {
-    SnackBarAlerts.registerNotificationListener(ref, context);
-
     final Locale currentLocale = ref.watch(localeProvider);
     // bool isDarkMode = ref.watch(themeModeProvider);7
 
     final bool isDarkMode = ref.watch(themeModeProvider) == ThemeMode.dark;
     final isLTR = Directionality.of(context) == TextDirection.ltr;
-
-    passwordResetPopup(BuildContext context) =>
-        SettingsPopups.passwordResetPopup(context);
 
     // TODO: Language card gets grayed out when held unlike other buttons
     return Scaffold(
@@ -139,7 +147,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                           fontSize: 16,
                           size: AppButtonSize.huge,
                           style: AppButtonStyle.filled,
-                          onPressed: () => passwordResetPopup(context),
+                          onPressed: () => onPasswordReset(context),
                           child: Row(
                             children: [
                               const Icon(Icons.lock, size: 24),
@@ -164,7 +172,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                         AppSpacing.verticalSpaceMd
                       ],
 
-                      if (kIsWeb)
+                      if (kIsWeb) ...[
                         AppButton(
                           breadcrumbLabel: () => "Download APK",
                           fontSize: 16,
@@ -187,6 +195,28 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                             ],
                           ),
                         ),
+                        AppSpacing.verticalSpaceMd,
+                      ],
+
+                      AppButton(
+                        breadcrumbLabel: () => "Bug report",
+                        fontSize: 16,
+                        size: AppButtonSize.huge,
+                        style: AppButtonStyle.filled,
+                        onPressed: onBugReport,
+                        child: Row(
+                          children: [
+                            const Icon(Icons.bug_report, size: 24),
+                            const SizedBox(width: 17),
+                            Text(AppLocalizations.of(context)
+                                .settingsPage_ReportBug),
+                            const Spacer(),
+                            Transform.rotate(
+                                angle: 3.14 / 180 * (isLTR ? -90 : 90),
+                                child: const Icon(Icons.expand_more, size: 24)),
+                          ],
+                        ),
+                      ),
                       const Spacer(),
                       // LOGOUT BUTTON
                       AppButton(

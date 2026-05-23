@@ -39,8 +39,6 @@ class _SignInPageState extends ConsumerState<SignInPage> {
   Widget build(BuildContext context) {
     final user = ref.watch(authProvider);
 
-    SnackBarAlerts.registerNotificationListener(ref, context);
-
     void signIn() {
       // Check if form is valid before attempting to login
       if (!_formKey.currentState!.validate() || user.isLoading) return;

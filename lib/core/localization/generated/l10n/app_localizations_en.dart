@@ -237,6 +237,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsPage_WebAlert => 'Download Syncora for Android';
 
   @override
+  String get settingsPage_ReportBug => 'Report a bug';
+
+  @override
   String get dashboardPage_MyGroups => 'My Groups';
 
   @override

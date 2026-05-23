@@ -80,8 +80,6 @@ class _GroupInfoPageState extends ConsumerState<GroupInfoPage> {
 
   @override
   Widget build(BuildContext context) {
-    SnackBarAlerts.registerNotificationListener(ref, context);
-
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,

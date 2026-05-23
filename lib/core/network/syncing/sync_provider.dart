@@ -7,16 +7,19 @@ import 'package:syncora_frontend/common/providers/common_providers.dart';
 import 'package:syncora_frontend/common/providers/connection_provider.dart';
 import 'package:syncora_frontend/core/constants/constants.dart';
 import 'package:syncora_frontend/core/error_management/error_provider.dart';
+import 'package:syncora_frontend/core/localization/generated/l10n/app_localizations.dart';
 import 'package:syncora_frontend/core/network/signalr/signalr_client.dart';
 import 'package:syncora_frontend/core/network/syncing/model/sync_payload.dart';
 import 'package:syncora_frontend/core/network/syncing/sync_repository.dart';
 import 'package:syncora_frontend/core/network/syncing/sync_service.dart';
 import 'package:syncora_frontend/core/network/syncing/sync_state.dart';
 import 'package:syncora_frontend/core/utils/result.dart';
+import 'package:syncora_frontend/core/utils/snack_bar_alerts.dart';
 import 'package:syncora_frontend/features/authentication/auth_provider.dart';
 import 'package:syncora_frontend/features/groups/groups_provider.dart';
 import 'package:syncora_frontend/features/tasks/tasks_provider.dart';
 import 'package:syncora_frontend/features/users/providers/users_provider.dart';
+import 'package:syncora_frontend/router.dart';
 
 // TODO(DONE): this needs needs serious refactoring with heavy focus on separation of concerns
 class SyncBackendNotifier extends AsyncNotifier<SyncState>
@@ -34,8 +37,18 @@ class SyncBackendNotifier extends AsyncNotifier<SyncState>
     ref.read(loggerProvider).d("Sync Notifier: building sync backend notifier");
 
     ref.read(signalRClientProvider).onStateChanged.listen((event) {
+      BuildContext? context = navigatorKey.currentContext;
+
       switch (event) {
         case HubConnectionState.Connected:
+          if (context != null && context.mounted) {
+            if (state is SyncDisconnected) {
+              SnackBarAlerts.showSuccessSnackBar(
+                  AppLocalizations.of(context).notification_Backend_Connected,
+                  context);
+            }
+          }
+
           ref
               .read(loggerProvider)
               .d("Sync Notifier: refreshing data on server connect");
