@@ -5,6 +5,7 @@ import 'package:syncora_frontend/features/groups/models/group_dto.dart';
 import 'package:syncora_frontend/features/tasks/task.dart';
 import 'dart:convert';
 
+/// Represents the payload of a sync request that is sent from the server containing the new data
 class SyncPayload {
   final String timestamp;
   final List<GroupDTO> groups;

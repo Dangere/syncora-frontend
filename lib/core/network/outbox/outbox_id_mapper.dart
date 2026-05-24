@@ -1,6 +1,7 @@
 import 'package:syncora_frontend/core/network/outbox/repository/outbox_repository.dart';
 import 'package:syncora_frontend/core/utils/result.dart';
 
+/// Used to either cache in temp id to server id (on entity creation) or getting ids
 class OutboxIdMapper {
   final Map<int, int> _serverToTemp = {}; // serverId -> tempId
   final Map<int, int> _tempToServer = {}; // tempId -> serverId

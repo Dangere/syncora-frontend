@@ -11,19 +11,21 @@ import 'package:syncora_frontend/core/localization/localize_app_errors.dart';
 import 'package:syncora_frontend/core/utils/dialogs.dart';
 import 'package:syncora_frontend/core/utils/result.dart';
 
+/// Pops used for error alerts
 class ErrorPopups {
+  /// Pop up used to display an expandable fetal error allowing for manual reporting
   static Future<bool> fetalErrorPopup(
       BuildContext context, ErrorState errorState,
       {required Future<AppErrorCode?> Function(ErrorState errorState)
           onManualSend}) async {
+    /// Display a popup to display the error's log for user
     void onErrorClick(ErrorState error) {
       _displayErrorLog(context, error.error.logMessage);
     }
 
-    // bool canSendDetailsToDev =
-    //     errorState is ErrorReport && errorState.reportId != null;
     bool isLoading = false;
 
+    /// If Manual reporting failed this will not be null
     AppErrorCode? errorCodeForSendingDetails;
 
     bool? didSendError = await Dialogs.showContentDialog<bool?>(
@@ -137,6 +139,7 @@ class ErrorPopups {
     return didSendError;
   }
 
+  /// Plain pop up that displays an error log
   static Future<void> _displayErrorLog(
       BuildContext context, String message) async {
     await Dialogs.showContentDialog(

@@ -1,7 +1,9 @@
+/// Represents the payload of an outbox entry
 sealed class OutboxPayload {
   Map<String, dynamic> toJson();
 }
 
+/// Extension for [OutboxPayload] to get the payload type
 extension OutboxPayloadX on OutboxPayload {
   UpdateGroupPayload? get asUpdateGroupPayload =>
       this is UpdateGroupPayload ? this as UpdateGroupPayload : null;

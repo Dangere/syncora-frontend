@@ -1,7 +1,8 @@
 import 'package:syncora_frontend/core/network/outbox/model/outbox_entry.dart';
 
+/// Class used to sort the outbox queue into creation order
 class OutboxSorter {
-  /// Priority, Create group -> modify group -> create task -> modify task
+  /// Priority: Create group -> modify group -> create task -> modify task -> rest of the queue
   static List<OutboxEntry> sort(List<OutboxEntry> entries) {
     entries.sort((a, b) {
       // If both are groups, creation comes first

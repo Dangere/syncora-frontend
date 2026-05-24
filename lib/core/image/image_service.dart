@@ -7,6 +7,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:syncora_frontend/core/image/image_repository.dart';
 import 'package:syncora_frontend/core/utils/result.dart';
 
+/// Service used to access the image repository to upload and download images
 class ImageService {
   final ImageRepository _imageRepository;
   final CacheManager _cacheManager;
@@ -23,6 +24,7 @@ class ImageService {
         _picker = picker,
         _isOnlineFactory = isOnlineFactory;
 
+  /// Uploads an image to the image repository
   Future<Result<String>> uploadImage(Uint8List imageBytes) async {
     try {
       return Result.success(await _imageRepository.uploadImage(imageBytes));
@@ -31,6 +33,7 @@ class ImageService {
     }
   }
 
+  /// Downloads and caches an image from a URL
   Future<Result<Uint8List>> getImageFromUrl(String url) async {
     if (!_isOnlineFactory()) {
       return Result.canceled(
@@ -45,6 +48,7 @@ class ImageService {
     }
   }
 
+  /// Picks an image from the gallery or camera using a [ImageSource]
   Future<Result<XFile?>> pickImage(ImageSource source) async {
     try {
       return Result.success(await _picker.pickImage(
@@ -54,6 +58,7 @@ class ImageService {
     }
   }
 
+  /// Checks if the bytes represent a valid image
   Future<bool> isImageValid(Uint8List bytes) async {
     // If the list is empty, it's not a valid image
     if (bytes.isEmpty) {
@@ -71,6 +76,7 @@ class ImageService {
     }
   }
 
+  /// Preloads SVG assets
   Future<void> preloadSvg(List<String> paths) async {
     for (var path in paths) {
       var loader = SvgAssetLoader(path);

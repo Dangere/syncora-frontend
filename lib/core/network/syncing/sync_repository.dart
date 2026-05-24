@@ -5,6 +5,7 @@ import 'package:syncora_frontend/core/data/database_manager.dart';
 import 'package:syncora_frontend/core/data/database_tables.dart';
 import 'package:syncora_frontend/core/network/syncing/model/sync_payload.dart';
 
+/// Class used to interact with the sync database and do sync requests
 class SyncRepository {
   final Dio _dio;
   final DatabaseManager _databaseManager;
@@ -15,6 +16,7 @@ class SyncRepository {
       : _dio = dio,
         _databaseManager = databaseManager;
 
+  /// Used to get the sync payload after a timestamp
   Future<SyncPayload> sync(String since) async {
     final response = await _dio
         .get(
@@ -26,11 +28,13 @@ class SyncRepository {
     return SyncPayload.fromJson(response.data);
   }
 
+  /// Stores the last sync timestamp
   Future<void> storeSyncTimestamp(String timeStamp) async {
     Database db = await _databaseManager.getDatabase();
     await db.insert(DatabaseTables.syncTimestamps, {"timeStamp": timeStamp});
   }
 
+  /// Gets the last sync timestamp
   Future<String> getLastSyncTimestamp() async {
     Database db = await _databaseManager.getDatabase();
     var result =

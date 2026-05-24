@@ -11,6 +11,7 @@ import 'package:syncora_frontend/core/utils/snack_bar_alerts.dart';
 import 'package:syncora_frontend/router.dart';
 
 class AppErrorNotifier extends Notifier<ErrorState?> {
+  /// Setting current error to display, if fetal, the UI listener will display it in a fetal popup
   void setError(AppError error, {bool fetal = false}) async {
     var errorState = fetal ? ErrorFetal(error) : ErrorAvailable(error);
 
@@ -25,7 +26,7 @@ class AppErrorNotifier extends Notifier<ErrorState?> {
     _displayError();
   }
 
-  // sets to an error that made a report fail
+  /// Sets to an error that made a report fail
   // If the id is missing it means the report failed to be even created
   void setReportError(int? reportId, AppError error) {
     print("next: asdf");

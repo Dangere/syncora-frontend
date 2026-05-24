@@ -15,6 +15,7 @@ import 'package:syncora_frontend/core/network/outbox/outbox_sorter.dart';
 import 'package:syncora_frontend/core/network/outbox/repository/outbox_repository.dart';
 import 'package:syncora_frontend/core/utils/result.dart';
 
+/// Used to determine what to do when an entry fails
 enum OutboxErrorQueueAction {
   failAndStopQueue,
   cancelAndStopQueue,
@@ -22,8 +23,11 @@ enum OutboxErrorQueueAction {
   retryEntry
 }
 
+/// Class used to process the outbox queue
 class OutboxService {
   final OutboxRepository _outboxRepository;
+
+  /// Used to map entity types to [OutboxProcessor]
   final Map<OutboxEntityType, OutboxProcessor> _processors;
   final Logger _logger;
   final Duration _rateLimitDelay;
@@ -43,8 +47,9 @@ class OutboxService {
         _outboxRepository = outboxRepository,
         _processors = processors,
         _timeoutDelay = timeoutDelay;
-  // Enqueue an entry to sync local data creation/update/delete with the cloud
-  // It also makes sure the entry is inserted first then modify local data to avoid ghost data not syncing
+
+  /// Enqueue an entry to sync local data creation/update/delete with the cloud
+  /// It also makes sure the entry is inserted first then modify local data to avoid ghost data not syncing
   Future<Result<void>> enqueue(EnqueueRequest request) async {
     try {
       int entryId = await _outboxRepository.insertEntry(request.entry);
@@ -105,9 +110,7 @@ class OutboxService {
     for (final entry in entries) {
       if (_processors[entry.entityType] == null) {
         return Result.failureError(
-            OutboxNoProcessorException(
-                'No processor found for ${entry.entityType}'),
-            StackTrace.current);
+            OutboxNoProcessorException(entry.entityType), StackTrace.current);
       }
 
       if (_cancelationToken!.isCancelled) {
@@ -193,6 +196,7 @@ class OutboxService {
     return Result.success();
   }
 
+  /// Handles the failure of an entry and returns [OutboxErrorQueueAction] to determine what to do
   Future<OutboxErrorQueueAction> _handleFailure(
       OutboxEntry entry,
       Object e,
@@ -242,6 +246,7 @@ class OutboxService {
     return OutboxErrorQueueAction.failAndContinueQueue;
   }
 
+  /// Reverts local changes of an entry and returns a bool to determine if we need a second pass in case of a deletion that might have marked entries as ignored
   Future<Result<bool>> _revertEntry(OutboxEntry entry) async {
     _logger.d('Outbox debug: Reverting local for ${entry.toString()}');
 

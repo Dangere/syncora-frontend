@@ -5,6 +5,7 @@ import 'package:syncora_frontend/core/network/outbox/model/outbox_payload.dart';
 import 'package:syncora_frontend/features/users/repositories/local_users_repository.dart';
 import 'package:syncora_frontend/features/users/repositories/remote_users_repository.dart';
 
+/// The [OutboxProcessor] for User types
 class UserProcessor extends OutboxProcessor {
   final LocalUsersRepository _localTasksRepository;
   final RemoteUsersRepository _remoteTasksRepository;

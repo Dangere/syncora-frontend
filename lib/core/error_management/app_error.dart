@@ -5,6 +5,7 @@ import 'package:syncora_frontend/core/error_management/app_error_code.dart';
 import 'package:syncora_frontend/core/error_management/error_mapper.dart';
 
 /// A class to represent an error
+/// A class to represent an error
 class AppError {
   // This is what gets used to from a localized message to the user
   final AppErrorCode errorCode;

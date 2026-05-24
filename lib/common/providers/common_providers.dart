@@ -19,6 +19,7 @@ import 'package:syncora_frontend/features/authentication/auth_provider.dart';
 import 'package:syncora_frontend/features/users/models/user_preferences.dart';
 import 'package:syncora_frontend/features/users/providers/users_provider.dart';
 
+/// Logger provider used to initialize the logger
 final loggerProvider = Provider<Logger>((ref) {
   return Logger(
     printer: PrettyPrinter(
@@ -32,7 +33,7 @@ final loggerProvider = Provider<Logger>((ref) {
   );
 });
 
-// This is the authenticated dio instance, we make separate instances when we need to make unauthenticated requests
+/// This is the authenticated dio instance, we make separate instances when we need to make unauthenticated requests
 final dioProvider = Provider<Dio>((ref) {
   Dio dio = Dio();
   dio.options.headers['Device-Id'] =
@@ -49,6 +50,7 @@ final dioProvider = Provider<Dio>((ref) {
   return dio;
 });
 
+/// This is the unauthenticated dio instance used in token refresh
 final unauthenticatedDioProvider = Provider<Dio>((ref) {
   Dio dio = Dio();
   dio.options.headers['Device-Id'] =
@@ -60,18 +62,22 @@ final unauthenticatedDioProvider = Provider<Dio>((ref) {
   return dio;
 });
 
+/// Cache manager used to cache images locally
 final cacheManagerProvider = Provider<CacheManager>((ref) {
   return DefaultCacheManager();
 });
 
+/// Image picker
 final imagePickerProvider = Provider<ImagePicker>((ref) {
   return ImagePicker();
 });
 
+/// Secure storage
 final secureStorageProvider = Provider<FlutterSecureStorage>((ref) {
   return const FlutterSecureStorage();
 });
 
+/// Shared preferences
 final sharedPreferencesProvider = Provider<SharedPreferences>((ref) {
   Logger().d("This shouldn't be reached and instead initialized in main()");
   // Gets initialized at main()
@@ -80,7 +86,9 @@ final sharedPreferencesProvider = Provider<SharedPreferences>((ref) {
 
 // final localeProvider = Provider<Locale>((ref) => const Locale('en'));
 
+/// Locale provider used to get and set the locale
 class LocaleNotifier extends Notifier<Locale> {
+  /// Sets the locale
   void setLocale(Locale locale) async {
     state = locale;
 
@@ -93,6 +101,7 @@ class LocaleNotifier extends Notifier<Locale> {
     }
   }
 
+  /// Toggles the locale between en and ar
   void toggleLocale() async {
     if (state.languageCode == 'en') {
       state = const Locale('ar');
@@ -109,6 +118,7 @@ class LocaleNotifier extends Notifier<Locale> {
     }
   }
 
+  /// Returns the text direction
   TextDirection getTextDirection() {
     return intl.Bidi.isRtlLanguage(state.languageCode)
         ? TextDirection.rtl
@@ -117,6 +127,7 @@ class LocaleNotifier extends Notifier<Locale> {
 
   @override
   Locale build() {
+    // Listens to auth state to update the locale when the user logs in
     ref.listen(
       authStateProvider,
       (previous, next) {
@@ -128,7 +139,7 @@ class LocaleNotifier extends Notifier<Locale> {
         }
       },
     );
-
+    // Try to get the locale from shared preferences
     Result<UserPreferences> preferences =
         ref.read(usersServiceProvider).getPreferences();
 
@@ -145,7 +156,9 @@ class LocaleNotifier extends Notifier<Locale> {
 final localeProvider =
     NotifierProvider<LocaleNotifier, Locale>(LocaleNotifier.new);
 
+/// Theme mode provider used to get and set the theme mode
 class ThemeModeNotifier extends Notifier<ThemeMode> {
+  /// sets the theme mode
   void setThemDark(bool isDark) async {
     state = isDark ? ThemeMode.dark : ThemeMode.light;
 
@@ -160,6 +173,7 @@ class ThemeModeNotifier extends Notifier<ThemeMode> {
 
   @override
   ThemeMode build() {
+    // Listens to auth state to update the theme mode when the user logs in
     ref.listen(
       authStateProvider,
       (previous, next) {
@@ -171,7 +185,7 @@ class ThemeModeNotifier extends Notifier<ThemeMode> {
         }
       },
     );
-
+    // Try to get the theme mode from shared preferences
     Result<UserPreferences> preferences =
         ref.read(usersServiceProvider).getPreferences();
 
@@ -190,12 +204,14 @@ class ThemeModeNotifier extends Notifier<ThemeMode> {
 final themeModeProvider =
     NotifierProvider<ThemeModeNotifier, ThemeMode>(ThemeModeNotifier.new);
 
+/// Database manager provider
 final localDbProvider = Provider<DatabaseManager>((ref) {
   ref.read(loggerProvider).d("Constructing database manager");
 
   return DatabaseManager(logger: ref.read(loggerProvider));
 });
 
+/// A family provider used to store a list of previous search history in memory
 class SearchBarSuggestionsNotifier
     extends FamilyNotifier<List<String>, String> {
   void addSuggestion(String suggestion) {
@@ -213,6 +229,7 @@ final searchBarSuggestionsProvider =
     NotifierProvider.family<SearchBarSuggestionsNotifier, List<String>, String>(
         SearchBarSuggestionsNotifier.new);
 
+/// A provider used to get the diagnostics service
 final diagnosticsServiceProvider = Provider<DiagnosticsService>((ref) {
   return DiagnosticsService(
     languageCode: () => ref.read(localeProvider).languageCode,

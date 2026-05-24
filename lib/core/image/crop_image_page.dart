@@ -13,6 +13,7 @@ import 'package:syncora_frontend/common/widgets/overlay_loader.dart';
 import 'package:syncora_frontend/core/image/image_providers.dart';
 import 'package:syncora_frontend/core/localization/generated/l10n/app_localizations.dart';
 
+/// Page used to crop an image into 1x1 from an [XFile] and returns a new [Uint8List] image data
 class CropImagePage extends ConsumerStatefulWidget {
   const CropImagePage({super.key, required this.imageFile});
 
@@ -23,6 +24,7 @@ class CropImagePage extends ConsumerStatefulWidget {
 }
 
 class _CropImagePageState extends ConsumerState<CropImagePage> {
+  // Configuring the aspect ratio and default crop
   final CropController controller = CropController(
     aspectRatio: 1,
     // defaultCrop: const Rect.fromLTRB(0.1, 0.1, 0.9, 0.9),
@@ -47,6 +49,7 @@ class _CropImagePageState extends ConsumerState<CropImagePage> {
     }
   }
 
+  // Loading the image from the XFile
   Future<Uint8List> loadImage() async {
     Uint8List bytes = await widget.imageFile.readAsBytes();
 
@@ -99,10 +102,10 @@ class _CropImagePageState extends ConsumerState<CropImagePage> {
                 return OverlayLoader(
                   isLoading: !snapshot.hasData || isLoading,
                   body: Padding(
-                    padding: EdgeInsets.only(top: 80),
+                    padding: const EdgeInsets.only(top: 80),
                     child: !snapshot.hasData
-                        ? Center(
-                            child: const Icon(Icons.crop_free_sharp),
+                        ? const Center(
+                            child: Icon(Icons.crop_free_sharp),
                           )
                         : AbsorbPointer(
                             absorbing: !snapshot.hasData,
@@ -157,7 +160,7 @@ class _CropImagePageState extends ConsumerState<CropImagePage> {
                                                 controller.rotateLeft(),
                                             child: Transform.flip(
                                               flipX: true,
-                                              child: Icon(Icons
+                                              child: const Icon(Icons
                                                   .rotate_90_degrees_cw_rounded),
                                             )),
                                         AppButton(
@@ -180,7 +183,7 @@ class _CropImagePageState extends ConsumerState<CropImagePage> {
                                             // intent: AppButtonIntent.secondary,
                                             onPressed: () =>
                                                 controller.rotateRight(),
-                                            child: Icon(Icons
+                                            child: const Icon(Icons
                                                 .rotate_90_degrees_cw_rounded)),
                                       ],
                                     ),

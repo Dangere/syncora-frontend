@@ -3,15 +3,16 @@ import 'dart:convert';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/services.dart';
 import 'package:source_map_stack_trace/source_map_stack_trace.dart';
 import 'package:source_maps/parser.dart';
 import 'package:stack_trace/stack_trace.dart';
 import 'package:syncora_frontend/core/error_management/app_error_code.dart';
 
+/// Maps [Exception]s to [AppErrorCode]
 class ErrorMapper {
   static Map<String, dynamic>? _sourceMap;
 
+  /// Initialize the source map which is used to parse the stack trace on web builds to native dart code
   static Future initializeSourceMap() async {
     if (!kIsWeb) return;
 
@@ -29,6 +30,7 @@ class ErrorMapper {
     }
   }
 
+  /// Maps an error object into a [AppErrorCode]
   static AppErrorCode mapError(Object e) {
     if (e is DioException) return _mapDioError(e);
 
@@ -37,6 +39,7 @@ class ErrorMapper {
     return AppErrorCode.UNKNOWN;
   }
 
+  /// parses stack traces into a contained log message
   static String parseLogMessage(
       String message, StackTrace stacktrace, StackTrace currentStackTrace) {
     final origin = _parseStackTrace(stacktrace).toString().trim();
@@ -58,6 +61,7 @@ class ErrorMapper {
         .trim();
   }
 
+  /// Parses stack traces into a smalled folded instances
   static StackTrace _parseStackTrace(StackTrace stackTrace) {
     if (_sourceMap != null) {
       stackTrace = mapStackTrace(parseJson(_sourceMap!), stackTrace);
@@ -69,6 +73,7 @@ class ErrorMapper {
         p0.toString().contains("dart:ui"));
   }
 
+  /// Maps[DioException] into an [AppErrorCode]
   static AppErrorCode _mapDioError(DioException e) {
     // If the response comes with an error code we parse it
     var data = e.response?.data;

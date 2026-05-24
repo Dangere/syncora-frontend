@@ -5,6 +5,7 @@ import 'package:syncora_frontend/core/data/database_tables.dart';
 import 'package:syncora_frontend/core/network/outbox/model/outbox_entry.dart';
 import 'package:syncora_frontend/core/network/outbox/model/outbox_payload.dart';
 
+/// Class used to interact with the outbox database
 class OutboxRepository {
   final DatabaseManager _databaseManager;
 
@@ -204,6 +205,7 @@ class OutboxRepository {
     return OutboxEntry.fromTable(query.first);
   }
 
+  /// This is used to mark any entries that depend on a specific entity as ignored
   Future<void> ignoreDependingEntries(int entityId) async {
     Database db = await _databaseManager.getDatabase();
 
@@ -213,6 +215,7 @@ class OutboxRepository {
         whereArgs: [entityId, entityId, OutboxStatus.pending.index]);
   }
 
+  /// This is used to mark any entries that depend on a specific entity as pending
   Future<bool> unignoreDependingEntries(int entityId) async {
     Database db = await _databaseManager.getDatabase();
 
@@ -296,7 +299,7 @@ class OutboxRepository {
         where: "id = ?", whereArgs: [id]);
   }
 
-  // Returns the server id of a row in tasks or group tables using temp ids
+  /// Returns the server id of a row in tasks or group tables using temp ids
   /// Returns `null` when task/group isn't synced
   Future<int?> getServerId(int tempId) async {
     Database db = await _databaseManager.getDatabase();

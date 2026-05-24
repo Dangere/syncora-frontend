@@ -5,6 +5,7 @@ import 'package:syncora_frontend/core/network/outbox/interface/outbox_processor_
 import 'package:syncora_frontend/core/network/outbox/model/outbox_entry.dart';
 import 'package:syncora_frontend/core/report/repositories/remote_report_repository.dart';
 
+/// The [OutboxProcessor] for report types
 class ReportProcessor extends OutboxProcessor {
   final LocalReportRepository _localReportRepository;
   final RemoteReportRepository _remoteReportRepository;

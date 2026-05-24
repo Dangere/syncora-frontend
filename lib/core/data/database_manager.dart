@@ -5,6 +5,7 @@ import 'package:sqflite/sqflite.dart';
 import 'package:sqflite_common_ffi_web/sqflite_ffi_web.dart';
 import 'package:syncora_frontend/core/data/database_tables.dart';
 
+/// Class used to initialize the database
 class DatabaseManager {
   final Logger _logger;
 
@@ -12,8 +13,10 @@ class DatabaseManager {
   bool _mutex = false;
   DatabaseManager({required Logger logger}) : _logger = logger;
 
+  /// Used to check if the JSON1 extention is supported on the device's built in sqlite
   late bool isJson1Supported;
 
+  /// Returns the version of the sqlite database on current device
   Future<String> _getSqliteVersion() async {
     if (_db == null) await getDatabase();
 
@@ -22,6 +25,7 @@ class DatabaseManager {
     return versionResult.first["version"] as String;
   }
 
+  /// Checks if the JSON1 extention is supported
   Future<bool> _supportsJSON1Extention() async {
     String version = await _getSqliteVersion();
     List<int> versionParts = version.split(".").map(int.parse).toList();
@@ -29,6 +33,7 @@ class DatabaseManager {
     return versionParts[0] >= 3 && versionParts[1] >= 38;
   }
 
+  /// Returns the database
   Future<Database> getDatabase() async {
     while (_mutex) {
       await Future.delayed(const Duration(milliseconds: 100));
@@ -72,6 +77,7 @@ class DatabaseManager {
     return _db!;
   }
 
+  /// Initializes the database tables
   Future<void> _onCreate(Database db, int version) async {
     await db.execute('''
       CREATE TABLE ${DatabaseTables.users}  (
@@ -192,6 +198,7 @@ class DatabaseManager {
     ''');
   }
 
+  /// Deletes the database
   Future<void> ensureDeleted() async {
     _logger.d("Deleting database");
     String path = await getDatabasesPath();

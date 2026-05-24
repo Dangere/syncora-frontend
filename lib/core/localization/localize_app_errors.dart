@@ -2,6 +2,7 @@ import 'package:flutter/widgets.dart';
 import 'package:syncora_frontend/core/error_management/app_error_code.dart';
 import 'package:syncora_frontend/core/localization/generated/l10n/app_localizations.dart';
 
+/// Maps [AppErrorCode]s to localized error messages
 class LocalizeAppErrors {
   static String localizeErrorCode(AppErrorCode code, BuildContext context) {
     AppLocalizations appLocalizations = AppLocalizations.of(context);

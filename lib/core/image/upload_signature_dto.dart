@@ -1,3 +1,4 @@
+/// Upload signature model for cloudinary used for signed uploads
 class CloudinarySignatureDTO {
   final String signature;
   final String context;

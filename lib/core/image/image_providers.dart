@@ -5,6 +5,7 @@ import 'package:syncora_frontend/core/image/cloudinary_image_repository.dart';
 import 'package:syncora_frontend/core/image/image_repository.dart';
 import 'package:syncora_frontend/core/image/image_service.dart';
 
+/// Provider used to access the image service
 final imageServiceProvider = Provider<ImageService>((ref) {
   return ImageService(
     imageRepository: ref.read(imageRepositoryProvider),
@@ -14,6 +15,7 @@ final imageServiceProvider = Provider<ImageService>((ref) {
   );
 });
 
+/// Provider used to access the image repository
 final imageRepositoryProvider = Provider<ImageRepository>((ref) {
   return CloudinaryImageRepository(ref.read(dioProvider));
 });

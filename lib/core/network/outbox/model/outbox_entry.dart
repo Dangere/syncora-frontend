@@ -1,6 +1,10 @@
 import 'dart:convert';
 import 'package:syncora_frontend/core/network/outbox/model/outbox_payload.dart';
 
+/// Represents an entry in the outbox queue
+/// Each entry has an id, an entity id, an entity type, an action type, a status, and a creation date
+/// An entry can have a payload, a dependency id, and a dependency type
+/// An entry can be in the "pending" state, "in process" state, or "complete" state
 class OutboxEntry {
   final int? id;
   final int entityId;
@@ -38,6 +42,7 @@ class OutboxEntry {
         if (dependencyId != null) "dependencyId": dependencyId,
       };
 
+  /// Converts a map from the database to an [OutboxEntry] and deserializes the payload depending on the [entityType] and [actionType]
   factory OutboxEntry.fromTable(Map<String, dynamic> data) {
     OutboxEntityType entity =
         OutboxEntityType.values[data["entityType"] as int];
@@ -87,6 +92,7 @@ class OutboxEntry {
         creationDate: DateTime.now().toUtc());
   }
 
+  /// Deserializes the payload depending on the [entityType] and [actionType]
   static OutboxPayload? deserializePayload(
     Map<String, dynamic> payloadMap,
     OutboxEntityType entityType,

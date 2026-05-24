@@ -6,8 +6,8 @@ import 'package:signalr_netcore/errors.dart';
 import 'package:signalr_netcore/signalr_client.dart';
 import 'package:syncora_frontend/core/utils/result.dart';
 
-// Exposes method to listen to events from the server
-// This handles all the connection and reconnection logic without having to worry about it in other classes
+/// Exposes method to listen to events from the server
+/// This handles all the connection and reconnection logic without having to worry about it in other classes
 class SignalRClient {
   Stream<HubConnectionState> get onStateChanged => _connection.stateStream;
 
@@ -59,7 +59,7 @@ class SignalRClient {
     );
   }
 
-  // Tries to establish a connection to the server until it succeeds
+  /// Tries to establish a connection to the server until it succeeds
   Future<void> connect() async {
     if (_connection.state == HubConnectionState.Connected || _isConnecting) {
       _logger.i(
@@ -75,6 +75,7 @@ class SignalRClient {
     }
   }
 
+  /// Disposes of the connection
   void dispose() async {
     if (_cancelationToken == null) {
       _logger.f("SignalRClient: tried to dispose without connecting first!");
@@ -93,16 +94,18 @@ class SignalRClient {
     // _cancelationToken = null;
   }
 
+  /// Listens to events
   void on(String method, void Function(List<Object?>?) handler) {
     _connection.on(method, handler);
   }
 
+  /// Stops listening to events
   void off(String method) {
     _connection.off(method);
   }
 
-  // This will loop until a connection is established or returns an error that isn't an expired token or timeout
-  // TODO: Handle server disconnection when connected throws XMLHttpRequest error (web only problem, not native)
+  /// This will loop until a connection is established or returns an error that isn't an expired token or timeout
+  // TODO(DONE): Handle server disconnection when connected throws XMLHttpRequest error (web only problem, not native)
 
   Future<Result> _connectToServer() async {
     while (_connection.state == HubConnectionState.Disconnected &&

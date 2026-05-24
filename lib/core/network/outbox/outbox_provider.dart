@@ -15,7 +15,6 @@ import 'package:syncora_frontend/core/network/outbox/processors/tasks_processor.
 import 'package:syncora_frontend/core/network/outbox/processors/user_processor.dart';
 import 'package:syncora_frontend/core/network/outbox/repository/outbox_repository.dart';
 import 'package:syncora_frontend/core/network/syncing/sync_provider.dart';
-import 'package:syncora_frontend/core/error_management/app_error.dart';
 import 'package:syncora_frontend/core/report/report_provider.dart';
 import 'package:syncora_frontend/core/utils/result.dart';
 import 'package:syncora_frontend/features/authentication/auth_provider.dart';
@@ -23,12 +22,13 @@ import 'package:syncora_frontend/features/groups/groups_provider.dart';
 import 'package:syncora_frontend/features/tasks/tasks_provider.dart';
 import 'package:syncora_frontend/features/users/providers/users_provider.dart';
 
+/// The outbox provider is used to manage the outbox queue
 class OutboxNotifier extends AsyncNotifier<OutboxStatus>
     with WidgetsBindingObserver {
   bool _isProcessing = false;
   bool _isAwaiting = false;
 
-  // Calls the enqueue method and processes the queue list and updates UI accordingly
+  /// Calls the enqueue method and processes the queue list
   Future<Result<void>> enqueue(EnqueueRequest request) async {
     Result<void> result =
         await ref.read(outboxServiceProvider).enqueue(request);
@@ -44,11 +44,8 @@ class OutboxNotifier extends AsyncNotifier<OutboxStatus>
     return result;
   }
 
-  // Processes the outbox queue and updates the UI with new data
-  // This gets called whenever the connection status changes or when the outbox queue is updated
-  // TODO: Show an indication to the user that shows if the queue is being processed or paused or faced an error
-
-  // TODO: A behavior i noticed is that when processing a list of entries at once, the actions will revert on failing but it wont update the UI or show errors until the entire list is processed, which is a bit confusing for the user,
+  /// Processes the outbox queue and updates the UI with new data
+  /// This gets called whenever the connection status changes or when the outbox queue is updated
   Future<Result<void>> _processQueue() async {
     if (!ref.read(isOnlineProvider)) {
       state = const AsyncValue.data(OutboxStatus.pending);
@@ -174,6 +171,8 @@ class OutboxNotifier extends AsyncNotifier<OutboxStatus>
   FutureOr<OutboxStatus> build() async {
     WidgetsBinding.instance.addObserver(this);
     ref.onDispose(_onDispose);
+
+    // Listen for connection changes and process the queue
     ref.listen(isOnlineProvider, (previous, next) async {
       if (next) {
         ref
@@ -182,7 +181,7 @@ class OutboxNotifier extends AsyncNotifier<OutboxStatus>
         await _processQueue();
       }
     });
-
+    // Listen for signalr changes and process the queue
     ref.read(signalRClientProvider).onStateChanged.listen((event) async {
       if (event == HubConnectionState.Connected) {
         ref

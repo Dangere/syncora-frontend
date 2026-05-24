@@ -9,6 +9,7 @@ import 'package:syncora_frontend/features/tasks/task.dart';
 import 'package:syncora_frontend/features/tasks/repositories/local_tasks_repository.dart';
 import 'package:syncora_frontend/features/tasks/repositories/remote_tasks_repository.dart';
 
+/// The [OutboxProcessor] for task types
 class TasksProcessor extends OutboxProcessor {
   final LocalTasksRepository _localTasksRepository;
   final RemoteTasksRepository _remoteTasksRepository;

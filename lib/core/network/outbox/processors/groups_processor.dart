@@ -8,6 +8,7 @@ import 'package:syncora_frontend/features/groups/models/group_dto.dart';
 import 'package:syncora_frontend/features/groups/repositories/local_groups_repository.dart';
 import 'package:syncora_frontend/features/groups/repositories/remote_groups_repository.dart';
 
+/// The [OutboxProcessor] for groups types
 class GroupsProcessor extends OutboxProcessor {
   final LocalGroupsRepository _localGroupsRepository;
   final RemoteGroupsRepository _remoteGroupsRepository;

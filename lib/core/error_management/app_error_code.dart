@@ -1,5 +1,5 @@
 // ignore_for_file: constant_identifier_names
-
+/// Codes used to localize error exception into user readable messages
 enum AppErrorCode {
 // Group errors
   GROUP_NOT_FOUND,

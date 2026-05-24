@@ -7,6 +7,7 @@ import 'package:syncora_frontend/core/image/image_providers.dart';
 import 'package:syncora_frontend/core/network/syncing/sync_provider.dart';
 import 'package:syncora_frontend/features/authentication/auth_provider.dart';
 
+/// Provider used to initialize other providers while the splash screen is loading
 final appInitializeProvider = FutureProvider<void>((ref) async {
   // Preloading SVGs
   await ref.read(imageServiceProvider).preloadSvg([
