@@ -18,7 +18,7 @@ class ReportService {
   final RemoteReportRepository _remoteReportRepository;
 
   final DiagnosticsService _diagnosticsService;
-  final Future<Result<User?>> Function() _userFactory;
+  final Future<Result<User?>> Function() _user;
 
   final AsyncFunc<EnqueueRequest, Result<void>> _enqueueEntry;
   final List<Breadcrumb> Function() _crumbs;
@@ -27,8 +27,8 @@ class ReportService {
       this._diagnosticsService,
       {required Future<Result<void>> Function(EnqueueRequest) enqueueEntry,
       required List<Breadcrumb> Function() crumbs,
-      required Future<Result<User?>> Function() userFactory})
-      : _userFactory = userFactory,
+      required Future<Result<User?>> Function() user})
+      : _user = user,
         _enqueueEntry = enqueueEntry,
         _crumbs = crumbs;
 
@@ -132,7 +132,7 @@ class ReportService {
       {required ReportType type,
       required String message,
       required bool manualReport}) async {
-    Result<User?> user = await _userFactory();
+    Result<User?> user = await _user();
 
     Map<String, dynamic> userSession = user.data == null
         ? {"emptySession": true, "failed": !user.isSuccess}

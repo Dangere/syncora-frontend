@@ -55,7 +55,7 @@ final reportServiceProvider = Provider<ReportService>((ref) {
     enqueueEntry: (enqueueRequest) =>
         ref.read(outboxProvider.notifier).enqueue(enqueueRequest),
     crumbs: () => BreadcrumbService.instance.getCrumbs,
-    userFactory: () async {
+    user: () async {
       if (ref.read(authProvider).value?.userId == null) {
         return Result.success(null);
       }

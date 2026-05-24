@@ -42,7 +42,7 @@ final dioProvider = Provider<Dio>((ref) {
   dio.interceptors.add(BreadcrumbInterceptor());
   dio.interceptors.add(ConnectionInterceptor(() => ref.read(isOnlineProvider)));
   dio.interceptors.add(AuthInterceptor(
-      tokensFactory: () => ref.read(sessionStorageProvider).tokens,
+      tokens: () => ref.read(sessionStorageProvider).tokens,
       refreshTokens: () async =>
           ref.read(authProvider.notifier).refreshTokens(),
       dio: dio));

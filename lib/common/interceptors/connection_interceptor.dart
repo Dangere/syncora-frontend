@@ -1,14 +1,13 @@
 import 'package:dio/dio.dart';
 
 class ConnectionInterceptor extends Interceptor {
-  final bool Function() _isOnlineFactory;
+  final bool Function() _isOnline;
 
-  ConnectionInterceptor(bool Function() isOnlineFactory)
-      : _isOnlineFactory = isOnlineFactory;
+  ConnectionInterceptor(bool Function() isOnline) : _isOnline = isOnline;
 
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
-    if (!_isOnlineFactory()) {
+    if (!_isOnline()) {
       handler.reject(
         DioException(
           requestOptions: options,

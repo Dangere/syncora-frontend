@@ -5,25 +5,24 @@ import 'package:syncora_frontend/core/utils/result.dart';
 import 'package:syncora_frontend/features/authentication/models/tokens.dart';
 
 class AuthInterceptor extends Interceptor {
-  final Tokens? Function() _tokensFactory;
+  final Tokens? Function() _tokens;
   final Future<Result> Function() _refreshTokens;
   final Dio _dio; // The main Dio instance
 
   // Completer? _refreshTokenCompleter;
 
   AuthInterceptor(
-      {required Tokens? Function() tokensFactory,
+      {required Tokens? Function() tokens,
       required Future<Result> Function() refreshTokens,
       required Dio dio})
       : _refreshTokens = refreshTokens,
         _dio = dio,
-        _tokensFactory = tokensFactory;
+        _tokens = tokens;
 
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
-    if (_tokensFactory()?.accessToken != null) {
-      options.headers['Authorization'] =
-          'Bearer ${_tokensFactory()!.accessToken}';
+    if (_tokens()?.accessToken != null) {
+      options.headers['Authorization'] = 'Bearer ${_tokens()!.accessToken}';
     }
 
     // ref.read(loggerProvider).i("Dio request: ${options.data}");
@@ -37,7 +36,7 @@ class AuthInterceptor extends Interceptor {
     // ref.read(loggerProvider).i("Dio Error: ${err.response?.statusCode}");
 
     int? status = err.response?.statusCode;
-    bool haveAccessToken = _tokensFactory() != null;
+    bool haveAccessToken = _tokens() != null;
 
     // If we have an access token and the error is 401 unauthorized
     if (haveAccessToken && status == 401) {
@@ -72,8 +71,7 @@ class AuthInterceptor extends Interceptor {
     try {
       final options = err.requestOptions;
       // Making sure we are updating the authorization header with the current access token
-      options.headers['Authorization'] =
-          'Bearer ${_tokensFactory()!.accessToken}';
+      options.headers['Authorization'] = 'Bearer ${_tokens()!.accessToken}';
 
       // Retrying the request
       final response =

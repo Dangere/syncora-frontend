@@ -479,6 +479,6 @@ final groupsServiceProvider = Provider<GroupsService>((ref) {
       ref.watch(groupStatisticsProvider),
       enqueueEntry: (enqueueRequest) =>
           ref.read(outboxProvider.notifier).enqueue(enqueueRequest),
-      authStateFactory: () => ref.read(authStateProvider),
-      isOnlineFactory: () => ref.read(isOnlineProvider));
+      authState: () => ref.read(authStateProvider),
+      isOnline: () => ref.read(isOnlineProvider));
 });

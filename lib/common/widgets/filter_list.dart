@@ -8,12 +8,12 @@ class FilterListItem<T extends Enum> {
   final T value;
   final List<T> opposites;
   final String title;
-  final AsyncFunc<T, int?>? countFactory;
+  final AsyncFunc<T, int?>? count;
   FilterListItem(
       {required this.value,
       required this.title,
       this.opposites = const [],
-      this.countFactory});
+      this.count});
 }
 
 // A widget that displays a list of filters that can be single or multi selected
@@ -118,10 +118,10 @@ class _FilterListState<T extends Enum> extends ConsumerState<FilterList<T>> {
                   // SizedBox(
                   //   width: 7,
                   // ),
-                  if (widget.items[index].countFactory != null)
+                  if (widget.items[index].count != null)
                     FutureBuilder(
-                      future: widget.items[index]
-                          .countFactory!(widget.items[index].value),
+                      future:
+                          widget.items[index].count!(widget.items[index].value),
                       builder: (context, snapshot) {
                         return Padding(
                           padding: const EdgeInsets.all(5.0),
@@ -177,7 +177,7 @@ class _FilterListState<T extends Enum> extends ConsumerState<FilterList<T>> {
                       },
                     ),
 
-                  if (widget.items[index].countFactory == null)
+                  if (widget.items[index].count == null)
                     const SizedBox(
                       width: 11,
                     ),

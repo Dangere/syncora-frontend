@@ -24,16 +24,16 @@ class GroupsService {
   final StatisticsRepository _groupStatisticsRepository;
   final AsyncFunc<EnqueueRequest, Result<void>> _enqueueEntry;
 
-  final AuthState Function() _authStateFactory;
-  final bool Function() _isOnlineFactory;
+  final AuthState Function() _authState;
+  final bool Function() _isOnline;
 
   GroupsService(this._localGroupsRepository, this._localUsersRepository,
       this._remoteGroupsRepository, this._groupStatisticsRepository,
-      {required bool Function() isOnlineFactory,
+      {required bool Function() isOnline,
       required AsyncFunc<EnqueueRequest, Result<void>> enqueueEntry,
-      required AuthState Function() authStateFactory})
-      : _isOnlineFactory = isOnlineFactory,
-        _authStateFactory = authStateFactory,
+      required AuthState Function() authState})
+      : _isOnline = isOnline,
+        _authState = authState,
         _enqueueEntry = enqueueEntry;
 
   Future<Result<Group?>> getCachedGroup(int groupId) async {
@@ -49,7 +49,7 @@ class GroupsService {
       List<GroupsFilter> filters, String? search) async {
     try {
       List<Group> groups = await _localGroupsRepository.getAllGroups(
-          filters, _authStateFactory().userId!, search);
+          filters, _authState().userId!, search);
       return Result.success(groups);
     } catch (e, stackTrace) {
       return Result.failureError(e, stackTrace);
@@ -57,7 +57,7 @@ class GroupsService {
   }
 
   Future<Result<Group>> createGroup(String title, String? description) async {
-    int userId = _authStateFactory().userId!;
+    int userId = _authState().userId!;
     final now = DateTime.now().toUtc();
 
     Group newGroup = Group(
@@ -138,7 +138,7 @@ class GroupsService {
       {required bool allowAccess,
       required List<String> usernames,
       required int groupId}) async {
-    if (!_isOnlineFactory()) {
+    if (!_isOnline()) {
       return Result.failureCode(
           AppErrorCode.OFFLINE_ACCESS_DENIED, StackTrace.current);
     }
@@ -157,8 +157,7 @@ class GroupsService {
       await _localGroupsRepository.grantAccessToGroup(
           usernames: usernames, groupId: groupId, allowAccess: allowAccess);
 
-      await _localUsersRepository
-          .purgeOrphanedUsers(_authStateFactory().userId!);
+      await _localUsersRepository.purgeOrphanedUsers(_authState().userId!);
 
       return Result.success();
     } catch (e, stackTrace) {
@@ -167,7 +166,7 @@ class GroupsService {
   }
 
   Future<Result<void>> leaveGroup(int groupId) async {
-    if (!_isOnlineFactory()) {
+    if (!_isOnline()) {
       return Result.failureCode(
           AppErrorCode.OFFLINE_ACCESS_DENIED, StackTrace.current);
     }
@@ -220,12 +219,12 @@ class GroupsService {
 
   Future<Result<int>> getGroupsCount(List<GroupsFilter> filters) async {
     try {
-      if (_authStateFactory().isUnauthenticated) {
+      if (_authState().isUnauthenticated) {
         return Result.canceled("User is unauthenticated", StackTrace.current);
       }
 
       return Result.success(await _groupStatisticsRepository.getGroupsCount(
-          filters, _authStateFactory().userId!));
+          filters, _authState().userId!));
     } catch (e, stackTrace) {
       return Result.failureError(e, stackTrace);
     }
@@ -234,12 +233,12 @@ class GroupsService {
   Future<Result<List<GroupProgress>>> getGroupsProgress(
       bool includeAssignedTasks, int sinceDays) async {
     try {
-      if (_authStateFactory().isUnauthenticated) {
+      if (_authState().isUnauthenticated) {
         return Result.canceled("User is unauthenticated", StackTrace.current);
       }
 
       return Result.success(await _groupStatisticsRepository.getProgressSince(
-          _authStateFactory().userId!, sinceDays, includeAssignedTasks));
+          _authState().userId!, sinceDays, includeAssignedTasks));
     } catch (e, stackTrace) {
       return Result.failureError(e, stackTrace);
     }
@@ -248,13 +247,13 @@ class GroupsService {
   Future<Result<GroupProgress?>> getGroupsTotalProgress(
       bool includeAssignedTasks, int sinceDays) async {
     try {
-      if (_authStateFactory().isUnauthenticated) {
+      if (_authState().isUnauthenticated) {
         return Result.canceled("User is unauthenticated", StackTrace.current);
       }
 
       return Result.success(
           await _groupStatisticsRepository.getTotalProgressSince(
-              _authStateFactory().userId!, sinceDays, includeAssignedTasks));
+              _authState().userId!, sinceDays, includeAssignedTasks));
     } catch (e, stackTrace) {
       return Result.failureError(e, stackTrace);
     }

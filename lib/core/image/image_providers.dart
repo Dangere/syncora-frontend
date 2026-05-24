@@ -11,7 +11,7 @@ final imageServiceProvider = Provider<ImageService>((ref) {
     imageRepository: ref.read(imageRepositoryProvider),
     cacheManager: ref.read(cacheManagerProvider),
     picker: ref.read(imagePickerProvider),
-    isOnlineFactory: () => ref.read(isOnlineProvider),
+    isOnline: () => ref.read(isOnlineProvider),
   );
 });
 

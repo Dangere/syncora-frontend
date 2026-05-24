@@ -368,7 +368,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                                         GroupsFilter.owned,
                                         GroupsFilter.shared
                                       ],
-                                      countFactory: (arg) => ref
+                                      count: (arg) => ref
                                           .read(groupsListProvider.notifier)
                                           .getGroupsCount([arg]),
                                     ),
@@ -380,7 +380,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                                         GroupsFilter.inProgress,
                                         GroupsFilter.all,
                                       ],
-                                      countFactory: (arg) => ref
+                                      count: (arg) => ref
                                           .read(groupsListProvider.notifier)
                                           .getGroupsCount([arg]),
                                     ),
@@ -392,7 +392,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                                         GroupsFilter.completed,
                                         GroupsFilter.all,
                                       ],
-                                      countFactory: (arg) => ref
+                                      count: (arg) => ref
                                           .read(groupsListProvider.notifier)
                                           .getGroupsCount([arg]),
                                     ),

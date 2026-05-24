@@ -18,7 +18,7 @@ class UsersService {
   final RemoteUsersRepository _remoteUsersRepository;
   final SharedPreferences _sharedPreferences;
 
-  final AuthState Function() _authStateFactory;
+  final AuthState Function() _authState;
   final AsyncFunc<EnqueueRequest, Result<void>> _enqueueEntry;
 
   // User preferences persists even when logged out and get overridden if a logged out user changes them
@@ -26,9 +26,9 @@ class UsersService {
 
   UsersService(this._localUsersRepository, this._remoteUsersRepository,
       this._sharedPreferences,
-      {required AuthState Function() authStateFactory,
+      {required AuthState Function() authState,
       required Future<Result<void>> Function(EnqueueRequest) enqueueEntry})
-      : _authStateFactory = authStateFactory,
+      : _authState = authState,
         _enqueueEntry = enqueueEntry;
 
   Future<Result<User>> findUser(String username) async {
@@ -68,7 +68,7 @@ class UsersService {
   }
 
   Future<Result<void>> updateProfilePicture(String url) async {
-    if (!_authStateFactory().isAuthenticated && !_authStateFactory().isGuest) {
+    if (!_authState().isAuthenticated && !_authState().isGuest) {
       return Result.canceled("Can't upload profile picture when not logged in",
           StackTrace.current);
     }
@@ -76,7 +76,7 @@ class UsersService {
       // Updating the user profile picture using the url
       await _remoteUsersRepository.updateUserProfilePicture(url);
 
-      await _localUsersRepository.updateUserDetails(_authStateFactory().userId!,
+      await _localUsersRepository.updateUserDetails(_authState().userId!,
           pfpUrl: url);
 
       return Result.success();
@@ -88,12 +88,12 @@ class UsersService {
   Future<Result<void>> updateProfile(
       {String? username, String? firstName, String? lastName}) async {
     try {
-      if (_authStateFactory().isAuthenticated) {
+      if (_authState().isAuthenticated) {
         await _remoteUsersRepository.updateUserProfile(
             username: username, firstName: firstName, lastName: lastName);
       }
 
-      await _localUsersRepository.updateUserDetails(_authStateFactory().userId!,
+      await _localUsersRepository.updateUserDetails(_authState().userId!,
           username: username, firstName: firstName, lastName: lastName);
 
       return Result.success();
@@ -104,7 +104,7 @@ class UsersService {
 
   Future<Result<void>> updatePreferences(
       {bool? darkMode, String? languageCode}) async {
-    if (_authStateFactory().isUnauthenticated || _authStateFactory().isGuest) {
+    if (_authState().isUnauthenticated || _authState().isGuest) {
       Result<UserPreferences> preferencesResult = await getPreferences();
 
       if (!preferencesResult.isSuccess) return preferencesResult;
@@ -119,7 +119,7 @@ class UsersService {
 
     Result enqueueResult = await _enqueueEntry(EnqueueRequest(
       entry: OutboxEntry.entry(
-        entityId: _authStateFactory().userId!,
+        entityId: _authState().userId!,
         entityType: OutboxEntityType.user,
         actionType: OutboxActionType.update,
         payload: UpdateUserPreferencesPayload(

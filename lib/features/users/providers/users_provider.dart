@@ -268,7 +268,7 @@ final usersServiceProvider = Provider<UsersService>((ref) {
       ref.watch(localUsersRepositoryProvider),
       ref.watch(remoteUsersRepositoryProvider),
       ref.watch(sharedPreferencesProvider),
-      authStateFactory: () => ref.read(authStateProvider),
+      authState: () => ref.read(authStateProvider),
       enqueueEntry: (enqueueRequest) =>
           ref.read(outboxProvider.notifier).enqueue(enqueueRequest));
 });

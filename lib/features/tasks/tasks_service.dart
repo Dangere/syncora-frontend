@@ -15,19 +15,19 @@ class TasksService {
   final RemoteTasksRepository _remoteTasksRepository;
   final AsyncFunc<EnqueueRequest, Result<void>> _enqueueEntry;
 
-  final AuthState Function() _authStateFactory;
+  final AuthState Function() _authState;
   TasksService(this._localTasksRepository, this._remoteTasksRepository,
       {required Future<Result<void>> Function(EnqueueRequest) enqueueEntry,
-      required AuthState Function() authStateFactory})
+      required AuthState Function() authState})
       : _enqueueEntry = enqueueEntry,
-        _authStateFactory = authStateFactory;
+        _authState = authState;
 
   Future<Result<List<Task>>> getTasksForGroup(
       int groupId, List<TasksFilter> filters) async {
     try {
       // We aren't checking if user is authenticated or not because guests and logged in users can access tasks
       List<Task> tasks = await _localTasksRepository.getTasksForGroup(
-          groupId, _authStateFactory().userId!, filters);
+          groupId, _authState().userId!, filters);
       return Result.success(tasks);
     } catch (e, stackTrace) {
       return Result.failureError(e, stackTrace);
@@ -137,7 +137,7 @@ class TasksService {
       {required int taskId,
       required int groupId,
       required List<int> ids}) async {
-    if (_authStateFactory().isGuest || _authStateFactory().isUnauthenticated) {
+    if (_authState().isGuest || _authState().isUnauthenticated) {
       return Result.canceled(
           "Can't assign task to users when not logged in", StackTrace.current);
     }
@@ -148,12 +148,13 @@ class TasksService {
       return Result.failureError(e, stackTrace);
     }
   }
+  // TODO: This method needs to update the local state when sucessful
 
   Future<Result<void>> setAssignedUsersToTask(
       {required int taskId,
       required int groupId,
       required List<int> ids}) async {
-    if (_authStateFactory().isGuest || _authStateFactory().isUnauthenticated) {
+    if (_authState().isGuest || _authState().isUnauthenticated) {
       return Result.canceled(
           "Can't assign task to users when not logged in", StackTrace.current);
     }
@@ -174,14 +175,12 @@ class TasksService {
         entityType: OutboxEntityType.task,
         actionType: OutboxActionType.mark,
         payload: MarkTaskPayload(
-            completedById: _authStateFactory().userId!, isCompleted: isDone),
+            completedById: _authState().userId!, isCompleted: isDone),
       ),
       onAfterEnqueue: () async {
         try {
           await _localTasksRepository.markTaskCompletion(
-              taskId: taskId,
-              userId: _authStateFactory().userId!,
-              isDone: isDone);
+              taskId: taskId, userId: _authState().userId!, isDone: isDone);
           return Result.success();
         } catch (e, stackTrace) {
           return Result.failureError(e, stackTrace);

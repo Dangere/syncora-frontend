@@ -104,6 +104,7 @@ class SyncBackendNotifier extends AsyncNotifier<SyncState>
   // TODO: We could potentially ignore events coming from this device and only process events from other devices
   void _receiveData(Object? parameter) async {
     // return;
+    ref.read(loggerProvider).d("Sync Notifier: received data from server");
     if (parameter == null || parameter is! Map<String, dynamic>) return;
     if (!ref.read(isOnlineProvider)) return;
     if (ref.read(isAuthenticatedProvider) == false) return;
@@ -188,7 +189,7 @@ final syncServiceProvider = Provider<SyncService>((ref) {
       ref.watch(localGroupsRepositoryProvider),
       ref.watch(localTasksRepositoryProvider),
       ref.watch(localUsersRepositoryProvider),
-      authStateFactory: () => ref.read(authStateProvider));
+      authState: () => ref.read(authStateProvider));
 });
 
 final syncRepositoryProvider = Provider<SyncRepository>((ref) {

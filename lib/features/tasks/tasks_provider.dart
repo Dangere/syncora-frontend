@@ -34,7 +34,7 @@ final tasksServiceProvider = Provider<TasksService>((ref) {
     ref.watch(remoteTasksRepositoryProvider),
     enqueueEntry: (enqueueRequest) =>
         ref.read(outboxProvider.notifier).enqueue(enqueueRequest),
-    authStateFactory: () => ref.read(authStateProvider),
+    authState: () => ref.read(authStateProvider),
   );
 });
 
@@ -125,34 +125,33 @@ class TasksNotifier extends AutoDisposeFamilyAsyncNotifier<List<Task>, int> {
     // reloadViewedGroups([groupId]);
   }
 
-  Future<void> assignTask({required int taskId, required List<int> ids}) async {
-    Result<void> updateResult = await ref
-        .read(tasksServiceProvider)
-        .assignTaskToUsers(groupId: _groupResolvedId, taskId: taskId, ids: ids);
+  // Future<void> assignTask({required int taskId, required List<int> ids}) async {
+  //   Result<void> updateResult = await ref
+  //       .read(tasksServiceProvider)
+  //       .assignTaskToUsers(groupId: _groupResolvedId, taskId: taskId, ids: ids);
 
-    if (!updateResult.isSuccess) {
-      ref.read(appErrorProvider.notifier).setError(updateResult.error!);
-      return;
-    }
-    _reloadTasks();
-  }
+  //   if (!updateResult.isSuccess) {
+  //     ref.read(appErrorProvider.notifier).setError(updateResult.error!);
+  //     return;
+  //   }
+  //   _reloadTasks();
+  // }
 
-  Future<List<User>> assignedUsers(int taskId) async {
-    List<int> assignedUsersIds = !state.hasValue
-        ? []
-        : state.value!.where((t) => taskId == t.id).first.assignedTo;
+  // Future<List<User>> assignedUsers(int taskId) async {
+  //   List<int> assignedUsersIds = !state.hasValue
+  //       ? []
+  //       : state.value!.where((t) => taskId == t.id).first.assignedTo;
 
-    Result<List<User>> usersResult =
-        await ref.read(usersServiceProvider).getCachedUsers(assignedUsersIds);
+  //   Result<List<User>> usersResult =
+  //       await ref.read(usersServiceProvider).getCachedUsers(assignedUsersIds);
 
-    if (!usersResult.isSuccess) {
-      ref.read(appErrorProvider.notifier).setError(usersResult.error!);
-      return [];
-    }
+  //   if (!usersResult.isSuccess) {
+  //     ref.read(appErrorProvider.notifier).setError(usersResult.error!);
+  //     return [];
+  //   }
 
-    return usersResult.data!;
-  }
-
+  //   return usersResult.data!;
+  // }
   Future<void> setAssignTask(
       {required int taskId, required List<int> ids}) async {
     Result<void> updateResult = await ref

@@ -11,12 +11,12 @@ class SyncService {
   final LocalUsersRepository _localUsersRepository;
   final LocalGroupsRepository _localGroupsRepository;
   final LocalTasksRepository _localTasksRepository;
-  final AuthState Function() _authStateFactory;
+  final AuthState Function() _authState;
 
   SyncService(this._syncRepository, this._localGroupsRepository,
       this._localTasksRepository, this._localUsersRepository,
-      {required AuthState Function() authStateFactory})
-      : _authStateFactory = authStateFactory;
+      {required AuthState Function() authState})
+      : _authState = authState;
 
   Future<Result<SyncPayload>> fetchPayload() async {
     try {
@@ -40,7 +40,7 @@ class SyncService {
   }
 
   Future<Result<void>> processPayload(SyncPayload payload) async {
-    if (_authStateFactory().isUnauthenticated) {
+    if (_authState().isUnauthenticated) {
       return Result.canceled("User is unauthenticated", StackTrace.current);
     }
 
@@ -96,8 +96,7 @@ class SyncService {
     }
 
     try {
-      await _localUsersRepository
-          .purgeOrphanedUsers(_authStateFactory().userId!);
+      await _localUsersRepository.purgeOrphanedUsers(_authState().userId!);
     } catch (e, stackTrace) {
       return Result.failureError(e, stackTrace);
     }
