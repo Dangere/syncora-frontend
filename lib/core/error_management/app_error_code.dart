@@ -60,4 +60,7 @@ enum AppErrorCode {
   HTTP_UNPROCESSABLE, // 422
   HTTP_TOO_MANY_REQUESTS, // 429
   HTTP_UNEXPECTED, // fallback for unmapped codes
+
+  // Database error which prompt the app to restart
+  DATABASE_ERROR,
 }

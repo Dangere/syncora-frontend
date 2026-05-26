@@ -1,4 +1,3 @@
-import 'package:logger/logger.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:syncora_frontend/core/data/database_manager.dart';
 import 'package:syncora_frontend/core/data/database_tables.dart';
@@ -202,8 +201,6 @@ class LocalGroupsRepository {
         )
         .then((value) => value.map((e) => e["id"] as int).toList());
 
-    Logger().d(userIds);
-
     if (allowAccess) {
       await db.transaction((txn) async {
         final batch = txn.batch();
@@ -230,6 +227,17 @@ class LocalGroupsRepository {
               where: "groupId = ? AND userId = ?",
               whereArgs: [groupId, userId]);
         }
+
+        // Delete task assignees who are no longer are in the group
+        String query = '''
+          DELETE FROM ${DatabaseTables.tasksAssignees}
+          WHERE userId IN (${userIds.map((_) => '?').join(',')})
+          AND taskId IN (
+            SELECT id FROM ${DatabaseTables.tasks} WHERE groupId = ?
+          )
+        ''';
+
+        batch.rawDelete(query, [...userIds, groupId]);
 
         batch.commit(noResult: true);
       });

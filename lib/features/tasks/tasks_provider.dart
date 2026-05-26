@@ -12,13 +12,11 @@ import 'package:syncora_frontend/core/network/syncing/sync_provider.dart';
 import 'package:syncora_frontend/core/utils/result.dart';
 import 'package:syncora_frontend/features/authentication/auth_provider.dart';
 import 'package:syncora_frontend/features/authentication/models/auth_state.dart';
-import 'package:syncora_frontend/features/users/models/user.dart';
 import 'package:syncora_frontend/features/groups/groups_provider.dart';
 import 'package:syncora_frontend/features/tasks/task.dart';
 import 'package:syncora_frontend/features/tasks/repositories/local_tasks_repository.dart';
 import 'package:syncora_frontend/features/tasks/repositories/remote_tasks_repository.dart';
 import 'package:syncora_frontend/features/tasks/tasks_service.dart';
-import 'package:syncora_frontend/features/users/providers/users_provider.dart';
 
 final localTasksRepositoryProvider = Provider<LocalTasksRepository>((ref) {
   return LocalTasksRepository(ref.watch(localDbProvider));
@@ -68,7 +66,7 @@ class TasksNotifier extends AutoDisposeFamilyAsyncNotifier<List<Task>, int> {
     Result<void> createResult = await ref.read(tasksServiceProvider).createTask(
         title: title, description: description, groupId: _groupResolvedId);
 
-    if (!createResult.isSuccess) {
+    if (!createResult.isSuccess && !createResult.isCancelled) {
       ref.read(appErrorProvider.notifier).setError(createResult.error!);
       return;
     }
@@ -86,11 +84,13 @@ class TasksNotifier extends AutoDisposeFamilyAsyncNotifier<List<Task>, int> {
     //Checking if user is not the owner of the group
     if (!isGroupOwner) return;
 
+    int resolvedId = ref.read(outboxIdMapperProvider).resolveId(taskId);
+
     Result<void> deleteResult = await ref
         .read(tasksServiceProvider)
-        .deleteTask(groupId: _groupResolvedId, taskId: taskId);
+        .deleteTask(groupId: _groupResolvedId, taskId: resolvedId);
 
-    if (!deleteResult.isSuccess) {
+    if (!deleteResult.isSuccess && !deleteResult.isCancelled) {
       ref.read(appErrorProvider.notifier).setError(deleteResult.error!);
       return;
     }
@@ -99,20 +99,22 @@ class TasksNotifier extends AutoDisposeFamilyAsyncNotifier<List<Task>, int> {
     ref.read(groupsListProvider.notifier).onTasksModification(_groupResolvedId);
 
     BreadcrumbService.instance
-        .add(BreadcrumbType.state, "Task $taskId, deleted");
+        .add(BreadcrumbType.state, "Task $resolvedId, deleted");
     // _reloadGroupsList();
     // reloadViewedGroups([groupId]);
   }
 
   Future<void> updateTask(
       {required int taskId, String? title, String? description}) async {
+    int resolvedId = ref.read(outboxIdMapperProvider).resolveId(taskId);
+
     Result<void> updateResult = await ref.read(tasksServiceProvider).updateTask(
         groupId: _groupResolvedId,
-        taskId: taskId,
+        taskId: resolvedId,
         title: title,
         description: description);
 
-    if (!updateResult.isSuccess) {
+    if (!updateResult.isSuccess && !updateResult.isCancelled) {
       ref.read(appErrorProvider.notifier).setError(updateResult.error!);
       return;
     }
@@ -121,7 +123,7 @@ class TasksNotifier extends AutoDisposeFamilyAsyncNotifier<List<Task>, int> {
     ref.read(groupsListProvider.notifier).onTasksModification(_groupResolvedId);
 
     BreadcrumbService.instance
-        .add(BreadcrumbType.state, "Task $taskId, updated");
+        .add(BreadcrumbType.state, "Task $resolvedId, updated");
     // reloadViewedGroups([groupId]);
   }
 
@@ -154,12 +156,14 @@ class TasksNotifier extends AutoDisposeFamilyAsyncNotifier<List<Task>, int> {
   // }
   Future<void> setAssignTask(
       {required int taskId, required List<int> ids}) async {
+    int resolvedId = ref.read(outboxIdMapperProvider).resolveId(taskId);
+
     Result<void> updateResult = await ref
         .read(tasksServiceProvider)
         .setAssignedUsersToTask(
-            taskId: taskId, groupId: _groupResolvedId, ids: ids);
+            taskId: resolvedId, groupId: _groupResolvedId, ids: ids);
 
-    if (!updateResult.isSuccess) {
+    if (!updateResult.isSuccess && !updateResult.isCancelled) {
       ref.read(appErrorProvider.notifier).setError(updateResult.error!);
       return;
     }
@@ -175,18 +179,19 @@ class TasksNotifier extends AutoDisposeFamilyAsyncNotifier<List<Task>, int> {
       }
     }
 
-    Result<void> updateResult = await ref
-        .read(tasksServiceProvider)
-        .markTask(taskId: task.id, groupId: _groupResolvedId, isDone: isDone);
+    int resolvedId = ref.read(outboxIdMapperProvider).resolveId(task.id);
 
-    if (!updateResult.isSuccess) {
+    Result<void> updateResult = await ref.read(tasksServiceProvider).markTask(
+        taskId: resolvedId, groupId: _groupResolvedId, isDone: isDone);
+
+    if (!updateResult.isSuccess && !updateResult.isCancelled) {
       ref.read(appErrorProvider.notifier).setError(updateResult.error!);
       return;
     }
     _reloadTasks();
     ref.read(groupsListProvider.notifier).onTasksModification(_groupResolvedId);
     BreadcrumbService.instance.add(BreadcrumbType.state,
-        "Task ${task.id}, ${isDone ? "marked" : "unmarked"}");
+        "Task $resolvedId, ${isDone ? "marked" : "unmarked"}");
     // reloadViewedGroups([groupId]);
   }
 
@@ -210,11 +215,10 @@ class TasksNotifier extends AutoDisposeFamilyAsyncNotifier<List<Task>, int> {
         .read(tasksServiceProvider)
         .getTasksForGroup(_groupResolvedId, _filters);
 
-    if (result.isSuccess) {
-      state = AsyncValue.data(result.data!);
-    } else {
+    if (!result.isSuccess && !result.isCancelled) {
       ref.read(appErrorProvider.notifier).setError(result.error!);
-      return;
+    } else {
+      state = AsyncValue.data(result.data!);
     }
   }
 
@@ -255,7 +259,7 @@ class TasksNotifier extends AutoDisposeFamilyAsyncNotifier<List<Task>, int> {
         .read(tasksServiceProvider)
         .getTasksForGroup(_groupResolvedId, _filters);
 
-    if (result.isSuccess) {
+    if (result.isSuccess && !result.isCancelled) {
       return result.data!;
     } else {
       ref.read(appErrorProvider.notifier).setError(result.error!);

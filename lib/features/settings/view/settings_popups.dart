@@ -17,7 +17,33 @@ class SettingsPopups {
         barrierDismissible: true,
         blurBackground: false,
         title: AppLocalizations.of(context).settingsPopup_Password_Reset_title,
-        content: const PasswordResetPopup());
+        content: EmailSentPopup(
+          bodyText: AppLocalizations.of(context).settingsPopup_Password_Reset,
+          sendEmail: (ref) async {
+            String email =
+                (await ref.read(userProvider.notifier).getMainUser()).email;
+
+            Result result = await ref
+                .read(authProvider.notifier)
+                .requestPasswordReset(email);
+            return result.isSuccess;
+          },
+        ));
+  }
+
+  static void accountVerifyPopup(BuildContext context) {
+    Dialogs.showContentDialog(context,
+        barrierDismissible: true,
+        blurBackground: false,
+        title: AppLocalizations.of(context).verification,
+        content: EmailSentPopup(
+          bodyText: AppLocalizations.of(context).alert_verification,
+          sendEmail: (ref) async {
+            return await ref
+                .read(authProvider.notifier)
+                .sendVerificationEmail();
+          },
+        ));
   }
 
   static Future<String?> reportABugPopup(BuildContext context) async {
@@ -44,6 +70,7 @@ class SettingsPopups {
                   return AppLocalizations.of(context)
                       .validation_GroupDescription_Empty;
                 }
+                return null;
               },
               labelText: AppLocalizations.of(context).description,
               hintText: AppLocalizations.of(context).description,
@@ -64,15 +91,18 @@ class SettingsPopups {
   }
 }
 
-class PasswordResetPopup extends ConsumerStatefulWidget {
-  const PasswordResetPopup({super.key});
+class EmailSentPopup extends ConsumerStatefulWidget {
+  const EmailSentPopup(
+      {super.key, required this.sendEmail, required this.bodyText});
+
+  final Future<bool> Function(WidgetRef ref) sendEmail;
+  final String bodyText;
 
   @override
-  ConsumerState<ConsumerStatefulWidget> createState() =>
-      _PasswordResetPopupState();
+  ConsumerState<ConsumerStatefulWidget> createState() => _EmailSentPopupState();
 }
 
-class _PasswordResetPopupState extends ConsumerState<PasswordResetPopup> {
+class _EmailSentPopupState extends ConsumerState<EmailSentPopup> {
   @override
   void initState() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -85,37 +115,34 @@ class _PasswordResetPopupState extends ConsumerState<PasswordResetPopup> {
   String formatTwoDigits(int n) => n.toString().padLeft(2, '0');
 
   void sendEmail() async {
-    if (ref.read(resetPasswordTimerProvider) != null) {
+    if (ref.read(timerProvider) != null) {
       return;
     }
 
-    ref.read(resetPasswordTimerProvider.notifier).startTimer(60);
+    ref.read(timerProvider.notifier).startTimer(60);
 
     if (!ref.read(isAuthenticatedProvider)) {
       return;
     }
-    String email = (await ref.read(userProvider.notifier).getMainUser()).email;
 
-    Result result =
-        await ref.read(authProvider.notifier).requestPasswordReset(email);
+    bool didSend = await widget.sendEmail(ref);
 
-    if (result.isSuccess && mounted) {
+    if (didSend && mounted) {
       SnackBarAlerts.showSuccessSnackBar(
-          AppLocalizations.of(context).settingsPopup_Password_Alert, context);
+          AppLocalizations.of(context).settingsPopup_Email_Alert, context);
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    int? resendTimer = ref.watch(resetPasswordTimerProvider);
-    ref.read(loggerProvider).d("Building password pop up");
+    int? resendTimer = ref.watch(timerProvider);
 
     return Column(
       children: [
         const SizedBox(
           height: 12,
         ),
-        Text(AppLocalizations.of(context).settingsPopup_Password_Reset,
+        Text(widget.bodyText,
             textAlign: TextAlign.center,
             style:
                 Theme.of(context).textTheme.titleSmall!.copyWith(fontSize: 18)),

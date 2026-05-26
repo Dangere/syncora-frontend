@@ -1,11 +1,16 @@
+import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:syncora_frontend/common/providers/common_providers.dart';
 import 'package:syncora_frontend/core/error_management/app_error.dart';
+import 'package:syncora_frontend/core/error_management/app_error_code.dart';
 import 'package:syncora_frontend/core/error_management/error_popups.dart';
 import 'package:syncora_frontend/core/error_management/error_state.dart';
+import 'package:syncora_frontend/core/localization/generated/l10n/app_localizations.dart';
 import 'package:syncora_frontend/core/localization/localize_app_errors.dart';
 import 'package:syncora_frontend/core/report/report_provider.dart';
+import 'package:syncora_frontend/core/utils/dialogs.dart';
 import 'package:syncora_frontend/core/utils/result.dart';
 import 'package:syncora_frontend/core/utils/snack_bar_alerts.dart';
 import 'package:syncora_frontend/router.dart';
@@ -13,6 +18,16 @@ import 'package:syncora_frontend/router.dart';
 class AppErrorNotifier extends Notifier<ErrorState?> {
   /// Setting current error to display, if fetal, the UI listener will display it in a fetal popup
   void setError(AppError error, {bool fetal = false}) async {
+    // if we get a database error, we need to restart the app
+    if (error.errorCode == AppErrorCode.DATABASE_ERROR) {
+      state = ErrorDbFetal(error);
+
+      // Display error message
+      _displayError();
+
+      return;
+    }
+
     var errorState = fetal ? ErrorFetal(error) : ErrorAvailable(error);
 
     state = errorState;
@@ -29,8 +44,6 @@ class AppErrorNotifier extends Notifier<ErrorState?> {
   /// Sets to an error that made a report fail
   // If the id is missing it means the report failed to be even created
   void setReportError(int? reportId, AppError error) {
-    print("next: asdf");
-
     state = ErrorReport(error, reportId);
     _displayError();
   }
@@ -38,6 +51,17 @@ class AppErrorNotifier extends Notifier<ErrorState?> {
   void _displayError() async {
     BuildContext? context = navigatorKey.currentContext;
     if (context == null || !context.mounted) return;
+
+    if (state! is ErrorDbFetal) {
+      Future.microtask(
+        () {
+          if (!context.mounted) return;
+
+          context.replaceNamed('fetal-error', extra: state!.error);
+        },
+      );
+    }
+
     if (state! is ErrorFetal || state! is ErrorReport) {
       // If we get an `ErrorFetal` (usually for outbox complete failure)
       // Or an `ErrorReport` (usually when reporting fails)
@@ -66,7 +90,8 @@ class AppErrorNotifier extends Notifier<ErrorState?> {
       );
 
       if (didSendError && context.mounted) {
-        ErrorPopups.reportBeenSent(context);
+        Dialogs.dismissibleDialog(
+            context, AppLocalizations.of(context).error_report_popup_sent);
       }
     } else {
       String localizedErrorMessage =

@@ -8,15 +8,10 @@ import 'package:syncora_frontend/common/themes/app_spacing.dart';
 import 'package:syncora_frontend/common/widgets/app_button.dart';
 import 'package:syncora_frontend/common/widgets/filter_list.dart';
 import 'package:syncora_frontend/common/widgets/profile_picture.dart';
-import 'package:syncora_frontend/core/error_management/app_error.dart';
-import 'package:syncora_frontend/core/error_management/app_error_code.dart';
-import 'package:syncora_frontend/core/error_management/error_popups.dart';
-import 'package:syncora_frontend/core/error_management/error_state.dart';
+import 'package:syncora_frontend/core/utils/dialogs.dart';
 import 'package:syncora_frontend/features/groups/groups_filter.dart';
 import 'package:syncora_frontend/core/localization/generated/l10n/app_localizations.dart';
 import 'package:syncora_frontend/core/network/syncing/sync_provider.dart';
-import 'package:syncora_frontend/core/tests.dart';
-import 'package:syncora_frontend/core/utils/snack_bar_alerts.dart';
 import 'package:syncora_frontend/features/authentication/models/auth_state.dart';
 import 'package:syncora_frontend/features/authentication/auth_provider.dart';
 import 'package:syncora_frontend/features/dashboard/dashboard_popups.dart';
@@ -49,6 +44,16 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
         if (ref.read(displayDashboardAlertProvider) && kIsWeb) {
           if (mounted) DashboardPopups.webAlert(context);
         }
+
+        if (ref.read(verificationAlertProvider)) {
+          if (mounted) {
+            Dialogs.dismissibleDialog(
+                context, AppLocalizations.of(context).alert_verification,
+                title: AppLocalizations.of(context).verification);
+
+            ref.read(verificationAlertProvider.notifier).didShowAlert();
+          }
+        }
       },
     );
     super.initState();
@@ -57,7 +62,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
   @override
   Widget build(BuildContext context) {
     // We assume that the user is logged in and there's always a user provided if we are on this page
-    int userId = ref.watch(authProvider).value!.userId!;
+    int? userId = ref.watch(authProvider).value?.userId;
 
     // Warming user provider for the first time
     ref.read(userProvider);
@@ -101,32 +106,17 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                 //   intent: AppButtonIntent.warning,
                 //   child: const Icon(Icons.add),
                 // ),
-                IconButton(
-                    onPressed: () {
-                      Tests.error_report_test(ref, context);
-                    },
-                    icon: Icon(Icons.report)),
-                IconButton(
-                    onPressed: () async {
-                      Tests.printDb(
-                          await (ref.read(localDbProvider).getDatabase()));
-                    },
-                    icon: Icon(Icons.print)),
+                // IconButton(
+                //     onPressed: () {
+                //       Tests.error_report_test(ref, context);
+                //     },
+                //     icon: Icon(Icons.report)),
+
                 IconButton(
                     onPressed: () async {
-                      ErrorPopups.fetalErrorPopup(
-                        context,
-                        ErrorFetal(
-                          AppError.fromCode(
-                              AppErrorCode.CREDENTIALS_ALREADY_IN_USE,
-                              StackTrace.current),
-                        ),
-                        onManualSend: (state) async {
-                          return null;
-                          await Future.delayed(Duration(seconds: 2));
-                          return AppErrorCode.CREDENTIALS_ALREADY_IN_USE;
-                        },
-                      );
+                      Dialogs.dismissibleDialog(context,
+                          AppLocalizations.of(context).alert_verification,
+                          title: AppLocalizations.of(context).verification);
                     },
                     icon: Icon(Icons.fit_screen_sharp)),
                 IconButton(
@@ -249,10 +239,12 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                                           pathParameters: {
                                             "id": userId.toString()
                                           }),
-                                      icon: ProfilePicture(
-                                        userId: userId,
-                                        radius: 48 / 2,
-                                      ),
+                                      icon: userId == null
+                                          ? Container()
+                                          : ProfilePicture(
+                                              userId: userId,
+                                              radius: 48 / 2,
+                                            ),
                                     ),
                                   ),
                                 ),

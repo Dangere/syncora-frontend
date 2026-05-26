@@ -85,6 +85,8 @@ class LocalizeAppErrors {
         return appLocalizations.appError_HTTP_TooManyRequests;
       case AppErrorCode.HTTP_UNEXPECTED:
         return appLocalizations.appError_Unknown;
+      case AppErrorCode.DATABASE_ERROR:
+        return appLocalizations.appError_Fetal;
     }
   }
 }

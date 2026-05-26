@@ -163,6 +163,10 @@
     "@email_Field": {},
     "password": "كلمة المرور",
     "@password": {},
+    "verification": "التحقق",
+    "@verification": {},
+    "restart": "إعادة التشغيل",
+    "@restart": {},
     "password_Field": "أدخل كلمة المرور",
     "@password_Field": {},
     "signInPage_ForgotPassword": "نسيت كلمة المرور؟",
@@ -337,6 +341,10 @@
     "@settingsPopup_Password_Resend": {
         "description": "زر في تنبيه إعادة التعيين لإعادة إرسال البريد"
     },
+    "settingsPopup_Email_Alert": "تم إرسال البريد الإلكتروني",
+    "@settingsPopup_Email_Alert": {
+        "description": "تنبيه يظهر عند إرسال البريد الإلكتروني"
+    },
     "settingsPopup_Password_Alert": "تم إرسال بريد إعادة تعيين كلمة المرور",
     "@settingsPopup_Password_Alert": {
         "description": "تنبيه يظهر عند إرسال بريد إعادة تعيين كلمة المرور"
@@ -356,6 +364,10 @@
     "notification_Online_Disconnected": "فقد الاتصال بالانترنت",
     "@notification_Online_Disconnected": {
         "description": "إشعار يظهر عند فقد الاتصال بالانترنت"
+    },
+    "verification_done": "تم التحقق من الحساب",
+    "@verification_done": {
+        "description": "تنبيه يظهر عند اكتمال التحقق من الحساب"
     },
     "validation_Title_Empty": "العنوان فارغ",
     "@validation_Title_Empty": {
@@ -521,6 +533,10 @@
     "@appError_Unknown": {
         "description": "خطأ احتياطي لرموز خطأ غير معروفة أو غير مُعيَّنة"
     },
+    "appError_Fetal": "خطأ فادح. يرجى إعادة التشغيل",
+    "@appError_Fetal": {
+        "description": "خطأ عند تعذّر التطبيق على الاسترداد من خطأ فادح"
+    },
     "appError_Dio_ConnectionTimeout": "انتهت مهلة الاتصال. يرجى التحقق من اتصالك بالإنترنت والمحاولة مجددًا",
     "@appError_Dio_ConnectionTimeout": {
         "description": "خطأ عند فشل الطلب بسبب انتهاء مهلة الاتصال"
@@ -576,6 +592,10 @@
     "dashboard_alert_bugReport": "إذا واجهت أي مشكلة أو لديك اقتراح، يمكنك إرساله عبر الإعدادات ثم الإبلاغ عن خطأ",
     "@dashboard_alert_bugReport": {
         "description": "تنبيه يُعلم المستخدم بإمكانية الإبلاغ عن الأخطاء وإرسال الاقتراحات"
+    },
+    "alert_verification": "تم إرسال رابط التحقق إلى بريدك الإلكتروني، يرجى تفعيل حسابك من خلاله",
+    "@alert_verification": {
+        "description": "تنبيه يُعلم المستخدم بأنه تم إرسال رابط التحقق إلى بريده الإلكتروني"
     },
     "error_fetal_popup": "حدث خطاء ولم يتم الابلاغ عنه بشكل صحيح",
     "@error_fetal_popup": {

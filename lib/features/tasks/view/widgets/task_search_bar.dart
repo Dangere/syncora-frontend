@@ -28,8 +28,6 @@ class _TasksSearchBarState extends ConsumerState<TasksSearchBar> {
 
   @override
   Widget build(BuildContext context) {
-    ref.read(loggerProvider).d("TasksSearchBar build");
-
     List<String> suggestions = ref.read(searchBarSuggestionsProvider("tasks"));
     void onSearch(String query) {
       dismissedBar = true;

@@ -11,7 +11,6 @@ import 'package:syncora_frontend/common/widgets/app_button.dart';
 import 'package:syncora_frontend/common/widgets/input_field.dart';
 import 'package:syncora_frontend/common/widgets/overlay_loader.dart';
 import 'package:syncora_frontend/common/widgets/profile_picture.dart';
-import 'package:syncora_frontend/core/analytics/breadcrumb.dart';
 import 'package:syncora_frontend/core/analytics/breadcrumb_type.dart';
 import 'package:syncora_frontend/core/analytics/breadcrumbs_service.dart';
 import 'package:syncora_frontend/core/localization/generated/l10n/app_localizations.dart';
@@ -153,10 +152,17 @@ class _ProfileViewPageState extends ConsumerState<ProfileViewPage> {
       data: (data) {
         if (data == null) {
           ref.read(loggerProvider).i("Building profile view page");
-
-          return const Center(
-            // TODO: Localize strings in this widget
-            child: Text("User doesn't exist"),
+          return Scaffold(
+            extendBodyBehindAppBar: true,
+            appBar: AppBar(
+              centerTitle: true,
+              title: Text(isAccountOwner
+                  ? AppLocalizations.of(context).profileViewPage_TitleMyProfile
+                  : AppLocalizations.of(context).profileViewPage_TitleProfile),
+            ),
+            body: const Center(
+              child: Text("User doesn't exist"),
+            ),
           );
         }
 

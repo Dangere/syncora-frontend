@@ -77,7 +77,7 @@ class GroupsListNotifier extends AutoDisposeAsyncNotifier<List<Group>> {
     Result<Group> newGroupResult =
         await ref.read(groupsServiceProvider).createGroup(title, description);
 
-    if (!newGroupResult.isSuccess) {
+    if (!newGroupResult.isSuccess && !newGroupResult.isCancelled) {
       ref.read(appErrorProvider.notifier).setError(newGroupResult.error!);
       return null;
     }
@@ -96,7 +96,7 @@ class GroupsListNotifier extends AutoDisposeAsyncNotifier<List<Group>> {
         .read(groupsServiceProvider)
         .isGroupOwner(
             groupId: resolvedId, userId: ref.read(authProvider).value!.userId!);
-    if (!fetchResult.isSuccess) {
+    if (!fetchResult.isSuccess && !fetchResult.isCancelled) {
       ref.read(appErrorProvider.notifier).setError(fetchResult.error!);
       return false;
     }
@@ -108,7 +108,7 @@ class GroupsListNotifier extends AutoDisposeAsyncNotifier<List<Group>> {
     Result<int> fetchResult =
         await ref.read(groupsServiceProvider).getGroupsCount(groupFilters);
 
-    if (!fetchResult.isSuccess) {
+    if (!fetchResult.isSuccess && !fetchResult.isCancelled) {
       ref.read(appErrorProvider.notifier).setError(fetchResult.error!);
       return null;
     } else {
@@ -122,7 +122,9 @@ class GroupsListNotifier extends AutoDisposeAsyncNotifier<List<Group>> {
         .read(groupsServiceProvider)
         .getGroupsProgress(includeAssignedTasks, sinceDays);
 
-    if (!fetchResult.isSuccess) {
+    if (!fetchResult.isSuccess &&
+        !fetchResult.isCancelled &&
+        !fetchResult.isCancelled) {
       ref.read(appErrorProvider.notifier).setError(fetchResult.error!);
       return [];
     } else {
@@ -136,7 +138,7 @@ class GroupsListNotifier extends AutoDisposeAsyncNotifier<List<Group>> {
         .read(groupsServiceProvider)
         .getGroupsTotalProgress(includeAssignedTasks, sinceDays);
 
-    if (!fetchResult.isSuccess) {
+    if (!fetchResult.isSuccess && !fetchResult.isCancelled) {
       ref.read(appErrorProvider.notifier).setError(fetchResult.error!);
       return null;
     } else {
@@ -229,7 +231,13 @@ class GroupsListNotifier extends AutoDisposeAsyncNotifier<List<Group>> {
         .read(groupsServiceProvider)
         .getCachedGroups(_filters, _search);
 
-    if (!fetchResult.isSuccess) {
+    // Result fetchResult = await Result.wrapAsync(
+    //   () async {
+    //     return ref.read(localDbProvider).simulateError();
+    //   },
+    // );
+
+    if (!fetchResult.isSuccess && !fetchResult.isCancelled) {
       ref.read(appErrorProvider.notifier).setError(fetchResult.error!);
       // state = AsyncValue.error(
       //     fetchResult.error!.errorObject, fetchResult.error!.stackTrace);
@@ -289,7 +297,7 @@ class GroupsListNotifier extends AutoDisposeAsyncNotifier<List<Group>> {
               .read(groupsServiceProvider)
               .getCachedGroups(_filters, null);
 
-          if (!fetchResult.isSuccess) {
+          if (!fetchResult.isSuccess && !fetchResult.isCancelled) {
             ref.read(appErrorProvider.notifier).setError(fetchResult.error!);
             return [];
           }
@@ -325,7 +333,7 @@ class GroupNotifier extends AutoDisposeFamilyAsyncNotifier<Group?, int> {
         .read(groupsServiceProvider)
         .updateGroupDetails(title, description, resolvedId);
 
-    if (!updateResult.isSuccess) {
+    if (!updateResult.isSuccess && !updateResult.isCancelled) {
       ref.read(appErrorProvider.notifier).setError(updateResult.error!);
       return;
     }
@@ -354,7 +362,7 @@ class GroupNotifier extends AutoDisposeFamilyAsyncNotifier<Group?, int> {
     return true;
   }
 
-  Future<void> leaveGroup() async {
+  Future<bool> leaveGroup() async {
     int resolvedId = ref.read(outboxIdMapperProvider).resolveId(arg);
 
     Result<void> leaveResult =
@@ -362,12 +370,14 @@ class GroupNotifier extends AutoDisposeFamilyAsyncNotifier<Group?, int> {
 
     if (!leaveResult.isSuccess) {
       ref.read(appErrorProvider.notifier).setError(leaveResult.error!);
-      return;
+      return false;
     }
 
     BreadcrumbService.instance
         .add(BreadcrumbType.state, "Group $resolvedId, left");
     await _refreshState();
+
+    return true;
   }
 
   Future<void> allowUsersAccessToGroup(List<String> usernames) async {
@@ -379,7 +389,7 @@ class GroupNotifier extends AutoDisposeFamilyAsyncNotifier<Group?, int> {
         .grantAccessToGroup(
             allowAccess: true, groupId: resolvedId, usernames: usernames);
 
-    if (!updateResult.isSuccess) {
+    if (!updateResult.isSuccess && !updateResult.isCancelled) {
       ref.read(appErrorProvider.notifier).setError(updateResult.error!);
       return;
     }
@@ -395,11 +405,16 @@ class GroupNotifier extends AutoDisposeFamilyAsyncNotifier<Group?, int> {
             allowAccess: false, groupId: resolvedId, usernames: [username]);
     ref.read(loggerProvider).d(updateResult);
 
-    if (!updateResult.isSuccess) {
+    if (!updateResult.isSuccess &&
+        !updateResult.isCancelled &&
+        !updateResult.isCancelled) {
       ref.read(appErrorProvider.notifier).setError(updateResult.error!);
       return false;
     }
     await _refreshState();
+    // We also update tasks because users who left couldve been removed from tasks
+    refreshTasks();
+
     return true;
   }
 
@@ -413,7 +428,7 @@ class GroupNotifier extends AutoDisposeFamilyAsyncNotifier<Group?, int> {
     Result<List<User>> result = await ref
         .read(usersServiceProvider)
         .getGroupMembers(resolvedId, includeOwner);
-    if (!result.isSuccess) {
+    if (!result.isSuccess && !result.isCancelled) {
       ref.read(appErrorProvider.notifier).setError(result.error!);
       return [];
     }
@@ -430,12 +445,26 @@ class GroupNotifier extends AutoDisposeFamilyAsyncNotifier<Group?, int> {
 
     Result<Group?> groupResult =
         await ref.read(groupsServiceProvider).getCachedGroup(resolvedId);
-    if (groupResult.isSuccess) {
+    if (groupResult.isSuccess && !groupResult.isCancelled) {
       state = AsyncData(groupResult.data);
       return;
     }
 
     ref.read(appErrorProvider.notifier).setError(groupResult.error!);
+  }
+
+  void refreshTasks() {
+    if (ref.exists(tasksProvider(arg))) {
+      ref.invalidate(tasksProvider(arg));
+    }
+
+    int? correlatedId = ref.read(outboxIdMapperProvider).getCorrelatedId(arg);
+
+    if (correlatedId != null) {
+      if (ref.exists(tasksProvider(correlatedId))) {
+        ref.invalidate(tasksProvider(correlatedId));
+      }
+    }
   }
 
   @override
@@ -448,7 +477,7 @@ class GroupNotifier extends AutoDisposeFamilyAsyncNotifier<Group?, int> {
 
     Result<Group?> groupResult =
         await ref.read(groupsServiceProvider).getCachedGroup(resolvedId);
-    if (!groupResult.isSuccess) {
+    if (!groupResult.isSuccess && !groupResult.isCancelled) {
       ref.read(appErrorProvider.notifier).setError(groupResult.error!);
     }
 

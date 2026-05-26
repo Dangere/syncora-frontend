@@ -8,11 +8,9 @@ import 'package:syncora_frontend/common/themes/app_theme.dart';
 import 'package:syncora_frontend/common/widgets/app_button.dart';
 import 'package:syncora_frontend/common/widgets/version_display.dart';
 import 'package:syncora_frontend/core/localization/generated/l10n/app_localizations.dart';
-import 'package:syncora_frontend/core/report/report_popups.dart';
 import 'package:syncora_frontend/core/report/report_provider.dart';
 import 'package:syncora_frontend/core/typedef.dart';
 import 'package:syncora_frontend/core/utils/dialogs.dart';
-import 'package:syncora_frontend/core/utils/snack_bar_alerts.dart';
 import 'package:syncora_frontend/features/authentication/auth_provider.dart';
 import 'package:syncora_frontend/features/dashboard/dashboard_popups.dart';
 import 'package:syncora_frontend/features/settings/view/settings_popups.dart';
@@ -41,6 +39,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     }
 
     ref.read(authProvider.notifier).logout();
+    // context.goNamed('splash-screen');
   }
 
   void updateLanguage(Locale locale) {
@@ -57,18 +56,40 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     bool didReport =
         await ref.read(reportProvider.notifier).reportBug(userMessage);
 
-    if (didReport && mounted) ReportPopups.reportBeenSent(context);
+    if (didReport && mounted) {
+      Dialogs.dismissibleDialog(
+          context, AppLocalizations.of(context).error_report_popup_sent);
+    }
   }
 
   void onPasswordReset(BuildContext context) =>
       SettingsPopups.passwordResetPopup(context);
 
+  void onAccountVerify(BuildContext context) {
+    if (ref.read(isVerifiedProvider)) return;
+    SettingsPopups.accountVerifyPopup(context);
+  }
+
+  // if (!ref.read(isAuthenticatedProvider)) {
+  //   return;
+  // }
+  // if (ref.read(isVerifiedProvider) || ref.read(resetPasswordTimerProvider)  != null) return;
+
+  // ref.read(resetPasswordTimerProvider.notifier).startTimer(60);
+  // bool didSend =
+  //     await ref.read(authProvider.notifier).sendVerificationEmail();
+  // if (didSend && context.mounted) {
+  //   Dialogs.dismissibleDialog(
+  //       context, AppLocalizations.of(context).alert_verification);
+  // }
+  // isVerifying = false;
+
   @override
   Widget build(BuildContext context) {
-    final Locale currentLocale = ref.watch(localeProvider);
-    // bool isDarkMode = ref.watch(themeModeProvider);7
+    final Locale currentLocale = ref.read(localeProvider);
+    // here to react to user verification
 
-    final bool isDarkMode = ref.watch(themeModeProvider) == ThemeMode.dark;
+    final bool isDarkMode = ref.read(themeModeProvider) == ThemeMode.dark;
     final isLTR = Directionality.of(context) == TextDirection.ltr;
 
     // TODO: Language card gets grayed out when held unlike other buttons
@@ -137,11 +158,55 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                           ],
                         ),
                       ),
-                      AppSpacing.verticalSpaceMd,
+                      AppSpacing.verticalSpaceSm,
+                      Divider(
+                          color: Theme.of(context)
+                              .colorScheme
+                              .scrim
+                              .withValues(alpha: 0.4),
+                          indent: 16,
+                          endIndent: 16),
+                      AppSpacing.verticalSpaceSm,
 
                       if (ref.read(isAuthenticatedProvider))
                         // CHANGE PASSWORD
                         ...[
+                        Consumer(builder: (context, ref, widget) {
+                          bool isVerified = ref.watch(isVerifiedProvider);
+                          return AppButton(
+                            disabled: false,
+                            breadcrumbLabel: () => "Verify account",
+                            fontSize: 16,
+                            size: AppButtonSize.huge,
+                            style: AppButtonStyle.filled,
+                            onPressed: () => onAccountVerify(context),
+                            child: Row(
+                              children: [
+                                const Icon(Icons.verified, size: 24),
+
+                                // Icon(Icons.dark_mode_sharp, size: 24),
+                                // Icon(Icons.dark_mode_sharp, size: 24),
+
+                                const SizedBox(width: 17),
+                                Text(
+                                  AppLocalizations.of(context).verification,
+                                ),
+
+                                const Spacer(),
+                                if (!isVerified)
+                                  Transform.rotate(
+                                      angle: 3.14 / 180 * (isLTR ? -90 : 90),
+                                      child: const Icon(Icons.expand_more,
+                                          size: 24)),
+
+                                if (isVerified)
+                                  const Icon(Icons.check,
+                                      size: 24, color: Colors.green),
+                              ],
+                            ),
+                          );
+                        }),
+                        AppSpacing.verticalSpaceMd,
                         AppButton(
                           breadcrumbLabel: () => "Send password reset",
                           fontSize: 16,
@@ -169,10 +234,40 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                             ],
                           ),
                         ),
-                        AppSpacing.verticalSpaceMd
+                        AppSpacing.verticalSpaceMd,
+                        // Verify account
                       ],
 
+                      AppButton(
+                        breadcrumbLabel: () => "Bug report",
+                        fontSize: 16,
+                        size: AppButtonSize.huge,
+                        style: AppButtonStyle.filled,
+                        onPressed: onBugReport,
+                        child: Row(
+                          children: [
+                            const Icon(Icons.bug_report, size: 24),
+                            const SizedBox(width: 17),
+                            Text(AppLocalizations.of(context)
+                                .settingsPage_ReportBug),
+                            const Spacer(),
+                            Transform.rotate(
+                                angle: 3.14 / 180 * (isLTR ? -90 : 90),
+                                child: const Icon(Icons.expand_more, size: 24)),
+                          ],
+                        ),
+                      ),
+
                       if (kIsWeb) ...[
+                        AppSpacing.verticalSpaceSm,
+                        Divider(
+                            color: Theme.of(context)
+                                .colorScheme
+                                .scrim
+                                .withValues(alpha: 0.4),
+                            indent: 16,
+                            endIndent: 16),
+                        AppSpacing.verticalSpaceSm,
                         AppButton(
                           breadcrumbLabel: () => "Download APK",
                           fontSize: 16,
@@ -195,30 +290,12 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                             ],
                           ),
                         ),
-                        AppSpacing.verticalSpaceMd,
                       ],
 
-                      AppButton(
-                        breadcrumbLabel: () => "Bug report",
-                        fontSize: 16,
-                        size: AppButtonSize.huge,
-                        style: AppButtonStyle.filled,
-                        onPressed: onBugReport,
-                        child: Row(
-                          children: [
-                            const Icon(Icons.bug_report, size: 24),
-                            const SizedBox(width: 17),
-                            Text(AppLocalizations.of(context)
-                                .settingsPage_ReportBug),
-                            const Spacer(),
-                            Transform.rotate(
-                                angle: 3.14 / 180 * (isLTR ? -90 : 90),
-                                child: const Icon(Icons.expand_more, size: 24)),
-                          ],
-                        ),
-                      ),
                       const Spacer(),
                       // LOGOUT BUTTON
+                      AppSpacing.verticalSpaceMd,
+
                       AppButton(
                           breadcrumbLabel: () => "Logout",
                           size: AppButtonSize.huge,

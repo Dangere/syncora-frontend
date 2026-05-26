@@ -121,7 +121,7 @@ class OutboxNotifier extends AsyncNotifier<OutboxStatus>
                 .read(groupsListProvider.notifier)
                 .onOutboxRevert(entry.entityId);
           } else if (entry.entityType == OutboxEntityType.task) {
-            print("Reverting task ${entry.payload!.toJson()}");
+            print("Reverting task ${entry.payload?.toJson()}");
 
             ref
                 .read(groupsListProvider.notifier)
@@ -161,9 +161,17 @@ class OutboxNotifier extends AsyncNotifier<OutboxStatus>
     return result;
   }
 
-  void _onDispose() {
+  void dispose() {
     _isProcessing = false;
     _isAwaiting = false;
+
+    ref.read(outboxServiceProvider).shutQueue();
+    ref.read(loggerProvider).f("Outbox Queue: Disposing outbox provider!");
+  }
+
+  void _onDispose() {
+    dispose();
+
     WidgetsBinding.instance.removeObserver(this);
   }
 

@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:cancellation_token/cancellation_token.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:syncora_frontend/common/providers/common_providers.dart';
@@ -9,7 +10,9 @@ import 'package:syncora_frontend/core/analytics/breadcrumbs_service.dart';
 import 'package:syncora_frontend/core/error_management/app_error_code.dart';
 import 'package:syncora_frontend/core/error_management/app_error.dart';
 import 'package:syncora_frontend/core/error_management/error_provider.dart';
+import 'package:syncora_frontend/core/localization/generated/l10n/app_localizations.dart';
 import 'package:syncora_frontend/core/utils/result.dart';
+import 'package:syncora_frontend/core/utils/snack_bar_alerts.dart';
 import 'package:syncora_frontend/features/authentication/models/auth_response_dto.dart';
 import 'package:syncora_frontend/features/authentication/models/auth_state.dart';
 import 'package:syncora_frontend/features/authentication/models/google_register_filled_info.dart';
@@ -22,9 +25,12 @@ import 'package:syncora_frontend/features/authentication/services/auth_service.d
 import 'package:syncora_frontend/features/authentication/services/session_storage.dart';
 import 'package:syncora_frontend/features/users/models/user_preferences.dart';
 import 'package:syncora_frontend/features/users/providers/users_provider.dart';
+import 'package:syncora_frontend/router.dart';
 
 class AuthNotifier extends AsyncNotifier<AuthState> {
   Completer? _refreshTokenCompleter;
+
+  /// Used to check if the user just signed up without Google to display them a verification message
 
   void loginUsingGoogle(String token) async {
     if (state.isLoading || _isLoggedIn) return;
@@ -190,6 +196,7 @@ class AuthNotifier extends AsyncNotifier<AuthState> {
       state = const AsyncValue.data(AuthUnauthenticated());
       return;
     }
+    ref.read(verificationAlertProvider.notifier).didSignUpManually();
 
     // Update state
     state = AsyncValue.data(
@@ -289,14 +296,16 @@ class AuthNotifier extends AsyncNotifier<AuthState> {
     return result;
   }
 
-  Future<Result> sendVerificationEmail() async {
+  /// Sends a verification email to the current authenticated user
+  Future<bool> sendVerificationEmail() async {
     Result result = await ref.read(authServiceProvider).sendVerificationEmail();
 
     if (!result.isSuccess) {
       ref.read(appErrorProvider.notifier).setError(result.error!);
+      return false;
     }
 
-    return result;
+    return true;
   }
 
 // TODO: When the user verifies, `updateVerificationStatus` gets called from server to update the UI immediately, however if the app is closed, it wont update so we need to check the status from the server on startup or unpausing the app
@@ -326,15 +335,22 @@ class AuthNotifier extends AsyncNotifier<AuthState> {
     }
   }
 
-  void updateVerificationStatus(bool isVerified) async {
+  void updateVerificationStatus() async {
     // Only continue if we are authenticated
     if (!state.hasValue || !state.value!.isAuthenticated) {
       return;
     }
     state = AsyncValue.data(
-        AuthAuthenticated(state.value!.asAuthenticated!.userId, isVerified));
+        AuthAuthenticated(state.value!.asAuthenticated!.userId, true));
+
+    BuildContext? context = navigatorKey.currentContext;
+    if (context == null || !context.mounted) return;
+
+    SnackBarAlerts.showSuccessSnackBar(
+        AppLocalizations.of(context).verification_done, context);
   }
 
+  /// Takes an email and sends a password reset email
   Future<Result> requestPasswordReset(String email) async {
     Result result =
         await ref.read(authServiceProvider).requestPasswordReset(email);
@@ -473,30 +489,22 @@ final googleSignInProvider = Provider<GoogleSignIn>((ref) {
   return googleSignIn;
 });
 
-// A simple persistent countdown timer that counts from seconds to 0 and then completes to null
-class ResetPasswordTimerNotifier extends Notifier<int?> {
-  void startTimer(int seconds) {
-    if (state != null) return;
-    state = seconds;
-    Timer.periodic(
-      const Duration(seconds: 1),
-      (Timer timer) {
-        state = state! - 1;
+/// Notifier for the verification alert when user signs up manually
+class VerificationAlertNotifier extends Notifier<bool> {
+  void didSignUpManually() {
+    state = true;
+  }
 
-        if (state! <= 0) {
-          timer.cancel();
-          state = null;
-        }
-      },
-    );
+  void didShowAlert() {
+    state = false;
   }
 
   @override
-  int? build() {
-    return null;
+  bool build() {
+    return false;
   }
 }
 
-final resetPasswordTimerProvider =
-    NotifierProvider<ResetPasswordTimerNotifier, int?>(
-        ResetPasswordTimerNotifier.new);
+final verificationAlertProvider =
+    NotifierProvider<VerificationAlertNotifier, bool>(
+        VerificationAlertNotifier.new);

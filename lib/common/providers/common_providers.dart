@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
@@ -235,3 +237,29 @@ final diagnosticsServiceProvider = Provider<DiagnosticsService>((ref) {
     languageCode: () => ref.read(localeProvider).languageCode,
   );
 });
+
+// A simple persistent countdown timer that counts from seconds to 0 and then completes to null
+class TimerNotifier extends Notifier<int?> {
+  void startTimer(int seconds) {
+    if (state != null) return;
+    state = seconds;
+    Timer.periodic(
+      const Duration(seconds: 1),
+      (Timer timer) {
+        state = state! - 1;
+
+        if (state! <= 0) {
+          timer.cancel();
+          state = null;
+        }
+      },
+    );
+  }
+
+  @override
+  int? build() {
+    return null;
+  }
+}
+
+final timerProvider = NotifierProvider<TimerNotifier, int?>(TimerNotifier.new);

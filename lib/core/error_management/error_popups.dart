@@ -1,15 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:syncora_frontend/common/providers/common_providers.dart';
 import 'package:syncora_frontend/common/themes/app_spacing.dart';
 import 'package:syncora_frontend/common/widgets/app_button.dart';
 import 'package:syncora_frontend/core/constants/constants.dart';
-import 'package:syncora_frontend/core/error_management/app_error.dart';
 import 'package:syncora_frontend/core/error_management/app_error_code.dart';
 import 'package:syncora_frontend/core/error_management/error_state.dart';
 import 'package:syncora_frontend/core/localization/generated/l10n/app_localizations.dart';
 import 'package:syncora_frontend/core/localization/localize_app_errors.dart';
 import 'package:syncora_frontend/core/utils/dialogs.dart';
-import 'package:syncora_frontend/core/utils/result.dart';
 
 /// Pops used for error alerts
 class ErrorPopups {
@@ -153,6 +150,4 @@ class ErrorPopups {
       ),
     );
   }
-
-  static void reportBeenSent(BuildContext context) {}
 }

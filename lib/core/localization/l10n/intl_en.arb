@@ -163,6 +163,10 @@
   "@email_Field": {},
   "password": "Password",
   "@password": {},
+  "verification": "Verification",
+  "restart": "Restart",
+  "@restart": {},
+  "@verification": {},
   "password_Field": "Enter password",
   "@password_Field": {},
   "signInPage_ForgotPassword": "Forgot Password?",
@@ -337,9 +341,9 @@
   "@settingsPopup_Password_Resend": {
     "description": "Button in the password reset alert to resend the email"
   },
-  "settingsPopup_Password_Alert": "Password reset email sent",
-  "@settingsPopup_Password_Alert": {
-    "description": "Alert shown when the password reset email has been sent"
+  "settingsPopup_Email_Alert": "Email has been sent",
+  "@settingsPopup_Email_Alert": {
+    "description": "Alert shown when the email has been sent"
   },
   "notification_Backend_Connected": "Connected to server",
   "@notification_Backend_Connected": {
@@ -356,6 +360,10 @@
   "notification_Online_Disconnected": "Online connection Lost",
   "@notification_Online_Disconnected": {
     "description": "notification that pops up when the client loses connection to the internet"
+  },
+  "verification_done": "Account Verified",
+  "@verification_done": {
+    "description": "Alert shown when the account has been verified"
   },
   "validation_Title_Empty": "Empty title",
   "@validation_Title_Empty": {
@@ -521,6 +529,10 @@
   "@appError_Unknown": {
     "description": "Fallback error for unrecognized or unmapped error codes"
   },
+  "appError_Fetal": "Fetal error. Please restart",
+  "@appError_Fetal": {
+    "description": "Error when the app cannot recover from a fatal error"
+  },
   "appError_Dio_ConnectionTimeout": "Connection timed out. Please check your internet and try again",
   "@appError_Dio_ConnectionTimeout": {
     "description": "Error when a request fails due to a connection timeout"
@@ -576,6 +588,10 @@
   "dashboard_alert_bugReport": "You can report any bugs or submit suggestions through the settings then bug report",
   "@dashboard_alert_bugReport": {
     "description": "Alert that pops up to inform the user that they can report any bugs or submit suggestions"
+  },
+  "alert_verification": "A verification link has been sent to your email to verify your account",
+  "@alert_verification": {
+    "description": "Alert that pops up to inform the user that a verification link has been sent to their email"
   },
   "error_fetal_popup": "Something went wrong and we couldn't report it automatically",
   "@error_fetal_popup": {

@@ -18,8 +18,8 @@ class ConnectionNotifier extends Notifier<ConnectionStatus> {
   // for web only implementation
   int _reconnectionFailCount = 0;
   // Number of times for the reconnection to fail before deciding we are disconnected
-  final int _disconnectOnFailCount = 3;
-  final Duration _checkInterval = const Duration(seconds: 3);
+  final int _disconnectOnFailCount = 2;
+  final Duration _checkInterval = const Duration(seconds: 6);
   @override
   build() {
     ref.listen(debug_fakeBeingOnlineProvider, (previous, next) {
@@ -42,6 +42,7 @@ class ConnectionNotifier extends Notifier<ConnectionStatus> {
           if (!running) break;
 
           try {
+            // TODO: added a second url to check the connection
             final response = await Dio().get(
               'https://httpbin.org/get',
               options: Options(

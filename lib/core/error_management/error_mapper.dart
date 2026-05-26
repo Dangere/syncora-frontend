@@ -5,12 +5,26 @@ import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:source_map_stack_trace/source_map_stack_trace.dart';
 import 'package:source_maps/parser.dart';
+import 'package:sqflite/sqflite.dart';
 import 'package:stack_trace/stack_trace.dart';
 import 'package:syncora_frontend/core/error_management/app_error_code.dart';
 
 /// Maps [Exception]s to [AppErrorCode]
 class ErrorMapper {
   static Map<String, dynamic>? _sourceMap;
+
+  /// Checks if the error is a fatal database error, which prompts the app to restart to recover
+  static bool _isFatalDbError(Object e) {
+    if (e is DatabaseException) {
+      final msg = e.toString().toLowerCase();
+      return msg.contains('database is closed') ||
+          msg.contains('database_closed') ||
+          msg.contains('disk i/o error') ||
+          msg.contains('database disk image is malformed') ||
+          msg.contains('unable to open database');
+    }
+    return false;
+  }
 
   /// Initialize the source map which is used to parse the stack trace on web builds to native dart code
   static Future initializeSourceMap() async {
@@ -35,6 +49,8 @@ class ErrorMapper {
     if (e is DioException) return _mapDioError(e);
 
     if (e is TimeoutException) return AppErrorCode.DIO_SEND_TIMEOUT;
+
+    if (_isFatalDbError(e)) return AppErrorCode.DATABASE_ERROR;
 
     return AppErrorCode.UNKNOWN;
   }

@@ -175,6 +175,33 @@ class LocalTasksRepository {
         where: "id = ?", whereArgs: [taskId]);
   }
 
+  Future<void> setAssignedUsersToTask(
+      {required int taskId,
+      required int groupId,
+      required List<int> ids}) async {
+    final db = await _databaseManager.getDatabase();
+
+    await db.transaction((txn) async {
+      final batch = txn.batch();
+
+      batch.delete(DatabaseTables.tasksAssignees,
+          where: "taskId = ?", whereArgs: [taskId]);
+
+      for (var i = 0; i < ids.length; i++) {
+        batch.insert(
+          DatabaseTables.tasksAssignees,
+          {
+            "taskId": taskId,
+            "userId": ids[i],
+          },
+          conflictAlgorithm: ConflictAlgorithm.replace,
+        );
+      }
+
+      batch.commit(noResult: true);
+    });
+  }
+
   // Method used to mark Task as deleted
   Future<int> markTaskAsDeleted(int taskId) async {
     final db = await _databaseManager.getDatabase();

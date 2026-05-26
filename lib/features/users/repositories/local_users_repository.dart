@@ -41,11 +41,11 @@ class LocalUsersRepository {
 
   Future<User?> getUser(int id) async {
     final db = await _databaseManager.getDatabase();
-    Map<String, dynamic> user =
+    Map<String, dynamic>? user =
         (await db.query(DatabaseTables.users, where: "id = ?", whereArgs: [id]))
-            .single;
+            .firstOrNull;
 
-    if (user.isEmpty) return null;
+    if (user == null || user.isEmpty) return null;
     return User.fromJson(user);
   }
 

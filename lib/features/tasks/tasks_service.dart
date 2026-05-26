@@ -8,7 +8,6 @@ import 'package:syncora_frontend/features/authentication/models/auth_state.dart'
 import 'package:syncora_frontend/features/tasks/task.dart';
 import 'package:syncora_frontend/features/tasks/repositories/local_tasks_repository.dart';
 import 'package:syncora_frontend/features/tasks/repositories/remote_tasks_repository.dart';
-import 'package:syncora_frontend/features/tasks/tasks_provider.dart';
 
 class TasksService {
   final LocalTasksRepository _localTasksRepository;
@@ -22,6 +21,7 @@ class TasksService {
       : _enqueueEntry = enqueueEntry,
         _authState = authState;
 
+  /// Gets tasks for a group based on filters
   Future<Result<List<Task>>> getTasksForGroup(
       int groupId, List<TasksFilter> filters) async {
     try {
@@ -34,6 +34,7 @@ class TasksService {
     }
   }
 
+  /// Deletes a task
   Future<Result<void>> deleteTask(
       {required int taskId, required int groupId}) async {
     Result enqueueResult = await _enqueueEntry(EnqueueRequest(
@@ -59,6 +60,7 @@ class TasksService {
     return Result.success();
   }
 
+  /// Updates a task
   Future<Result<void>> updateTask(
       {required int taskId,
       required int groupId,
@@ -94,6 +96,7 @@ class TasksService {
     return Result.success();
   }
 
+  /// Creates a task
   Future<Result<void>> createTask(
       {required String title,
       String? description,
@@ -133,23 +136,23 @@ class TasksService {
     return Result.success();
   }
 
-  Future<Result<void>> assignTaskToUsers(
-      {required int taskId,
-      required int groupId,
-      required List<int> ids}) async {
-    if (_authState().isGuest || _authState().isUnauthenticated) {
-      return Result.canceled(
-          "Can't assign task to users when not logged in", StackTrace.current);
-    }
-    try {
-      return Result.success(await _remoteTasksRepository.assignTask(
-          taskId: taskId, groupId: groupId, ids: ids));
-    } catch (e, stackTrace) {
-      return Result.failureError(e, stackTrace);
-    }
-  }
-  // TODO: This method needs to update the local state when sucessful
-
+  // Future<Result<void>> assignTaskToUsers(
+  //     {required int taskId,
+  //     required int groupId,
+  //     required List<int> ids}) async {
+  //   if (_authState().isGuest || _authState().isUnauthenticated) {
+  //     return Result.canceled(
+  //         "Can't assign task to users when not logged in", StackTrace.current);
+  //   }
+  //   try {
+  //     return Result.success(await _remoteTasksRepository.assignTask(
+  //         taskId: taskId, groupId: groupId, ids: ids));
+  //   } catch (e, stackTrace) {
+  //     return Result.failureError(e, stackTrace);
+  //   }
+  // }
+  // // TODO: This method needs to update the local state when sucessful
+  /// Sets the entire list of assigned users to a task
   Future<Result<void>> setAssignedUsersToTask(
       {required int taskId,
       required int groupId,
@@ -159,13 +162,17 @@ class TasksService {
           "Can't assign task to users when not logged in", StackTrace.current);
     }
     try {
-      return Result.success(await _remoteTasksRepository.setAssignTask(
-          taskId: taskId, groupId: groupId, ids: ids));
+      await _remoteTasksRepository.setAssignTask(
+          taskId: taskId, groupId: groupId, ids: ids);
+      await _localTasksRepository.setAssignedUsersToTask(
+          taskId: taskId, groupId: groupId, ids: ids);
+      return Result.success();
     } catch (e, stackTrace) {
       return Result.failureError(e, stackTrace);
     }
   }
 
+  /// Marks a task as done or undone
   Future<Result<void>> markTask(
       {required int taskId, required int groupId, required bool isDone}) async {
     Result enqueueResult = await _enqueueEntry(EnqueueRequest(

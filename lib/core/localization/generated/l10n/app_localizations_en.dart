@@ -169,6 +169,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get password => 'Password';
 
   @override
+  String get verification => 'Verification';
+
+  @override
+  String get restart => 'Restart';
+
+  @override
   String get password_Field => 'Enter password';
 
   @override
@@ -358,7 +364,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsPopup_Password_Resend => 'Resend Email';
 
   @override
-  String get settingsPopup_Password_Alert => 'Password reset email sent';
+  String get settingsPopup_Email_Alert => 'Email has been sent';
 
   @override
   String get notification_Backend_Connected => 'Connected to server';
@@ -371,6 +377,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get notification_Online_Disconnected => 'Online connection Lost';
+
+  @override
+  String get verification_done => 'Account Verified';
 
   @override
   String get validation_Title_Empty => 'Empty title';
@@ -517,6 +526,9 @@ class AppLocalizationsEn extends AppLocalizations {
       'An unexpected error occurred. Please try again';
 
   @override
+  String get appError_Fetal => 'Fetal error. Please restart';
+
+  @override
   String get appError_Dio_ConnectionTimeout =>
       'Connection timed out. Please check your internet and try again';
 
@@ -571,6 +583,10 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get dashboard_alert_bugReport =>
       'You can report any bugs or submit suggestions through the settings then bug report';
+
+  @override
+  String get alert_verification =>
+      'A verification link has been sent to your email to verify your account';
 
   @override
   String get error_fetal_popup =>

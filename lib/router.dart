@@ -7,11 +7,11 @@ import 'package:image_picker/image_picker.dart';
 import 'package:logger/logger.dart';
 import 'package:syncora_frontend/common/providers/app_init_provider.dart';
 import 'package:syncora_frontend/common/providers/common_providers.dart';
-import 'package:syncora_frontend/core/analytics/breadcrumb.dart';
 import 'package:syncora_frontend/core/analytics/breadcrumb_type.dart';
 import 'package:syncora_frontend/core/analytics/breadcrumbs_service.dart';
+import 'package:syncora_frontend/core/error_management/app_error.dart';
+import 'package:syncora_frontend/core/error_management/fetal_error_page.dart';
 import 'package:syncora_frontend/core/typedef.dart';
-import 'package:syncora_frontend/features/authentication/models/google_register_filled_info.dart';
 import 'package:syncora_frontend/features/authentication/models/google_user_info.dart';
 import 'package:syncora_frontend/features/authentication/view/pages/google_sign_up_page.dart';
 import 'package:syncora_frontend/features/authentication/view/pages/password_reset_page.dart';
@@ -71,6 +71,8 @@ class RouteNotifier extends Notifier<GoRouter> {
       '/onboarding'
     };
 
+    const globalPaths = {'/fetal-error'};
+
     return GoRouter(
       navigatorKey: navigatorKey,
       initialLocation: '/',
@@ -83,8 +85,7 @@ class RouteNotifier extends Notifier<GoRouter> {
           },
         ),
         GoRoute(
-            name:
-                'home', // Optional, add name to your routes. Allows you navigate by name instead of path
+            name: 'home',
             path: '/',
             builder: (context, state) {
               return const DashboardPage(
@@ -215,12 +216,34 @@ class RouteNotifier extends Notifier<GoRouter> {
         GoRoute(
           name: 'crop-image',
           path: '/crop-image',
+          redirect: (context, state) {
+            if (state.extra is! XFile) {
+              return '/';
+            }
+            return null;
+          },
           builder: (context, state) {
-            // state.extra
             XFile imageFile = state.extra as XFile;
 
             return CropImagePage(
               imageFile: imageFile,
+            );
+          },
+        ),
+        GoRoute(
+          name: 'fetal-error',
+          path: '/fetal-error',
+          redirect: (context, state) {
+            if (state.extra is! AppError) {
+              return '/';
+            }
+            return null;
+          },
+          builder: (context, state) {
+            AppError error = state.extra as AppError;
+
+            return FetalErrorPage(
+              error: error,
             );
           },
         ),
@@ -238,10 +261,19 @@ class RouteNotifier extends Notifier<GoRouter> {
 
         String currentPath = state.fullPath ?? "";
         bool isWithinPublicPath = publicPaths.any(
-          (element) {
-            return currentPath == element;
+          (path) {
+            return currentPath == path;
           },
         );
+        bool isWithinGlobalPath = globalPaths.any(
+          (path) {
+            return currentPath == path;
+          },
+        );
+
+        if (isWithinGlobalPath) {
+          return null;
+        }
 
         if (!isLogged && !isWithinPublicPath) {
           logger.d(

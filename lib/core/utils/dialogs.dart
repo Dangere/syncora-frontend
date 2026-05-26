@@ -2,9 +2,9 @@ import 'dart:async';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:syncora_frontend/common/themes/app_spacing.dart';
 import 'package:syncora_frontend/common/widgets/app_button.dart';
 import 'package:syncora_frontend/common/widgets/input_field.dart';
-import 'package:syncora_frontend/core/analytics/breadcrumb.dart';
 import 'package:syncora_frontend/core/analytics/breadcrumb_type.dart';
 import 'package:syncora_frontend/core/analytics/breadcrumbs_service.dart';
 import 'package:syncora_frontend/core/localization/generated/l10n/app_localizations.dart';
@@ -30,7 +30,8 @@ class DialogFieldData {
 }
 
 class Dialogs {
-  static Future<T?> showContentDialog<T>(context,
+  /// Popup that display a custom widget
+  static Future<T?> showContentDialog<T>(BuildContext context,
       {required bool barrierDismissible,
       required bool blurBackground,
       required String title,
@@ -111,6 +112,7 @@ class Dialogs {
     );
   }
 
+  /// Show a confirmation dialog
   static Future<bool> showConfirmationDialog(BuildContext context,
       {required String message, required String confirmText}) async {
     BreadcrumbService.instance.add(BreadcrumbType.dialog, message);
@@ -218,7 +220,8 @@ class Dialogs {
     return false;
   }
 
-  static Future<List<String>> showTextFieldDialog(context,
+  /// Show a dialog with text fields
+  static Future<List<String>> showTextFieldDialog(BuildContext context,
       {required bool barrierDismissible,
       required bool blurBackground,
       required String title,
@@ -349,5 +352,88 @@ class Dialogs {
     if (dialog == null) return [];
 
     return dialog;
+  }
+
+  /// Plain pop up that displays a simple message
+  static Future<void> dismissibleDialog(BuildContext context, String message,
+      {String? title}) async {
+    return await showDialog(
+      barrierDismissible: true,
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(builder: (context, setState) {
+          return AlertDialog(
+            backgroundColor: Theme.of(context).colorScheme.surfaceContainer,
+            contentPadding: const EdgeInsets.all(0),
+            content: Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: SizedBox(
+                width: 300,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // TITLE AND CLOSE
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Expanded(child: SizedBox()),
+                        Expanded(
+                          flex: 5,
+                          child: title != null
+                              ? Text(
+                                  title,
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .titleSmall!
+                                      .copyWith(
+                                          fontWeight: FontWeight.bold,
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .onSurfaceVariant),
+                                  textAlign: TextAlign.center,
+                                )
+                              : const SizedBox(),
+                        ),
+                        Expanded(
+                            child: IconButton(
+                          onPressed: () => Navigator.of(context).pop(),
+                          icon: const Icon(
+                            size: 24,
+                            Icons.close,
+                          ),
+                        ))
+                      ],
+                    ),
+                    const SizedBox(
+                      height: 16,
+                    ),
+
+                    // CONTENT
+                    SizedBox(
+                      height: 60,
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            message,
+                            textAlign: TextAlign.center,
+                          ),
+                        ],
+                      ),
+                    ),
+                    AppSpacing.verticalSpaceLg,
+                  ],
+                ),
+              ),
+            ),
+          );
+        });
+      },
+    ).whenComplete(
+      () {
+        BreadcrumbService.instance.add(BreadcrumbType.dialog, "closed");
+      },
+    );
   }
 }

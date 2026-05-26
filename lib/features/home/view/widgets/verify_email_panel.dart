@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:syncora_frontend/common/providers/common_providers.dart';
 import 'package:syncora_frontend/common/themes/app_sizes.dart';
-import 'package:syncora_frontend/core/utils/result.dart';
 import 'package:syncora_frontend/core/utils/snack_bar_alerts.dart';
 import 'package:syncora_frontend/features/authentication/models/auth_state.dart';
 import 'package:syncora_frontend/features/authentication/auth_provider.dart';
@@ -39,10 +38,10 @@ class VerifyEmailPanel extends StatelessWidget {
                         .copyWith(fontWeight: FontWeight.bold),
                     recognizer: TapGestureRecognizer()
                       ..onTap = () async {
-                        Result result = await ref
+                        bool didSend = await ref
                             .read(authProvider.notifier)
                             .sendVerificationEmail();
-                        if (result.isSuccess) {
+                        if (didSend) {
                           ref.read(loggerProvider).i("Email sent");
                           SnackBarAlerts.showSuccessSnackBar(
                               "Verification email sent", context);

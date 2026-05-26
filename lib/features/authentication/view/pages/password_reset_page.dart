@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:syncora_frontend/common/providers/common_providers.dart';
 import 'package:syncora_frontend/common/themes/app_spacing.dart';
 import 'package:syncora_frontend/common/widgets/app_button.dart';
 import 'package:syncora_frontend/common/widgets/input_field.dart';
@@ -30,12 +31,12 @@ class _PasswordResetPageState extends ConsumerState<PasswordResetPage> {
   }
 
   void sendEmail() async {
-    if (isLoading || ref.read(resetPasswordTimerProvider) != null) {
+    if (isLoading || ref.read(timerProvider) != null) {
       return;
     }
     setState(() {
       isLoading = true;
-      ref.read(resetPasswordTimerProvider.notifier).startTimer(60);
+      ref.read(timerProvider.notifier).startTimer(60);
     });
     Result result = await ref
         .read(authProvider.notifier)
@@ -43,7 +44,7 @@ class _PasswordResetPageState extends ConsumerState<PasswordResetPage> {
 
     if (result.isSuccess && mounted) {
       SnackBarAlerts.showSuccessSnackBar(
-          AppLocalizations.of(context).settingsPopup_Password_Alert, context);
+          AppLocalizations.of(context).settingsPopup_Email_Alert, context);
     }
 
     if (!mounted) return;
@@ -113,8 +114,7 @@ class _PasswordResetPageState extends ConsumerState<PasswordResetPage> {
 
                     Consumer(
                       builder: (context, ref, child) {
-                        int? resendTimer =
-                            ref.watch(resetPasswordTimerProvider);
+                        int? resendTimer = ref.watch(timerProvider);
 
                         return Column(
                           children: [

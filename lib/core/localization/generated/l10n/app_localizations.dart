@@ -416,6 +416,18 @@ abstract class AppLocalizations {
   /// **'Password'**
   String get password;
 
+  /// No description provided for @verification.
+  ///
+  /// In en, this message translates to:
+  /// **'Verification'**
+  String get verification;
+
+  /// No description provided for @restart.
+  ///
+  /// In en, this message translates to:
+  /// **'Restart'**
+  String get restart;
+
   /// No description provided for @password_Field.
   ///
   /// In en, this message translates to:
@@ -782,11 +794,11 @@ abstract class AppLocalizations {
   /// **'Resend Email'**
   String get settingsPopup_Password_Resend;
 
-  /// Alert shown when the password reset email has been sent
+  /// Alert shown when the email has been sent
   ///
   /// In en, this message translates to:
-  /// **'Password reset email sent'**
-  String get settingsPopup_Password_Alert;
+  /// **'Email has been sent'**
+  String get settingsPopup_Email_Alert;
 
   /// notification that pops up when the client has signalR connection to the backend
   ///
@@ -811,6 +823,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Online connection Lost'**
   String get notification_Online_Disconnected;
+
+  /// Alert shown when the account has been verified
+  ///
+  /// In en, this message translates to:
+  /// **'Account Verified'**
+  String get verification_done;
 
   /// Validation error when the title field is empty
   ///
@@ -1058,6 +1076,12 @@ abstract class AppLocalizations {
   /// **'An unexpected error occurred. Please try again'**
   String get appError_Unknown;
 
+  /// Error when the app cannot recover from a fatal error
+  ///
+  /// In en, this message translates to:
+  /// **'Fetal error. Please restart'**
+  String get appError_Fetal;
+
   /// Error when a request fails due to a connection timeout
   ///
   /// In en, this message translates to:
@@ -1141,6 +1165,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'You can report any bugs or submit suggestions through the settings then bug report'**
   String get dashboard_alert_bugReport;
+
+  /// Alert that pops up to inform the user that a verification link has been sent to their email
+  ///
+  /// In en, this message translates to:
+  /// **'A verification link has been sent to your email to verify your account'**
+  String get alert_verification;
 
   /// popup to inform the user that a fetal error occurred and couldn't be reported automatically
   ///

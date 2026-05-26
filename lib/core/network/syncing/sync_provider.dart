@@ -144,6 +144,10 @@ class SyncBackendNotifier extends AsyncNotifier<SyncState>
     while (_payloadQueue.isNotEmpty) {
       SyncPayload payload = _payloadQueue.removeFirst();
 
+      ref
+          .read(loggerProvider)
+          .d("Sync Notifier: processing payload: ${payload.toString()}");
+
       Result<void> result =
           await ref.read(syncServiceProvider).processPayload(payload);
 
@@ -151,9 +155,7 @@ class SyncBackendNotifier extends AsyncNotifier<SyncState>
         ref.read(appErrorProvider.notifier).setError(result.error!);
         return;
       }
-      ref
-          .read(loggerProvider)
-          .d("Sync Notifier: processed payload, ${payload.toString()}");
+
       state = AsyncValue.data(SyncAvailable(payload));
     }
     _isProcessing = false;
@@ -166,7 +168,11 @@ class SyncBackendNotifier extends AsyncNotifier<SyncState>
 
     if (!isVerified) return;
 
-    ref.read(authProvider.notifier).updateVerificationStatus(isVerified);
+    ref
+        .read(loggerProvider)
+        .d("Sync Notifier: user is verified, updating verification status");
+
+    ref.read(authProvider.notifier).updateVerificationStatus();
   }
 
   // Handling when the app is resumed, recalling the sync just to make sure we are up to date

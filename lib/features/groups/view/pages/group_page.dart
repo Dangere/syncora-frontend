@@ -2,7 +2,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:syncora_frontend/common/providers/common_providers.dart';
 import 'package:syncora_frontend/common/themes/app_spacing.dart';
 import 'package:syncora_frontend/common/widgets/app_button.dart';
 import 'package:syncora_frontend/common/widgets/marquee_widget.dart';
@@ -10,7 +9,6 @@ import 'package:syncora_frontend/core/localization/generated/l10n/app_localizati
 import 'package:syncora_frontend/core/error_management/app_error.dart';
 import 'package:syncora_frontend/core/localization/localize_app_errors.dart';
 import 'package:syncora_frontend/core/utils/dialogs.dart';
-import 'package:syncora_frontend/core/utils/snack_bar_alerts.dart';
 import 'package:syncora_frontend/features/users/models/user.dart';
 import 'package:syncora_frontend/features/groups/models/group.dart';
 import 'package:syncora_frontend/features/groups/view/widgets/group_members_display.dart';
@@ -82,7 +80,11 @@ class GroupPageState extends ConsumerState<GroupPage> {
             confirmText: AppLocalizations.of(context).confirm);
 
         if (confirmLeaving) {
-          await ref.read(groupProvider(widget.groupId).notifier).leaveGroup();
+          bool didLeave = await ref
+              .read(groupProvider(widget.groupId).notifier)
+              .leaveGroup();
+
+          if (didLeave && mounted) Navigator.pop(context);
         }
       },
       onDeleteGroup: () async {

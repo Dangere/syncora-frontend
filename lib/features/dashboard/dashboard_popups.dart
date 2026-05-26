@@ -9,6 +9,7 @@ import 'package:transparent_image/transparent_image.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class DashboardPopups {
+  /// Pop up when the user is on the web that informs them that they can download the app for the proper full experience
   static Future<void> webAlert(BuildContext context) {
     if (!kIsWeb) throw Exception("Tried to show web alert on non-web platform");
 

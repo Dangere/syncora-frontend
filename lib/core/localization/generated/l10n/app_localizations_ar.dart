@@ -170,6 +170,12 @@ class AppLocalizationsAr extends AppLocalizations {
   String get password => 'كلمة المرور';
 
   @override
+  String get verification => 'التحقق';
+
+  @override
+  String get restart => 'إعادة التشغيل';
+
+  @override
   String get password_Field => 'أدخل كلمة المرور';
 
   @override
@@ -361,8 +367,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get settingsPopup_Password_Resend => 'إعادة إرسال البريد';
 
   @override
-  String get settingsPopup_Password_Alert =>
-      'تم إرسال بريد إعادة تعيين كلمة المرور';
+  String get settingsPopup_Email_Alert => 'تم إرسال البريد الإلكتروني';
 
   @override
   String get notification_Backend_Connected => 'متصل بالخادم';
@@ -375,6 +380,9 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get notification_Online_Disconnected => 'فقد الاتصال بالانترنت';
+
+  @override
+  String get verification_done => 'تم التحقق من الحساب';
 
   @override
   String get validation_Title_Empty => 'العنوان فارغ';
@@ -518,6 +526,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get appError_Unknown => 'حدث خطأ غير متوقع. يرجى المحاولة مجددًا';
 
   @override
+  String get appError_Fetal => 'خطأ فادح. يرجى إعادة التشغيل';
+
+  @override
   String get appError_Dio_ConnectionTimeout =>
       'انتهت مهلة الاتصال. يرجى التحقق من اتصالك بالإنترنت والمحاولة مجددًا';
 
@@ -571,6 +582,10 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get dashboard_alert_bugReport =>
       'إذا واجهت أي مشكلة أو لديك اقتراح، يمكنك إرساله عبر الإعدادات ثم الإبلاغ عن خطأ';
+
+  @override
+  String get alert_verification =>
+      'تم إرسال رابط التحقق إلى بريدك الإلكتروني، يرجى تفعيل حسابك من خلاله';
 
   @override
   String get error_fetal_popup => 'حدث خطاء ولم يتم الابلاغ عنه بشكل صحيح';
