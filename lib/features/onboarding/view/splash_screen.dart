@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:syncora_frontend/common/providers/app_init_provider.dart';
-import 'package:syncora_frontend/core/utils/snack_bar_alerts.dart';
 import 'package:transparent_image/transparent_image.dart';
 
 class SplashScreen extends ConsumerStatefulWidget {
@@ -17,8 +16,6 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
   Object? error;
 
   void goToApp() async {
-    await Future.delayed(Duration(seconds: 3));
-
     if (mounted) context.pushReplacement('/');
   }
 
@@ -83,19 +80,18 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
                 decoration: BoxDecoration(
                   color: lightMode
                       ? Colors.white
-                      : Colors.deepPurple.shade900.withValues(alpha: 0.3),
+                      : Color(0xFF1A182D).withValues(alpha: 0.8),
                   borderRadius: BorderRadius.all(Radius.circular(32)),
                 ),
                 child: SizedBox.square(
-                  child: FadeInImage(
-                    width: double.infinity,
-                    alignment: Alignment.topCenter,
-                    color: lightMode
-                        ? Theme.of(context).colorScheme.secondary
-                        : Theme.of(context).colorScheme.primary,
+                  child: SvgPicture.asset(
+                    "assets/logos/syncora-logo.svg",
                     height: 115,
-                    placeholder: MemoryImage(kTransparentImage),
-                    image: const AssetImage("assets/logos/syncora-logo.png"),
+                    colorFilter: ColorFilter.mode(
+                        lightMode
+                            ? Theme.of(context).colorScheme.secondary
+                            : Theme.of(context).colorScheme.primary,
+                        BlendMode.srcIn),
                   ),
                 ),
               ),
