@@ -188,6 +188,7 @@ class AppTheme {
             size: 24,
           ),
           titleTextStyle: TextStyle(
+            fontFamily: GoogleFonts.cairo().fontFamily,
             fontSize: 24,
             height: 1.1,
             color: colorScheme.onSurface,

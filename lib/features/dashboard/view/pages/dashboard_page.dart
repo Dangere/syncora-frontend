@@ -63,6 +63,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
   Widget build(BuildContext context) {
     // We assume that the user is logged in and there's always a user provided if we are on this page
     int? userId = ref.watch(authProvider).value?.userId;
+    final lightMode = Theme.of(context).brightness == Brightness.light;
 
     // Warming user provider for the first time
     ref.read(userProvider);
@@ -140,8 +141,8 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
               alignment: Alignment.topCenter,
               fit: BoxFit.fitWidth,
               placeholder: MemoryImage(kTransparentImage),
-              image: const AssetImage(
-                  "assets/images/background_dashboard_effect.png"),
+              image: AssetImage(
+                  "assets/images/dashboard_background_effect_${lightMode ? "light" : "dark"}.png"),
             ),
           ),
           //BACKGROUND GRAPHIC
@@ -151,7 +152,8 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
               alignment: Alignment.topCenter,
               fit: BoxFit.fitWidth,
               placeholder: MemoryImage(kTransparentImage),
-              image: const AssetImage("assets/images/background_dashboard.png"),
+              image: AssetImage(
+                  "assets/images/dashboard_background_${lightMode ? "light" : "dark"}.png"),
             ),
           ),
           RefreshIndicator(
@@ -169,12 +171,17 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                     child: Row(
                       // mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const SizedBox(
-                          width: 90,
-                          height: 38,
-                          child: Icon(
-                            Icons.logo_dev_outlined,
-                            size: 40,
+                        SizedBox.square(
+                          dimension: 43,
+                          child: FadeInImage(
+                            width: double.infinity,
+                            alignment: Alignment.topCenter,
+                            color: lightMode
+                                ? Theme.of(context).colorScheme.secondary
+                                : Theme.of(context).colorScheme.primary,
+                            placeholder: MemoryImage(kTransparentImage),
+                            image: const AssetImage(
+                                "assets/logos/syncora-logo.png"),
                           ),
                         ),
                         Spacer(),

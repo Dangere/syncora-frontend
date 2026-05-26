@@ -78,7 +78,7 @@ class OnboardingPage extends ConsumerWidget {
                       decoration: BoxDecoration(
                         color: lightMode
                             ? Colors.white
-                            : Colors.deepPurple.shade900.withValues(alpha: 0.3),
+                            : Color(0xFF1A182D).withValues(alpha: 0.8),
                         borderRadius: BorderRadius.all(Radius.circular(32)),
                       ),
                       child: SizedBox.square(

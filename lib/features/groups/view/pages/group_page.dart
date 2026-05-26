@@ -18,6 +18,7 @@ import 'package:syncora_frontend/features/tasks/view/tasks_popups.dart';
 import 'package:syncora_frontend/features/tasks/view/widgets/tasks_list.dart';
 import 'package:syncora_frontend/features/groups/groups_provider.dart';
 import 'package:syncora_frontend/features/users/providers/users_provider.dart';
+import 'package:transparent_image/transparent_image.dart';
 
 class GroupPage extends ConsumerStatefulWidget {
   const GroupPage({super.key, required this.groupId});
@@ -107,6 +108,7 @@ class GroupPageState extends ConsumerState<GroupPage> {
   @override
   Widget build(BuildContext context) {
     // This consumer will update whenever `groupViewProvider` updates BUT excludes `TasksList` because it updates itself internally
+    final lightMode = Theme.of(context).brightness == Brightness.light;
 
     return Consumer(
         child: TasksList(
@@ -150,23 +152,25 @@ class GroupPageState extends ConsumerState<GroupPage> {
                       children: [
                         // BACKGROUND GRAPHIC COLORS
                         Positioned.fill(
-                          child: Image.asset(
-                              width: double.infinity,
-                              // height: 371,
-                              // fit: BoxFit.fitWidth,
-                              alignment: Alignment.topCenter,
-                              fit: BoxFit.fitWidth,
-                              "assets/images/background_dashboard_effect.png"),
+                          child: FadeInImage(
+                            width: double.infinity,
+                            alignment: Alignment.topCenter,
+                            fit: BoxFit.fitWidth,
+                            placeholder: MemoryImage(kTransparentImage),
+                            image: AssetImage(
+                                "assets/images/dashboard_background_effect_${lightMode ? "light" : "dark"}.png"),
+                          ),
                         ),
                         //BACKGROUND GRAPHIC
                         Positioned.fill(
-                          child: Image.asset(
-                              width: double.infinity,
-                              // height: 371,
-                              // fit: BoxFit.fitWidth,
-                              alignment: Alignment.topCenter,
-                              fit: BoxFit.fitWidth,
-                              "assets/images/background_dashboard.png"),
+                          child: FadeInImage(
+                            width: double.infinity,
+                            alignment: Alignment.topCenter,
+                            fit: BoxFit.fitWidth,
+                            placeholder: MemoryImage(kTransparentImage),
+                            image: AssetImage(
+                                "assets/images/dashboard_background_${lightMode ? "light" : "dark"}.png"),
+                          ),
                         ),
                         Column(
                           children: [

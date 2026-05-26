@@ -85,6 +85,14 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
   // isVerifying = false;
 
   @override
+  void initState() {
+    Future.microtask(() async {
+      ref.read(authProvider.notifier).refetchVerificationStatus();
+    });
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final Locale currentLocale = ref.read(localeProvider);
     // here to react to user verification
