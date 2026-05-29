@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:syncora_frontend/common/themes/app_spacing.dart';
 import 'package:syncora_frontend/common/widgets/app_button.dart';
+import 'package:syncora_frontend/common/widgets/main_background_graphic.dart';
 import 'package:syncora_frontend/common/widgets/marquee_widget.dart';
 import 'package:syncora_frontend/core/localization/generated/l10n/app_localizations.dart';
 import 'package:syncora_frontend/core/error_management/app_error.dart';
@@ -151,27 +152,7 @@ class GroupPageState extends ConsumerState<GroupPage> {
                     body: Stack(
                       children: [
                         // BACKGROUND GRAPHIC COLORS
-                        Positioned.fill(
-                          child: FadeInImage(
-                            width: double.infinity,
-                            alignment: Alignment.topCenter,
-                            fit: BoxFit.fitWidth,
-                            placeholder: MemoryImage(kTransparentImage),
-                            image: AssetImage(
-                                "assets/images/dashboard_background_effect_${lightMode ? "light" : "dark"}.png"),
-                          ),
-                        ),
-                        //BACKGROUND GRAPHIC
-                        Positioned.fill(
-                          child: FadeInImage(
-                            width: double.infinity,
-                            alignment: Alignment.topCenter,
-                            fit: BoxFit.fitWidth,
-                            placeholder: MemoryImage(kTransparentImage),
-                            image: AssetImage(
-                                "assets/images/dashboard_background_${lightMode ? "light" : "dark"}.png"),
-                          ),
-                        ),
+                        const MainBackgroundGraphic(),
                         Column(
                           children: [
                             const SizedBox(height: 127),

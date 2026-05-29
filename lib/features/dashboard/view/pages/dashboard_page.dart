@@ -7,6 +7,7 @@ import 'package:syncora_frontend/common/providers/common_providers.dart';
 import 'package:syncora_frontend/common/themes/app_spacing.dart';
 import 'package:syncora_frontend/common/widgets/app_button.dart';
 import 'package:syncora_frontend/common/widgets/filter_list.dart';
+import 'package:syncora_frontend/common/widgets/main_background_graphic.dart';
 import 'package:syncora_frontend/common/widgets/profile_picture.dart';
 import 'package:syncora_frontend/core/tests.dart';
 import 'package:syncora_frontend/core/utils/dialogs.dart';
@@ -96,25 +97,12 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
           : Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                // AppButton(
-                //   width: 80,
-                //   onPressed: () {
-                //     ref
-                //         .read(debug_fakeBeingOnlineProvider.notifier)
-                //         .update((state) => !state);
-                //   },
-                //   size: AppButtonSize.mini,
-                //   style: AppButtonStyle.filled,
-                //   intent: AppButtonIntent.warning,
-                //   child: const Icon(Icons.add),
-                // ),
                 IconButton(
                     onPressed: () async {
                       Tests.printDb(
                           await ref.read(localDbProvider).getDatabase());
                     },
                     icon: Icon(Icons.local_print_shop)),
-
                 IconButton(
                     onPressed: () async {
                       Dialogs.dismissibleDialog(context,
@@ -137,27 +125,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
       body: Stack(
         children: [
           // BACKGROUND GRAPHIC COLORS
-          Positioned.fill(
-            child: FadeInImage(
-              width: double.infinity,
-              alignment: Alignment.topCenter,
-              fit: BoxFit.fitWidth,
-              placeholder: MemoryImage(kTransparentImage),
-              image: AssetImage(
-                  "assets/images/dashboard_background_effect_${lightMode ? "light" : "dark"}.png"),
-            ),
-          ),
-          //BACKGROUND GRAPHIC
-          Positioned.fill(
-            child: FadeInImage(
-              width: double.infinity,
-              alignment: Alignment.topCenter,
-              fit: BoxFit.fitWidth,
-              placeholder: MemoryImage(kTransparentImage),
-              image: AssetImage(
-                  "assets/images/dashboard_background_${lightMode ? "light" : "dark"}.png"),
-            ),
-          ),
+          const MainBackgroundGraphic(),
           RefreshIndicator(
             onRefresh: onRefresh,
             child: CustomScrollView(

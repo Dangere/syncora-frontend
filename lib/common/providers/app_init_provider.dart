@@ -19,7 +19,6 @@ final appInitializeProvider = FutureProvider<void>((ref) async {
   ref.read(isOnlineProvider);
   ref.read(authProvider);
 
-  ref.read(syncBackendProvider);
   ref.read(googleSignInProvider);
 
   ref.read(syncBackendProvider);

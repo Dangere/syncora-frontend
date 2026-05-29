@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:syncora_frontend/common/providers/app_init_provider.dart';
-import 'package:transparent_image/transparent_image.dart';
+import 'package:syncora_frontend/common/widgets/secondary_background_graphic.dart';
 
 class SplashScreen extends ConsumerStatefulWidget {
   const SplashScreen({super.key});
@@ -37,35 +37,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
       backgroundColor: Theme.of(context).colorScheme.surface,
       body: Stack(
         children: [
-          // Positioned.fill(
-          //   child: FadeInImage(
-          //     width: double.infinity,
-          //     alignment: Alignment.topCenter,
-          //     fit: BoxFit.fitWidth,
-          //     placeholder: MemoryImage(kTransparentImage),
-          //     image: const AssetImage("assets/images/background_dashboard.png"),
-          //   ),
-          // ),
-          // Positioned.fill(
-          //   child: FadeInImage(
-          //     width: double.infinity,
-          //     alignment: Alignment.topCenter,
-          //     fit: BoxFit.fitWidth,
-          //     placeholder: MemoryImage(kTransparentImage),
-          //     image: const AssetImage(
-          //         "assets/images/background_dashboard_effect.png"),
-          //   ),
-          // ),
-          Positioned.fill(
-            child: FadeInImage(
-              width: double.infinity,
-              alignment: Alignment.topCenter,
-              fit: BoxFit.fitWidth,
-              placeholder: MemoryImage(kTransparentImage),
-              image: AssetImage(
-                  "assets/images/${lightMode ? "onboarding_background_light" : "onboarding_background_dark"}.png"),
-            ),
-          ),
+          const SecondaryBackgroundGraphic(),
           if (error != null)
             Center(
               child: Text(

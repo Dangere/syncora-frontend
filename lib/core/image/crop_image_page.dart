@@ -9,6 +9,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:syncora_frontend/common/themes/app_spacing.dart';
 import 'package:syncora_frontend/common/themes/app_theme.dart';
 import 'package:syncora_frontend/common/widgets/app_button.dart';
+import 'package:syncora_frontend/common/widgets/main_background_graphic.dart';
 import 'package:syncora_frontend/common/widgets/overlay_loader.dart';
 import 'package:syncora_frontend/core/image/image_providers.dart';
 import 'package:syncora_frontend/core/localization/generated/l10n/app_localizations.dart';
@@ -76,26 +77,7 @@ class _CropImagePageState extends ConsumerState<CropImagePage> {
       extendBodyBehindAppBar: true,
       body: Stack(
         children: [
-          Positioned.fill(
-            child: Image.asset(
-                width: double.infinity,
-                // height: 371,
-                // fit: BoxFit.fitWidth,
-                alignment: Alignment.topCenter,
-                fit: BoxFit.fitWidth,
-                "assets/images/background_dashboard_effect.png"),
-          ),
-          //BACKGROUND GRAPHIC
-          Positioned.fill(
-            child: Image.asset(
-                width: double.infinity,
-                // height: 371,
-                // fit: BoxFit.fitWidth,
-                alignment: Alignment.topCenter,
-                fit: BoxFit.fitWidth,
-                "assets/images/background_dashboard.png"),
-          ),
-
+          const MainBackgroundGraphic(),
           FutureBuilder(
               future: loadImage(),
               builder: (context, snapshot) {

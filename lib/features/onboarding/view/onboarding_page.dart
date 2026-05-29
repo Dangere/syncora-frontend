@@ -7,12 +7,11 @@ import 'package:syncora_frontend/common/themes/app_spacing.dart';
 import 'package:syncora_frontend/common/widgets/app_button.dart';
 import 'package:syncora_frontend/common/widgets/language_button.dart';
 import 'package:syncora_frontend/common/widgets/overlay_loader.dart';
+import 'package:syncora_frontend/common/widgets/secondary_background_graphic.dart';
 import 'package:syncora_frontend/common/widgets/version_display.dart';
 import 'package:syncora_frontend/core/localization/generated/l10n/app_localizations.dart';
-import 'package:syncora_frontend/core/utils/snack_bar_alerts.dart';
 import 'package:syncora_frontend/features/authentication/auth_provider.dart';
 import 'package:syncora_frontend/features/onboarding/view/onboarding_popups.dart';
-import 'package:transparent_image/transparent_image.dart';
 
 class OnboardingPage extends ConsumerWidget {
   const OnboardingPage({super.key});
@@ -36,25 +35,8 @@ class OnboardingPage extends ConsumerWidget {
         isLoading: user.isLoading,
         body: Stack(
           children: [
-            Positioned.fill(
-              child: FadeInImage(
-                width: double.infinity,
-                alignment: Alignment.topCenter,
-                fit: BoxFit.fitWidth,
-                placeholder: MemoryImage(kTransparentImage),
-                image: AssetImage(
-                    "assets/images/${lightMode ? "onboarding_background_light" : "onboarding_background_dark"}.png"),
-              ),
-            ),
-            // Positioned.fill(
-            //   child: SvgPicture.asset(
-            //       width: double.infinity,
-            //       // height: 371,
-            //       // fit: BoxFit.fitWidth,
-            //       alignment: Alignment.topCenter,
-            //       fit: BoxFit.fitWidth,
-            //       "assets/images/background.svg"),
-            // ),
+            const SecondaryBackgroundGraphic(),
+
             Padding(
               padding:
                   AppSpacing.paddingHorizontalLg + AppSpacing.paddingVerticalXl,
