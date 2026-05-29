@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:syncora_frontend/common/widgets/app_button.dart';
 import 'package:syncora_frontend/common/widgets/profile_picture.dart';
-import 'package:syncora_frontend/core/analytics/breadcrumb.dart';
 import 'package:syncora_frontend/core/analytics/breadcrumb_type.dart';
 import 'package:syncora_frontend/core/analytics/breadcrumbs_service.dart';
 import 'package:syncora_frontend/core/localization/generated/l10n/app_localizations.dart';

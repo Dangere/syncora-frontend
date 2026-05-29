@@ -2,6 +2,7 @@ import 'package:syncora_frontend/core/data/database_manager.dart';
 import 'package:syncora_frontend/core/data/database_tables.dart';
 import 'package:syncora_frontend/core/report/report.dart';
 
+/// Class used to interact with the report database
 class LocalReportRepository {
   final DatabaseManager _databaseManager;
 

@@ -1,5 +1,6 @@
 import 'package:syncora_frontend/core/network/syncing/model/sync_payload.dart';
 
+/// Represents the current state of syncing, whether it's idle, available, or disconnected
 abstract class SyncState {
   const SyncState();
 }

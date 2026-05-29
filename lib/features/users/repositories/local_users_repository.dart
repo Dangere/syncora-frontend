@@ -3,11 +3,13 @@ import 'package:syncora_frontend/core/data/database_manager.dart';
 import 'package:syncora_frontend/core/data/database_tables.dart';
 import 'package:syncora_frontend/features/users/models/user.dart';
 
+/// Class used to interact with the users database
 class LocalUsersRepository {
   final DatabaseManager _databaseManager;
 
   LocalUsersRepository(this._databaseManager);
 
+  /// Adds or updates users if they already exist
   Future<void> upsertUsers(List<User> users) async {
     final db = await _databaseManager.getDatabase();
 
@@ -56,6 +58,7 @@ class LocalUsersRepository {
     return users.isEmpty ? [] : users.map((e) => User.fromJson(e)).toList();
   }
 
+  /// Returns all users in a group
   Future<List<User>> getGroupMembers(int groupId, bool includeOwner) async {
     final db = await _databaseManager.getDatabase();
 
@@ -79,13 +82,14 @@ class LocalUsersRepository {
     return users.isEmpty ? [] : users.map((e) => User.fromJson(e)).toList();
   }
 
-  // Removes users that dont belong to any group, except for the actual device user
+  /// Removes users that dont belong to any group, except for the actual device user
   Future<void> purgeOrphanedUsers(int userId) async {
     final db = await _databaseManager.getDatabase();
     await db.rawQuery(
         "DELETE FROM ${DatabaseTables.users} WHERE id != $userId AND id NOT IN (SELECT userId FROM ${DatabaseTables.groupsMembers}) AND id NOT IN (SELECT ownerUserId FROM ${DatabaseTables.groups});");
   }
 
+  /// Returns the cached profile picture url
   Future<String?> userProfileUrl(int userId) async {
     final db = await _databaseManager.getDatabase();
 

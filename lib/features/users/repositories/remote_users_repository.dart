@@ -1,11 +1,10 @@
 import 'dart:convert';
 
 import 'package:dio/dio.dart';
-import 'package:intl/locale.dart';
-import 'package:logger/logger.dart';
 import 'package:syncora_frontend/core/constants/constants.dart';
 import 'package:syncora_frontend/features/users/models/user.dart';
 
+/// Class used to do remote requests to the backend to manage the user
 class RemoteUsersRepository {
   final Dio _dio;
 

@@ -118,6 +118,11 @@ class OutboxService {
             "Outbox processor: queue cancelled", StackTrace.current);
       }
 
+      // Skipping entry if it requires authentication and the user is not authenticated
+      if (entry.requiresAuthentication && !isAuthenticated) {
+        continue;
+      }
+
       // Before we process an entity, we see if the dependencies for it are available
       // There are two types of dependencies, group dependencies and task dependencies.
       // when we are processing a group update/delete, we need a server synced group id
@@ -126,11 +131,6 @@ class OutboxService {
 
       // We process the entry, it runs a while loop until it succeeds and returns the group that was modified or returns an error that we handle here
       while (_cancelationToken!.isCancelled == false) {
-        // Skipping entry if it requires authentication and the user is not authenticated
-        if (entry.requiresAuthentication && !isAuthenticated) {
-          continue;
-        }
-
         try {
           await _outboxRepository.markEntryInProcess(entry.id!);
           _logger.i("Processing entry $entry");

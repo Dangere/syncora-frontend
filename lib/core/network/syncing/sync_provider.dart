@@ -109,14 +109,9 @@ class SyncBackendNotifier extends AsyncNotifier<SyncState>
     if (!ref.read(isOnlineProvider)) return;
     if (ref.read(isAuthenticatedProvider) == false) return;
 
-    Result<SyncPayload> result =
-        await ref.read(syncServiceProvider).mapPayload(parameter);
+    SyncPayload result = SyncPayload.fromJson(parameter);
 
-    if (!result.isSuccess) {
-      ref.read(appErrorProvider.notifier).setError(result.error!);
-      return;
-    }
-    _payloadQueue.add(result.data!);
+    _payloadQueue.add(result);
     _processQueue();
   }
 

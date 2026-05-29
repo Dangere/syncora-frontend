@@ -8,6 +8,7 @@ import 'package:syncora_frontend/common/themes/app_spacing.dart';
 import 'package:syncora_frontend/common/widgets/app_button.dart';
 import 'package:syncora_frontend/common/widgets/filter_list.dart';
 import 'package:syncora_frontend/common/widgets/profile_picture.dart';
+import 'package:syncora_frontend/core/tests.dart';
 import 'package:syncora_frontend/core/utils/dialogs.dart';
 import 'package:syncora_frontend/features/groups/groups_filter.dart';
 import 'package:syncora_frontend/core/localization/generated/l10n/app_localizations.dart';
@@ -107,11 +108,12 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                 //   intent: AppButtonIntent.warning,
                 //   child: const Icon(Icons.add),
                 // ),
-                // IconButton(
-                //     onPressed: () {
-                //       Tests.error_report_test(ref, context);
-                //     },
-                //     icon: Icon(Icons.report)),
+                IconButton(
+                    onPressed: () async {
+                      Tests.printDb(
+                          await ref.read(localDbProvider).getDatabase());
+                    },
+                    icon: Icon(Icons.local_print_shop)),
 
                 IconButton(
                     onPressed: () async {

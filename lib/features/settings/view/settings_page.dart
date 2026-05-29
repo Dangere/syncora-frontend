@@ -15,6 +15,7 @@ import 'package:syncora_frontend/features/authentication/auth_provider.dart';
 import 'package:syncora_frontend/features/dashboard/dashboard_popups.dart';
 import 'package:syncora_frontend/features/settings/view/settings_popups.dart';
 
+/// Settings page
 class SettingsPage extends ConsumerStatefulWidget {
   const SettingsPage({super.key});
 
@@ -70,22 +71,9 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     SettingsPopups.accountVerifyPopup(context);
   }
 
-  // if (!ref.read(isAuthenticatedProvider)) {
-  //   return;
-  // }
-  // if (ref.read(isVerifiedProvider) || ref.read(resetPasswordTimerProvider)  != null) return;
-
-  // ref.read(resetPasswordTimerProvider.notifier).startTimer(60);
-  // bool didSend =
-  //     await ref.read(authProvider.notifier).sendVerificationEmail();
-  // if (didSend && context.mounted) {
-  //   Dialogs.dismissibleDialog(
-  //       context, AppLocalizations.of(context).alert_verification);
-  // }
-  // isVerifying = false;
-
   @override
   void initState() {
+    /// check if user is verified every time the page is opened
     Future.microtask(() async {
       ref.read(authProvider.notifier).refetchVerificationStatus();
     });
@@ -95,7 +83,6 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
   @override
   Widget build(BuildContext context) {
     final Locale currentLocale = ref.read(localeProvider);
-    // here to react to user verification
 
     final bool isDarkMode = ref.read(themeModeProvider) == ThemeMode.dark;
     final isLTR = Directionality.of(context) == TextDirection.ltr;
@@ -334,6 +321,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
   }
 }
 
+/// Language card
 class LanguageExpandableCard extends StatelessWidget {
   const LanguageExpandableCard({
     super.key,

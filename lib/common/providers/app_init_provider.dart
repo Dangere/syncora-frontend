@@ -27,4 +27,6 @@ final appInitializeProvider = FutureProvider<void>((ref) async {
   if (kIsWeb) {
     await ErrorMapper.initializeSourceMap();
   }
+  // Delay to avoid builds when transitions are needed
+  Future.delayed(const Duration(seconds: 1));
 });

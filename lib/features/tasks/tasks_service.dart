@@ -9,6 +9,7 @@ import 'package:syncora_frontend/features/tasks/task.dart';
 import 'package:syncora_frontend/features/tasks/repositories/local_tasks_repository.dart';
 import 'package:syncora_frontend/features/tasks/repositories/remote_tasks_repository.dart';
 
+/// Service responsible for fetching and processing tasks
 class TasksService {
   final LocalTasksRepository _localTasksRepository;
   final RemoteTasksRepository _remoteTasksRepository;
@@ -136,22 +137,6 @@ class TasksService {
     return Result.success();
   }
 
-  // Future<Result<void>> assignTaskToUsers(
-  //     {required int taskId,
-  //     required int groupId,
-  //     required List<int> ids}) async {
-  //   if (_authState().isGuest || _authState().isUnauthenticated) {
-  //     return Result.canceled(
-  //         "Can't assign task to users when not logged in", StackTrace.current);
-  //   }
-  //   try {
-  //     return Result.success(await _remoteTasksRepository.assignTask(
-  //         taskId: taskId, groupId: groupId, ids: ids));
-  //   } catch (e, stackTrace) {
-  //     return Result.failureError(e, stackTrace);
-  //   }
-  // }
-  // // TODO: This method needs to update the local state when sucessful
   /// Sets the entire list of assigned users to a task
   Future<Result<void>> setAssignedUsersToTask(
       {required int taskId,

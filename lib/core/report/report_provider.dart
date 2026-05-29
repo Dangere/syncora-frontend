@@ -12,6 +12,7 @@ import 'package:syncora_frontend/features/authentication/auth_provider.dart';
 import 'package:syncora_frontend/features/authentication/models/auth_state.dart';
 import 'package:syncora_frontend/features/users/providers/users_provider.dart';
 
+/// Notifier for reporting errors and bugs
 class ReportNotifier extends Notifier<void> {
   Future<bool> reportError(AppError error) async {
     Result<void> result =

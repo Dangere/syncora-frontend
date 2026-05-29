@@ -13,6 +13,7 @@ import 'package:syncora_frontend/features/users/models/user_preferences.dart';
 import 'package:syncora_frontend/features/users/repositories/local_users_repository.dart';
 import 'package:syncora_frontend/features/users/repositories/remote_users_repository.dart';
 
+/// Service responsible for fetching and processing users
 class UsersService {
   final LocalUsersRepository _localUsersRepository;
   final RemoteUsersRepository _remoteUsersRepository;
@@ -146,7 +147,7 @@ class UsersService {
     return Result.success();
   }
 
-  // Retrieves the global user preferences or defaults if theres none yet
+  /// Retrieves the global user preferences or defaults if theres none yet
   Result<UserPreferences> getPreferences() {
     try {
       String? preferences = _sharedPreferences.getString(_userPreferencesKey);
@@ -169,7 +170,7 @@ class UsersService {
     }
   }
 
-  // Saves the global user preferences
+  /// Saves the global user preferences
   Future<Result<void>> savePreferences(UserPreferences preferences) async {
     try {
       _sharedPreferences.setString(
@@ -180,7 +181,7 @@ class UsersService {
     }
   }
 
-  // Saves the main user object
+  /// Saves the main user object
   Future<Result<void>> saveUser(User user) async {
     try {
       await _localUsersRepository.upsertUsers([user]);

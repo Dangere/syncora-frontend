@@ -91,6 +91,7 @@ class SettingsPopups {
   }
 }
 
+/// Base widget when an email is sent for verification or password reset
 class EmailSentPopup extends ConsumerStatefulWidget {
   const EmailSentPopup(
       {super.key, required this.sendEmail, required this.bodyText});

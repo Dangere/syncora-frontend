@@ -22,6 +22,7 @@ import 'package:syncora_frontend/features/users/repositories/remote_users_reposi
 import 'package:syncora_frontend/features/users/users_service.dart';
 
 class UserNotifier extends AsyncNotifier<void> {
+  /// Updates the user profile
   Future<void> updateUserProfile({
     String? username,
     String? firstName,
@@ -49,6 +50,7 @@ class UserNotifier extends AsyncNotifier<void> {
     ref.invalidate(userLocalProvider(ref.read(authProvider).value!.userId!));
   }
 
+  /// Allows the user to change their profile picture after picking an image and crop it
   Future<String?> changeProfilePicture(
       AsyncFunc<XFile, Uint8List?> cropImageScreen, ImageSource source) async {
     if (!ref.read(isOnlineProvider)) {
@@ -123,6 +125,7 @@ class UserNotifier extends AsyncNotifier<void> {
     return uploadedImageUrl.data;
   }
 
+  /// Returns a user by username from the server (could be different from the one in the cache or not cached at all)
   Future<User?> findUser(String username) async {
     Result<User?> result =
         await ref.read(usersServiceProvider).findUser(username);
@@ -135,6 +138,7 @@ class UserNotifier extends AsyncNotifier<void> {
     return result.data;
   }
 
+  /// Returns the main user of the app
   Future<User> getMainUser() async {
     int? userId = ref.read(authStateProvider).userId;
 
@@ -163,6 +167,7 @@ class UserNotifier extends AsyncNotifier<void> {
     return result.data!;
   }
 
+  /// Invalidating profile picture providers to force a refresh
   void _invalidateProfileImageProvider(
       {String? imageUrl, required int userId}) {
     if (ref.exists(
@@ -204,6 +209,7 @@ class UserNotifier extends AsyncNotifier<void> {
 final userProvider =
     AsyncNotifierProvider<UserNotifier, void>(UserNotifier.new);
 
+/// This provider is used to get a user from the cache
 final userLocalProvider =
     FutureProvider.autoDispose.family<User?, int>((ref, userId) async {
   Result<User?> result =
@@ -223,8 +229,8 @@ final userLocalProvider =
   return result.data;
 });
 
-// This provider is used to get the profile picture of a user, either from the cache or from a url
-// One thing to note, when getting the image with imageUrl or without it, two different providers are used but reference the same image in cache
+/// This provider is used to get the profile picture of a user, either from the cache or from a url
+/// One thing to note, when getting the image with imageUrl or without it, two different providers are used but reference the same image in cache
 final userProfileImageProvider = FutureProvider.family
     .autoDispose<Uint8List?, ({int userId, String? imageUrl})>(
         (ref, user) async {

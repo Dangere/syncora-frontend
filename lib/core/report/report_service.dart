@@ -107,7 +107,7 @@ class ReportService {
   Future<Result<void>> reportFetalError(AppError error) async {
     Report report = await _generateReport(
         type: ReportType.error,
-        message: "Code:${error.errorCode.name} Log: ${error.logMessage}",
+        message: "Code:${error.errorCode.name} Log:${error.logMessage}",
         manualReport: true);
 
     return _submitReportDirectly(report);

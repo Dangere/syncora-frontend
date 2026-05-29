@@ -16,6 +16,8 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
   Object? error;
 
   void goToApp() async {
+    // Delay can be removed for faster loading
+    await Future.delayed(Duration(seconds: 3));
     if (mounted) context.pushReplacement('/');
   }
 

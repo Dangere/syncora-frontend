@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:syncora_frontend/common/providers/common_providers.dart';
 import 'package:syncora_frontend/core/localization/generated/l10n/app_localizations.dart';
 
+/// Search bar used to assign users to a task
 class TasksSearchBar extends ConsumerStatefulWidget {
   const TasksSearchBar({super.key, required this.onSearch});
 
@@ -21,6 +22,7 @@ class _TasksSearchBarState extends ConsumerState<TasksSearchBar> {
   void initState() {
     super.initState();
     // Wait for the frame to load, then remove focus
+    // This is to avoid the search bar being focused when the page is loaded
     WidgetsBinding.instance.addPostFrameCallback((_) {
       FocusScope.of(context).unfocus();
     });
@@ -28,11 +30,15 @@ class _TasksSearchBarState extends ConsumerState<TasksSearchBar> {
 
   @override
   Widget build(BuildContext context) {
+    // We get the in memory list of previous search queries for this search bar
     List<String> suggestions = ref.read(searchBarSuggestionsProvider("tasks"));
+
     void onSearch(String query) {
       dismissedBar = true;
       widget.onSearch(query);
       if (query.isEmpty) return;
+
+      // We add the query to the in memory list of previous search queries
       ref
           .read(searchBarSuggestionsProvider("tasks").notifier)
           .addSuggestion(query);
@@ -52,24 +58,19 @@ class _TasksSearchBarState extends ConsumerState<TasksSearchBar> {
         },
         child: SearchAnchor.bar(
           viewConstraints: const BoxConstraints(maxHeight: 200),
-
           searchController: controller,
           isFullScreen: false,
-          // barHintText: ,
-
           barHintText: AppLocalizations.of(context).signUpPage_Username_Field,
           barLeading: const Icon(Icons.search),
           onSubmitted: (value) {
             if (!controller.isAttached || !controller.isOpen) return;
             controller.closeView(value);
           },
-
           onClose: () {
             if (!controller.isAttached) return;
 
             onSearch(controller.text);
           },
-
           suggestionsBuilder:
               (BuildContext context, SearchController controller) {
             // dismissedBar = false;

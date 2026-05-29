@@ -24,6 +24,7 @@ import 'package:syncora_frontend/features/authentication/auth_provider.dart';
 import 'package:syncora_frontend/features/users/providers/users_provider.dart';
 import 'package:syncora_frontend/features/users/view/profile_popups.dart';
 
+/// This page is used to view and edit a user's profile, if its used to view a user that isn't the current user, the edit mode is disabled
 class ProfileViewPage extends ConsumerStatefulWidget {
   const ProfileViewPage({super.key, required this.userId});
 
@@ -42,8 +43,6 @@ class _ProfileViewPageState extends ConsumerState<ProfileViewPage> {
 
   late bool isAccountOwner;
   late bool isGuest;
-
-  // Result<User?> user =  ref.watch(usersServiceProvider).getUser(widget.userId).then(onValue);
 
   final TextEditingController firstNameController = TextEditingController();
   final TextEditingController lastNameController = TextEditingController();
@@ -85,6 +84,7 @@ class _ProfileViewPageState extends ConsumerState<ProfileViewPage> {
     });
   }
 
+  /// Resets the fields to their original values
   void resetFields() {
     ref.read(loggerProvider).i("Resetting fields");
     firstNameController.text = user == null ? "" : user!.firstName;

@@ -41,7 +41,7 @@ class MyApp extends ConsumerWidget {
           child: Stack(
             children: [
               DevicePreview.appBuilder(context, child),
-              if (kDebugMode) const BreadcrumbLog()
+              // if (kDebugMode) const BreadcrumbLog()
             ],
           ),
         );

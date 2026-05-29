@@ -137,7 +137,7 @@ class OutboxEntry {
 
   @override
   toString() =>
-      'entity: ${entityType.name}, action: ${actionType.name}, payload: $payload, status: ${status.name}, id: $id';
+      'entity: ${entityType.name}, action: ${actionType.name}, payload: ${payload?.toJson()}, status: ${status.name}, id: $id';
 }
 
 enum OutboxStatus { pending, complete, inProcess, failed, ignored }

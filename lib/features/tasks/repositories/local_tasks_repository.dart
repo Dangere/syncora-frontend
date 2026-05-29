@@ -5,6 +5,7 @@ import 'package:syncora_frontend/core/data/database_tables.dart';
 import 'package:syncora_frontend/features/tasks/tasks_filter.dart';
 import 'package:syncora_frontend/features/tasks/task.dart';
 
+/// Class used to interact with the tasks database
 class LocalTasksRepository {
   final DatabaseManager _databaseManager;
 
@@ -88,6 +89,7 @@ class LocalTasksRepository {
     return taskObject;
   }
 
+  /// Adds or updates tasks if they already exist
   Future<void> upsertTasks(List<Task> tasks) async {
     // throw UnimplementedError("No upsert method");
 
@@ -129,7 +131,7 @@ class LocalTasksRepository {
     });
   }
 
-  // Method used to update temp ids of tasks to ones issued by the backend
+  /// Method used to update temp ids of tasks to ones issued by the backend
   Future<int> updateTaskId(int tempId, int newId) async {
     final db = await _databaseManager.getDatabase();
 
@@ -202,7 +204,7 @@ class LocalTasksRepository {
     });
   }
 
-  // Method used to mark Task as deleted
+  /// Method used to mark Task as deleted
   Future<int> markTaskAsDeleted(int taskId) async {
     final db = await _databaseManager.getDatabase();
 
@@ -210,7 +212,7 @@ class LocalTasksRepository {
         where: "id = ?", whereArgs: [taskId]);
   }
 
-  // Method used to unmark Task as deleted
+  /// Method used to unmark Task as deleted
   Future<int> unmarkTaskAsDeleted(int taskId) async {
     final db = await _databaseManager.getDatabase();
 
@@ -218,7 +220,7 @@ class LocalTasksRepository {
         where: "id = ?", whereArgs: [taskId]);
   }
 
-  // Method used to wipe Tasks marked as deleted
+  /// Method used to wipe Tasks marked as deleted
   Future<int> wipeDeletedTask(int taskId) async {
     final db = await _databaseManager.getDatabase();
 

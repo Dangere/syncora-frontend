@@ -36,21 +36,12 @@ final tasksServiceProvider = Provider<TasksService>((ref) {
   );
 });
 
-// final tasksViewGetterProvider =
-//     FutureProvider.family.autoDispose<List<Task>?, int>((ref, id) async {
-//   try {
-//     return await ref.read(localGroupsRepositoryProvider).getGroup(id);
-//   } catch (e) {
-//     return null;
-//   }
-// });
-
 // This notifier is used to load tasks for a specific group
 // It updates the UI when a method to modify tasks is called
 // Or when the sync state changes
-// It does NOT listen to changes to the group itself to avoid unnecessary rebuilds
+// It does NOT listen to changes to the group itself to avoid unnecessary rebuilds HOWEVER the group notifier can trigger it to update
 
-// TODO: Since there is not direct conneciton between the tasks and the groups notifier, creating a task
+// TODO(DONE): Since there is not direct conneciton between the tasks and the groups notifier, creating a task
 // Does not update the groups notifier to reflect it in the dashboard UI
 class TasksNotifier extends AutoDisposeFamilyAsyncNotifier<List<Task>, int> {
   List<TasksFilter> get filters => _filters;
@@ -127,33 +118,6 @@ class TasksNotifier extends AutoDisposeFamilyAsyncNotifier<List<Task>, int> {
     // reloadViewedGroups([groupId]);
   }
 
-  // Future<void> assignTask({required int taskId, required List<int> ids}) async {
-  //   Result<void> updateResult = await ref
-  //       .read(tasksServiceProvider)
-  //       .assignTaskToUsers(groupId: _groupResolvedId, taskId: taskId, ids: ids);
-
-  //   if (!updateResult.isSuccess) {
-  //     ref.read(appErrorProvider.notifier).setError(updateResult.error!);
-  //     return;
-  //   }
-  //   _reloadTasks();
-  // }
-
-  // Future<List<User>> assignedUsers(int taskId) async {
-  //   List<int> assignedUsersIds = !state.hasValue
-  //       ? []
-  //       : state.value!.where((t) => taskId == t.id).first.assignedTo;
-
-  //   Result<List<User>> usersResult =
-  //       await ref.read(usersServiceProvider).getCachedUsers(assignedUsersIds);
-
-  //   if (!usersResult.isSuccess) {
-  //     ref.read(appErrorProvider.notifier).setError(usersResult.error!);
-  //     return [];
-  //   }
-
-  //   return usersResult.data!;
-  // }
   Future<void> setAssignTask(
       {required int taskId, required List<int> ids}) async {
     int resolvedId = ref.read(outboxIdMapperProvider).resolveId(taskId);
@@ -208,7 +172,7 @@ class TasksNotifier extends AutoDisposeFamilyAsyncNotifier<List<Task>, int> {
         .read(loggerProvider)
         .d("Tasks provider: Reloading tasks for group $_groupResolvedId");
 
-    // Reloading the groups list for the dashboard
+    // If we are just reloading to filter, we dont ask the groups list provider to update itself
     if (!isFiltering) ref.read(groupsListProvider.notifier).reloadGroupsList();
 
     Result<List<Task>> result = await ref

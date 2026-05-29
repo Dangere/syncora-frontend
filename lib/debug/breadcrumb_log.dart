@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:syncora_frontend/core/analytics/breadcrumb.dart';
 import 'package:syncora_frontend/core/analytics/breadcrumbs_service.dart';
 
+/// Widget that displays the list of breadcrumbs for debugging
 class BreadcrumbLog extends StatefulWidget {
   const BreadcrumbLog({super.key});
 

@@ -5,6 +5,7 @@ import 'package:syncora_frontend/core/localization/generated/l10n/app_localizati
 import 'package:syncora_frontend/core/utils/dialogs.dart';
 
 class ProfilePopups {
+  /// Shows a dialog to choose an image source (camera or gallery)
   static Future<ImageSource?> chooseImageSource(BuildContext context) async {
     return await Dialogs.showContentDialog<ImageSource?>(context,
         barrierDismissible: true,

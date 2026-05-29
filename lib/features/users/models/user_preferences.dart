@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+/// Model holding user preferences
 class UserPreferences {
   final bool darkMode;
   final Locale locale;

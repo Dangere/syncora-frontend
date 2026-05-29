@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:syncora_frontend/core/constants/constants.dart';
 import 'package:syncora_frontend/core/report/report.dart';
 
+/// Class used to do requests to the backend to submit reports
 class RemoteReportRepository {
   final Dio _dio;
 

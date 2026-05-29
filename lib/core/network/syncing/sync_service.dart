@@ -6,6 +6,7 @@ import 'package:syncora_frontend/features/groups/repositories/local_groups_repos
 import 'package:syncora_frontend/features/tasks/repositories/local_tasks_repository.dart';
 import 'package:syncora_frontend/features/users/repositories/local_users_repository.dart';
 
+/// Service responsible for fetching and processing sync payload
 class SyncService {
   final SyncRepository _syncRepository;
   final LocalUsersRepository _localUsersRepository;
@@ -24,15 +25,6 @@ class SyncService {
       SyncPayload payload = await _syncRepository.sync(lastSyncTimestamp);
 
       await _syncRepository.storeSyncTimestamp(payload.timestamp);
-      return Result.success(payload);
-    } catch (e, stackTrace) {
-      return Result.failureError(e, stackTrace);
-    }
-  }
-
-  Future<Result<SyncPayload>> mapPayload(Map<String, dynamic> raw) async {
-    try {
-      SyncPayload payload = SyncPayload.fromJson(raw);
       return Result.success(payload);
     } catch (e, stackTrace) {
       return Result.failureError(e, stackTrace);

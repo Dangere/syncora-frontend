@@ -25,6 +25,7 @@ class TasksList extends ConsumerWidget {
 
     bool isOwner = ref.read(tasksProvider(groupId).notifier).isGroupOwner;
 
+    /// Displays a popup to assign users to a task and calculates the difference
     void assignUsersPopup(Task task) async {
       List<int> newAssigneesSet = await TasksPopups.assignedUsersPopup(
         context,
