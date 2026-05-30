@@ -1,3 +1,4 @@
+/// Info returned from Google when registering to be displayed to the user when they fill the [GoogleRegisterFilledInfo]
 class GoogleUserInfo {
   final String token;
   final String email;

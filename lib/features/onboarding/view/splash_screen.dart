@@ -14,7 +14,7 @@ class SplashScreen extends ConsumerStatefulWidget {
 
 class _SplashScreenState extends ConsumerState<SplashScreen> {
   Object? error;
-
+  // once the app has been initialized, go to the home page
   void goToApp() async {
     // Delay can be removed for faster loading
     await Future.delayed(Duration(seconds: 3));
@@ -24,6 +24,8 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
   @override
   Widget build(BuildContext context) {
     final lightMode = Theme.of(context).brightness == Brightness.light;
+
+    // calls the appInitializeProvider to check if the app has been initialized and awaits it's completion
     var initialize = ref.watch(appInitializeProvider);
 
     if (initialize.hasError) {

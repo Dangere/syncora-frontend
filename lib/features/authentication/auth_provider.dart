@@ -68,7 +68,7 @@ class AuthNotifier extends AsyncNotifier<AuthState> {
         AuthAuthenticated(result.data!.user.id, result.data!.isVerified));
   }
 
-  /// Uses a preselected GoogleUserInfo and user selected GoogleRegisterFilledInfo to register
+  /// Uses a preselected [GoogleUserInfo] and user selected [GoogleRegisterFilledInfo] to register
   void registerUsingGoogle(GoogleUserInfo googleUserInfo,
       GoogleRegisterFilledInfo userFilledInfo) async {
     if (state.isLoading || _isLoggedIn) return;
@@ -128,8 +128,6 @@ class AuthNotifier extends AsyncNotifier<AuthState> {
       state = const AsyncValue.data(AuthUnauthenticated());
       return;
     }
-
-    ref.read(loggerProvider).w(result.data!.userPreferences.toJson());
 
     // Save session and user data
     Result saveSessionResult = await _saveSession(
@@ -203,6 +201,7 @@ class AuthNotifier extends AsyncNotifier<AuthState> {
         AuthAuthenticated(result.data!.user.id, result.data!.isVerified));
   }
 
+  /// Logs the user in as a guest using a username
   void loginAsGuest(String username) async {
     if (state.isLoading || _isLoggedIn) return;
     state = const AsyncValue.loading();
@@ -370,6 +369,7 @@ class AuthNotifier extends AsyncNotifier<AuthState> {
     return value?.isAuthenticated == true || value?.isGuest == true;
   }
 
+  /// Saves session and user data
   Future<Result<void>> _saveSession(User user, bool isVerified, Tokens? tokens,
       UserPreferences? userPreferences) async {
     // Save data

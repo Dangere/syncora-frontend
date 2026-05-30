@@ -167,6 +167,7 @@ class TasksNotifier extends AutoDisposeFamilyAsyncNotifier<List<Task>, int> {
     _reloadTasks(isFiltering: true);
   }
 
+  /// Used to reload the tasks list from the database
   void _reloadTasks({bool isFiltering = false}) async {
     ref
         .read(loggerProvider)

@@ -7,7 +7,9 @@ import 'package:syncora_frontend/features/authentication/auth_provider.dart';
 import 'package:syncora_frontend/features/authentication/google_auth_type.dart';
 import 'package:syncora_frontend/features/authentication/models/google_user_info.dart';
 
-// Web implementation of the google auth button
+/// Web implementation of the google auth button
+///
+/// Uses a web specific button and returns the [GoogleUserInfo] to open the [GoogleSignUpPage]
 class GoogleAuthButton extends ConsumerWidget {
   const GoogleAuthButton({super.key, required this.type});
   final GoogleAuthType type;

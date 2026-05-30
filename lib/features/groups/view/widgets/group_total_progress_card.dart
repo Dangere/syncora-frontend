@@ -7,6 +7,7 @@ import 'package:syncora_frontend/features/groups/groups_provider.dart';
 import 'package:syncora_frontend/features/groups/models/group_progress.dart';
 import 'package:syncora_frontend/features/groups/view/widgets/group_progress_card.dart';
 
+/// Displays the total progress of the entire tasks in all groups
 class GroupTotalProgressCard extends ConsumerStatefulWidget {
   const GroupTotalProgressCard({super.key});
 

@@ -11,6 +11,7 @@ import 'package:syncora_frontend/core/utils/snack_bar_alerts.dart';
 import 'package:syncora_frontend/core/utils/validators.dart';
 import 'package:syncora_frontend/features/authentication/auth_provider.dart';
 
+/// Password reset page
 class PasswordResetPage extends ConsumerStatefulWidget {
   const PasswordResetPage({super.key});
 

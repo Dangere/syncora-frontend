@@ -28,7 +28,7 @@ class UserNotifier extends AsyncNotifier<void> {
     String? firstName,
     String? lastName,
   }) async {
-    if (!ref.read(isOnlineProvider)) {
+    if (!ref.read(isOnlineProvider) && !ref.read(isGuestProvider)) {
       return;
     }
     if (username == null && firstName == null && lastName == null) {

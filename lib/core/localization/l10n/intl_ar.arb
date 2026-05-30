@@ -325,6 +325,14 @@
     "@tasksPopup_AssignedMembers": {
         "description": "تسمية لقاء المستخدمين المعينين على المهمة"
     },
+    "tasksPopup_DeleteTask": "حذف المهمة",
+    "@tasksPopup_DeleteTask": {
+        "description": "تسمية زر حذف المهمة (تظهر للمالك)"
+    },
+    "tasksPopup_DeleteTask_Confirm": "هل انت متاكد انك تريد حذف هذه المهمة؟",
+    "@tasksPopup_DeleteTask_Confirm": {
+        "description": "رسالة تأكيد حذف المهمة (تظهر للمالك)"
+    },
     "settingsPopup_Password_Reset_title": "رابط إعادة تعيين كلمة المرور",
     "@settingsPopup_Password_Reset_title": {
         "description": "عنوان تنبيه إعادة تعيين كلمة المرور"

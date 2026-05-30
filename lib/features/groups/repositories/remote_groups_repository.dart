@@ -3,6 +3,7 @@ import 'package:syncora_frontend/core/constants/constants.dart';
 import 'package:syncora_frontend/features/users/models/user.dart';
 import 'package:syncora_frontend/features/groups/models/group_dto.dart';
 
+/// Class used to do remote API CRUD operations for groups
 class RemoteGroupsRepository {
   final Dio _dio;
 
@@ -25,19 +26,6 @@ class RemoteGroupsRepository {
       "description": description
     }).timeout(const Duration(seconds: 10));
   }
-
-  // Future<List<GroupDTO>> getAllGroups() async {
-  //   final response = await _dio
-  //       .get(
-  //         '${Constants.BASE_API_URL}/groups',
-  //       )
-  //       .timeout(const Duration(seconds: 10));
-
-  //   List<GroupDTO> groups =
-  //       (response.data as List).map((e) => GroupDTO.fromJson(e)).toList();
-
-  //   return groups;
-  // }
 
   Future<List<User>> addUsersToGroup(
       {required List<String> usernames, required int groupId}) async {

@@ -4,11 +4,11 @@ import 'package:go_router/go_router.dart';
 import 'package:sliver_tools/sliver_tools.dart';
 import 'package:syncora_frontend/common/providers/common_providers.dart';
 import 'package:syncora_frontend/common/themes/app_spacing.dart';
-import 'package:syncora_frontend/features/dashboard/view/pages/dashboard_page.dart';
 import 'package:syncora_frontend/features/groups/models/group.dart';
 import 'package:syncora_frontend/features/groups/view/widgets/group_panel.dart';
 import 'package:syncora_frontend/features/groups/groups_provider.dart';
 
+/// Displays a list of groups in a sliver
 class GroupsList extends ConsumerWidget {
   const GroupsList({super.key});
 
@@ -58,26 +58,5 @@ class GroupsList extends ConsumerWidget {
         ]),
       ),
     );
-
-    // return ListView.separated(
-    //   shrinkWrap: true,
-    //   padding: const EdgeInsets.symmetric(vertical: AppSpacing.lg / 2),
-    //   itemCount: groups.length,
-    //   itemBuilder: (context, index) {
-    //     return GestureDetector(
-    //       onTap: () {
-    //         context.push('/group/${groups[index].id}');
-    //       },
-    //       child: GroupPanel(
-    //         group: groups[index],
-    //       ),
-    //     );
-    //   },
-    //   separatorBuilder: (context, index) {
-    //     return const SizedBox(
-    //       height: 16,
-    //     );
-    //   },
-    // );
   }
 }

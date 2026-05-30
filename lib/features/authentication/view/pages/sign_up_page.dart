@@ -6,13 +6,13 @@ import 'package:syncora_frontend/common/widgets/app_button.dart';
 import 'package:syncora_frontend/common/widgets/input_field.dart';
 import 'package:syncora_frontend/common/widgets/overlay_loader.dart';
 import 'package:syncora_frontend/core/localization/generated/l10n/app_localizations.dart';
-import 'package:syncora_frontend/core/utils/snack_bar_alerts.dart';
 import 'package:syncora_frontend/core/utils/validators.dart';
 import 'package:syncora_frontend/features/authentication/auth_provider.dart';
 import 'package:syncora_frontend/features/authentication/google_auth_type.dart';
 
 import '../widgets/google_auth_button_stud.dart';
 
+/// Sign up page
 class SignUpPage extends ConsumerStatefulWidget {
   const SignUpPage({super.key});
 

@@ -13,12 +13,9 @@ import 'package:syncora_frontend/features/authentication/models/tokens.dart';
 import 'package:syncora_frontend/features/authentication/auth_repository.dart';
 import 'package:syncora_frontend/features/users/models/user_preferences.dart';
 
+/// Service layer for authentication
 class AuthService {
   final AuthRepository _authRepository;
-  // GoogleAuthType _googleAuthType = GoogleAuthType.signIn;
-
-  // This gets set by UI buttons to decide if the auth coming from a sign up or a sign in button
-  // void setGoogleAuthType(GoogleAuthType type) => _googleAuthType = type;
 
   AuthService({required AuthRepository authRepository})
       : _authRepository = authRepository;
@@ -57,6 +54,7 @@ class AuthService {
     }
   }
 
+  /// Login with google using the token of the user
   Future<Result<AuthResponseDTO>> loginWithGoogle(String token) async {
     try {
       AuthResponseDTO loginResponse =
@@ -68,6 +66,7 @@ class AuthService {
     }
   }
 
+  /// Uses the [GoogleUserInfo] and [GoogleRegisterFilledInfo] to register
   Future<Result<AuthResponseDTO>> registerUserWithGoogle(
       GoogleUserInfo googleUserInfo,
       GoogleRegisterFilledInfo userFilledInfo,
@@ -95,39 +94,7 @@ class AuthService {
     }
   }
 
-  // Future<Result<GoogleUserInfo>> getGoogleRegisterToken() async {
-  //   if (!(kIsWeb || Platform.isAndroid)) {
-  //     return Result.canceled(
-  //         "Google login is only available on Android and Web",
-  //         StackTrace.current);
-  //   }
-  //   _googleSignIn.signOut();
-
-  //   try {
-  //     final GoogleSignInAccount? googleAccount = await _googleSignIn.signIn();
-  //     if (googleAccount == null) {
-  //       return Result.canceled(
-  //           "Google registration canceled", StackTrace.current);
-  //     }
-
-  //     final GoogleSignInAuthentication googleAuthentication =
-  //         await googleAccount.authentication;
-
-  //     // We call the delegate to get the username and password from UI pop up
-  //     List<String> fullName = googleAccount.displayName?.split(" ") ?? [];
-  //     var userInfo = GoogleUserInfo(
-  //         token: googleAuthentication.idToken!,
-  //         email: googleAccount.email,
-  //         firstName: fullName.isNotEmpty ? fullName[0] : "",
-  //         lastName: fullName.length > 1 ? fullName[1] : "");
-
-  //     return Result.success(userInfo);
-  //   } catch (e, stackTrace) {
-  //     await _googleSignIn.signOut();
-  //     return Result.failureError(e, stackTrace);
-  //   }
-  // }
-
+  /// Refreshes the access token, if it is expired or invalid we call the onExpire callback
   Future<Result<Tokens>> refreshAccessToken(
       {required Tokens tokens,
       required VoidCallback onExpire,
@@ -147,6 +114,7 @@ class AuthService {
     }
   }
 
+  /// Sends a verification email
   Future<Result<void>> sendVerificationEmail() async {
     try {
       await _authRepository.sendVerificationEmail();
@@ -157,6 +125,7 @@ class AuthService {
     }
   }
 
+  /// Gets the verification status
   Future<Result<bool>> checkVerificationStatus() async {
     try {
       return Result.success(await _authRepository.checkVerificationStatus());
@@ -165,6 +134,7 @@ class AuthService {
     }
   }
 
+  /// Sends a password reset email to email
   Future<Result<void>> requestPasswordReset(String email) async {
     try {
       await _authRepository.requestPasswordReset(email);

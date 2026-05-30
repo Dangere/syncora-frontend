@@ -16,7 +16,7 @@ class FilterListItem<T extends Enum> {
       this.count});
 }
 
-// A widget that displays a list of filters that can be single or multi selected
+/// A widget that displays a list of filters that can be single or multi selected
 class FilterList<T extends Enum> extends ConsumerStatefulWidget {
   final List<T>? initialValue;
   final bool disable;
@@ -84,7 +84,6 @@ class _FilterListState<T extends Enum> extends ConsumerState<FilterList<T>> {
     return SizedBox(
         height: 30,
         child: ListView.separated(
-          // cacheExtent: 30,
           padding: const EdgeInsets.symmetric(horizontal: 24.0),
           scrollDirection: Axis.horizontal,
           itemCount: widget.items.length,

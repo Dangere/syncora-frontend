@@ -9,6 +9,7 @@ import 'package:syncora_frontend/features/authentication/auth_provider.dart';
 import 'package:syncora_frontend/features/groups/models/group.dart';
 import 'package:syncora_frontend/features/groups/view/widgets/compressed_members_display.dart';
 
+/// Displays the header of the group that displayed compressed members + the owner and the option to add users
 class GroupMembersDisplay extends ConsumerWidget {
   const GroupMembersDisplay(
       {super.key,

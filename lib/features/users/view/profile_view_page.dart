@@ -25,6 +25,7 @@ import 'package:syncora_frontend/features/users/providers/users_provider.dart';
 import 'package:syncora_frontend/features/users/view/profile_popups.dart';
 
 /// This page is used to view and edit a user's profile, if its used to view a user that isn't the current user, the edit mode is disabled
+/// If viewed by a guest they can only view and edit their username
 class ProfileViewPage extends ConsumerStatefulWidget {
   const ProfileViewPage({super.key, required this.userId});
 
@@ -293,7 +294,7 @@ class _ProfileViewPageState extends ConsumerState<ProfileViewPage> {
                   // EDIT BUTTON
                   SizedBox.square(
                     dimension: 40,
-                    child: (!isAccountOwner || isGuest)
+                    child: (!isAccountOwner)
                         ? null
                         : CircleAvatar(
                             radius: 20,
@@ -324,113 +325,145 @@ class _ProfileViewPageState extends ConsumerState<ProfileViewPage> {
                     key: _formKey,
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        // FIRST AND LAST NAME
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            // FIRST NAME
-                            Expanded(
-                              child: InputField(
+                      children: isGuest
+                          ? [
+                              // USERNAME
+                              InputField(
+                                suffixIcon: Icons.person_outline_rounded,
                                 keyboardType: TextInputType.name,
-                                hintText: AppLocalizations.of(context)
-                                    .signUpPage_Name_Field,
                                 labelText: AppLocalizations.of(context)
-                                    .signUpPage_FirstName,
-                                controller: firstNameController,
+                                    .signUpPage_Username,
+                                hintText: AppLocalizations.of(context)
+                                    .signUpPage_Username_Field,
+                                controller: usernameController,
                                 validator: (value) {
                                   if (value == null || value.isEmpty) {
                                     return AppLocalizations.of(context)
-                                        .validation_Name_Empty;
+                                        .validation_Username_Empty;
                                   }
 
-                                  if (Validators.validateName(value.trim()) ==
+                                  if (Validators.validateUsername(
+                                          value.trim()) ==
                                       false) {
                                     return AppLocalizations.of(context)
-                                        .validation_Name_Invalid;
+                                        .validation_Username_Invalid;
                                   }
                                   return null;
                                 },
                               ),
-                            ),
-                            AppSpacing.horizontalSpaceMd,
+                            ]
+                          : [
+                              // FIRST AND LAST NAME
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  // FIRST NAME
+                                  Expanded(
+                                    child: InputField(
+                                      keyboardType: TextInputType.name,
+                                      hintText: AppLocalizations.of(context)
+                                          .signUpPage_Name_Field,
+                                      labelText: AppLocalizations.of(context)
+                                          .signUpPage_FirstName,
+                                      controller: firstNameController,
+                                      validator: (value) {
+                                        if (value == null || value.isEmpty) {
+                                          return AppLocalizations.of(context)
+                                              .validation_Name_Empty;
+                                        }
 
-                            // LAST NAME
-                            Expanded(
-                              child: InputField(
+                                        if (Validators.validateName(
+                                                value.trim()) ==
+                                            false) {
+                                          return AppLocalizations.of(context)
+                                              .validation_Name_Invalid;
+                                        }
+                                        return null;
+                                      },
+                                    ),
+                                  ),
+                                  AppSpacing.horizontalSpaceMd,
+
+                                  // LAST NAME
+                                  Expanded(
+                                    child: InputField(
+                                      keyboardType: TextInputType.name,
+                                      hintText: AppLocalizations.of(context)
+                                          .signUpPage_Name_Field,
+                                      labelText: AppLocalizations.of(context)
+                                          .signUpPage_LastName,
+                                      controller: lastNameController,
+                                      validator: (value) {
+                                        if (value == null || value.isEmpty) {
+                                          return AppLocalizations.of(context)
+                                              .validation_Name_Empty;
+                                        }
+
+                                        if (Validators.validateName(
+                                                value.trim()) ==
+                                            false) {
+                                          return AppLocalizations.of(context)
+                                              .validation_Name_Invalid;
+                                        }
+                                        return null;
+                                      },
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 12),
+                              // USERNAME
+                              InputField(
+                                suffixIcon: Icons.person_outline_rounded,
                                 keyboardType: TextInputType.name,
-                                hintText: AppLocalizations.of(context)
-                                    .signUpPage_Name_Field,
                                 labelText: AppLocalizations.of(context)
-                                    .signUpPage_LastName,
-                                controller: lastNameController,
+                                    .signUpPage_Username,
+                                hintText: AppLocalizations.of(context)
+                                    .signUpPage_Username_Field,
+                                controller: usernameController,
                                 validator: (value) {
                                   if (value == null || value.isEmpty) {
                                     return AppLocalizations.of(context)
-                                        .validation_Name_Empty;
+                                        .validation_Username_Empty;
                                   }
 
-                                  if (Validators.validateName(value.trim()) ==
+                                  if (Validators.validateUsername(
+                                          value.trim()) ==
                                       false) {
                                     return AppLocalizations.of(context)
-                                        .validation_Name_Invalid;
+                                        .validation_Username_Invalid;
                                   }
                                   return null;
                                 },
                               ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 12),
-                        // USERNAME
-                        InputField(
-                          suffixIcon: Icons.person_outline_rounded,
-                          keyboardType: TextInputType.name,
-                          labelText:
-                              AppLocalizations.of(context).signUpPage_Username,
-                          hintText: AppLocalizations.of(context)
-                              .signUpPage_Username_Field,
-                          controller: usernameController,
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return AppLocalizations.of(context)
-                                  .validation_Username_Empty;
-                            }
+                              const SizedBox(height: 12),
+                              // EMAIL
+                              AbsorbPointer(
+                                absorbing: true,
+                                child: InputField(
+                                  suffixIcon: Icons.email_outlined,
+                                  labelText: AppLocalizations.of(context).email,
+                                  hintText:
+                                      AppLocalizations.of(context).email_Field,
+                                  keyboardType: TextInputType.emailAddress,
+                                  controller: emailController,
+                                  validator: (value) {
+                                    if (value == null || value.isEmpty) {
+                                      return AppLocalizations.of(context)
+                                          .validation_Email_Empty;
+                                    }
 
-                            if (Validators.validateUsername(value.trim()) ==
-                                false) {
-                              return AppLocalizations.of(context)
-                                  .validation_Username_Invalid;
-                            }
-                            return null;
-                          },
-                        ),
-                        const SizedBox(height: 12),
-                        // EMAIL
-                        AbsorbPointer(
-                          absorbing: true,
-                          child: InputField(
-                            suffixIcon: Icons.email_outlined,
-                            labelText: AppLocalizations.of(context).email,
-                            hintText: AppLocalizations.of(context).email_Field,
-                            keyboardType: TextInputType.emailAddress,
-                            controller: emailController,
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return AppLocalizations.of(context)
-                                    .validation_Email_Empty;
-                              }
-
-                              if (Validators.validateEmail(value.trim()) ==
-                                  false) {
-                                return AppLocalizations.of(context)
-                                    .validation_Email_Invalid;
-                              }
-                              return null;
-                            },
-                          ),
-                        ),
-                      ],
+                                    if (Validators.validateEmail(
+                                            value.trim()) ==
+                                        false) {
+                                      return AppLocalizations.of(context)
+                                          .validation_Email_Invalid;
+                                    }
+                                    return null;
+                                  },
+                                ),
+                              ),
+                            ],
                     ),
                   ),
                 ),

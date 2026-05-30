@@ -770,6 +770,18 @@ abstract class AppLocalizations {
   /// **'Assigned Members'**
   String get tasksPopup_AssignedMembers;
 
+  /// Button label to delete a task
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Task'**
+  String get tasksPopup_DeleteTask;
+
+  /// Confirmation message to confirm deleting a task (shown to owners)
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to delete this task?'**
+  String get tasksPopup_DeleteTask_Confirm;
+
   /// Title of the password reset alert
   ///
   /// In en, this message translates to:

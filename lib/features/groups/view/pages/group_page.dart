@@ -109,8 +109,6 @@ class GroupPageState extends ConsumerState<GroupPage> {
   @override
   Widget build(BuildContext context) {
     // This consumer will update whenever `groupViewProvider` updates BUT excludes `TasksList` because it updates itself internally
-    final lightMode = Theme.of(context).brightness == Brightness.light;
-
     return Consumer(
         child: TasksList(
           groupId: widget.groupId,

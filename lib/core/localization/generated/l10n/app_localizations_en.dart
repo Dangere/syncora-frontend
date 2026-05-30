@@ -351,6 +351,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get tasksPopup_AssignedMembers => 'Assigned Members';
 
   @override
+  String get tasksPopup_DeleteTask => 'Delete Task';
+
+  @override
+  String get tasksPopup_DeleteTask_Confirm =>
+      'Are you sure you want to delete this task?';
+
+  @override
   String get settingsPopup_Password_Reset_title => 'Password Reset Link';
 
   @override

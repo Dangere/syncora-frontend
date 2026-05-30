@@ -3,6 +3,7 @@ import 'package:syncora_frontend/core/data/database_tables.dart';
 import 'package:syncora_frontend/features/groups/groups_filter.dart';
 import 'package:syncora_frontend/features/groups/models/group_progress.dart';
 
+/// Statistics repository for groups calculated from the database
 class StatisticsRepository {
   final DatabaseManager _databaseManager;
 

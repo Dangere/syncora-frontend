@@ -13,6 +13,9 @@ import 'package:syncora_frontend/features/authentication/auth_provider.dart';
 import 'package:syncora_frontend/features/authentication/models/google_register_filled_info.dart';
 import 'package:syncora_frontend/features/authentication/models/google_user_info.dart';
 
+/// Google sign up page, shows up when the google auth button is used to sign up and generated a token
+///
+///  takes in [GoogleUserInfo] to fill in some parts of the form
 class GoogleSignUpPage extends ConsumerStatefulWidget {
   const GoogleSignUpPage({super.key, required this.googleUserInfo});
 

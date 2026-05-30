@@ -119,9 +119,10 @@ class TasksList extends ConsumerWidget {
                         onDelete: () async {
                           bool confirm = await Dialogs.showConfirmationDialog(
                               context,
-                              message:
-                                  "Are you sure you want to delete this task?",
-                              confirmText: "Delete");
+                              message: AppLocalizations.of(context)
+                                  .tasksPopup_DeleteTask_Confirm,
+                              confirmText: AppLocalizations.of(context)
+                                  .tasksPopup_DeleteTask);
                           if (confirm) {
                             ref
                                 .read(tasksProvider(groupId).notifier)

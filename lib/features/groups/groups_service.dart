@@ -11,12 +11,10 @@ import 'package:syncora_frontend/features/groups/models/group_progress.dart';
 import 'package:syncora_frontend/features/groups/repositories/local_groups_repository.dart';
 import 'package:syncora_frontend/features/groups/repositories/remote_groups_repository.dart';
 import 'package:syncora_frontend/features/groups/repositories/statistics_repository.dart';
-import 'package:syncora_frontend/features/groups/groups_provider.dart';
 import 'package:syncora_frontend/features/users/models/user.dart';
 import 'package:syncora_frontend/features/users/repositories/local_users_repository.dart';
 
-// If group is shared, user can leave and modify it when online only using remote requests
-// When its local group, the user can leave and modify it when online or offline
+/// Service responsible for fetching and processing groups
 class GroupsService {
   final LocalGroupsRepository _localGroupsRepository;
   final LocalUsersRepository _localUsersRepository;
@@ -193,7 +191,6 @@ class GroupsService {
   }
 
   // Deletes group by marking it as deleted which will be synced to server then fully deleted later
-  // TODO: Handle this when the user is in guest mode and have no server data
   Future<Result<void>> deleteGroup(int groupId) async {
     Result enqueueResult = await _enqueueEntry(EnqueueRequest(
       entry: OutboxEntry.entry(

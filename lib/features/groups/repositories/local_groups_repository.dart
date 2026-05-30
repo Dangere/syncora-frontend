@@ -5,6 +5,7 @@ import 'package:syncora_frontend/features/groups/groups_filter.dart';
 import 'package:syncora_frontend/features/groups/models/group.dart';
 import 'package:syncora_frontend/features/groups/models/group_dto.dart';
 
+/// Class used to interact with the groups database
 class LocalGroupsRepository {
   final DatabaseManager _databaseManager;
 
@@ -24,6 +25,7 @@ class LocalGroupsRepository {
     return groupQuery.isNotEmpty;
   }
 
+  /// Get all groups from the database using a list of filters and a search query
   Future<List<Group>> getAllGroups(
       List<GroupsFilter> filters, int userId, String? search) async {
     final db = await _databaseManager.getDatabase();
@@ -139,7 +141,7 @@ class LocalGroupsRepository {
     );
   }
 
-  // adds or updates groups and their members
+  /// Adds or updates groups and their members
   Future<void> upsertGroups(List<GroupDTO> groups) async {
     final db = await _databaseManager.getDatabase();
 
@@ -185,7 +187,7 @@ class LocalGroupsRepository {
     });
   }
 
-  // Method used to add or remove users from a group
+  /// Adds or remove users from a group
   Future<void> grantAccessToGroup(
       {required int groupId,
       required List<String> usernames,
@@ -244,7 +246,7 @@ class LocalGroupsRepository {
     }
   }
 
-  // Method used to mark group as deleted
+  /// Used to mark group as deleted
   Future<int> markGroupAsDeleted(int groupId) async {
     final db = await _databaseManager.getDatabase();
 
@@ -260,7 +262,7 @@ class LocalGroupsRepository {
         where: "id = ?", whereArgs: [groupId]);
   }
 
-  // Method used to wipe groups marked as deleted, it's paired with the purgeOrphanedUsers() method to clean users that dont belong to groups
+  /// Method used to wipe groups marked as deleted, it's paired with the purgeOrphanedUsers() from [LocalUsersRepository] method to clean users that dont belong to groups
   Future<int> wipeDeletedGroup(int groupId) async {
     final db = await _databaseManager.getDatabase();
 

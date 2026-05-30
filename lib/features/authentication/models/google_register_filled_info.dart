@@ -1,3 +1,4 @@
+/// Used to register a new user with Google, it contains the info the user filled to complete the registration
 class GoogleRegisterFilledInfo {
   final String username;
   final String password;

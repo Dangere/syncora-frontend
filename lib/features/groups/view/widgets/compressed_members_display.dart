@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:syncora_frontend/common/widgets/profile_picture.dart';
 
+/// Displays the members of a group in a compressed format using a list of ids
 class CompressedMembersDisplay extends StatelessWidget {
   const CompressedMembersDisplay({
     super.key,

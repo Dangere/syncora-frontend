@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:syncora_frontend/common/themes/app_theme.dart';
 import 'package:syncora_frontend/common/widgets/marquee_widget.dart';
 import 'package:syncora_frontend/common/widgets/progress_bar.dart';
-import 'package:syncora_frontend/core/analytics/breadcrumb.dart';
 import 'package:syncora_frontend/core/analytics/breadcrumb_type.dart';
 import 'package:syncora_frontend/core/analytics/breadcrumbs_service.dart';
 import 'package:syncora_frontend/core/localization/generated/l10n/app_localizations.dart';
@@ -13,6 +12,7 @@ enum GroupProgressCardStyle {
   menu,
 }
 
+/// Displays the progress of an individual group
 class GroupProgressCard extends StatelessWidget {
   const GroupProgressCard({
     super.key,

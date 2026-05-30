@@ -7,6 +7,7 @@ import 'package:syncora_frontend/features/authentication/models/auth_response_dt
 import 'package:syncora_frontend/features/authentication/models/tokens.dart';
 import 'package:syncora_frontend/features/users/models/user_preferences.dart';
 
+/// Class used to do remote API CRUD operations for authentication
 class AuthRepository {
   final Dio _dio;
   final Dio _unauthenticatedDio;

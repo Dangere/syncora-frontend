@@ -13,6 +13,7 @@ import 'package:syncora_frontend/features/authentication/google_auth_type.dart';
 
 import 'package:syncora_frontend/features/authentication/view/widgets/google_auth_button_stud.dart';
 
+/// Sign in page
 class SignInPage extends ConsumerStatefulWidget {
   const SignInPage({super.key});
 

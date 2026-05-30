@@ -353,6 +353,13 @@ class AppLocalizationsAr extends AppLocalizations {
   String get tasksPopup_AssignedMembers => 'المستخدمين المعينين';
 
   @override
+  String get tasksPopup_DeleteTask => 'حذف المهمة';
+
+  @override
+  String get tasksPopup_DeleteTask_Confirm =>
+      'هل انت متاكد انك تريد حذف هذه المهمة؟';
+
+  @override
   String get settingsPopup_Password_Reset_title =>
       'رابط إعادة تعيين كلمة المرور';
 

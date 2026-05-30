@@ -166,6 +166,7 @@ class GroupsListNotifier extends AutoDisposeAsyncNotifier<List<Group>> {
     reloadGroupsList();
   }
 
+  /// Used to force the groups being viewed to reload
   void _refreshViewedGroups(List<int> ids) {
     for (int id in ids) {
       if (ref.exists(tasksProvider(id))) {
@@ -190,57 +191,24 @@ class GroupsListNotifier extends AutoDisposeAsyncNotifier<List<Group>> {
     }
   }
 
+  /// Used to reload the groups list from the database
   void reloadGroupsList() async {
-    // Multiple calls to reload groups can happen at the same time (one for local changes and one for remote changes)
-    // if (_waitingToReloadGroupList) {
-    //   ref
-    //       .read(loggerProvider)
-    //       .d("Groups list provider: Waiting to reload group list again");
-    //   return;
-    // }
-
-    // if (state.isLoading) {
-    //   _waitingToReloadGroupList = true;
-    //   await Future.doWhile(() async {
-    //     ref
-    //         .read(loggerProvider)
-    //         .d("Groups list provider: reload group list is loading");
-    //     await Future.delayed(const Duration(seconds: 3));
-    //     return state.isLoading;
-    //   });
-    //   _waitingToReloadGroupList = false;
-    // }
-
     // If we aren't on the home page (not viewing the groups list), we schedule a reload
     if (ref.read(routeProvider).state.name != "home") {
       ref.read(loggerProvider).d(
           "Groups list provider: Tried to reload group list but not on home page");
 
-      // _waitingToReloadGroupList = true;
       return;
     }
 
-    // state = const AsyncValue.loading();
-
     ref.read(loggerProvider).d("Groups list provider: Reloading groups");
-    ref
-        .read(loggerProvider)
-        .f("reloadGroupsList on notifier ${identityHashCode(this)}");
 
     Result<List<Group>> fetchResult = await ref
         .read(groupsServiceProvider)
         .getCachedGroups(_filters, _search);
 
-    // Result fetchResult = await Result.wrapAsync(
-    //   () async {
-    //     return ref.read(localDbProvider).simulateError();
-    //   },
-    // );
-
     if (!fetchResult.isSuccess && !fetchResult.isCancelled) {
       ref.read(appErrorProvider.notifier).setError(fetchResult.error!);
-      // state = AsyncValue.error(
-      //     fetchResult.error!.errorObject, fetchResult.error!.stackTrace);
     } else {
       state = AsyncValue.data(fetchResult.data!);
     }
