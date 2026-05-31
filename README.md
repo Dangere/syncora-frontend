@@ -5,6 +5,8 @@
 
 ![Flutter](https://img.shields.io/badge/Flutter-3.x-blue)
 ![Platform](https://img.shields.io/badge/Platform-Android%20%7C%20iOS-lightgrey)
+![Riverpod](https://img.shields.io/pub/v/riverpod.svg?label=riverpod&color=blue)
+
 
 ## Features
 
@@ -16,6 +18,7 @@
 - Assign multiple members to tasks for personalized work
 - Notify other members in real-time when a task is completed or modified
 - Offline first support, app is completely accessible when offline and syncs back seamlessly when connected
+- Built in report system for bugs and errors
 
 ## Getting Started
 
@@ -38,11 +41,18 @@ flutter pub get
 ```
 
 ### Environment Setup
- Update `BASE_URL` in `lib/core/constants.dart` to point to your backend URL. <br/>
- Update `CLOUDINARY_API_KEY` and `CLOUDINARY_UPLOAD_URL` in `lib/core/image/cloudinary_image_repository.dart` to point to your [Cloudinary API](https://cloudinary.com).<br/>
- Update `CONTACT_EMAIL` to point to your contact email for support. 
+ Update `lib/core/constants.dart` contents to your liking and configuration. <br/>
 
- Update `apk_release_qr.png` in `assets/images` and update `APK_DOWNLOAD_URL` in `lib/core/constants.dart` to point to your android APK site. <br/>
+ 
+ **Notes:**
+ - `BASE_URL`: points to your backend URL
+ - `CONTACT_EMAIL`: point to your contact email for support
+ - `APK_DOWNLOAD_URL`: points to your mobile APK download URL (for web version only)
+
+Update `apk_release_qr.png` in `assets/images` to a QR code to download mobile APK (for web version only)
+
+
+Update `CLOUDINARY_API_KEY` and `CLOUDINARY_UPLOAD_URL` in `lib/core/image/cloudinary_image_repository.dart` to point to your [Cloudinary API](https://cloudinary.com).
  
 
 ### Running
@@ -55,7 +65,23 @@ flutter run
 flutter run --release
 ```
 
-The flag `--source-maps` is needed for web release builds for converting stack traces to dart code when error reporting, excluding it will simply show dart2js-compiled JavaScript instead.
+> The flag `--source-maps` is needed for web release builds for converting stack traces to dart code when error reporting, excluding it will simply show dart2js-compiled JavaScript instead.
+
+## Deployment
+
+### CI/CD GitHub Actions
+
+The frontend has two automated workflows available in `.github/workflows`.
+
+ 1. Web: Deploy to GitHub Pages<br/>
+    Triggers on every push to `main`. Builds the Flutter web app and publishes it to the `gh-pages` branch.
+> `--source-maps` is included so built in reporters can map stack traces back to Dart source instead of compiled JavaScript.
+
+ 2. Android: Build APK and Draft Release<br/>
+    Triggered manually via `workflow_dispatch`. Builds a release APK and creates a **draft** GitHub Release pre-attached with the APK. Open the draft on GitHub, fill in the version and release notes, then publish.
+
+
+No secrets are required beyond the default `GITHUB_TOKEN` for both workflows.
 
 ## Built With
 
