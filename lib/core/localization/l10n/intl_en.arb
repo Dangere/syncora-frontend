@@ -449,6 +449,10 @@
   "@appError_TaskNotFound": {
     "description": "Error when the requested task does not exist"
   },
+  "appError_TaskDetailsUnchanged": "Task details are unchanged",
+  "@appError_TaskDetailsUnchanged": {
+    "description": "Error when the submitted task details are identical to the existing ones"
+  },
   "appError_AccessDenied": "You don't have permission to perform this action",
   "@appError_AccessDenied": {
     "description": "Error when the user lacks permission for the requested action"

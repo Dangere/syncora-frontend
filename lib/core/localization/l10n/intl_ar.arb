@@ -453,6 +453,10 @@
     "@appError_TaskNotFound": {
         "description": "خطأ عند عدم وجود المهمة المطلوبة"
     },
+    "appError_TaskDetailsUnchanged": "تفاصيل المهمة لم تتغير",
+    "@appError_TaskDetailsUnchanged": {
+        "description": "خطاء عند تطابق تفاصيل المهمة المُرسلة مع الموجودة"
+    },
     "appError_AccessDenied": "ليس لديك صلاحية لتنفيذ هذا الإجراء",
     "@appError_AccessDenied": {
         "description": "خطأ عند افتقار المستخدم للصلاحية اللازمة"

@@ -454,6 +454,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get appError_TaskNotFound => 'المهمة غير موجودة';
 
   @override
+  String get appError_TaskDetailsUnchanged => 'تفاصيل المهمة لم تتغير';
+
+  @override
   String get appError_AccessDenied => 'ليس لديك صلاحية لتنفيذ هذا الإجراء';
 
   @override

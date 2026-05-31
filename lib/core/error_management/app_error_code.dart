@@ -7,6 +7,7 @@ enum AppErrorCode {
 
   // Task errors
   TASK_NOT_FOUND,
+  TASK_DETAILS_UNCHANGED,
 
   // Access / permission errors
   ACCESS_DENIED,

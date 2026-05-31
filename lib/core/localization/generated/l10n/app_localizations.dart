@@ -956,6 +956,12 @@ abstract class AppLocalizations {
   /// **'Task not found'**
   String get appError_TaskNotFound;
 
+  /// Error when the submitted task details are identical to the existing ones
+  ///
+  /// In en, this message translates to:
+  /// **'Task details are unchanged'**
+  String get appError_TaskDetailsUnchanged;
+
   /// Error when the user lacks permission for the requested action
   ///
   /// In en, this message translates to:

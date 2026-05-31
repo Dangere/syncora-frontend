@@ -452,6 +452,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get appError_TaskNotFound => 'Task not found';
 
   @override
+  String get appError_TaskDetailsUnchanged => 'Task details are unchanged';
+
+  @override
   String get appError_AccessDenied =>
       'You don\'t have permission to perform this action';
 

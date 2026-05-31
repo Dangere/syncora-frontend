@@ -87,6 +87,8 @@ class LocalizeAppErrors {
         return appLocalizations.appError_Unknown;
       case AppErrorCode.DATABASE_ERROR:
         return appLocalizations.appError_Fetal;
+      case AppErrorCode.TASK_DETAILS_UNCHANGED:
+        return appLocalizations.appError_TaskDetailsUnchanged;
     }
   }
 }
