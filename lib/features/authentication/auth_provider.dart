@@ -334,6 +334,7 @@ class AuthNotifier extends AsyncNotifier<AuthState> {
     }
   }
 
+  /// Updates the verification status of the user, gets called by the server
   void updateVerificationStatus() async {
     // Only continue if we are authenticated
     if (!state.hasValue || !state.value!.isAuthenticated) {
@@ -347,6 +348,11 @@ class AuthNotifier extends AsyncNotifier<AuthState> {
 
     SnackBarAlerts.showSuccessSnackBar(
         AppLocalizations.of(context).verification_done, context);
+  }
+
+  /// Gets called by the server when the user changes their password
+  void notifyPasswordChanged() async {
+    logout();
   }
 
   /// Takes an email and sends a password reset email

@@ -96,6 +96,10 @@ class SyncBackendNotifier extends AsyncNotifier<SyncState>
         .read(signalRClientProvider)
         .on("ReceiveVerification", (p0) => _receiveVerification(p0));
 
+    ref
+        .read(signalRClientProvider)
+        .on("ReceivePasswordChanged", (p0) => _receivePasswordChanged(p0));
+
     ref.onDispose(() => WidgetsBinding.instance.removeObserver(this));
 
     return const SyncDisconnected();
@@ -170,13 +174,17 @@ class SyncBackendNotifier extends AsyncNotifier<SyncState>
     ref.read(authProvider.notifier).updateVerificationStatus();
   }
 
+  void _receivePasswordChanged(List<Object?>? p0) {
+    ref.read(authProvider.notifier).notifyPasswordChanged();
+  }
+
   // Handling when the app is resumed, recalling the sync just to make sure we are up to date
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    // if (state == AppLifecycleState.resumed) {
-    //   ref.read(loggerProvider).d("Sync Notifier: syncing on resume");
-    //   _refreshData();
-    // }
+    if (state == AppLifecycleState.resumed) {
+      ref.read(loggerProvider).d("Sync Notifier: syncing on resume");
+      refreshData();
+    }
   }
 }
 
